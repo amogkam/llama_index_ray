@@ -1,0 +1,1477 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Batch Inference with OPT 30B and Ray Data &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/js/versionwarning.js"></script>
+    <script src="../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../_static/js/docsearch.js"></script>
+    <script src="../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../_static/js/top-navigation.js"></script>
+    <script src="../../_static/js/tags.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/ray-air/examples/opt_deepspeed_batch_inference.html" />
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Training a Torch Image Classifier" href="torch_image_example.html" />
+    <link rel="prev" title="Examples" href="index.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "ray-air/examples/opt_deepspeed_batch_inference", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".ipynb", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../user-guides.html">
+     User Guides
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="index.html">
+     Examples
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3 current active">
+      <a class="current reference internal" href="opt_deepspeed_batch_inference.html#">
+       Batch Inference with OPT 30B and Ray Data
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="torch_image_example.html">
+       Training a Torch Image Classifier
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="torch_detection.html">
+       Fine-tuning a Torch object detection model
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="convert_existing_pytorch_code_to_ray_air.html">
+       Convert existing PyTorch code to Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="convert_existing_tf_code_to_ray_air.html">
+       Convert existing Tensorflow/Keras code to Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tfx_tabular_train_to_serve.html">
+       Tabular data training and serving with Keras and Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="huggingface_text_classification.html">
+       Fine-tune a 🤗 Transformers model
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="sklearn_example.html">
+       Training a model with Sklearn
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="xgboost_example.html">
+       Training a model with distributed XGBoost
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="analyze_tuning_results.html">
+       Hyperparameter tuning with XGBoostTrainer
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="lightgbm_example.html">
+       Training a model with distributed LightGBM
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="torch_incremental_learning.html">
+       Incremental Learning with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rl_serving_example.html">
+       Serving reinforcement learning policy models
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rl_online_example.html">
+       Online reinforcement learning with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rl_offline_example.html">
+       Offline reinforcement learning with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="upload_to_comet_ml.html">
+       Logging results and uploading models to Comet ML
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="upload_to_wandb.html">
+       Logging results and uploading models to Weights &amp; Biases
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="feast_example.html">
+       Integrate Ray AIR with Feast feature store
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="automl_with_ray_air.html">
+       AutoML for time series forecasting with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="batch_tuning.html">
+       Batch training &amp; tuning on Ray Tune
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="batch_forecasting.html">
+       Parallel demand forecasting at scale using Ray Tune
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="stablediffusion_batch_prediction.html">
+       Stable Diffusion Batch Prediction with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gptj_deepspeed_fine_tuning.html">
+       GPT-J-6B Fine-Tuning with Ray AIR and DeepSpeed
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gptj_batch_prediction.html">
+       GPT-J-6B Batch Prediction with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gptj_serving.html">
+       GPT-J-6B Serving with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="dreambooth_finetuning.html">
+       Fine-tuning DreamBooth with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="dolly_lightning_fsdp_finetuning.html">
+       Fine-tune
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         dolly-v2-7b
+        </span>
+       </code>
+       with Ray AIR LightningTrainer and FSDP
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/api.html">
+     Ray AIR API
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../benchmarks.html">
+     Benchmarks
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tune.html">
+   Ray Tune
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Fray-air/examples/opt_deepspeed_batch_inference.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/ray-air/examples/opt_deepspeed_batch_inference.ipynb"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../_sources/ray-air/examples/opt_deepspeed_batch_inference.ipynb.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.ipynb</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="opt_deepspeed_batch_inference.html#set-up">
+   Set Up
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="opt_deepspeed_batch_inference.html#define-hyperparameters">
+   Define Hyperparameters
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="opt_deepspeed_batch_inference.html#download-and-cache-model">
+   Download and Cache Model
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="opt_deepspeed_batch_inference.html#define-deepspeed-utility-classes">
+   Define DeepSpeed Utility Classes
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="opt_deepspeed_batch_inference.html#define-a-deepspeed-predictor">
+   Define a DeepSpeed Predictor
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="opt_deepspeed_batch_inference.html#create-a-dataset-pipeline">
+   Create a Dataset Pipeline
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Batch Inference with OPT 30B and Ray Data</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="opt_deepspeed_batch_inference.html#set-up">
+   Set Up
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="opt_deepspeed_batch_inference.html#define-hyperparameters">
+   Define Hyperparameters
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="opt_deepspeed_batch_inference.html#download-and-cache-model">
+   Download and Cache Model
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="opt_deepspeed_batch_inference.html#define-deepspeed-utility-classes">
+   Define DeepSpeed Utility Classes
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="opt_deepspeed_batch_inference.html#define-a-deepspeed-predictor">
+   Define a DeepSpeed Predictor
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="opt_deepspeed_batch_inference.html#create-a-dataset-pipeline">
+   Create a Dataset Pipeline
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section class="tex2jax_ignore mathjax_ignore" id="batch-inference-with-opt-30b-and-ray-data">
+<h1>Batch Inference with OPT 30B and Ray Data<a class="headerlink" href="opt_deepspeed_batch_inference.html#batch-inference-with-opt-30b-and-ray-data" title="Permalink to this headline">#</a></h1>
+<p>This notebook was tested on a single p3.16xlarge instance with 8 V100 GPUs.</p>
+<section id="set-up">
+<h2>Set Up<a class="headerlink" href="opt_deepspeed_batch_inference.html#set-up" title="Permalink to this headline">#</a></h2>
+<p>Initialize Ray and a runtime environment to ensure that all dependent packages are available.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ray</span>
+
+<span class="n">ray</span><span class="o">.</span><span class="n">init</span><span class="p">(</span>
+    <span class="n">runtime_env</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;pip&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;numpy==1.23&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;protobuf==3.20.0&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;transformers==4.27.2&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;accelerate==0.17.1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;deepspeed==0.8.3&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;env_vars&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;HF_HUB_DISABLE_PROGRESS_BARS&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-04-22 11:12:15,071	INFO worker.py:1314 -- Using address localhost:9031 set in the environment variable RAY_ADDRESS
+fatal: not a git repository (or any parent up to mount point /home/ray)
+Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).
+2023-04-22 11:12:15,676	INFO worker.py:1432 -- Connecting to existing Ray cluster at address: 172.31.244.129:9031...
+2023-04-22 11:12:15,724	INFO worker.py:1607 -- Connected to Ray cluster. View the dashboard at https://console.anyscale.com/api/v2/sessions/ses_jgkdnu2723aleytwqqhebr12vs/services?redirect_to=dashboard 
+2023-04-22 11:12:15,732	INFO packaging.py:347 -- Pushing file package &#39;gcs://_ray_pkg_7ad665e3661cefc8f8037daeb0b5ba6e.zip&#39; (0.03MiB) to Ray cluster...
+2023-04-22 11:12:15,733	INFO packaging.py:360 -- Successfully pushed file package &#39;gcs://_ray_pkg_7ad665e3661cefc8f8037daeb0b5ba6e.zip&#39;.
+</pre></div>
+</div>
+<div class="output text_html"><div>
+    <div style="margin-left: 50px;display: flex;flex-direction: row;align-items: center">
+        <h3 style="color: var(--jp-ui-font-color0)">Ray</h3>
+        <svg version="1.1" id="ray" width="3em" viewBox="0 0 144.5 144.6" style="margin-left: 3em;margin-right: 3em">
+            <g id="layer-1">
+                <path fill="#00a2e9" class="st0" d="M97.3,77.2c-3.8-1.1-6.2,0.9-8.3,5.1c-3.5,6.8-9.9,9.9-17.4,9.6S58,88.1,54.8,81.2c-1.4-3-3-4-6.3-4.1
+                    c-5.6-0.1-9.9,0.1-13.1,6.4c-3.8,7.6-13.6,10.2-21.8,7.6C5.2,88.4-0.4,80.5,0,71.7c0.1-8.4,5.7-15.8,13.8-18.2
+                    c8.4-2.6,17.5,0.7,22.3,8c1.3,1.9,1.3,5.2,3.6,5.6c3.9,0.6,8,0.2,12,0.2c1.8,0,1.9-1.6,2.4-2.8c3.5-7.8,9.7-11.8,18-11.9
+                    c8.2-0.1,14.4,3.9,17.8,11.4c1.3,2.8,2.9,3.6,5.7,3.3c1-0.1,2,0.1,3,0c2.8-0.5,6.4,1.7,8.1-2.7s-2.3-5.5-4.1-7.5
+                    c-5.1-5.7-10.9-10.8-16.1-16.3C84,38,81.9,37.1,78,38.3C66.7,42,56.2,35.7,53,24.1C50.3,14,57.3,2.8,67.7,0.5
+                    C78.4-2,89,4.7,91.5,15.3c0.1,0.3,0.1,0.5,0.2,0.8c0.7,3.4,0.7,6.9-0.8,9.8c-1.7,3.2-0.8,5,1.5,7.2c6.7,6.5,13.3,13,19.8,19.7
+                    c1.8,1.8,3,2.1,5.5,1.2c9.1-3.4,17.9-0.6,23.4,7c4.8,6.9,4.6,16.1-0.4,22.9c-5.4,7.2-14.2,9.9-23.1,6.5c-2.3-0.9-3.5-0.6-5.1,1.1
+                    c-6.7,6.9-13.6,13.7-20.5,20.4c-1.8,1.8-2.5,3.2-1.4,5.9c3.5,8.7,0.3,18.6-7.7,23.6c-7.9,5-18.2,3.8-24.8-2.9
+                    c-6.4-6.4-7.4-16.2-2.5-24.3c4.9-7.8,14.5-11,23.1-7.8c3,1.1,4.7,0.5,6.9-1.7C91.7,98.4,98,92.3,104.2,86c1.6-1.6,4.1-2.7,2.6-6.2
+                    c-1.4-3.3-3.8-2.5-6.2-2.6C99.8,77.2,98.9,77.2,97.3,77.2z M72.1,29.7c5.5,0.1,9.9-4.3,10-9.8c0-0.1,0-0.2,0-0.3
+                    C81.8,14,77,9.8,71.5,10.2c-5,0.3-9,4.2-9.3,9.2c-0.2,5.5,4,10.1,9.5,10.3C71.8,29.7,72,29.7,72.1,29.7z M72.3,62.3
+                    c-5.4-0.1-9.9,4.2-10.1,9.7c0,0.2,0,0.3,0,0.5c0.2,5.4,4.5,9.7,9.9,10c5.1,0.1,9.9-4.7,10.1-9.8c0.2-5.5-4-10-9.5-10.3
+                    C72.6,62.3,72.4,62.3,72.3,62.3z M115,72.5c0.1,5.4,4.5,9.7,9.8,9.9c5.6-0.2,10-4.8,10-10.4c-0.2-5.4-4.6-9.7-10-9.7
+                    c-5.3-0.1-9.8,4.2-9.9,9.5C115,72.1,115,72.3,115,72.5z M19.5,62.3c-5.4,0.1-9.8,4.4-10,9.8c-0.1,5.1,5.2,10.4,10.2,10.3
+                    c5.6-0.2,10-4.9,9.8-10.5c-0.1-5.4-4.5-9.7-9.9-9.6C19.6,62.3,19.5,62.3,19.5,62.3z M71.8,134.6c5.9,0.2,10.3-3.9,10.4-9.6
+                    c0.5-5.5-3.6-10.4-9.1-10.8c-5.5-0.5-10.4,3.6-10.8,9.1c0,0.5,0,0.9,0,1.4c-0.2,5.3,4,9.8,9.3,10
+                    C71.6,134.6,71.7,134.6,71.8,134.6z"/>
+            </g>
+        </svg>
+        <table>
+            <tr>
+                <td style="text-align: left"><b>Python version:</b></td>
+                <td style="text-align: left"><b>3.9.15</b></td>
+            </tr>
+            <tr>
+                <td style="text-align: left"><b>Ray version:</b></td>
+                <td style="text-align: left"><b> 3.0.0.dev0</b></td>
+            </tr>
+            <tr>
+    <td style="text-align: left"><b>Dashboard:</b></td>
+    <td style="text-align: left"><b><a href="http://console.anyscale.com/api/v2/sessions/ses_jgkdnu2723aleytwqqhebr12vs/services?redirect_to=dashboard" target="_blank">http://console.anyscale.com/api/v2/sessions/ses_jgkdnu2723aleytwqqhebr12vs/services?redirect_to=dashboard</a></b></td>
+</tr>
+
+        </table>
+    </div>
+</div>
+</div></div>
+</div>
+</section>
+<section id="define-hyperparameters">
+<h2>Define Hyperparameters<a class="headerlink" href="opt_deepspeed_batch_inference.html#define-hyperparameters" title="Permalink to this headline">#</a></h2>
+<p>Define a list of hyperparameters as a global dataclass.</p>
+<p>Refer to https://deepspeed.readthedocs.io/en/stable/inference-init.html#deepspeed.inference.config.DeepSpeedInferenceConfig for more details about the configurations of a DeepSpeed inference job.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">Config</span><span class="p">:</span>
+    <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;facebook/opt-30b&quot;</span>
+    <span class="c1"># Path to HuggingFace cache directory. Default is ~/.cache/huggingface/.</span>
+    <span class="n">cache_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1"># Path to the directory that actually holds model files.</span>
+    <span class="c1"># e.g., ~/.cache/huggingface/models--facebook--opt-30b/snapshots/xxx/</span>
+    <span class="c1"># If this path is not None, we skip download models from HuggingFace.</span>
+    <span class="n">repo_root</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1"># This is how many DeepSpeed-inference replicas to run for</span>
+    <span class="c1"># this batch inference job.</span>
+    <span class="n">num_worker_groups</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="c1"># Number of DeepSpeed workers per group.</span>
+    <span class="n">num_workers_per_group</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span>
+
+    <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">dtype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;float16&quot;</span>
+    <span class="c1"># Maximum number of tokens DeepSpeed inference-engine can work with,</span>
+    <span class="c1"># including the input and output tokens.</span>
+    <span class="n">max_tokens</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span>
+    <span class="c1"># Use meta tensors to initialize model.</span>
+    <span class="n">use_meta_tensor</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="c1"># Use cache for generation.</span>
+    <span class="n">use_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="c1"># The path for which we want to save the loaded model with a checkpoint.</span>
+    <span class="n">save_mp_checkpoint_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">Config</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="download-and-cache-model">
+<h2>Download and Cache Model<a class="headerlink" href="opt_deepspeed_batch_inference.html#download-and-cache-model" title="Permalink to this headline">#</a></h2>
+<p>Next, we will download and cache model files on all instances of the cluster before we run the job.</p>
+<p>Notice that when we download model snapshots from HuggingFace, we skip files that end with safetensors, msgpack, and h5 extensions. These are Tensorflow and JAX weight files. We only need PyTorch weights for this example.</p>
+<p>We execute the <code class="docutils literal notranslate"><span class="pre">download_model()</span></code> function on every node of the cluster by using a <code class="docutils literal notranslate"><span class="pre">NodeAffinitySchedulingStrategy</span></code> from Ray Core.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">huggingface_hub</span> <span class="kn">import</span> <span class="n">snapshot_download</span>
+<span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">from</span> <span class="nn">ray.util.scheduling_strategies</span> <span class="kn">import</span> <span class="n">NodeAffinitySchedulingStrategy</span>
+
+
+<span class="nd">@ray</span><span class="o">.</span><span class="n">remote</span>
+<span class="k">def</span> <span class="nf">download_model</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">):</span>
+    <span class="c1"># This function downloads the specified HF model into a local directory.</span>
+    <span class="c1"># This can also download models from cloud storages like S3.</span>
+    <span class="k">return</span> <span class="n">snapshot_download</span><span class="p">(</span>
+        <span class="n">repo_id</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span>
+        <span class="n">cache_dir</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">,</span>
+        <span class="n">allow_patterns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">],</span>
+        <span class="c1"># Skip downloading TF and FLAX weight files.</span>
+        <span class="n">ignore_patterns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;*.safetensors&quot;</span><span class="p">,</span> <span class="s2">&quot;*.msgpack&quot;</span><span class="p">,</span> <span class="s2">&quot;*.h5&quot;</span><span class="p">],</span>
+        <span class="n">revision</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span>
+
+<span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">repo_root</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># Download model files to all GPU nodes, and set correct repo_root.</span>
+    <span class="n">refs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">ray</span><span class="o">.</span><span class="n">nodes</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;Alive&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;Resources&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GPU&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="n">node_id</span> <span class="o">=</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;NodeID&quot;</span><span class="p">]</span>
+            <span class="n">scheduling_strategy</span> <span class="o">=</span> <span class="n">NodeAffinitySchedulingStrategy</span><span class="p">(</span>
+                <span class="n">node_id</span><span class="o">=</span><span class="n">node_id</span><span class="p">,</span> <span class="n">soft</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">)</span>
+            <span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;scheduling_strategy&quot;</span><span class="p">:</span> <span class="n">scheduling_strategy</span><span class="p">}</span>
+            <span class="n">refs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">download_model</span><span class="o">.</span><span class="n">options</span><span class="p">(</span><span class="n">scheduling_strategy</span><span class="o">=</span><span class="n">scheduling_strategy</span><span class="p">)</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Caching model locally ...&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Wait for models to finish downloading.</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">repo_root</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">refs</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Done. Model saved in </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">repo_root</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using existing model saved in </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">repo_root</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Caching model locally ...
+Done. Model saved in /home/ray/.cache/huggingface/hub/models--facebook--opt-30b/snapshots/ceea0a90ac0f6fae7c2c34bcb40477438c152546
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="define-deepspeed-utility-classes">
+<h2>Define DeepSpeed Utility Classes<a class="headerlink" href="opt_deepspeed_batch_inference.html#define-deepspeed-utility-classes" title="Permalink to this headline">#</a></h2>
+<p>Next, we define a few utility classes and functions that are useful for setting up and running the DeepSpeed inference job.</p>
+<p>Note that the Pipeline is modeled after https://github.com/microsoft/DeepSpeedExamples/tree/efacebb3ddbea86bb20c3af30fd060be0fa41ac8/inference/huggingface/text-generation.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">gc</span>
+<span class="kn">import</span> <span class="nn">io</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+
+<span class="kn">import</span> <span class="nn">deepspeed</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">deepspeed.runtime.utils</span> <span class="kn">import</span> <span class="n">see_memory_usage</span>
+<span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">AutoConfig</span><span class="p">,</span> <span class="n">AutoModelForCausalLM</span><span class="p">,</span> <span class="n">AutoTokenizer</span>
+
+
+<span class="k">class</span> <span class="nc">DSPipeline</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Example helper class for comprehending DeepSpeed Meta Tensors, meant to mimic HF pipelines.</span>
+<span class="sd">    The DSPipeline can run with and without meta tensors.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">model_name</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float16</span><span class="p">,</span>
+        <span class="n">is_meta</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">device</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">repo_root</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_name</span> <span class="o">=</span> <span class="n">model_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">dtype</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">device</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;cuda:</span><span class="si">{</span><span class="n">device</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">padding_side</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">pad_token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">eos_token</span>
+
+        <span class="k">if</span> <span class="n">is_meta</span><span class="p">:</span>
+            <span class="c1"># When meta tensors enabled, use checkpoints</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">AutoConfig</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">checkpoints_json</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_json</span><span class="p">(</span><span class="n">repo_root</span><span class="p">)</span>
+
+            <span class="k">with</span> <span class="n">deepspeed</span><span class="o">.</span><span class="n">OnDevice</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">&quot;meta&quot;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">AutoModelForCausalLM</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">AutoModelForCausalLM</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">input_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">inputs</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">inputs</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_outputs</span><span class="p">(</span><span class="n">input_list</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">outputs</span>
+
+    <span class="k">def</span> <span class="nf">_generate_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repo_root</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">repo_root</span><span class="p">,</span> <span class="s2">&quot;ds_inference_config.json&quot;</span><span class="p">)):</span>
+            <span class="c1"># Simply use the available inference config.</span>
+            <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">repo_root</span><span class="p">,</span> <span class="s2">&quot;ds_inference_config.json&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Write a checkpoints config file in local directory.</span>
+        <span class="n">checkpoints_json</span> <span class="o">=</span> <span class="s2">&quot;checkpoints.json&quot;</span>
+
+        <span class="k">with</span> <span class="n">io</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">checkpoints_json</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">file_list</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">Path</span><span class="p">(</span><span class="n">repo_root</span><span class="p">)</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s2">&quot;*.[bp][it][n]&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span>
+            <span class="p">]</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="c1"># Hardcode bloom for now.</span>
+                <span class="c1"># Possible choices are &quot;bloom&quot;, &quot;ds_model&quot;, &quot;Megatron&quot;.</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;bloom&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;checkpoints&quot;</span><span class="p">:</span> <span class="n">file_list</span><span class="p">,</span>
+                <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="mf">1.0</span>
+            <span class="p">}</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">checkpoints_json</span>
+
+    <span class="k">def</span> <span class="nf">generate_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="o">**</span><span class="n">generate_kwargs</span><span class="p">):</span>
+        <span class="n">input_tokens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">batch_encode_plus</span><span class="p">(</span>
+            <span class="n">inputs</span><span class="p">,</span> <span class="n">return_tensors</span><span class="o">=</span><span class="s2">&quot;pt&quot;</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">input_tokens</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">is_tensor</span><span class="p">(</span><span class="n">input_tokens</span><span class="p">[</span><span class="n">t</span><span class="p">]):</span>
+                <span class="n">input_tokens</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">input_tokens</span><span class="p">[</span><span class="n">t</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
+        <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="o">**</span><span class="n">input_tokens</span><span class="p">,</span> <span class="o">**</span><span class="n">generate_kwargs</span><span class="p">)</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">batch_decode</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">skip_special_tokens</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">outputs</span>
+
+
+<span class="k">def</span> <span class="nf">_memory_usage</span><span class="p">(</span><span class="n">gpu_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Print memory usage.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">gpu_id</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">see_memory_usage</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">init_model</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span> <span class="n">world_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">gpu_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DSPipeline</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Initialize the deepspeed model.&quot;&quot;&quot;</span>
+    <span class="n">data_type</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">torch</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+
+    <span class="n">_memory_usage</span><span class="p">(</span><span class="n">gpu_id</span><span class="p">,</span> <span class="s2">&quot;before init&quot;</span><span class="p">)</span>
+    <span class="n">pipe</span> <span class="o">=</span> <span class="n">DSPipeline</span><span class="p">(</span>
+        <span class="n">model_name</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="n">data_type</span><span class="p">,</span>
+        <span class="n">is_meta</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">use_meta_tensor</span><span class="p">,</span>
+        <span class="n">device</span><span class="o">=</span><span class="n">gpu_id</span><span class="p">,</span>
+        <span class="n">repo_root</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">repo_root</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">_memory_usage</span><span class="p">(</span><span class="n">gpu_id</span><span class="p">,</span> <span class="s2">&quot;after init&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">use_meta_tensor</span><span class="p">:</span>
+        <span class="n">ds_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">base_dir</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">repo_root</span><span class="p">,</span> <span class="n">checkpoint</span><span class="o">=</span><span class="n">pipe</span><span class="o">.</span><span class="n">checkpoints_json</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ds_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+    <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+
+    <span class="n">pipe</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">deepspeed</span><span class="o">.</span><span class="n">init_inference</span><span class="p">(</span>
+        <span class="n">pipe</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="n">data_type</span><span class="p">,</span>
+        <span class="n">mp_size</span><span class="o">=</span><span class="n">world_size</span><span class="p">,</span>
+        <span class="n">replace_with_kernel_inject</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">replace_method</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">max_tokens</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">max_tokens</span><span class="p">,</span>
+        <span class="n">save_mp_checkpoint_path</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">save_mp_checkpoint_path</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">ds_kwargs</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">_memory_usage</span><span class="p">(</span><span class="n">gpu_id</span><span class="p">,</span> <span class="s2">&quot;after init_inference&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">pipe</span>
+
+
+<span class="k">def</span> <span class="nf">generate</span><span class="p">(</span>
+    <span class="n">input_sentences</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">pipe</span><span class="p">:</span> <span class="n">DSPipeline</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">**</span><span class="n">generate_kwargs</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Generate predictions using a DSPipeline.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">batch_size</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_sentences</span><span class="p">):</span>
+        <span class="c1"># Dynamically extend to support larger bs by repetition.</span>
+        <span class="n">input_sentences</span> <span class="o">*=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">batch_size</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_sentences</span><span class="p">))</span>
+
+    <span class="n">inputs</span> <span class="o">=</span> <span class="n">input_sentences</span><span class="p">[:</span><span class="n">batch_size</span><span class="p">]</span>
+    <span class="n">outputs</span> <span class="o">=</span> <span class="n">pipe</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="o">**</span><span class="n">generate_kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">outputs</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/home/ray/anaconda3/lib/python3.9/site-packages/xgboost/compat.py:31: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+  from pandas import MultiIndex, Int64Index
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="define-a-deepspeed-predictor">
+<h2>Define a DeepSpeed Predictor<a class="headerlink" href="opt_deepspeed_batch_inference.html#define-a-deepspeed-predictor" title="Permalink to this headline">#</a></h2>
+<p>Define an AIR Predictor to be instantiated by the Dataset pipeline below.</p>
+<p>Each DeepSpeedPredictor is a stateful Ray actor that understands how to process the input prompt using a group of DeepSpeed inference workers.</p>
+<p>More specifically, each DeepSpeedPredictor sets up a proper PyTorch DDP process group before spinning up multiple PredictionWorkers. Since the model is loaded using the DeepSpeed inference framework, each PredictionWorker handles a shard of the entire DeepSpeed inference model.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">import</span> <span class="nn">ray.util</span>
+<span class="kn">from</span> <span class="nn">ray.air</span> <span class="kn">import</span> <span class="n">Checkpoint</span><span class="p">,</span> <span class="n">ScalingConfig</span>
+<span class="kn">from</span> <span class="nn">ray.air.util.torch_dist</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">TorchDistributedWorker</span><span class="p">,</span>
+    <span class="n">init_torch_dist_process_group</span><span class="p">,</span>
+    <span class="n">shutdown_torch_dist_process_group</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">ray.train.predictor</span> <span class="kn">import</span> <span class="n">Predictor</span>
+<span class="kn">from</span> <span class="nn">ray.util.scheduling_strategies</span> <span class="kn">import</span> <span class="n">PlacementGroupSchedulingStrategy</span>
+
+
+<span class="nd">@ray</span><span class="o">.</span><span class="n">remote</span>
+<span class="k">class</span> <span class="nc">PredictionWorker</span><span class="p">(</span><span class="n">TorchDistributedWorker</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A PredictionWorker is a Ray remote actor that runs a single shard of a DeepSpeed job.</span>
+<span class="sd">    </span>
+<span class="sd">    Multiple PredictionWorkers of the same WorkerGroup form a PyTorch DDP process</span>
+<span class="sd">    group and work together under the orchestration of DeepSpeed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span> <span class="n">world_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">world_size</span> <span class="o">=</span> <span class="n">world_size</span>
+
+    <span class="k">def</span> <span class="nf">init_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">local_rank</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize model for inference.&quot;&quot;&quot;</span>
+        <span class="c1"># Note: We have to provide the local_rank that was used to initiate</span>
+        <span class="c1"># the DDP process group here. e.g., a PredictionWorker may be the</span>
+        <span class="c1"># rank 0 worker of a group, but occupies gpu 7.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">generator</span> <span class="o">=</span> <span class="n">init_model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">world_size</span><span class="p">,</span> <span class="n">local_rank</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">generate</span><span class="p">(</span>
+            <span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">column</span><span class="p">]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">generator</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span>
+
+
+<span class="c1"># TODO: This Predictor should be part of Ray AIR.</span>
+<span class="k">class</span> <span class="nc">DeepSpeedPredictor</span><span class="p">(</span><span class="n">Predictor</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">checkpoint</span><span class="p">:</span> <span class="n">Checkpoint</span><span class="p">,</span> <span class="n">scaling_config</span><span class="p">:</span> <span class="n">ScalingConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint</span> <span class="o">=</span> <span class="n">checkpoint</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scaling_config</span> <span class="o">=</span> <span class="n">scaling_config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_worker_group</span><span class="p">(</span><span class="n">scaling_config</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">shutdown_torch_dist_process_group</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prediction_workers</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">init_worker_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scaling_config</span><span class="p">:</span> <span class="n">ScalingConfig</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create the worker group.</span>
+
+<span class="sd">        Each worker in the group communicates with other workers through the</span>
+<span class="sd">        torch distributed backend. The worker group is inelastic (a failure of</span>
+<span class="sd">        one worker destroys the entire group). Each worker in the group</span>
+<span class="sd">        recieves the same input data and outputs the same generated text.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()[</span><span class="s2">&quot;config&quot;</span><span class="p">]</span>
+
+        <span class="c1"># Start a placement group for the workers.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pg</span> <span class="o">=</span> <span class="n">scaling_config</span><span class="o">.</span><span class="n">as_placement_group_factory</span><span class="p">()</span><span class="o">.</span><span class="n">to_placement_group</span><span class="p">()</span>
+        <span class="n">prediction_worker_cls</span> <span class="o">=</span> <span class="n">PredictionWorker</span><span class="o">.</span><span class="n">options</span><span class="p">(</span>
+            <span class="n">num_cpus</span><span class="o">=</span><span class="n">scaling_config</span><span class="o">.</span><span class="n">num_cpus_per_worker</span><span class="p">,</span>
+            <span class="n">num_gpus</span><span class="o">=</span><span class="n">scaling_config</span><span class="o">.</span><span class="n">num_gpus_per_worker</span><span class="p">,</span>
+            <span class="n">resources</span><span class="o">=</span><span class="n">scaling_config</span><span class="o">.</span><span class="n">additional_resources_per_worker</span><span class="p">,</span>
+            <span class="n">scheduling_strategy</span><span class="o">=</span><span class="n">PlacementGroupSchedulingStrategy</span><span class="p">(</span>
+                <span class="n">placement_group</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pg</span><span class="p">,</span> <span class="n">placement_group_capture_child_tasks</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="c1"># Create the prediction workers.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prediction_workers</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">prediction_worker_cls</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">scaling_config</span><span class="o">.</span><span class="n">num_workers</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">scaling_config</span><span class="o">.</span><span class="n">num_workers</span><span class="p">)</span>
+        <span class="p">]</span>
+
+        <span class="c1"># Initialize torch distributed process group for the workers.</span>
+        <span class="n">local_ranks</span> <span class="o">=</span> <span class="n">init_torch_dist_process_group</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prediction_workers</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s2">&quot;nccl&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Initialize the model on each worker.</span>
+        <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">([</span>
+            <span class="n">worker</span><span class="o">.</span><span class="n">init_model</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">local_rank</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">worker</span><span class="p">,</span> <span class="n">local_rank</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prediction_workers</span><span class="p">,</span> <span class="n">local_ranks</span><span class="p">)</span>
+        <span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">_predict_pandas</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">input_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;prompt&quot;</span><span class="p">,</span>
+        <span class="n">output_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;output&quot;</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="n">data_ref</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">prediction</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">worker</span><span class="o">.</span><span class="n">generate</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">data_ref</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="n">input_column</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">worker</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">prediction_workers</span>
+            <span class="p">]</span>
+        <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">prediction</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">output_column</span><span class="p">])</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_checkpoint</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">checkpoint</span><span class="p">:</span> <span class="n">Checkpoint</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Predictor&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">checkpoint</span><span class="o">=</span><span class="n">checkpoint</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="create-a-dataset-pipeline">
+<h2>Create a Dataset Pipeline<a class="headerlink" href="opt_deepspeed_batch_inference.html#create-a-dataset-pipeline" title="Permalink to this headline">#</a></h2>
+<p>Finally, we connect all these pieces together, and use a BatchPredictor to run multiple copies of the DeepSpeedPredictor actors.</p>
+<p>This step helps parallelize our batch inference job and utilize all available resources in the cluster.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">from</span> <span class="nn">ray.air</span> <span class="kn">import</span> <span class="n">Checkpoint</span><span class="p">,</span> <span class="n">ScalingConfig</span>
+<span class="kn">from</span> <span class="nn">ray.train.batch_predictor</span> <span class="kn">import</span> <span class="n">BatchPredictor</span>
+
+<span class="c1"># Disable terminal progress bar for notebook environments.</span>
+<span class="n">ray</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">set_progress_bars</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="c1"># Prompts.</span>
+<span class="c1"># For testing purpose, we create 64 prompts in total.</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="s2">&quot;DeepSpeed is&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Test&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Please complete&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;How can you&quot;</span>
+    <span class="p">]</span> <span class="o">*</span> <span class="mi">16</span><span class="p">,</span>
+    <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;prompt&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+<span class="n">ds</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">ray</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">from_pandas</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+    <span class="c1"># Make sure there are enough blocks for parallelized execution.</span>
+    <span class="o">.</span><span class="n">repartition</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">num_workers_per_group</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">random_shuffle</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">fully_executed</span><span class="p">()</span>
+<span class="p">)</span>
+
+<span class="c1"># Scaling config for one worker group.</span>
+<span class="n">group_scaling_config</span> <span class="o">=</span> <span class="n">ScalingConfig</span><span class="p">(</span>
+    <span class="n">use_gpu</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">num_workers</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">num_workers_per_group</span><span class="p">,</span>
+    <span class="c1"># Should not be necessary after we switch to the new API.</span>
+    <span class="n">trainer_resources</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;CPU&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+<span class="p">)</span>
+<span class="n">batch_predictor</span> <span class="o">=</span> <span class="n">BatchPredictor</span><span class="o">.</span><span class="n">from_checkpoint</span><span class="p">(</span>
+    <span class="c1"># TODO: Use HugginFaceDeepSpeedCheckpoint when it&#39;s available.</span>
+    <span class="n">Checkpoint</span><span class="o">.</span><span class="n">from_dict</span><span class="p">({</span><span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="n">config</span><span class="p">}),</span>
+    <span class="n">DeepSpeedPredictor</span><span class="p">,</span>
+    <span class="n">scaling_config</span><span class="o">=</span><span class="n">group_scaling_config</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Batch prediction.</span>
+<span class="n">pred</span> <span class="o">=</span> <span class="n">batch_predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">num_cpus_per_worker</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">min_scoring_workers</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">num_worker_groups</span><span class="p">,</span>
+    <span class="n">max_scoring_workers</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">num_worker_groups</span><span class="p">,</span>
+    <span class="c1"># Kwargs passed to model.generate()</span>
+    <span class="n">do_sample</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">temperature</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+    <span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Let&#39;s see the genreated texts.</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">pred</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-04-22 11:14:12,074	WARNING dataset.py:4124 -- Deprecation warning: use Dataset.materialize() instead of fully_executed().
+2023-04-22 11:14:12,079	INFO streaming_executor.py:87 -- Executing DAG InputDataBuffer[Input] -&gt; AllToAllOperator[Repartition] -&gt; AllToAllOperator[RandomShuffle]
+2023-04-22 11:14:12,081	INFO streaming_executor.py:88 -- Execution config: ExecutionOptions(resource_limits=ExecutionResources(cpu=None, gpu=None, object_store_memory=None), locality_with_output=False, preserve_order=False, actor_locality_enabled=True, verbose_progress=False)
+2023-04-22 11:14:12,082	INFO streaming_executor.py:90 -- Tip: To enable per-operator progress reporting, set RAY_DATA_VERBOSE_PROGRESS=1.
+</pre></div>
+</div>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "", "version_major": 2, "version_minor": 0}
+</script><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-04-22 11:14:12,680	INFO streaming_executor.py:87 -- Executing DAG InputDataBuffer[Input] -&gt; ActorPoolMapOperator[MapBatches(ScoringWrapper)]
+2023-04-22 11:14:12,682	INFO streaming_executor.py:88 -- Execution config: ExecutionOptions(resource_limits=ExecutionResources(cpu=None, gpu=None, object_store_memory=None), locality_with_output=False, preserve_order=False, actor_locality_enabled=True, verbose_progress=False)
+2023-04-22 11:14:12,683	INFO streaming_executor.py:90 -- Tip: To enable per-operator progress reporting, set RAY_DATA_VERBOSE_PROGRESS=1.
+2023-04-22 11:14:12,785	INFO actor_pool_map_operator.py:114 -- MapBatches(ScoringWrapper): Waiting for 1 pool actors to start...
+(_MapWorker pid=7005) The cache for model files in Transformers v4.22.0 has been updated. Migrating your old cache. This is a one-time only operation. You can interrupt this and resume the migration later on by calling `transformers.utils.move_cache()`.
+0it [00:00, ?it/s]05) 
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(PredictionWorker pid=10038) [2023-04-22 11:14:30,762] [INFO] [utils.py:829:see_memory_usage] before init
+(PredictionWorker pid=10038) [2023-04-22 11:14:30,762] [INFO] [utils.py:830:see_memory_usage] MA 0.0 GB         Max_MA 0.0 GB         CA 0.0 GB         Max_CA 0 GB 
+(PredictionWorker pid=10038) [2023-04-22 11:14:30,762] [INFO] [utils.py:838:see_memory_usage] CPU Virtual Memory:  used = 11.63 GB, percent = 2.4%
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(PredictionWorker pid=10040) --------------------------------------------------------------------------
+(PredictionWorker pid=10040)                  Aim collects anonymous usage analytics.                 
+(PredictionWorker pid=10040)                         Read how to opt-out here:                         
+(PredictionWorker pid=10040)     https://aimstack.readthedocs.io/en/latest/community/telemetry.html    
+(PredictionWorker pid=10040) --------------------------------------------------------------------------
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(PredictionWorker pid=10045) [2023-04-22 11:14:33,061] [INFO] [logging.py:93:log_dist] [Rank -1] DeepSpeed info: version=0.8.3, git-hash=unknown, git-branch=unknown
+(PredictionWorker pid=10045) [2023-04-22 11:14:33,062] [WARNING] [config_utils.py:75:_process_deprecated_field] Config parameter replace_method is deprecated. This parameter is no longer needed, please remove from your call to DeepSpeed-inference
+(PredictionWorker pid=10045) [2023-04-22 11:14:33,062] [WARNING] [config_utils.py:75:_process_deprecated_field] Config parameter mp_size is deprecated use tensor_parallel.tp_size instead
+(PredictionWorker pid=10045) [2023-04-22 11:14:33,062] [INFO] [logging.py:93:log_dist] [Rank -1] quantize_bits = 8 mlp_extra_grouping = False, quantize_groups = 1
+(PredictionWorker pid=10038) [2023-04-22 11:14:33,074] [INFO] [utils.py:829:see_memory_usage] after init
+(PredictionWorker pid=10038) [2023-04-22 11:14:33,075] [INFO] [utils.py:830:see_memory_usage] MA 0.0 GB         Max_MA 0.0 GB         CA 0.0 GB         Max_CA 0 GB 
+(PredictionWorker pid=10038) [2023-04-22 11:14:33,075] [INFO] [utils.py:838:see_memory_usage] CPU Virtual Memory:  used = 12.25 GB, percent = 2.6%
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(PredictionWorker pid=10040) Using /home/ray/.cache/torch_extensions/py39_cu116 as PyTorch extensions root...
+(PredictionWorker pid=10038) Creating extension directory /home/ray/.cache/torch_extensions/py39_cu116/transformer_inference...
+(PredictionWorker pid=10038) Detected CUDA files, patching ldflags
+(PredictionWorker pid=10038) Emitting ninja build file /home/ray/.cache/torch_extensions/py39_cu116/transformer_inference/build.ninja...
+(PredictionWorker pid=10038) Building extension module transformer_inference...
+(PredictionWorker pid=10038) Allowing ninja to set a default number of workers... (overridable by setting the environment variable MAX_JOBS=N)
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(PredictionWorker pid=10038) [1/9] /usr/local/cuda/bin/nvcc  -DTORCH_EXTENSION_NAME=transformer_inference -DTORCH_API_INCLUDE_EXTENSION_H -DPYBIND11_COMPILER_TYPE=\&quot;_gcc\&quot; -DPYBIND11_STDLIB=\&quot;_libstdcpp\&quot; -DPYBIND11_BUILD_ABI=\&quot;_cxxabi1011\&quot; -I/home/ray/anaconda3/lib/python3.9/site-packages/deepspeed/ops/csrc/transformer/inference/includes -I/home/ray/anaconda3/lib/python3.9/site-packages/deepspeed/ops/csrc/includes -isystem /home/ray/anaconda3/lib/python3.9/site-packages/torch/include -isystem /home/ray/anaconda3/lib/python3.9/site-packages/torch/include/torch/csrc/api/include -isystem /home/ray/anaconda3/lib/python3.9/site-packages/torch/include/TH -isystem /home/ray/anaconda3/lib/python3.9/site-packages/torch/include/THC -isystem /usr/local/cuda/include -isystem /home/ray/anaconda3/include/python3.9 -D_GLIBCXX_USE_CXX11_ABI=0 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr -gencode=arch=compute_70,code=compute_70 -gencode=arch=compute_70,code=sm_70 --compiler-options &#39;-fPIC&#39; -O3 --use_fast_math -std=c++14 -U__CUDA_NO_HALF_OPERATORS__ -U__CUDA_NO_HALF_CONVERSIONS__ -U__CUDA_NO_HALF2_OPERATORS__ -gencode=arch=compute_70,code=sm_70 -gencode=arch=compute_70,code=compute_70 -c /home/ray/anaconda3/lib/python3.9/site-packages/deepspeed/ops/csrc/transformer/inference/csrc/dequantize.cu -o dequantize.cuda.o 
+(PredictionWorker pid=10038) [2/9] /usr/local/cuda/bin/nvcc  -DTORCH_EXTENSION_NAME=transformer_inference -DTORCH_API_INCLUDE_EXTENSION_H -DPYBIND11_COMPILER_TYPE=\&quot;_gcc\&quot; -DPYBIND11_STDLIB=\&quot;_libstdcpp\&quot; -DPYBIND11_BUILD_ABI=\&quot;_cxxabi1011\&quot; -I/home/ray/anaconda3/lib/python3.9/site-packages/deepspeed/ops/csrc/transformer/inference/includes -I/home/ray/anaconda3/lib/python3.9/site-packages/deepspeed/ops/csrc/includes -isystem /home/ray/anaconda3/lib/python3.9/site-packages/torch/include -isystem /home/ray/anaconda3/lib/python3.9/site-packages/torch/include/torch/csrc/api/include -isystem /home/ray/anaconda3/lib/python3.9/site-packages/torch/include/TH -isystem /home/ray/anaconda3/lib/python3.9/site-packages/torch/include/THC -isystem /usr/local/cuda/include -isystem /home/ray/anaconda3/include/python3.9 -D_GLIBCXX_USE_CXX11_ABI=0 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr -gencode=arch=compute_70,code=compute_70 -gencode=arch=compute_70,code=sm_70 --compiler-options &#39;-fPIC&#39; -O3 --use_fast_math -std=c++14 -U__CUDA_NO_HALF_OPERATORS__ -U__CUDA_NO_HALF_CONVERSIONS__ -U__CUDA_NO_HALF2_OPERATORS__ -gencode=arch=compute_70,code=sm_70 -gencode=arch=compute_70,code=compute_70 -c /home/ray/anaconda3/lib/python3.9/site-packages/deepspeed/ops/csrc/transformer/inference/csrc/relu.cu -o relu.cuda.o 
+(PredictionWorker pid=10038) [3/9] /usr/local/cuda/bin/nvcc  -DTORCH_EXTENSION_NAME=transformer_inference -DTORCH_API_INCLUDE_EXTENSION_H -DPYBIND11_COMPILER_TYPE=\&quot;_gcc\&quot; -DPYBIND11_STDLIB=\&quot;_libstdcpp\&quot; -DPYBIND11_BUILD_ABI=\&quot;_cxxabi1011\&quot; -I/home/ray/anaconda3/lib/python3.9/site-packages/deepspeed/ops/csrc/transformer/inference/includes -I/home/ray/anaconda3/lib/python3.9/site-packages/deepspeed/ops/csrc/includes -isystem /home/ray/anaconda3/lib/python3.9/site-packages/torch/include -isystem /home/ray/anaconda3/lib/python3.9/site-packages/torch/include/torch/csrc/api/include -isystem /home/ray/anaconda3/lib/python3.9/site-packages/torch/include/TH -isystem /home/ray/anaconda3/lib/python3.9/site-packages/torch/include/THC -isystem /usr/local/cuda/include -isystem /home/ray/anaconda3/include/python3.9 -D_GLIBCXX_USE_CXX11_ABI=0 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr -gencode=arch=compute_70,code=compute_70 -gencode=arch=compute_70,code=sm_70 --compiler-options &#39;-fPIC&#39; -O3 --use_fast_math -std=c++14 -U__CUDA_NO_HALF_OPERATORS__ -U__CUDA_NO_HALF_CONVERSIONS__ -U__CUDA_NO_HALF2_OPERATORS__ -gencode=arch=compute_70,code=sm_70 -gencode=arch=compute_70,code=compute_70 -c /home/ray/anaconda3/lib/python3.9/site-packages/deepspeed/ops/csrc/transformer/inference/csrc/apply_rotary_pos_emb.cu -o apply_rotary_pos_emb.cuda.o 
+(PredictionWorker pid=10038) [4/9] /usr/local/cuda/bin/nvcc  -DTORCH_EXTENSION_NAME=transformer_inference -DTORCH_API_INCLUDE_EXTENSION_H -DPYBIND11_COMPILER_TYPE=\&quot;_gcc\&quot; -DPYBIND11_STDLIB=\&quot;_libstdcpp\&quot; -DPYBIND11_BUILD_ABI=\&quot;_cxxabi1011\&quot; -I/home/ray/anaconda3/lib/python3.9/site-packages/deepspeed/ops/csrc/transformer/inference/includes -I/home/ray/anaconda3/lib/python3.9/site-packages/deepspeed/ops/csrc/includes -isystem /home/ray/anaconda3/lib/python3.9/site-packages/torch/include -isystem /home/ray/anaconda3/lib/python3.9/site-packages/torch/include/torch/csrc/api/include -isystem /home/ray/anaconda3/lib/python3.9/site-packages/torch/include/TH -isystem /home/ray/anaconda3/lib/python3.9/site-packages/torch/include/THC -isystem /usr/local/cuda/include -isystem /home/ray/anaconda3/include/python3.9 -D_GLIBCXX_USE_CXX11_ABI=0 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr -gencode=arch=compute_70,code=compute_70 -gencode=arch=compute_70,code=sm_70 --compiler-options &#39;-fPIC&#39; -O3 --use_fast_math -std=c++14 -U__CUDA_NO_HALF_OPERATORS__ -U__CUDA_NO_HALF_CONVERSIONS__ -U__CUDA_NO_HALF2_OPERATORS__ -gencode=arch=compute_70,code=sm_70 -gencode=arch=compute_70,code=compute_70 -c /home/ray/anaconda3/lib/python3.9/site-packages/deepspeed/ops/csrc/transformer/inference/csrc/transform.cu -o transform.cuda.o 
+(PredictionWorker pid=10038) /home/ray/anaconda3/lib/python3.9/site-packages/deepspeed/ops/csrc/transformer/inference/csrc/transform.cu(56): warning #177-D: variable &quot;lane&quot; was declared but never referenced
+(PredictionWorker pid=10038) 
+(PredictionWorker pid=10038) /home/ray/anaconda3/lib/python3.9/site-packages/deepspeed/ops/csrc/transformer/inference/csrc/transform.cu(93): warning #177-D: variable &quot;half_dim&quot; was declared but never referenced
+(PredictionWorker pid=10038) 
+(PredictionWorker pid=10038) /home/ray/anaconda3/lib/python3.9/site-packages/deepspeed/ops/csrc/transformer/inference/csrc/transform.cu(110): warning #177-D: variable &quot;vals_half&quot; was declared but never referenced
+(PredictionWorker pid=10038) 
+(PredictionWorker pid=10038) /home/ray/anaconda3/lib/python3.9/site-packages/deepspeed/ops/csrc/transformer/inference/csrc/transform.cu(111): warning #177-D: variable &quot;output_half&quot; was declared but never referenced
+(PredictionWorker pid=10038) 
+(PredictionWorker pid=10038) /home/ray/anaconda3/lib/python3.9/site-packages/deepspeed/ops/csrc/transformer/inference/csrc/transform.cu(128): warning #177-D: variable &quot;lane&quot; was declared but never referenced
+(PredictionWorker pid=10038) 
+(PredictionWorker pid=10038) [5/9] /usr/local/cuda/bin/nvcc  -DTORCH_EXTENSION_NAME=transformer_inference -DTORCH_API_INCLUDE_EXTENSION_H -DPYBIND11_COMPILER_TYPE=\&quot;_gcc\&quot; -DPYBIND11_STDLIB=\&quot;_libstdcpp\&quot; -DPYBIND11_BUILD_ABI=\&quot;_cxxabi1011\&quot; -I/home/ray/anaconda3/lib/python3.9/site-packages/deepspeed/ops/csrc/transformer/inference/includes -I/home/ray/anaconda3/lib/python3.9/site-packages/deepspeed/ops/csrc/includes -isystem /home/ray/anaconda3/lib/python3.9/site-packages/torch/include -isystem /home/ray/anaconda3/lib/python3.9/site-packages/torch/include/torch/csrc/api/include -isystem /home/ray/anaconda3/lib/python3.9/site-packages/torch/include/TH -isystem /home/ray/anaconda3/lib/python3.9/site-packages/torch/include/THC -isystem /usr/local/cuda/include -isystem /home/ray/anaconda3/include/python3.9 -D_GLIBCXX_USE_CXX11_ABI=0 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr -gencode=arch=compute_70,code=compute_70 -gencode=arch=compute_70,code=sm_70 --compiler-options &#39;-fPIC&#39; -O3 --use_fast_math -std=c++14 -U__CUDA_NO_HALF_OPERATORS__ -U__CUDA_NO_HALF_CONVERSIONS__ -U__CUDA_NO_HALF2_OPERATORS__ -gencode=arch=compute_70,code=sm_70 -gencode=arch=compute_70,code=compute_70 -c /home/ray/anaconda3/lib/python3.9/site-packages/deepspeed/ops/csrc/transformer/inference/csrc/softmax.cu -o softmax.cuda.o 
+(PredictionWorker pid=10038) /home/ray/anaconda3/lib/python3.9/site-packages/deepspeed/ops/csrc/transformer/inference/csrc/softmax.cu(272): warning #177-D: variable &quot;alibi_offset&quot; was declared but never referenced
+(PredictionWorker pid=10038) 
+(PredictionWorker pid=10038) /home/ray/anaconda3/lib/python3.9/site-packages/deepspeed/ops/csrc/transformer/inference/csrc/softmax.cu(427): warning #177-D: variable &quot;warp_num&quot; was declared but never referenced
+(PredictionWorker pid=10038) 
+(PredictionWorker pid=10038) [6/9] /usr/local/cuda/bin/nvcc  -DTORCH_EXTENSION_NAME=transformer_inference -DTORCH_API_INCLUDE_EXTENSION_H -DPYBIND11_COMPILER_TYPE=\&quot;_gcc\&quot; -DPYBIND11_STDLIB=\&quot;_libstdcpp\&quot; -DPYBIND11_BUILD_ABI=\&quot;_cxxabi1011\&quot; -I/home/ray/anaconda3/lib/python3.9/site-packages/deepspeed/ops/csrc/transformer/inference/includes -I/home/ray/anaconda3/lib/python3.9/site-packages/deepspeed/ops/csrc/includes -isystem /home/ray/anaconda3/lib/python3.9/site-packages/torch/include -isystem /home/ray/anaconda3/lib/python3.9/site-packages/torch/include/torch/csrc/api/include -isystem /home/ray/anaconda3/lib/python3.9/site-packages/torch/include/TH -isystem /home/ray/anaconda3/lib/python3.9/site-packages/torch/include/THC -isystem /usr/local/cuda/include -isystem /home/ray/anaconda3/include/python3.9 -D_GLIBCXX_USE_CXX11_ABI=0 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr -gencode=arch=compute_70,code=compute_70 -gencode=arch=compute_70,code=sm_70 --compiler-options &#39;-fPIC&#39; -O3 --use_fast_math -std=c++14 -U__CUDA_NO_HALF_OPERATORS__ -U__CUDA_NO_HALF_CONVERSIONS__ -U__CUDA_NO_HALF2_OPERATORS__ -gencode=arch=compute_70,code=sm_70 -gencode=arch=compute_70,code=compute_70 -c /home/ray/anaconda3/lib/python3.9/site-packages/deepspeed/ops/csrc/transformer/inference/csrc/gelu.cu -o gelu.cuda.o 
+(PredictionWorker pid=10038) [2023-04-22 11:14:33,250] [INFO] [logging.py:93:log_dist] [Rank -1] DeepSpeed info: version=0.8.3, git-hash=unknown, git-branch=unknown [repeated 7x across cluster] (Ray deduplicates logs by default. Set RAY_DEDUP_LOGS=0 to disable log deduplication, or see https://docs.ray.io/en/master/ray-observability/ray-logging.html#log-deduplication for more options.)
+(PredictionWorker pid=10038) [2023-04-22 11:14:33,251] [WARNING] [config_utils.py:75:_process_deprecated_field] Config parameter replace_method is deprecated. This parameter is no longer needed, please remove from your call to DeepSpeed-inference [repeated 7x across cluster]
+(PredictionWorker pid=10038) [2023-04-22 11:14:33,251] [WARNING] [config_utils.py:75:_process_deprecated_field] Config parameter mp_size is deprecated use tensor_parallel.tp_size instead [repeated 7x across cluster]
+(PredictionWorker pid=10038) [2023-04-22 11:14:33,251] [INFO] [logging.py:93:log_dist] [Rank -1] quantize_bits = 8 mlp_extra_grouping = False, quantize_groups = 1 [repeated 7x across cluster]
+(PredictionWorker pid=10038) [7/9] /usr/local/cuda/bin/nvcc  -DTORCH_EXTENSION_NAME=transformer_inference -DTORCH_API_INCLUDE_EXTENSION_H -DPYBIND11_COMPILER_TYPE=\&quot;_gcc\&quot; -DPYBIND11_STDLIB=\&quot;_libstdcpp\&quot; -DPYBIND11_BUILD_ABI=\&quot;_cxxabi1011\&quot; -I/home/ray/anaconda3/lib/python3.9/site-packages/deepspeed/ops/csrc/transformer/inference/includes -I/home/ray/anaconda3/lib/python3.9/site-packages/deepspeed/ops/csrc/includes -isystem /home/ray/anaconda3/lib/python3.9/site-packages/torch/include -isystem /home/ray/anaconda3/lib/python3.9/site-packages/torch/include/torch/csrc/api/include -isystem /home/ray/anaconda3/lib/python3.9/site-packages/torch/include/TH -isystem /home/ray/anaconda3/lib/python3.9/site-packages/torch/include/THC -isystem /usr/local/cuda/include -isystem /home/ray/anaconda3/include/python3.9 -D_GLIBCXX_USE_CXX11_ABI=0 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr -gencode=arch=compute_70,code=compute_70 -gencode=arch=compute_70,code=sm_70 --compiler-options &#39;-fPIC&#39; -O3 --use_fast_math -std=c++14 -U__CUDA_NO_HALF_OPERATORS__ -U__CUDA_NO_HALF_CONVERSIONS__ -U__CUDA_NO_HALF2_OPERATORS__ -gencode=arch=compute_70,code=sm_70 -gencode=arch=compute_70,code=compute_70 -c /home/ray/anaconda3/lib/python3.9/site-packages/deepspeed/ops/csrc/transformer/inference/csrc/layer_norm.cu -o layer_norm.cuda.o 
+(PredictionWorker pid=10038) [8/9] c++ -MMD -MF pt_binding.o.d -DTORCH_EXTENSION_NAME=transformer_inference -DTORCH_API_INCLUDE_EXTENSION_H -DPYBIND11_COMPILER_TYPE=\&quot;_gcc\&quot; -DPYBIND11_STDLIB=\&quot;_libstdcpp\&quot; -DPYBIND11_BUILD_ABI=\&quot;_cxxabi1011\&quot; -I/home/ray/anaconda3/lib/python3.9/site-packages/deepspeed/ops/csrc/transformer/inference/includes -I/home/ray/anaconda3/lib/python3.9/site-packages/deepspeed/ops/csrc/includes -isystem /home/ray/anaconda3/lib/python3.9/site-packages/torch/include -isystem /home/ray/anaconda3/lib/python3.9/site-packages/torch/include/torch/csrc/api/include -isystem /home/ray/anaconda3/lib/python3.9/site-packages/torch/include/TH -isystem /home/ray/anaconda3/lib/python3.9/site-packages/torch/include/THC -isystem /usr/local/cuda/include -isystem /home/ray/anaconda3/include/python3.9 -D_GLIBCXX_USE_CXX11_ABI=0 -fPIC -std=c++14 -O3 -std=c++14 -g -Wno-reorder -c /home/ray/anaconda3/lib/python3.9/site-packages/deepspeed/ops/csrc/transformer/inference/csrc/pt_binding.cpp -o pt_binding.o 
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(PredictionWorker pid=10038) Loading extension module transformer_inference...
+(PredictionWorker pid=10041) -------------------------------------------------------------------------- [repeated 14x across cluster]
+(PredictionWorker pid=10041)                  Aim collects anonymous usage analytics.                  [repeated 7x across cluster]
+(PredictionWorker pid=10041)                         Read how to opt-out here:                          [repeated 7x across cluster]
+(PredictionWorker pid=10041)     https://aimstack.readthedocs.io/en/latest/community/telemetry.html     [repeated 7x across cluster]
+(PredictionWorker pid=10041) Using /home/ray/.cache/torch_extensions/py39_cu116 as PyTorch extensions root... [repeated 7x across cluster]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(PredictionWorker pid=10038) [9/9] c++ pt_binding.o gelu.cuda.o relu.cuda.o layer_norm.cuda.o softmax.cuda.o dequantize.cuda.o apply_rotary_pos_emb.cuda.o transform.cuda.o -shared -lcurand -L/home/ray/anaconda3/lib/python3.9/site-packages/torch/lib -lc10 -lc10_cuda -ltorch_cpu -ltorch_cuda_cu -ltorch_cuda_cpp -ltorch -ltorch_python -L/usr/local/cuda/lib64 -lcudart -o transformer_inference.so
+(PredictionWorker pid=10038) Time to load transformer_inference op: 46.834928035736084 seconds
+(PredictionWorker pid=10038) [2023-04-22 11:15:21,799] [INFO] [logging.py:93:log_dist] [Rank 0] DeepSpeed-Inference config: {&#39;layer_id&#39;: 0, &#39;hidden_size&#39;: 7168, &#39;intermediate_size&#39;: 28672, &#39;heads&#39;: 56, &#39;num_hidden_layers&#39;: -1, &#39;fp16&#39;: True, &#39;pre_layer_norm&#39;: True, &#39;local_rank&#39;: -1, &#39;stochastic_mode&#39;: False, &#39;epsilon&#39;: 1e-12, &#39;mp_size&#39;: 8, &#39;q_int8&#39;: False, &#39;scale_attention&#39;: True, &#39;triangular_masking&#39;: True, &#39;local_attention&#39;: False, &#39;window_size&#39;: 1, &#39;rotary_dim&#39;: -1, &#39;rotate_half&#39;: False, &#39;rotate_every_two&#39;: True, &#39;return_tuple&#39;: True, &#39;mlp_after_attn&#39;: True, &#39;mlp_act_func_type&#39;: &lt;ActivationFuncType.ReLU: 2&gt;, &#39;specialized_mode&#39;: False, &#39;training_mp_size&#39;: 1, &#39;bigscience_bloom&#39;: False, &#39;max_out_tokens&#39;: 1024, &#39;scale_attn_by_inverse_layer_idx&#39;: False, &#39;enable_qkv_quantization&#39;: False, &#39;use_mup&#39;: False, &#39;return_single_tuple&#39;: False}
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(PredictionWorker pid=10040) No modifications detected for re-loaded extension module transformer_inference, skipping build step...
+Loading 7 checkpoint shards:   0%|          | 0/7 [00:00&lt;?, ?it/s]
+Loading 7 checkpoint shards:  14%|█▍        | 1/7 [00:39&lt;03:57, 39.57s/it]
+(PredictionWorker pid=10041) Loading extension module transformer_inference... [repeated 15x across cluster]
+(PredictionWorker pid=10041) Using /home/ray/.cache/torch_extensions/py39_cu116 as PyTorch extensions root... [repeated 8x across cluster]
+(PredictionWorker pid=10041) No modifications detected for re-loaded extension module transformer_inference, skipping build step... [repeated 7x across cluster]
+Loading 7 checkpoint shards:   0%|          | 0/7 [00:00&lt;?, ?it/s] [repeated 7x across cluster]
+Loading 7 checkpoint shards:  29%|██▊       | 2/7 [01:15&lt;03:06, 37.25s/it] [repeated 8x across cluster]
+Loading 7 checkpoint shards:  29%|██▊       | 2/7 [01:28&lt;03:42, 44.58s/it] [repeated 7x across cluster]
+Loading 7 checkpoint shards:  43%|████▎     | 3/7 [01:51&lt;02:26, 36.73s/it]
+Loading 7 checkpoint shards:  43%|████▎     | 3/7 [01:51&lt;02:26, 36.56s/it]
+Loading 7 checkpoint shards:  43%|████▎     | 3/7 [01:57&lt;02:34, 38.58s/it] [repeated 5x across cluster]
+Loading 7 checkpoint shards:  43%|████▎     | 3/7 [02:03&lt;02:41, 40.32s/it]
+Loading 7 checkpoint shards:  57%|█████▋    | 4/7 [02:24&lt;01:45, 35.29s/it]
+Loading 7 checkpoint shards:  57%|█████▋    | 4/7 [02:31&lt;01:50, 36.96s/it] [repeated 6x across cluster]
+Loading 7 checkpoint shards:  71%|███████▏  | 5/7 [02:59&lt;01:09, 34.92s/it] [repeated 2x across cluster]
+Loading 7 checkpoint shards:  86%|████████▌ | 6/7 [03:05&lt;00:24, 24.84s/it] [repeated 10x across cluster]
+Loading 7 checkpoint shards:  86%|████████▌ | 6/7 [03:10&lt;00:25, 25.15s/it] [repeated 4x across cluster]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(PredictionWorker pid=10044) checkpoint loading time at rank 6: 216.07904958724976 sec
+(PredictionWorker pid=10040) Time to load transformer_inference op: 0.03857231140136719 seconds [repeated 15x across cluster]
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Loading 7 checkpoint shards: 100%|██████████| 7/7 [03:36&lt;00:00, 30.87s/it]
+Loading 7 checkpoint shards: 100%|██████████| 7/7 [03:36&lt;00:00, 30.87s/it]
+Loading 7 checkpoint shards: 100%|██████████| 7/7 [03:43&lt;00:00, 31.88s/it] [repeated 6x across cluster]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(PredictionWorker pid=10040) checkpoint loading time at rank 1: 223.18208837509155 sec [repeated 6x across cluster]
+(PredictionWorker pid=10038) [2023-04-22 11:19:13,839] [INFO] [utils.py:829:see_memory_usage] after init_inference
+(PredictionWorker pid=10038) [2023-04-22 11:19:13,840] [INFO] [utils.py:830:see_memory_usage] MA 7.69 GB         Max_MA 7.69 GB         CA 7.83 GB         Max_CA 8 GB 
+(PredictionWorker pid=10038) [2023-04-22 11:19:13,840] [INFO] [utils.py:838:see_memory_usage] CPU Virtual Memory:  used = 22.22 GB, percent = 4.6%
+(PredictionWorker pid=10039) [2023-04-22 11:19:13,840] [INFO] [utils.py:838:see_memory_usage] CPU Virtual Memory:  used = 22.22 GB, percent = 4.6%
+(PredictionWorker pid=10038) ------------------------------------------------------
+(PredictionWorker pid=10038) Free memory : 6.587830 (GigaBytes)  
+(PredictionWorker pid=10038) Total memory: 15.781921 (GigaBytes)  
+(PredictionWorker pid=10038) Requested memory: 0.601562 (GigaBytes) 
+(PredictionWorker pid=10038) Setting maximum total tokens (input + output) to 1024 
+(PredictionWorker pid=10038) ------------------------------------------------------
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(PredictionWorker pid=10040) 2023-04-22 11:19:26.855845: W tensorflow/compiler/xla/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library &#39;libnvinfer.so.7&#39;; dlerror: libnvinfer.so.7: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /usr/local/nvidia/lib:/usr/local/nvidia/lib64
+(PredictionWorker pid=10040) 2023-04-22 11:19:26.856002: W tensorflow/compiler/xla/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library &#39;libnvinfer_plugin.so.7&#39;; dlerror: libnvinfer_plugin.so.7: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /usr/local/nvidia/lib:/usr/local/nvidia/lib64
+(PredictionWorker pid=10040) 2023-04-22 11:19:26.856022: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Cannot dlopen some TensorRT libraries. If you would like to use Nvidia GPU with TensorRT, please make sure the missing libraries mentioned above are installed properly.
+(PredictionWorker pid=10039) 2023-04-22 11:19:26.856022: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Cannot dlopen some TensorRT libraries. If you would like to use Nvidia GPU with TensorRT, please make sure the missing libraries mentioned above are installed properly.
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>                                               output
+0   DeepSpeed is the one to go with. No need for a...
+1   Testimonials:\n\nG. SACCHIOULAS (TX)\n\n&quot;We bo...
+2   Testimonials\n\nI received my order today, I&#39;m...
+3   Testimonials\n\nWhat do our clients say about ...
+4   How can you make them that high?\nI edited the...
+..                                                ...
+59  Please complete the form below to request more...
+60  DeepSpeed is the most popular way of dealing t...
+61  How can you not tell that&#39;s not a real tweet?\...
+62  Testimonials\n\n&quot;The staff and community of H....
+63  DeepSpeed is an independent, privately held co...
+
+[64 rows x 1 columns]
+(autoscaler +12m27s) Tip: use `ray status` to view detailed cluster status. To disable these messages, set RAY_SCHEDULER_EVENTS=0.
+(autoscaler +12m27s) Resized to 64 CPUs, 8 GPUs.
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="index.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Examples</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="torch_image_example.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Training a Torch Image Classifier</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

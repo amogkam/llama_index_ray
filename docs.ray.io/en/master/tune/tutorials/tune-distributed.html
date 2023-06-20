@@ -1,0 +1,1042 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Running Distributed Experiments with Ray Tune &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/js/versionwarning.js"></script>
+    <script src="../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../_static/js/docsearch.js"></script>
+    <script src="../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../_static/js/top-navigation.js"></script>
+    <script src="../../_static/js/tags.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/tune/tutorials/tune-distributed.html" />
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="How does Tune work?" href="tune-lifecycle.html" />
+    <link rel="prev" title="Visualizing Population Based Training (PBT) Hyperparameter Optimization" href="../examples/pbt_visualization/pbt_visualization.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "tune/tutorials/tune-distributed", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".rst", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../../tune.html">
+   Ray Tune
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../getting-started.html">
+     Getting Started
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="overview.html">
+     User Guides
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="tune-run.html">
+       Running Basic Experiments
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tune-output.html">
+       Logging and Outputs in Tune
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tune-resources.html">
+       Setting Trial Resources
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tune-search-spaces.html">
+       Using Search Spaces
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tune-stopping.html">
+       How to Define Stopping Criteria for a Ray Tune Experiment
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tune-trial-checkpoints.html">
+       How to Save and Load Trial Checkpoints
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tune-storage.html">
+       How to Configure Storage Options for a Distributed Tune Experiment
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tune-fault-tolerance.html">
+       How to Enable Fault Tolerance in Ray Tune
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tune-metrics.html">
+       Using Callbacks and Metrics
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tune_get_data_in_and_out.html">
+       Getting Data in and out of Tune
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../examples/tune_analyze_results.html">
+       Analyzing Tune Experiment Results
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../examples/pbt_guide.html">
+       A Guide to Population Based Training with Tune
+      </a>
+     </li>
+     <li class="toctree-l3 current active">
+      <a class="current reference internal" href="tune-distributed.html#">
+       Deploying Tune in the Cloud
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tune-lifecycle.html">
+       Tune Architecture
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tune-scalability.html">
+       Scalability Benchmarks
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../examples/index.html">
+     Ray Tune Examples
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../faq.html">
+     Ray Tune FAQ
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/api.html">
+     Ray Tune API
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Ftune/tutorials/tune-distributed.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/tune/tutorials/tune-distributed.rst"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../_sources/tune/tutorials/tune-distributed.rst.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.rst</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-distributed.html#summary">
+   Summary
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-distributed.html#example-distributed-tune-on-aws-vms">
+   Example: Distributed Tune on AWS VMs
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-distributed.html#running-a-distributed-tune-experiment">
+   Running a Distributed Tune Experiment
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-distributed.html#storage-options-in-a-distributed-tune-run">
+   Storage Options in a Distributed Tune Run
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-distributed.html#tune-runs-on-preemptible-instances">
+   Tune Runs on preemptible instances
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="tune-distributed.html#example-for-using-tune-with-spot-instances-aws">
+     Example for Using Tune with Spot instances (AWS)
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-distributed.html#fault-tolerance-of-tune-runs">
+   Fault Tolerance of Tune Runs
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="tune-distributed.html#recovering-from-failures">
+     Recovering From Failures
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-distributed.html#common-tune-commands">
+   Common Tune Commands
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-distributed.html#troubleshooting">
+   Troubleshooting
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Running Distributed Experiments with Ray Tune</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-distributed.html#summary">
+   Summary
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-distributed.html#example-distributed-tune-on-aws-vms">
+   Example: Distributed Tune on AWS VMs
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-distributed.html#running-a-distributed-tune-experiment">
+   Running a Distributed Tune Experiment
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-distributed.html#storage-options-in-a-distributed-tune-run">
+   Storage Options in a Distributed Tune Run
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-distributed.html#tune-runs-on-preemptible-instances">
+   Tune Runs on preemptible instances
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="tune-distributed.html#example-for-using-tune-with-spot-instances-aws">
+     Example for Using Tune with Spot instances (AWS)
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-distributed.html#fault-tolerance-of-tune-runs">
+   Fault Tolerance of Tune Runs
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="tune-distributed.html#recovering-from-failures">
+     Recovering From Failures
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-distributed.html#common-tune-commands">
+   Common Tune Commands
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-distributed.html#troubleshooting">
+   Troubleshooting
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section id="running-distributed-experiments-with-ray-tune">
+<span id="tune-distributed-ref"></span><h1>Running Distributed Experiments with Ray Tune<a class="headerlink" href="tune-distributed.html#running-distributed-experiments-with-ray-tune" title="Permalink to this headline">#</a></h1>
+<p>Tune is commonly used for large-scale distributed hyperparameter optimization. This page will overview how to setup and launch a distributed experiment along with <a class="reference internal" href="tune-distributed.html#tune-distributed-common"><span class="std std-ref">commonly used commands</span></a> for Tune when running distributed experiments.</p>
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="tune-distributed.html#summary" id="id1">Summary</a></p></li>
+<li><p><a class="reference internal" href="tune-distributed.html#example-distributed-tune-on-aws-vms" id="id2">Example: Distributed Tune on AWS VMs</a></p></li>
+<li><p><a class="reference internal" href="tune-distributed.html#running-a-distributed-tune-experiment" id="id3">Running a Distributed Tune Experiment</a></p></li>
+<li><p><a class="reference internal" href="tune-distributed.html#storage-options-in-a-distributed-tune-run" id="id4">Storage Options in a Distributed Tune Run</a></p></li>
+<li><p><a class="reference internal" href="tune-distributed.html#tune-runs-on-preemptible-instances" id="id5">Tune Runs on preemptible instances</a></p>
+<ul>
+<li><p><a class="reference internal" href="tune-distributed.html#example-for-using-tune-with-spot-instances-aws" id="id6">Example for Using Tune with Spot instances (AWS)</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="tune-distributed.html#fault-tolerance-of-tune-runs" id="id7">Fault Tolerance of Tune Runs</a></p>
+<ul>
+<li><p><a class="reference internal" href="tune-distributed.html#recovering-from-failures" id="id8">Recovering From Failures</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="tune-distributed.html#common-tune-commands" id="id9">Common Tune Commands</a></p></li>
+<li><p><a class="reference internal" href="tune-distributed.html#troubleshooting" id="id10">Troubleshooting</a></p></li>
+</ul>
+</div>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="tune-distributed.html#summary" title="Permalink to this headline">#</a></h2>
+<p>To run a distributed experiment with Tune, you need to:</p>
+<ol class="arabic simple">
+<li><p>First, <a class="reference internal" href="../../ray-core/cluster/index.html#cluster-index"><span class="std std-ref">start a Ray cluster</span></a> if you have not already.</p></li>
+<li><p>Run the script on the head node, or use <a class="reference internal" href="../../cluster/cli.html#ray-submit-doc"><span class="std std-ref">ray submit</span></a>, or use <a class="reference internal" href="../../cluster/running-applications/job-submission/index.html#jobs-overview"><span class="std std-ref">Ray Job Submission</span></a>.</p></li>
+</ol>
+</section>
+<section id="example-distributed-tune-on-aws-vms">
+<h2>Example: Distributed Tune on AWS VMs<a class="headerlink" href="tune-distributed.html#example-distributed-tune-on-aws-vms" title="Permalink to this headline">#</a></h2>
+<p>Follow the instructions below to launch nodes on AWS (using the Deep Learning AMI). See the <a class="reference internal" href="../../ray-core/cluster/index.html#cluster-index"><span class="std std-ref">cluster setup documentation</span></a>. Save the below cluster configuration (<code class="docutils literal notranslate"><span class="pre">tune-default.yaml</span></code>):</p>
+<div class="highlight-yaml notranslate" id="tune-default-yaml"><div class="highlight"><pre><span></span><span class="nt">cluster_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tune-default</span><span class="w"></span>
+<span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="nv">aws</span><span class="p p-Indicator">,</span><span class="nt"> region</span><span class="p">:</span><span class="w"> </span><span class="nv">us-west-2</span><span class="p p-Indicator">}</span><span class="w"></span>
+<span class="nt">auth</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">ssh_user</span><span class="p">:</span><span class="w"> </span><span class="nv">ubuntu</span><span class="p p-Indicator">}</span><span class="w"></span>
+<span class="nt">min_workers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span><span class="w"></span>
+<span class="nt">max_workers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span><span class="w"></span>
+<span class="c1"># Deep Learning AMI (Ubuntu) Version 21.0</span><span class="w"></span>
+<span class="nt">available_node_types</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">head_node</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">node_config</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">InstanceType</span><span class="p">:</span><span class="w"> </span><span class="nv">c5.xlarge</span><span class="p p-Indicator">,</span><span class="nt"> ImageId</span><span class="p">:</span><span class="w"> </span><span class="nv">ami-0b294f219d14e6a82</span><span class="p p-Indicator">}</span><span class="w"></span>
+<span class="w">  </span><span class="nt">worker_nodes</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">node_config</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">InstanceType</span><span class="p">:</span><span class="w"> </span><span class="nv">c5.xlarge</span><span class="p p-Indicator">,</span><span class="nt"> ImageId</span><span class="p">:</span><span class="w"> </span><span class="nv">ami-0b294f219d14e6a82</span><span class="p p-Indicator">}</span><span class="w"></span>
+<span class="nt">head_node_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">head_node</span><span class="w"></span>
+<span class="nt">setup_commands</span><span class="p">:</span><span class="w"> </span><span class="c1"># Set up each node.</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pip install ray torch torchvision tensorboard</span><span class="w"></span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">ray</span> <span class="pre">up</span></code> starts Ray on the cluster of nodes.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ray up tune-default.yaml
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">ray</span> <span class="pre">submit</span> <span class="pre">--start</span></code> starts a cluster as specified by the given cluster configuration YAML file, uploads <code class="docutils literal notranslate"><span class="pre">tune_script.py</span></code> to the cluster, and runs <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">tune_script.py</span> <span class="pre">[args]</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ray submit tune-default.yaml tune_script.py --start -- --ray-address<span class="o">=</span>localhost:6379
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="../../_images/tune-upload.png"><img alt="../../_images/tune-upload.png" class="align-center" src="../../_images/tune-upload.png" style="width: 382.5px; height: 277.0px;" /></a>
+<p>Analyze your results on TensorBoard by starting TensorBoard on the remote head machine.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Go to http://localhost:6006 to access TensorBoard.</span>
+ray <span class="nb">exec</span> tune-default.yaml <span class="s1">&#39;tensorboard --logdir=~/ray_results/ --port 6006&#39;</span> --port-forward <span class="m">6006</span>
+</pre></div>
+</div>
+<p>Note that you can customize the directory of results by specifying: <code class="docutils literal notranslate"><span class="pre">air.RunConfig(storage_path=..)</span></code>, taken in by <code class="docutils literal notranslate"><span class="pre">Tuner</span></code>. You can then point TensorBoard to that directory to visualize results. You can also use <a class="reference external" href="https://github.com/wallix/awless">awless</a> for easy cluster management on AWS.</p>
+</section>
+<section id="running-a-distributed-tune-experiment">
+<h2>Running a Distributed Tune Experiment<a class="headerlink" href="tune-distributed.html#running-a-distributed-tune-experiment" title="Permalink to this headline">#</a></h2>
+<p>Running a distributed (multi-node) experiment requires Ray to be started already.
+You can do this on local machines or on the cloud.</p>
+<p>Across your machines, Tune will automatically detect the number of GPUs and CPUs without you needing to manage <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES</span></code>.</p>
+<p>To execute a distributed experiment, call <code class="docutils literal notranslate"><span class="pre">ray.init(address=XXX)</span></code> before <code class="docutils literal notranslate"><span class="pre">Tuner.fit()</span></code>, where <code class="docutils literal notranslate"><span class="pre">XXX</span></code> is the Ray address, which defaults to <code class="docutils literal notranslate"><span class="pre">localhost:6379</span></code>. The Tune python script should be executed only on the head node of the Ray cluster.</p>
+<p>One common approach to modifying an existing Tune experiment to go distributed is to set an <code class="docutils literal notranslate"><span class="pre">argparse</span></code> variable so that toggling between distributed and single-node is seamless.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+
+<span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--address&quot;</span><span class="p">)</span>
+<span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+<span class="n">ray</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">address</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
+
+<span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># On the head node, connect to an existing ray cluster</span>
+$ python tune_script.py --ray-address<span class="o">=</span>localhost:XXXX
+</pre></div>
+</div>
+<p>If you used a cluster configuration (starting a cluster with <code class="docutils literal notranslate"><span class="pre">ray</span> <span class="pre">up</span></code> or <code class="docutils literal notranslate"><span class="pre">ray</span> <span class="pre">submit</span> <span class="pre">--start</span></code>), use:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ray submit tune-default.yaml tune_script.py -- --ray-address<span class="o">=</span>localhost:6379
+</pre></div>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<ol class="arabic simple">
+<li><p>In the examples, the Ray address commonly used is <code class="docutils literal notranslate"><span class="pre">localhost:6379</span></code>.</p></li>
+<li><p>If the Ray cluster is already started, you should not need to run anything on the worker nodes.</p></li>
+</ol>
+</div>
+</section>
+<section id="storage-options-in-a-distributed-tune-run">
+<h2>Storage Options in a Distributed Tune Run<a class="headerlink" href="tune-distributed.html#storage-options-in-a-distributed-tune-run" title="Permalink to this headline">#</a></h2>
+<p>In a distributed experiment, you should try to use <a class="reference internal" href="tune-storage.html#tune-cloud-checkpointing"><span class="std std-ref">cloud checkpointing</span></a> to
+reduce synchronization overhead. For this, you just have to specify a remote <code class="docutils literal notranslate"><span class="pre">storage_path</span></code> in the
+<a class="reference internal" href="../../ray-air/api/doc/ray.air.RunConfig.html#ray.air.RunConfig" title="ray.air.RunConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">air.RunConfig</span></code></a>.</p>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">my_trainable</span></code> is a user-defined <a class="reference internal" href="../key-concepts.html#tune-60-seconds-trainables"><span class="std std-ref">Tune Trainable</span></a> in the following example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ray</span> <span class="kn">import</span> <span class="n">air</span><span class="p">,</span> <span class="n">tune</span>
+<span class="kn">from</span> <span class="nn">my_module</span> <span class="kn">import</span> <span class="n">my_trainable</span>
+
+<span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
+    <span class="n">my_trainable</span><span class="p">,</span>
+    <span class="n">run_config</span><span class="o">=</span><span class="n">air</span><span class="o">.</span><span class="n">RunConfig</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;experiment_name&quot;</span><span class="p">,</span>
+        <span class="n">storage_path</span><span class="o">=</span><span class="s2">&quot;s3://bucket-name/sub-path/&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+<span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>For more details or customization, see our
+<a class="reference internal" href="tune-storage.html#tune-storage-options"><span class="std std-ref">guide on configuring storage in a distributed Tune experiment</span></a>.</p>
+</section>
+<section id="tune-runs-on-preemptible-instances">
+<span id="tune-distributed-spot"></span><h2>Tune Runs on preemptible instances<a class="headerlink" href="tune-distributed.html#tune-runs-on-preemptible-instances" title="Permalink to this headline">#</a></h2>
+<p>Running on spot instances (or preemptible instances) can reduce the cost of your experiment.
+You can enable spot instances in AWS via the following configuration modification:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Provider-specific config for worker nodes, e.g. instance type.</span><span class="w"></span>
+<span class="nt">worker_nodes</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">InstanceType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">m5.large</span><span class="w"></span>
+<span class="w">    </span><span class="nt">ImageId</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ami-0b294f219d14e6a82</span><span class="w"> </span><span class="c1"># Deep Learning AMI (Ubuntu) Version 21.0</span><span class="w"></span>
+
+<span class="w">    </span><span class="c1"># Run workers on spot by default. Comment this out to use on-demand.</span><span class="w"></span>
+<span class="w">    </span><span class="nt">InstanceMarketOptions</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">MarketType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">spot</span><span class="w"></span>
+<span class="w">        </span><span class="nt">SpotOptions</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="nt">MaxPrice</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span><span class="w">  </span><span class="c1"># Max Hourly Price</span><span class="w"></span>
+</pre></div>
+</div>
+<p>In GCP, you can use the following configuration modification:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">worker_nodes</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">machineType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">n1-standard-2</span><span class="w"></span>
+<span class="w">    </span><span class="nt">disks</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">boot</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+<span class="w">        </span><span class="nt">autoDelete</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PERSISTENT</span><span class="w"></span>
+<span class="w">        </span><span class="nt">initializeParams</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="nt">diskSizeGb</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50</span><span class="w"></span>
+<span class="w">          </span><span class="c1"># See https://cloud.google.com/compute/docs/images for more images</span><span class="w"></span>
+<span class="w">          </span><span class="nt">sourceImage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">projects/deeplearning-platform-release/global/images/family/tf-1-13-cpu</span><span class="w"></span>
+
+<span class="w">    </span><span class="c1"># Run workers on preemtible instances.</span><span class="w"></span>
+<span class="w">    </span><span class="nt">scheduling</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">preemptible</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Spot instances may be pre-empted suddenly while trials are still running.
+Tune allows you to mitigate the effects of this by preserving the progress of your model training through
+<a class="reference internal" href="tune-trial-checkpoints.html#tune-trial-checkpoint"><span class="std std-ref">checkpointing</span></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">search_space</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;lr&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">sample_from</span><span class="p">(</span><span class="k">lambda</span> <span class="n">spec</span><span class="p">:</span> <span class="mi">10</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">())),</span>
+    <span class="s2">&quot;momentum&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">),</span>
+<span class="p">}</span>
+
+<span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
+    <span class="n">TrainMNIST</span><span class="p">,</span>
+    <span class="n">run_config</span><span class="o">=</span><span class="n">air</span><span class="o">.</span><span class="n">RunConfig</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;training_iteration&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">}),</span>
+    <span class="n">param_space</span><span class="o">=</span><span class="n">search_space</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+<section id="example-for-using-tune-with-spot-instances-aws">
+<h3>Example for Using Tune with Spot instances (AWS)<a class="headerlink" href="tune-distributed.html#example-for-using-tune-with-spot-instances-aws" title="Permalink to this headline">#</a></h3>
+<p>Here is an example for running Tune on spot instances. This assumes your AWS credentials have already been setup (<code class="docutils literal notranslate"><span class="pre">aws</span> <span class="pre">configure</span></code>):</p>
+<ol class="arabic simple">
+<li><p>Download a full example Tune experiment script here. This includes a Trainable with checkpointing: <a class="reference download internal" download="" href="../../_downloads/8515735d7ae45b272ee9ef78046d863d/mnist_pytorch_trainable.py"><code class="xref download docutils literal notranslate"><span class="pre">mnist_pytorch_trainable.py</span></code></a>. To run this example, you will need to install the following:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pip install ray torch torchvision filelock
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Download an example cluster yaml here: <a class="reference download internal" download="" href="../../_downloads/6adeb623647a7151ee6b7b6553dda299/tune-default.yaml"><code class="xref download docutils literal notranslate"><span class="pre">tune-default.yaml</span></code></a></p></li>
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">ray</span> <span class="pre">submit</span></code> as below to run Tune across them. Append <code class="docutils literal notranslate"><span class="pre">[--start]</span></code> if the cluster is not up yet. Append <code class="docutils literal notranslate"><span class="pre">[--stop]</span></code> to automatically shutdown your nodes after running.</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ray submit tune-default.yaml mnist_pytorch_trainable.py --start -- --ray-address<span class="o">=</span>localhost:6379
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p>Optionally for testing on AWS or GCP, you can use the following to kill a random worker node after all the worker nodes are up</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ray kill-random-node tune-default.yaml --hard
+</pre></div>
+</div>
+<p>To summarize, here are the commands to run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>wget https://raw.githubusercontent.com/ray-project/ray/master/python/ray/tune/examples/mnist_pytorch_trainable.py
+wget https://raw.githubusercontent.com/ray-project/ray/master/python/ray/tune/tune-default.yaml
+ray submit tune-default.yaml mnist_pytorch_trainable.py --start -- --ray-address<span class="o">=</span>localhost:6379
+
+<span class="c1"># wait a while until after all nodes have started</span>
+ray kill-random-node tune-default.yaml --hard
+</pre></div>
+</div>
+<p>You should see Tune eventually continue the trials on a different worker node. See the <a class="reference internal" href="tune-distributed.html#tune-fault-tol"><span class="std std-ref">Fault Tolerance</span></a> section for more details.</p>
+<p>You can also specify <code class="docutils literal notranslate"><span class="pre">storage_path=...</span></code>, as part of <code class="docutils literal notranslate"><span class="pre">air.RunConfig</span></code>, which is taken in by <code class="docutils literal notranslate"><span class="pre">Tuner</span></code>, to upload results to cloud storage like S3, allowing you to persist results in case you want to start and stop your cluster automatically.</p>
+</section>
+</section>
+<section id="fault-tolerance-of-tune-runs">
+<span id="tune-fault-tol"></span><h2>Fault Tolerance of Tune Runs<a class="headerlink" href="tune-distributed.html#fault-tolerance-of-tune-runs" title="Permalink to this headline">#</a></h2>
+<p>Tune automatically restarts trials in the case of trial failures (if <code class="docutils literal notranslate"><span class="pre">max_failures</span> <span class="pre">!=</span> <span class="pre">0</span></code>),
+both in the single node and distributed setting.</p>
+<p>For example, let’s say a node is pre-empted or crashes while a trial is still executing on that node.
+Assuming that a checkpoint for this trial exists (and in the distributed setting,
+<a class="reference internal" href="tune-storage.html#tune-storage-options"><span class="std std-ref">some form of persistent storage is configured to access the trial’s checkpoint</span></a>),
+Tune waits until available resources are available to begin executing the trial again from where it left off.
+If no checkpoint is found, the trial will restart from scratch.
+See <a class="reference internal" href="tune-trial-checkpoints.html#tune-trial-checkpoint"><span class="std std-ref">here for information on checkpointing</span></a>.</p>
+<p>If the trial or actor is then placed on a different node, Tune automatically pushes the previous checkpoint file
+to that node and restores the remote trial actor state, allowing the trial to resume from the latest checkpoint
+even after failure.</p>
+<section id="recovering-from-failures">
+<h3>Recovering From Failures<a class="headerlink" href="tune-distributed.html#recovering-from-failures" title="Permalink to this headline">#</a></h3>
+<p>Tune automatically persists the progress of your entire experiment (a <code class="docutils literal notranslate"><span class="pre">Tuner.fit()</span></code> session), so if an experiment crashes or is otherwise cancelled, it can be resumed through <code class="xref py py-meth docutils literal notranslate"><span class="pre">Tuner.restore()</span></code>.</p>
+</section>
+</section>
+<section id="common-tune-commands">
+<span id="tune-distributed-common"></span><h2>Common Tune Commands<a class="headerlink" href="tune-distributed.html#common-tune-commands" title="Permalink to this headline">#</a></h2>
+<p>Below are some commonly used commands for submitting experiments. Please see the <a class="reference internal" href="../../ray-core/cluster/index.html#cluster-index"><span class="std std-ref">Clusters page</span></a> to see find more comprehensive documentation of commands.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Upload `tune_experiment.py` from your local machine onto the cluster. Then,</span>
+<span class="c1"># run `python tune_experiment.py --address=localhost:6379` on the remote machine.</span>
+$ ray submit CLUSTER.YAML tune_experiment.py -- --address<span class="o">=</span>localhost:6379
+
+<span class="c1"># Start a cluster and run an experiment in a detached tmux session,</span>
+<span class="c1"># and shut down the cluster as soon as the experiment completes.</span>
+<span class="c1"># In `tune_experiment.py`, set `air.RunConfig(storage_path=&quot;s3://...&quot;)`</span>
+<span class="c1"># to persist results</span>
+$ ray submit CLUSTER.YAML --tmux --start --stop tune_experiment.py -- --address<span class="o">=</span>localhost:6379
+
+<span class="c1"># To start or update your cluster:</span>
+$ ray up CLUSTER.YAML <span class="o">[</span>-y<span class="o">]</span>
+
+<span class="c1"># Shut-down all instances of your cluster:</span>
+$ ray down CLUSTER.YAML <span class="o">[</span>-y<span class="o">]</span>
+
+<span class="c1"># Run TensorBoard and forward the port to your own machine.</span>
+$ ray <span class="nb">exec</span> CLUSTER.YAML <span class="s1">&#39;tensorboard --logdir ~/ray_results/ --port 6006&#39;</span> --port-forward <span class="m">6006</span>
+
+<span class="c1"># Run Jupyter Lab and forward the port to your own machine.</span>
+$ ray <span class="nb">exec</span> CLUSTER.YAML <span class="s1">&#39;jupyter lab --port 6006&#39;</span> --port-forward <span class="m">6006</span>
+
+<span class="c1"># Get a summary of all the experiments and trials that have executed so far.</span>
+$ ray <span class="nb">exec</span> CLUSTER.YAML <span class="s1">&#39;tune ls ~/ray_results&#39;</span>
+
+<span class="c1"># Upload and sync file_mounts up to the cluster with this command.</span>
+$ ray rsync-up CLUSTER.YAML
+
+<span class="c1"># Download the results directory from your cluster head node to your local machine on ``~/cluster_results``.</span>
+$ ray rsync-down CLUSTER.YAML <span class="s1">&#39;~/ray_results&#39;</span> ~/cluster_results
+
+<span class="c1"># Launching multiple clusters using the same configuration.</span>
+$ ray up CLUSTER.YAML -n<span class="o">=</span><span class="s2">&quot;cluster1&quot;</span>
+$ ray up CLUSTER.YAML -n<span class="o">=</span><span class="s2">&quot;cluster2&quot;</span>
+$ ray up CLUSTER.YAML -n<span class="o">=</span><span class="s2">&quot;cluster3&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="tune-distributed.html#troubleshooting" title="Permalink to this headline">#</a></h2>
+<p>Sometimes, your program may freeze.
+Run this to restart the Ray cluster without running any of the installation commands.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ray up CLUSTER.YAML --restart-only
+</pre></div>
+</div>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="../examples/pbt_visualization/pbt_visualization.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Visualizing Population Based Training (PBT) Hyperparameter Optimization</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="tune-lifecycle.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">How does Tune work?</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

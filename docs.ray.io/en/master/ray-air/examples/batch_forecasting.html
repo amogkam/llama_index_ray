@@ -1,0 +1,1819 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Parallel demand forecasting at scale using Ray Tune &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/js/versionwarning.js"></script>
+    <script src="../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../_static/js/docsearch.js"></script>
+    <script src="../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../_static/js/top-navigation.js"></script>
+    <script src="../../_static/js/tags.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/ray-air/examples/batch_forecasting.html" />
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Stable Diffusion Batch Prediction with Ray AIR" href="stablediffusion_batch_prediction.html" />
+    <link rel="prev" title="Batch training &amp; tuning on Ray Tune" href="batch_tuning.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "ray-air/examples/batch_forecasting", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".ipynb", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../user-guides.html">
+     User Guides
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="index.html">
+     Examples
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="opt_deepspeed_batch_inference.html">
+       Batch Inference with OPT 30B and Ray Data
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="torch_image_example.html">
+       Training a Torch Image Classifier
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="torch_detection.html">
+       Fine-tuning a Torch object detection model
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="convert_existing_pytorch_code_to_ray_air.html">
+       Convert existing PyTorch code to Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="convert_existing_tf_code_to_ray_air.html">
+       Convert existing Tensorflow/Keras code to Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tfx_tabular_train_to_serve.html">
+       Tabular data training and serving with Keras and Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="huggingface_text_classification.html">
+       Fine-tune a 🤗 Transformers model
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="sklearn_example.html">
+       Training a model with Sklearn
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="xgboost_example.html">
+       Training a model with distributed XGBoost
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="analyze_tuning_results.html">
+       Hyperparameter tuning with XGBoostTrainer
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="lightgbm_example.html">
+       Training a model with distributed LightGBM
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="torch_incremental_learning.html">
+       Incremental Learning with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rl_serving_example.html">
+       Serving reinforcement learning policy models
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rl_online_example.html">
+       Online reinforcement learning with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rl_offline_example.html">
+       Offline reinforcement learning with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="upload_to_comet_ml.html">
+       Logging results and uploading models to Comet ML
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="upload_to_wandb.html">
+       Logging results and uploading models to Weights &amp; Biases
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="feast_example.html">
+       Integrate Ray AIR with Feast feature store
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="automl_with_ray_air.html">
+       AutoML for time series forecasting with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="batch_tuning.html">
+       Batch training &amp; tuning on Ray Tune
+      </a>
+     </li>
+     <li class="toctree-l3 current active">
+      <a class="current reference internal" href="batch_forecasting.html#">
+       Parallel demand forecasting at scale using Ray Tune
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="stablediffusion_batch_prediction.html">
+       Stable Diffusion Batch Prediction with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gptj_deepspeed_fine_tuning.html">
+       GPT-J-6B Fine-Tuning with Ray AIR and DeepSpeed
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gptj_batch_prediction.html">
+       GPT-J-6B Batch Prediction with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gptj_serving.html">
+       GPT-J-6B Serving with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="dreambooth_finetuning.html">
+       Fine-tuning DreamBooth with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="dolly_lightning_fsdp_finetuning.html">
+       Fine-tune
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         dolly-v2-7b
+        </span>
+       </code>
+       with Ray AIR LightningTrainer and FSDP
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/api.html">
+     Ray AIR API
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../benchmarks.html">
+     Benchmarks
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tune.html">
+   Ray Tune
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Fray-air/examples/batch_forecasting.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/ray-air/examples/batch_forecasting.ipynb"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../_sources/ray-air/examples/batch_forecasting.ipynb.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.ipynb</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="batch_forecasting.html#">
+   Parallel demand forecasting at scale using Ray Tune
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="batch_forecasting.html#contents">
+   Contents
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="batch_forecasting.html#walkthrough">
+   Walkthrough
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="batch_forecasting.html#define-how-to-load-and-prepare-parquet-data-a-class-anchor-id-prepare-data2-a">
+     Define how to load and prepare Parquet data
+     <a class="anchor" id="prepare_data2">
+     </a>
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="batch_forecasting.html#define-a-trainable-callable-function-a-class-anchor-id-define-trainable2-a">
+     Define a Trainable (callable) function
+     <a class="anchor" id="define_trainable2">
+     </a>
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="batch_forecasting.html#run-batch-training-on-ray-tune-a-class-anchor-id-run-tune-search2-a">
+     Run batch training on Ray Tune
+     <a class="anchor" id="run_tune_search2">
+     </a>
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="batch_forecasting.html#load-a-model-from-checkpoint-a-class-anchor-id-load-checkpoint2-a">
+     Load a model from checkpoint
+     <a class="anchor" id="load_checkpoint2">
+     </a>
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="batch_forecasting.html#create-a-forecast-from-model-restored-from-checkpoint-a-class-anchor-id-create-prediction2-a">
+     Create a forecast from model restored from checkpoint
+     <a class="anchor" id="create_prediction2">
+     </a>
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Parallel demand forecasting at scale using Ray Tune</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="batch_forecasting.html#">
+   Parallel demand forecasting at scale using Ray Tune
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="batch_forecasting.html#contents">
+   Contents
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="batch_forecasting.html#walkthrough">
+   Walkthrough
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="batch_forecasting.html#define-how-to-load-and-prepare-parquet-data-a-class-anchor-id-prepare-data2-a">
+     Define how to load and prepare Parquet data
+     <a class="anchor" id="prepare_data2">
+     </a>
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="batch_forecasting.html#define-a-trainable-callable-function-a-class-anchor-id-define-trainable2-a">
+     Define a Trainable (callable) function
+     <a class="anchor" id="define_trainable2">
+     </a>
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="batch_forecasting.html#run-batch-training-on-ray-tune-a-class-anchor-id-run-tune-search2-a">
+     Run batch training on Ray Tune
+     <a class="anchor" id="run_tune_search2">
+     </a>
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="batch_forecasting.html#load-a-model-from-checkpoint-a-class-anchor-id-load-checkpoint2-a">
+     Load a model from checkpoint
+     <a class="anchor" id="load_checkpoint2">
+     </a>
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="batch_forecasting.html#create-a-forecast-from-model-restored-from-checkpoint-a-class-anchor-id-create-prediction2-a">
+     Create a forecast from model restored from checkpoint
+     <a class="anchor" id="create_prediction2">
+     </a>
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section class="tex2jax_ignore mathjax_ignore" id="parallel-demand-forecasting-at-scale-using-ray-tune">
+<h1>Parallel demand forecasting at scale using Ray Tune<a class="headerlink" href="batch_forecasting.html#parallel-demand-forecasting-at-scale-using-ray-tune" title="Permalink to this headline">#</a></h1>
+<p><strong>Batch training and tuning</strong> are common tasks in machine learning use-cases. They require training simple models, on data batches, typcially corresponding to different locations, products, etc. Batch training can take less time to process all the data at once, but only if those batches can run in parallel!</p>
+<p>This notebook showcases how to conduct batch forecasting with <a class="reference external" href="https://github.com/facebook/prophet">Prophet</a> and <a class="reference external" href="https://github.com/Nixtla/statsforecast">ARIMA</a>. <strong>Prophet</strong> is a popular open-source library developed by Facebook and designed for automatic forecasting of univariate time series data. <strong>ARIMA</strong> is an older, well-known algorithm for forecasting univariate time series at less fine-grained detail than Prophet.</p>
+<p><img alt="Batch training diagram" src="../../_images/batch-training.svg" /></p>
+<p>For the data, we will use the <a class="reference external" href="https://www1.nyc.gov/site/tlc/about/tlc-trip-record-data.page">NYC Taxi dataset</a>. This popular tabular dataset contains historical taxi pickups by timestamp and location in NYC.</p>
+<p>For the training, we will train a separate forecasting model to predict #pickups at each location in NYC at daily level for the next 28 days. Specifically, we will use the <code class="docutils literal notranslate"><span class="pre">pickup_location_id</span></code> column in the dataset to group the dataset into data batches. Then we will conduct an experiment for each location, to find the best either Prophet or ARIMA model, per location.</p>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="contents">
+<h1>Contents<a class="headerlink" href="batch_forecasting.html#contents" title="Permalink to this headline">#</a></h1>
+<p>In this this tutorial, you will learn how to:</p>
+<ol class="simple">
+<li><p><a class="reference external" href="batch_forecasting.html#prepare_data2">Define how to load and prepare Parquet data</a></p></li>
+<li><p><a class="reference external" href="batch_forecasting.html#define_trainable2">Define a Trainable (callable) function</a></p></li>
+<li><p><a class="reference external" href="batch_forecasting.html#run_tune_search2">Run batch training and inference with Ray Tune</a></p></li>
+<li><p><a class="reference external" href="batch_forecasting.html#load_checkpoint2">Load a model from checkpoint</a></p></li>
+<li><p><a class="reference external" href="batch_forecasting.html#create_prediction2">Create a forecast from model restored from checkpoint</a></p></li>
+</ol>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="walkthrough">
+<h1>Walkthrough<a class="headerlink" href="batch_forecasting.html#walkthrough" title="Permalink to this headline">#</a></h1>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Prerequisite for this notebook: Read the <a class="reference internal" href="../../tune/key-concepts.html#tune-60-seconds"><span class="std std-ref">Key Concepts</span></a> page for Ray Tune.</p>
+</div>
+<p>First, let’s make sure we have all Python packages we need installed.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>pip install -q <span class="s2">&quot;ray[air]&quot;</span> scikit-learn prophet statsmodels statsforecast
+</pre></div>
+</div>
+</div>
+</div>
+<p>Next, let’s import a few required libraries, including open-source <a class="reference external" href="https://github.com/ray-project/ray">Ray</a> itself!</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">num_cpu</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of CPUs in this system: </span><span class="si">{</span><span class="n">num_cpu</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Callable</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;numpy: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">__version__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="o">%</span><span class="k">matplotlib</span> inline
+<span class="kn">import</span> <span class="nn">scipy</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;scipy: </span><span class="si">{</span><span class="n">scipy</span><span class="o">.</span><span class="n">__version__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">pyarrow</span>
+<span class="kn">import</span> <span class="nn">pyarrow.parquet</span> <span class="k">as</span> <span class="nn">pq</span>
+<span class="kn">import</span> <span class="nn">pyarrow.dataset</span> <span class="k">as</span> <span class="nn">pds</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;pyarrow: </span><span class="si">{</span><span class="n">pyarrow</span><span class="o">.</span><span class="n">__version__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Number of CPUs in this system: 64
+numpy: 1.24.3
+scipy: 1.9.1
+pyarrow: 11.0.0
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ray</span>
+
+<span class="k">if</span> <span class="n">ray</span><span class="o">.</span><span class="n">is_initialized</span><span class="p">():</span>
+    <span class="n">ray</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+<span class="n">ray</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-05-17 14:24:46,542	INFO worker.py:1380 -- Using address localhost:9031 set in the environment variable RAY_ADDRESS
+find: ‘.git’: No such file or directory
+2023-05-17 14:24:47,257	INFO worker.py:1498 -- Connecting to existing Ray cluster at address: 172.31.213.59:9031...
+2023-05-17 14:24:47,273	INFO worker.py:1673 -- Connected to Ray cluster. View the dashboard at https://console.anyscale.com/api/v2/sessions/ses_jgkdnu2723aleytwqqhebr12vs/services?redirect_to=dashboard 
+2023-05-17 14:24:47,296	INFO packaging.py:347 -- Pushing file package &#39;gcs://_ray_pkg_e219f8b9b77b196e3d63ced7d9917421.zip&#39; (5.45MiB) to Ray cluster...
+2023-05-17 14:24:47,314	INFO packaging.py:360 -- Successfully pushed file package &#39;gcs://_ray_pkg_e219f8b9b77b196e3d63ced7d9917421.zip&#39;.
+</pre></div>
+</div>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "c81e13720e464342820f14b3883476b0", "version_major": 2, "version_minor": 0}
+</script></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">ray</span><span class="o">.</span><span class="n">cluster_resources</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;memory&#39;: 319463062119.0, &#39;object_store_memory&#39;: 141198455193.0, &#39;CPU&#39;: 64.0, &#39;node:172.31.213.59&#39;: 1.0, &#39;accelerator_type:V100&#39;: 1.0, &#39;GPU&#39;: 8.0}
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import forecasting libraries.</span>
+<span class="kn">import</span> <span class="nn">prophet</span>
+<span class="kn">from</span> <span class="nn">prophet</span> <span class="kn">import</span> <span class="n">Prophet</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;prophet: </span><span class="si">{</span><span class="n">prophet</span><span class="o">.</span><span class="n">__version__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">statsforecast</span>
+<span class="kn">from</span> <span class="nn">statsforecast</span> <span class="kn">import</span> <span class="n">StatsForecast</span>
+<span class="kn">from</span> <span class="nn">statsforecast.models</span> <span class="kn">import</span> <span class="n">AutoARIMA</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;statsforecast: </span><span class="si">{</span><span class="n">statsforecast</span><span class="o">.</span><span class="n">__version__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Import ray libraries.</span>
+<span class="kn">from</span> <span class="nn">ray</span> <span class="kn">import</span> <span class="n">air</span><span class="p">,</span> <span class="n">tune</span><span class="p">,</span> <span class="n">serve</span>
+<span class="kn">from</span> <span class="nn">ray.air</span> <span class="kn">import</span> <span class="n">session</span><span class="p">,</span> <span class="n">ScalingConfig</span>
+<span class="kn">from</span> <span class="nn">ray.air.checkpoint</span> <span class="kn">import</span> <span class="n">Checkpoint</span>
+
+<span class="n">RAY_IGNORE_UNHANDLED_ERRORS</span> <span class="o">=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>prophet: 1.1.3
+statsforecast: 1.5.0
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># For benchmarking purposes, we can print the times of various operations.</span>
+<span class="c1"># In order to reduce clutter in the output, this is set to False by default.</span>
+<span class="n">PRINT_TIMES</span> <span class="o">=</span> <span class="kc">False</span>
+
+
+<span class="k">def</span> <span class="nf">print_time</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">PRINT_TIMES</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+
+<span class="c1"># To speed things up, we’ll only use a small subset of the full dataset consisting of two last months of 2019.</span>
+<span class="c1"># You can choose to use the full dataset for 2018-2019 by setting the SMOKE_TEST variable to False.</span>
+<span class="n">SMOKE_TEST</span> <span class="o">=</span> <span class="kc">True</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="define-how-to-load-and-prepare-parquet-data-a-class-anchor-id-prepare-data2-a">
+<h2>Define how to load and prepare Parquet data <a class="anchor" id="prepare_data2"></a><a class="headerlink" href="batch_forecasting.html#define-how-to-load-and-prepare-parquet-data-a-class-anchor-id-prepare-data2-a" title="Permalink to this headline">#</a></h2>
+<p>First, we need to load some data. Since the NYC Taxi dataset is fairly large, we will filter files first into a PyArrow dataset. And then in the next cell after, we will filter the data on read into a PyArrow table and convert that to a pandas dataframe.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Use PyArrow dataset and table for reading or writing large parquet files, since its native multithreaded C++ adapter is faster than pandas read_parquet, even using engine=pyarrow.</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define some global variables.</span>
+<span class="n">TARGET</span> <span class="o">=</span> <span class="s2">&quot;y&quot;</span>
+<span class="n">FORECAST_LENGTH</span> <span class="o">=</span> <span class="mi">28</span>
+<span class="n">MAX_DATE</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2019</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
+<span class="n">s3_partitions</span> <span class="o">=</span> <span class="n">pds</span><span class="o">.</span><span class="n">dataset</span><span class="p">(</span>
+    <span class="s2">&quot;s3://anonymous@air-example-data/ursa-labs-taxi-data/by_year/&quot;</span><span class="p">,</span>
+    <span class="n">partitioning</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">,</span> <span class="s2">&quot;month&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+<span class="n">s3_files</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;s3://anonymous@</span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">s3_partitions</span><span class="o">.</span><span class="n">files</span><span class="p">]</span>
+
+<span class="c1"># Obtain all location IDs</span>
+<span class="n">all_location_ids</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">pq</span><span class="o">.</span><span class="n">read_table</span><span class="p">(</span><span class="n">s3_files</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;pickup_location_id&quot;</span><span class="p">])[</span><span class="s2">&quot;pickup_location_id&quot;</span><span class="p">]</span>
+    <span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">to_pylist</span><span class="p">()</span>
+<span class="p">)</span>
+<span class="c1"># drop [264, 265, 199]</span>
+<span class="n">all_location_ids</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="mi">264</span><span class="p">)</span>
+<span class="n">all_location_ids</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="mi">265</span><span class="p">)</span>
+<span class="n">all_location_ids</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="mi">199</span><span class="p">)</span>
+
+<span class="c1"># Use smoke testing or not.</span>
+<span class="n">starting_idx</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span> <span class="k">if</span> <span class="n">SMOKE_TEST</span> <span class="k">else</span> <span class="mi">0</span>
+<span class="c1"># TODO: drop location 199 to test error-handling before final git checkin</span>
+<span class="n">sample_locations</span> <span class="o">=</span> <span class="p">[</span><span class="mi">141</span><span class="p">,</span> <span class="mi">229</span><span class="p">,</span> <span class="mi">173</span><span class="p">]</span> <span class="k">if</span> <span class="n">SMOKE_TEST</span> <span class="k">else</span> <span class="n">all_location_ids</span>
+
+<span class="c1"># Display what data will be used.</span>
+<span class="n">s3_files</span> <span class="o">=</span> <span class="n">s3_files</span><span class="p">[</span><span class="n">starting_idx</span><span class="p">:]</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;NYC Taxi using </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">s3_files</span><span class="p">)</span><span class="si">}</span><span class="s2"> file(s)!&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;s3_files: </span><span class="si">{</span><span class="n">s3_files</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Locations: </span><span class="si">{</span><span class="n">sample_locations</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>NYC Taxi using 2 file(s)!
+s3_files: [&#39;s3://anonymous@air-example-data/ursa-labs-taxi-data/by_year/2019/05/data.parquet/359c21b3e28f40328e68cf66f7ba40e2_000000.parquet&#39;, &#39;s3://anonymous@air-example-data/ursa-labs-taxi-data/by_year/2019/06/data.parquet/ab5b9d2b8cc94be19346e260b543ec35_000000.parquet&#39;]
+Locations: [141, 229, 173]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">############</span>
+<span class="c1"># STEP 1.  Define Python functions to</span>
+<span class="c1">#          a) read and prepare a segment of data, and</span>
+<span class="c1">############</span>
+
+<span class="c1"># Function to read a pyarrow.Table object using pyarrow parquet</span>
+<span class="k">def</span> <span class="nf">read_data</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">sample_id</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+
+    <span class="c1"># parse out min expected date</span>
+    <span class="n">part_zero</span> <span class="o">=</span> <span class="s2">&quot;s3://anonymous@air-example-data/ursa-labs-taxi-data/by_year/&quot;</span>
+    <span class="n">split_text</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">part_zero</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">min_year</span> <span class="o">=</span> <span class="n">split_text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">min_month</span> <span class="o">=</span> <span class="n">split_text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">string_date</span> <span class="o">=</span> <span class="n">min_year</span> <span class="o">+</span> <span class="s2">&quot;-&quot;</span> <span class="o">+</span> <span class="n">min_month</span> <span class="o">+</span> <span class="s2">&quot;-&quot;</span> <span class="o">+</span> <span class="s2">&quot;01&quot;</span> <span class="o">+</span> <span class="s2">&quot; 00:00:00&quot;</span>
+    <span class="n">min_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">string_date</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pq</span><span class="o">.</span><span class="n">read_table</span><span class="p">(</span>
+        <span class="n">file</span><span class="p">,</span>
+        <span class="n">filters</span><span class="o">=</span><span class="p">[</span>
+            <span class="p">(</span><span class="s2">&quot;pickup_at&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;&quot;</span><span class="p">,</span> <span class="n">min_date</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;pickup_at&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;=&quot;</span><span class="p">,</span> <span class="n">MAX_DATE</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;passenger_count&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;trip_distance&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;fare_amount&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;pickup_location_id&quot;</span><span class="p">,</span> <span class="s2">&quot;not in&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">264</span><span class="p">,</span> <span class="mi">265</span><span class="p">]),</span>
+            <span class="p">(</span><span class="s2">&quot;dropoff_location_id&quot;</span><span class="p">,</span> <span class="s2">&quot;not in&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">264</span><span class="p">,</span> <span class="mi">265</span><span class="p">]),</span>
+            <span class="p">(</span><span class="s2">&quot;pickup_location_id&quot;</span><span class="p">,</span> <span class="s2">&quot;=&quot;</span><span class="p">,</span> <span class="n">sample_id</span><span class="p">),</span>
+        <span class="p">],</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
+            <span class="s2">&quot;pickup_at&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;dropoff_at&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pickup_location_id&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;dropoff_location_id&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;passenger_count&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;trip_distance&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fare_amount&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">df</span>
+
+
+<span class="c1"># Function to transform a pandas dataframe</span>
+<span class="k">def</span> <span class="nf">transform_df</span><span class="p">(</span><span class="n">input_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">input_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c1"># calculate trip_duration</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;trip_duration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;dropoff_at&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;pickup_at&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">seconds</span>
+    <span class="c1"># filter trip_durations &gt; 1 minute and less than 24 hours</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;trip_duration&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">60</span><span class="p">]</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;trip_duration&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">24</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">60</span><span class="p">]</span>
+
+    <span class="c1"># Prophet requires timstamp is &#39;ds&#39; and target_value name is &#39;y&#39;</span>
+    <span class="c1"># Prophet requires at least 2 data points per timestamp</span>
+    <span class="c1"># StatsForecast requires location name is &#39;unique_id&#39;</span>
+
+    <span class="c1"># add year_month_day and concat into a unique column to use as groupby key</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;ds&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;pickup_at&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">to_period</span><span class="p">(</span><span class="s2">&quot;D&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">to_timestamp</span><span class="p">()</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;loc_year_month_day&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;pickup_location_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+        <span class="o">+</span> <span class="s2">&quot;_&quot;</span>
+        <span class="o">+</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;pickup_at&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+        <span class="o">+</span> <span class="s2">&quot;_&quot;</span>
+        <span class="o">+</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;pickup_at&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">month</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+        <span class="o">+</span> <span class="s2">&quot;_&quot;</span>
+        <span class="o">+</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;pickup_at&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">day</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="c1"># add target_value quantity for groupby count later</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="c1"># rename pickup_location_id to unique_id</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;pickup_location_id&quot;</span><span class="p">:</span> <span class="s2">&quot;unique_id&quot;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># keep only necessary columns</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="s2">&quot;loc_year_month_day&quot;</span><span class="p">,</span> <span class="s2">&quot;unique_id&quot;</span><span class="p">,</span> <span class="s2">&quot;ds&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c1"># groupby aggregregate</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;loc_year_month_day&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="s2">&quot;unique_id&quot;</span><span class="p">:</span> <span class="nb">min</span><span class="p">,</span> <span class="s2">&quot;ds&quot;</span><span class="p">:</span> <span class="nb">min</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="nb">sum</span><span class="p">})</span>
+    <span class="c1"># having num rows in group &gt; 2</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="n">g</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c1"># Drop groupby variable since we do not need it anymore</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s2">&quot;loc_year_month_day&quot;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">g</span>
+
+
+<span class="k">def</span> <span class="nf">prepare_data</span><span class="p">(</span><span class="n">sample_location_id</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+
+    <span class="c1"># Load data.</span>
+    <span class="n">df_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">read_data</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">sample_location_id</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">s3_files</span><span class="p">]</span>
+    <span class="n">df_raw</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">df_list</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># Abort Tune to avoid Tune Error if df has too few rows</span>
+    <span class="k">if</span> <span class="n">df_raw</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">FORECAST_LENGTH</span><span class="p">:</span>
+        <span class="n">print_time</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Location </span><span class="si">{</span><span class="n">sample_location_id</span><span class="si">}</span><span class="s2"> has only </span><span class="si">{</span><span class="n">df_raw</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> rows&quot;</span><span class="p">)</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">error</span><span class="o">=</span><span class="kc">None</span><span class="p">))</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="c1"># Transform data.</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">transform_df</span><span class="p">(</span><span class="n">df_raw</span><span class="p">)</span>
+    <span class="c1"># Abort Tune to avoid Tune Error if df has too few rows</span>
+    <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">FORECAST_LENGTH</span><span class="p">:</span>
+        <span class="n">print_time</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Location </span><span class="si">{</span><span class="n">sample_location_id</span><span class="si">}</span><span class="s2"> has only </span><span class="si">{</span><span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> rows&quot;</span><span class="p">)</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">error</span><span class="o">=</span><span class="kc">None</span><span class="p">))</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;ds&quot;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="define-a-trainable-callable-function-a-class-anchor-id-define-trainable2-a">
+<h2>Define a Trainable (callable) function <a class="anchor" id="define_trainable2"></a><a class="headerlink" href="batch_forecasting.html#define-a-trainable-callable-function-a-class-anchor-id-define-trainable2-a" title="Permalink to this headline">#</a></h2>
+<p>Next, we define a trainable function, called <code class="docutils literal notranslate"><span class="pre">train_model()</span></code>, in order to train and evaluate a model on a data partition. This function will be called <em>in parallel for every permutation</em> in the Tune search space!</p>
+<p>Inside this trainable function:</p>
+<ul class="simple">
+<li><p>📖 The input must include a <code class="docutils literal notranslate"><span class="pre">config</span></code> argument.</p></li>
+<li><p>📈 Inside the function, the tuning metric (a model’s loss or error) must be calculated and reported using <code class="docutils literal notranslate"><span class="pre">session.report()</span></code>.</p></li>
+<li><p>✔️ Optionally <a class="reference internal" href="../key-concepts.html#air-checkpoints-doc"><span class="std std-ref">checkpoint</span></a> (save) the model for fault tolerance and easy deployment later.</p></li>
+</ul>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Ray Tune has two ways of <a class="reference internal" href="../../tune/key-concepts.html#tune-60-seconds-trainables"><span class="std std-ref">defining a trainable</span></a>, namely the Function API and the Class API. Both are valid ways of defining a trainable, but <em>the Function API is generally recommended</em>.</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">############</span>
+<span class="c1"># STEP 1.  Define Python functions to</span>
+<span class="c1">#          b) train and evaluate a model on a segment of data.</span>
+<span class="c1">############</span>
+
+
+<span class="k">def</span> <span class="nf">evaluate_model_prophet</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">:</span> <span class="s2">&quot;prophet.forecaster.Prophet&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+
+    <span class="c1"># Inference model using FORECAST_LENGTH.</span>
+    <span class="n">future_dates</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">make_future_dataframe</span><span class="p">(</span><span class="n">periods</span><span class="o">=</span><span class="n">FORECAST_LENGTH</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s2">&quot;D&quot;</span><span class="p">)</span>
+    <span class="n">future</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">future_dates</span><span class="p">)</span>
+
+    <span class="c1"># Calculate mean absolute forecast error.</span>
+    <span class="n">temp</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">temp</span><span class="p">[</span><span class="s2">&quot;forecast_error&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">temp</span><span class="p">[</span><span class="s2">&quot;yhat&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">temp</span><span class="p">[</span><span class="s2">&quot;trend&quot;</span><span class="p">])</span>
+    <span class="n">error</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">temp</span><span class="p">[</span><span class="s2">&quot;forecast_error&quot;</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">error</span><span class="p">,</span> <span class="n">future</span>
+
+
+<span class="k">def</span> <span class="nf">evaluate_model_statsforecast</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">:</span> <span class="s2">&quot;statsforecast.models.AutoARIMA&quot;</span><span class="p">,</span> <span class="n">test_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+
+    <span class="c1"># Inference model using test data.</span>
+    <span class="n">forecast</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">forecast</span><span class="p">(</span><span class="n">FORECAST_LENGTH</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="n">forecast</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">&quot;ds&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">test_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;ds&quot;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">future</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">test_df</span><span class="p">,</span> <span class="n">forecast</span><span class="p">[[</span><span class="s2">&quot;AutoARIMA&quot;</span><span class="p">]]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">future</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">future</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;unique_id&quot;</span><span class="p">,</span> <span class="s2">&quot;trend&quot;</span><span class="p">,</span> <span class="s2">&quot;yhat&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Calculate mean absolute forecast error.</span>
+    <span class="n">temp</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">temp</span><span class="p">[</span><span class="s2">&quot;forecast_error&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">temp</span><span class="p">[</span><span class="s2">&quot;yhat&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">temp</span><span class="p">[</span><span class="s2">&quot;trend&quot;</span><span class="p">])</span>
+    <span class="n">error</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">temp</span><span class="p">[</span><span class="s2">&quot;forecast_error&quot;</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">error</span><span class="p">,</span> <span class="n">future</span>
+
+
+<span class="c1"># 2. Define a custom train function</span>
+<span class="k">def</span> <span class="nf">train_model</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+    <span class="c1"># Get Tune parameters</span>
+    <span class="n">sample_location_id</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">][</span><span class="s2">&quot;location&quot;</span><span class="p">]</span>
+    <span class="n">model_type</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">][</span><span class="s2">&quot;algorithm&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Define Prophet model with 75% confidence interval</span>
+    <span class="k">if</span> <span class="n">model_type</span> <span class="o">==</span> <span class="s2">&quot;prophet_additive&quot;</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Prophet</span><span class="p">(</span><span class="n">interval_width</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">seasonality_mode</span><span class="o">=</span><span class="s2">&quot;additive&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">model_type</span> <span class="o">==</span> <span class="s2">&quot;prophet_multiplicative&quot;</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Prophet</span><span class="p">(</span><span class="n">interval_width</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">seasonality_mode</span><span class="o">=</span><span class="s2">&quot;multiplicative&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Define ARIMA model with daily frequency which implies seasonality = 7</span>
+    <span class="k">elif</span> <span class="n">model_type</span> <span class="o">==</span> <span class="s2">&quot;arima&quot;</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="p">[</span><span class="n">AutoARIMA</span><span class="p">(</span><span class="n">season_length</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">approximation</span><span class="o">=</span><span class="kc">True</span><span class="p">)]</span>
+
+    <span class="c1"># Read and transform data.</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">prepare_data</span><span class="p">(</span><span class="n">sample_location_id</span><span class="p">)</span>
+
+    <span class="c1"># Train model.</span>
+    <span class="k">if</span> <span class="n">model_type</span> <span class="o">==</span> <span class="s2">&quot;arima&quot;</span><span class="p">:</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># split data into train, test.</span>
+            <span class="n">train_end</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">FORECAST_LENGTH</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">train_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">df</span><span class="o">.</span><span class="n">ds</span> <span class="o">&lt;=</span> <span class="n">train_end</span><span class="p">),</span> <span class="p">:]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">test_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="n">FORECAST_LENGTH</span><span class="p">:,</span> <span class="p">:]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+            <span class="c1"># fit AutoARIMA.</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">StatsForecast</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">train_df</span><span class="p">,</span> <span class="n">models</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s2">&quot;D&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Inference model and evaluate error.</span>
+            <span class="n">error</span><span class="p">,</span> <span class="n">future</span> <span class="o">=</span> <span class="n">evaluate_model_statsforecast</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">test_df</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ARIMA error processing location: </span><span class="si">{</span><span class="n">sample_location_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># model type is Prophet</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># fit Prophet.</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;ds&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]])</span>
+
+            <span class="c1"># Inference model and evaluate error.</span>
+            <span class="n">error</span><span class="p">,</span> <span class="n">future</span> <span class="o">=</span> <span class="n">evaluate_model_prophet</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Prophet error processing location: </span><span class="si">{</span><span class="n">sample_location_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Define a model checkpoint using AIR API.</span>
+    <span class="c1"># https://docs.ray.io/en/latest/tune/tutorials/tune-checkpoints.html</span>
+    <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">air</span><span class="o">.</span><span class="n">checkpoint</span><span class="o">.</span><span class="n">Checkpoint</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">model</span><span class="p">,</span>
+            <span class="s2">&quot;forecast_df&quot;</span><span class="p">:</span> <span class="n">future</span><span class="p">,</span>
+            <span class="s2">&quot;location_id&quot;</span><span class="p">:</span> <span class="n">sample_location_id</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Save checkpoint and report back metrics, using ray.air.session.report()</span>
+    <span class="c1"># The metrics you specify here will appear in Tune summary table.</span>
+    <span class="c1"># They will also be recorded in Tune results under `metrics`.</span>
+    <span class="n">metrics</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">error</span><span class="o">=</span><span class="n">error</span><span class="p">)</span>
+    <span class="n">session</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">metrics</span><span class="p">,</span> <span class="n">checkpoint</span><span class="o">=</span><span class="n">checkpoint</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="run-batch-training-on-ray-tune-a-class-anchor-id-run-tune-search2-a">
+<h2>Run batch training on Ray Tune <a class="anchor" id="run_tune_search2"></a><a class="headerlink" href="batch_forecasting.html#run-batch-training-on-ray-tune-a-class-anchor-id-run-tune-search2-a" title="Permalink to this headline">#</a></h2>
+<p><strong>Recall what we are doing, high level, is training several different models per pickup location.</strong> We are using Ray Tune so we can <em>run all these trials in parallel</em> on a Ray cluster. At the end, we will inspect the results of the experiment and deploy only the best model per pickup location.</p>
+<p><strong>Step 1. Define Python functions to read and prepare a segment of data and train and evaluate one or many models per segment of data</strong>.  We already did this, above.</p>
+<p><strong>Step 2. Scaling</strong>:
+Below, we specify training resources in a <code class="docutils literal notranslate"><span class="pre">ray.air.ScalingConfig</span></code> object inside the Tune search space.  For more information about configuring resource allocations, see <a class="reference internal" href="../../tune/tutorials/tune-resources.html#tune-parallelism"><span class="std std-ref">A Guide To Parallelism and Resources</span></a>.</p>
+<p><strong>Step 3. Search Space</strong>:
+Below, we define our <a class="reference internal" href="../../tune/key-concepts.html#tune-key-concepts-search-spaces"><span class="std std-ref">Tune search space</span></a>, which consists of:</p>
+<ul class="simple">
+<li><p>Different algorithms, either:</p>
+<ul>
+<li><p>Prophet with <a class="reference external" href="https://facebook.github.io/prophet/docs/multiplicative_seasonality.html">multiplicative or additive</a> seasonal effects</p></li>
+<li><p><a class="reference external" href="https://github.com/Nixtla/statsforecast">AutoARIMA</a>.</p></li>
+</ul>
+</li>
+<li><p>NYC taxi pick-up locations.</p></li>
+<li><p>Scaling config</p></li>
+</ul>
+<p><strong>Step 4. Search Algorithm or Strategy</strong>:
+Below, our Tune jobs will be defined using a search space and simple grid search.</p>
+<blockquote>
+<div><p>The typical use case for Tune search spaces is for hyperparameter tuning. In our case, we are defining the Tune search space in order to run distributed tuning jobs automatically.  Each training job will use a different data partition (taxi pickup location), different algorithm, and the compute resources we defined in the Scaling config.</p>
+</div></blockquote>
+<p><strong>Step 5. Now we are ready to kick off a Ray Tune experiment!</strong></p>
+<ul class="simple">
+<li><p>Define a <code class="docutils literal notranslate"><span class="pre">tuner</span></code> object.</p></li>
+<li><p>Put the training function <code class="docutils literal notranslate"><span class="pre">train_model()</span></code> inside the <code class="docutils literal notranslate"><span class="pre">tuner</span></code> object.</p></li>
+<li><p>Run the experiment using <code class="docutils literal notranslate"><span class="pre">tuner.fit()</span></code>.</p></li>
+</ul>
+<p>💡 After you run the cell below, right-click on it and choose “Enable Scrolling for Outputs”! This will make it easier to view, since tuning output can be very long!</p>
+<p><strong>Setting SMOKE_TEST=False, running on Anyscale: 771 models, using 18 NYC Taxi S3 files dating from 2018/01 to 2019/06 (split into partitions approx 1GiB each), were simultaneously trained on a 7-node AWS cluster of m5.4xlarges, within 40 minutes.</strong></p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">############</span>
+<span class="c1"># STEP 2. Customize distributed compute scaling.</span>
+<span class="c1">############</span>
+<span class="n">num_training_workers</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">num_cpu</span> <span class="o">-</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">32</span><span class="p">)</span>
+<span class="n">scaling_config</span> <span class="o">=</span> <span class="n">ScalingConfig</span><span class="p">(</span>
+    <span class="c1"># Number of distributed workers.</span>
+    <span class="n">num_workers</span><span class="o">=</span><span class="n">num_training_workers</span><span class="p">,</span>
+    <span class="c1"># Turn on/off GPU.</span>
+    <span class="n">use_gpu</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="c1"># Specify resources used for trainer.</span>
+    <span class="n">trainer_resources</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;CPU&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+    <span class="c1"># Try to schedule workers on different nodes.</span>
+    <span class="n">placement_strategy</span><span class="o">=</span><span class="s2">&quot;SPREAD&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1">############</span>
+<span class="c1"># STEP 3. Define a search space dict of all config parameters.</span>
+<span class="c1">############</span>
+<span class="n">SEARCH_SPACE</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;scaling_config&quot;</span><span class="p">:</span> <span class="n">scaling_config</span><span class="p">,</span>
+    <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;algorithm&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">grid_search</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;prophet_additive&quot;</span><span class="p">,</span> <span class="s2">&quot;prophet_multiplicative&quot;</span><span class="p">,</span> <span class="s2">&quot;arima&quot;</span><span class="p">]</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;location&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">grid_search</span><span class="p">(</span><span class="n">sample_locations</span><span class="p">),</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+
+<span class="c1"># Optional STEP 4. Specify the hyperparameter tuning search strategy.</span>
+
+<span class="c1">############</span>
+<span class="c1"># STEP 5. Run the experiment with Ray AIR APIs.</span>
+<span class="c1"># https://docs.ray.io/en/latest/ray-air/examples/huggingface_text_classification.html</span>
+<span class="c1">############</span>
+<span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+<span class="c1"># Define a tuner object.</span>
+<span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
+    <span class="n">train_model</span><span class="p">,</span>
+    <span class="n">param_space</span><span class="o">=</span><span class="n">SEARCH_SPACE</span><span class="p">,</span>
+    <span class="n">tune_config</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">TuneConfig</span><span class="p">(</span>
+        <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;error&quot;</span><span class="p">,</span>
+        <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;min&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">run_config</span><span class="o">=</span><span class="n">air</span><span class="o">.</span><span class="n">RunConfig</span><span class="p">(</span>
+        <span class="c1"># Redirect logs to relative path instead of default ~/ray_results/.</span>
+        <span class="n">storage_path</span><span class="o">=</span><span class="s2">&quot;my_Tune_logs&quot;</span><span class="p">,</span>
+        <span class="c1"># Specify name to make logs easier to find in log path.</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ptf_nyc&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+
+<span class="c1"># Fit the tuner object.</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+
+<span class="n">total_time_taken</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total number of models: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TOTAL TIME TAKEN: </span><span class="si">{</span><span class="n">total_time_taken</span><span class="o">/</span><span class="mi">60</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> minutes&quot;</span><span class="p">)</span>
+
+<span class="c1"># Total number of models: 771</span>
+<span class="c1"># TOTAL TIME TAKEN: 44.64 minutes</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div class="tuneStatus">
+  <div style="display: flex;flex-direction: row">
+    <div style="display: flex;flex-direction: column;">
+      <h3>Tune Status</h3>
+      <table>
+<tbody>
+<tr><td>Current time:</td><td>2023-05-17 14:25:23</td></tr>
+<tr><td>Running for: </td><td>00:00:29.24        </td></tr>
+<tr><td>Memory:      </td><td>10.1/480.3 GiB     </td></tr>
+</tbody>
+</table>
+    </div>
+    <div class="vDivider"></div>
+    <div class="systemInfo">
+      <h3>System Info</h3>
+      Using FIFO scheduling algorithm.<br>Logical resource usage: 1.0/64 CPUs, 0/8 GPUs (0.0/1.0 accelerator_type:V100)
+    </div>
+
+  </div>
+  <div class="hDivider"></div>
+  <div class="trialStatus">
+    <h3>Trial Status</h3>
+    <table>
+<thead>
+<tr><th>Trial name             </th><th>status    </th><th>loc                </th><th>params/algorithm    </th><th style="text-align: right;">  params/location</th><th style="text-align: right;">  iter</th><th style="text-align: right;">  total time (s)</th><th style="text-align: right;">    error</th></tr>
+</thead>
+<tbody>
+<tr><td>train_model_42de5_00000</td><td>TERMINATED</td><td>172.31.213.59:14115</td><td>prophet_additive    </td><td style="text-align: right;">              141</td><td style="text-align: right;">     1</td><td style="text-align: right;">         5.73623</td><td style="text-align: right;">502.849  </td></tr>
+<tr><td>train_model_42de5_00001</td><td>TERMINATED</td><td>172.31.213.59:14116</td><td>prophet_multipl_43f0</td><td style="text-align: right;">              141</td><td style="text-align: right;">     1</td><td style="text-align: right;">         5.94609</td><td style="text-align: right;">483.067  </td></tr>
+<tr><td>train_model_42de5_00002</td><td>TERMINATED</td><td>172.31.213.59:14117</td><td>arima               </td><td style="text-align: right;">              141</td><td style="text-align: right;">     1</td><td style="text-align: right;">        21.574  </td><td style="text-align: right;">342.35   </td></tr>
+<tr><td>train_model_42de5_00003</td><td>TERMINATED</td><td>172.31.213.59:14118</td><td>prophet_additive    </td><td style="text-align: right;">              229</td><td style="text-align: right;">     1</td><td style="text-align: right;">         5.54851</td><td style="text-align: right;">539.389  </td></tr>
+<tr><td>train_model_42de5_00004</td><td>TERMINATED</td><td>172.31.213.59:14119</td><td>prophet_multipl_43f0</td><td style="text-align: right;">              229</td><td style="text-align: right;">     1</td><td style="text-align: right;">         5.4158 </td><td style="text-align: right;">529.743  </td></tr>
+<tr><td>train_model_42de5_00005</td><td>TERMINATED</td><td>172.31.213.59:14122</td><td>arima               </td><td style="text-align: right;">              229</td><td style="text-align: right;">     1</td><td style="text-align: right;">        20.862  </td><td style="text-align: right;">480.844  </td></tr>
+<tr><td>train_model_42de5_00006</td><td>TERMINATED</td><td>172.31.213.59:14120</td><td>prophet_additive    </td><td style="text-align: right;">              173</td><td style="text-align: right;">     1</td><td style="text-align: right;">         4.70871</td><td style="text-align: right;">  2.55585</td></tr>
+<tr><td>train_model_42de5_00007</td><td>TERMINATED</td><td>172.31.213.59:14121</td><td>prophet_multipl_43f0</td><td style="text-align: right;">              173</td><td style="text-align: right;">     1</td><td style="text-align: right;">         4.64482</td><td style="text-align: right;">  2.52897</td></tr>
+<tr><td>train_model_42de5_00008</td><td>TERMINATED</td><td>172.31.213.59:14123</td><td>arima               </td><td style="text-align: right;">              173</td><td style="text-align: right;">     1</td><td style="text-align: right;">        21.2637 </td><td style="text-align: right;">  2.81589</td></tr>
+</tbody>
+</table>
+  </div>
+</div>
+<style>
+.tuneStatus {
+  color: var(--jp-ui-font-color1);
+}
+.tuneStatus .systemInfo {
+  display: flex;
+  flex-direction: column;
+}
+.tuneStatus td {
+  white-space: nowrap;
+}
+.tuneStatus .trialStatus {
+  display: flex;
+  flex-direction: column;
+}
+.tuneStatus h3 {
+  font-weight: bold;
+}
+.tuneStatus .hDivider {
+  border-bottom-width: var(--jp-border-width);
+  border-bottom-color: var(--jp-border-color0);
+  border-bottom-style: solid;
+}
+.tuneStatus .vDivider {
+  border-left-width: var(--jp-border-width);
+  border-left-color: var(--jp-border-color0);
+  border-left-style: solid;
+  margin: 0.5em 1em 0.5em 1em;
+}
+</style>
+</div><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(train_model pid=14121) 14:25:05 - cmdstanpy - INFO - Chain [1] start processing
+(train_model pid=14121) 14:25:06 - cmdstanpy - INFO - Chain [1] done processing
+</pre></div>
+</div>
+<div class="output text_html"><div class="trialProgress">
+  <h3>Trial Progress</h3>
+  <table>
+<thead>
+<tr><th>Trial name             </th><th>date               </th><th>done  </th><th style="text-align: right;">    error</th><th>experiment_tag                                 </th><th>hostname        </th><th style="text-align: right;">  iterations_since_restore</th><th>node_ip      </th><th style="text-align: right;">  pid</th><th>should_checkpoint  </th><th style="text-align: right;">  time_since_restore</th><th style="text-align: right;">  time_this_iter_s</th><th style="text-align: right;">  time_total_s</th><th style="text-align: right;">  timestamp</th><th style="text-align: right;">  training_iteration</th><th>trial_id   </th></tr>
+</thead>
+<tbody>
+<tr><td>train_model_42de5_00000</td><td>2023-05-17_14-25-07</td><td>True  </td><td style="text-align: right;">502.849  </td><td>0_algorithm=prophet_additive,location=141      </td><td>ip-172-31-213-59</td><td style="text-align: right;">                         1</td><td>172.31.213.59</td><td style="text-align: right;">14115</td><td>True               </td><td style="text-align: right;">             5.73623</td><td style="text-align: right;">           5.73623</td><td style="text-align: right;">       5.73623</td><td style="text-align: right;"> 1684358707</td><td style="text-align: right;">                   1</td><td>42de5_00000</td></tr>
+<tr><td>train_model_42de5_00001</td><td>2023-05-17_14-25-07</td><td>True  </td><td style="text-align: right;">483.067  </td><td>1_algorithm=prophet_multiplicative,location=141</td><td>ip-172-31-213-59</td><td style="text-align: right;">                         1</td><td>172.31.213.59</td><td style="text-align: right;">14116</td><td>True               </td><td style="text-align: right;">             5.94609</td><td style="text-align: right;">           5.94609</td><td style="text-align: right;">       5.94609</td><td style="text-align: right;"> 1684358707</td><td style="text-align: right;">                   1</td><td>42de5_00001</td></tr>
+<tr><td>train_model_42de5_00002</td><td>2023-05-17_14-25-23</td><td>True  </td><td style="text-align: right;">342.35   </td><td>2_algorithm=arima,location=141                 </td><td>ip-172-31-213-59</td><td style="text-align: right;">                         1</td><td>172.31.213.59</td><td style="text-align: right;">14117</td><td>True               </td><td style="text-align: right;">            21.574  </td><td style="text-align: right;">          21.574  </td><td style="text-align: right;">      21.574  </td><td style="text-align: right;"> 1684358723</td><td style="text-align: right;">                   1</td><td>42de5_00002</td></tr>
+<tr><td>train_model_42de5_00003</td><td>2023-05-17_14-25-07</td><td>True  </td><td style="text-align: right;">539.389  </td><td>3_algorithm=prophet_additive,location=229      </td><td>ip-172-31-213-59</td><td style="text-align: right;">                         1</td><td>172.31.213.59</td><td style="text-align: right;">14118</td><td>True               </td><td style="text-align: right;">             5.54851</td><td style="text-align: right;">           5.54851</td><td style="text-align: right;">       5.54851</td><td style="text-align: right;"> 1684358707</td><td style="text-align: right;">                   1</td><td>42de5_00003</td></tr>
+<tr><td>train_model_42de5_00004</td><td>2023-05-17_14-25-07</td><td>True  </td><td style="text-align: right;">529.743  </td><td>4_algorithm=prophet_multiplicative,location=229</td><td>ip-172-31-213-59</td><td style="text-align: right;">                         1</td><td>172.31.213.59</td><td style="text-align: right;">14119</td><td>True               </td><td style="text-align: right;">             5.4158 </td><td style="text-align: right;">           5.4158 </td><td style="text-align: right;">       5.4158 </td><td style="text-align: right;"> 1684358707</td><td style="text-align: right;">                   1</td><td>42de5_00004</td></tr>
+<tr><td>train_model_42de5_00005</td><td>2023-05-17_14-25-22</td><td>True  </td><td style="text-align: right;">480.844  </td><td>5_algorithm=arima,location=229                 </td><td>ip-172-31-213-59</td><td style="text-align: right;">                         1</td><td>172.31.213.59</td><td style="text-align: right;">14122</td><td>True               </td><td style="text-align: right;">            20.862  </td><td style="text-align: right;">          20.862  </td><td style="text-align: right;">      20.862  </td><td style="text-align: right;"> 1684358722</td><td style="text-align: right;">                   1</td><td>42de5_00005</td></tr>
+<tr><td>train_model_42de5_00006</td><td>2023-05-17_14-25-06</td><td>True  </td><td style="text-align: right;">  2.55585</td><td>6_algorithm=prophet_additive,location=173      </td><td>ip-172-31-213-59</td><td style="text-align: right;">                         1</td><td>172.31.213.59</td><td style="text-align: right;">14120</td><td>True               </td><td style="text-align: right;">             4.70871</td><td style="text-align: right;">           4.70871</td><td style="text-align: right;">       4.70871</td><td style="text-align: right;"> 1684358706</td><td style="text-align: right;">                   1</td><td>42de5_00006</td></tr>
+<tr><td>train_model_42de5_00007</td><td>2023-05-17_14-25-06</td><td>True  </td><td style="text-align: right;">  2.52897</td><td>7_algorithm=prophet_multiplicative,location=173</td><td>ip-172-31-213-59</td><td style="text-align: right;">                         1</td><td>172.31.213.59</td><td style="text-align: right;">14121</td><td>True               </td><td style="text-align: right;">             4.64482</td><td style="text-align: right;">           4.64482</td><td style="text-align: right;">       4.64482</td><td style="text-align: right;"> 1684358706</td><td style="text-align: right;">                   1</td><td>42de5_00007</td></tr>
+<tr><td>train_model_42de5_00008</td><td>2023-05-17_14-25-22</td><td>True  </td><td style="text-align: right;">  2.81589</td><td>8_algorithm=arima,location=173                 </td><td>ip-172-31-213-59</td><td style="text-align: right;">                         1</td><td>172.31.213.59</td><td style="text-align: right;">14123</td><td>True               </td><td style="text-align: right;">            21.2637 </td><td style="text-align: right;">          21.2637 </td><td style="text-align: right;">      21.2637 </td><td style="text-align: right;"> 1684358722</td><td style="text-align: right;">                   1</td><td>42de5_00008</td></tr>
+</tbody>
+</table>
+</div>
+<style>
+.trialProgress {
+  display: flex;
+  flex-direction: column;
+  color: var(--jp-ui-font-color1);
+}
+.trialProgress h3 {
+  font-weight: bold;
+}
+.trialProgress td {
+  white-space: nowrap;
+}
+</style>
+</div><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-05-17 14:25:23,079	INFO tune.py:1100 -- Total run time: 30.71 seconds (29.24 seconds for the tuning loop).
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Total number of models: 9
+TOTAL TIME TAKEN: 0.51 minutes
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="load-a-model-from-checkpoint-a-class-anchor-id-load-checkpoint2-a">
+<h2>Load a model from checkpoint  <a class="anchor" id="load_checkpoint2"></a><a class="headerlink" href="batch_forecasting.html#load-a-model-from-checkpoint-a-class-anchor-id-load-checkpoint2-a" title="Permalink to this headline">#</a></h2>
+<ul class="simple">
+<li><p>After the Tune experiment has finished, we can assemble the Tune <a class="reference internal" href="../../tune/examples/tune_analyze_results.html"><span class="doc">ResultGrid</span></a> object into a pandas dataframe.</p></li>
+<li><p>Next, we’ll sort the pandas dataframe by pickuplocation and error, and keep only the best model with minimum error per pickup location.</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># get a list of training loss errors</span>
+<span class="n">errors</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="mf">10000.0</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">results</span><span class="p">]</span>
+
+<span class="c1"># get a list of checkpoints</span>
+<span class="n">checkpoints</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">checkpoint</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">results</span><span class="p">]</span>
+
+<span class="c1"># get a list of locations</span>
+<span class="n">locations</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">][</span><span class="s2">&quot;location&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">results</span><span class="p">]</span>
+
+<span class="c1"># get a list of model params</span>
+<span class="n">algorithm</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">][</span><span class="s2">&quot;algorithm&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">results</span><span class="p">]</span>
+
+<span class="c1"># Assemble a pandas dataframe from Tune results</span>
+<span class="n">results_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="nb">zip</span><span class="p">(</span><span class="n">locations</span><span class="p">,</span> <span class="n">errors</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">checkpoints</span><span class="p">),</span>
+    <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;location_id&quot;</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="s2">&quot;algorithm&quot;</span><span class="p">,</span> <span class="s2">&quot;checkpoint&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+<span class="n">results_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>location_id</th>
+      <th>error</th>
+      <th>algorithm</th>
+      <th>checkpoint</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>141</td>
+      <td>502.848601</td>
+      <td>prophet_additive</td>
+      <td>Checkpoint(local_path=/home/ray/default/doc/so...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>141</td>
+      <td>483.067259</td>
+      <td>prophet_multiplicative</td>
+      <td>Checkpoint(local_path=/home/ray/default/doc/so...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>141</td>
+      <td>342.350202</td>
+      <td>arima</td>
+      <td>Checkpoint(local_path=/home/ray/default/doc/so...</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>229</td>
+      <td>539.389339</td>
+      <td>prophet_additive</td>
+      <td>Checkpoint(local_path=/home/ray/default/doc/so...</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>229</td>
+      <td>529.743081</td>
+      <td>prophet_multiplicative</td>
+      <td>Checkpoint(local_path=/home/ray/default/doc/so...</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>229</td>
+      <td>480.844291</td>
+      <td>arima</td>
+      <td>Checkpoint(local_path=/home/ray/default/doc/so...</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>173</td>
+      <td>2.555847</td>
+      <td>prophet_additive</td>
+      <td>Checkpoint(local_path=/home/ray/default/doc/so...</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>173</td>
+      <td>2.528968</td>
+      <td>prophet_multiplicative</td>
+      <td>Checkpoint(local_path=/home/ray/default/doc/so...</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Keep only 1 model per location_id with minimum error</span>
+<span class="n">final_df</span> <span class="o">=</span> <span class="n">results_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">final_df</span> <span class="o">=</span> <span class="n">final_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">final_df</span><span class="o">.</span><span class="n">error</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">),</span> <span class="p">:]</span>
+<span class="n">final_df</span> <span class="o">=</span> <span class="n">final_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">final_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;location_id&quot;</span><span class="p">)[</span><span class="s2">&quot;error&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">idxmin</span><span class="p">()]</span>
+<span class="n">final_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;error&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">final_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;location_id&quot;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">final_df</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>error</th>
+      <th>algorithm</th>
+      <th>checkpoint</th>
+    </tr>
+    <tr>
+      <th>location_id</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>173</th>
+      <td>2.528968</td>
+      <td>prophet_multiplicative</td>
+      <td>Checkpoint(local_path=/home/ray/default/doc/so...</td>
+    </tr>
+    <tr>
+      <th>141</th>
+      <td>342.350202</td>
+      <td>arima</td>
+      <td>Checkpoint(local_path=/home/ray/default/doc/so...</td>
+    </tr>
+    <tr>
+      <th>229</th>
+      <td>480.844291</td>
+      <td>arima</td>
+      <td>Checkpoint(local_path=/home/ray/default/doc/so...</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">final_df</span><span class="p">[[</span><span class="s2">&quot;algorithm&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">(</span><span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>algorithm             
+arima                     0.666667
+prophet_multiplicative    0.333333
+dtype: float64
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="create-a-forecast-from-model-restored-from-checkpoint-a-class-anchor-id-create-prediction2-a">
+<h2>Create a forecast from model restored from checkpoint <a class="anchor" id="create_prediction2"></a><a class="headerlink" href="batch_forecasting.html#create-a-forecast-from-model-restored-from-checkpoint-a-class-anchor-id-create-prediction2-a" title="Permalink to this headline">#</a></h2>
+<p>Finally, we will restore the best and worst models from checkpoint, generate predictions, and inspect the forecasts.</p>
+<p>Prophet includes a convenient plot library which displays actual data along with backtest predictions and confidence intervals and future forecasts. With ARIMA, you have to create a prediciton manually.</p>
+<ul class="simple">
+<li><p>We will easily obtain AIR Checkpoint objects from the Tune results.</p></li>
+<li><p>We will restore a Prophet or ARIMA model directly from checkpoint, and demonstrate it can be used for prediction.</p></li>
+</ul>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><a class="reference internal" href="../predictors.html#air-predictors"><span class="std std-ref">Ray AIR Predictors</span></a> make batch inference easy since they have internal logic to parallelize the inference.</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get the pickup location for the best model</span>
+<span class="k">if</span> <span class="n">SMOKE_TEST</span><span class="p">:</span>
+    <span class="n">sample_location_id</span> <span class="o">=</span> <span class="n">final_df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">sample_location_id</span> <span class="o">=</span> <span class="n">final_df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">120</span><span class="p">]</span>
+
+<span class="c1"># Get the algorithm used</span>
+<span class="n">sample_algorithm</span> <span class="o">=</span> <span class="n">final_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="n">sample_location_id</span><span class="p">]]</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1"># Get a checkpoint directly from the pandas dataframe of Tune results</span>
+<span class="n">checkpoint</span> <span class="o">=</span> <span class="n">final_df</span><span class="o">.</span><span class="n">checkpoint</span><span class="p">[</span><span class="n">sample_location_id</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;checkpoint type:: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Restore a model from checkpoint</span>
+<span class="n">sample_model</span> <span class="o">=</span> <span class="n">checkpoint</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()[</span><span class="s2">&quot;model&quot;</span><span class="p">]</span>
+
+<span class="c1"># Prophet .fit() performs inference + prediction.</span>
+<span class="c1"># Arima train only performs inference; prediction is an extra step.</span>
+<span class="k">if</span> <span class="n">sample_algorithm</span> <span class="o">==</span> <span class="s2">&quot;arima&quot;</span><span class="p">:</span>
+    <span class="n">prediction</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">sample_model</span><span class="o">.</span><span class="n">forecast</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">FORECAST_LENGTH</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;ds&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;trend&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">prediction</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;AutoARIMA&quot;</span><span class="p">:</span> <span class="s2">&quot;yhat&quot;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">prediction</span> <span class="o">=</span> <span class="n">prediction</span><span class="o">.</span><span class="n">tail</span><span class="p">(</span><span class="n">FORECAST_LENGTH</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Restore already-created predictions from model training and eval</span>
+<span class="n">forecast_df</span> <span class="o">=</span> <span class="n">checkpoint</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()[</span><span class="s2">&quot;forecast_df&quot;</span><span class="p">]</span>
+
+<span class="c1"># Print pickup location ID, algorithm used, and model validation error.</span>
+<span class="n">sample_error</span> <span class="o">=</span> <span class="n">final_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="n">sample_location_id</span><span class="p">]]</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;location </span><span class="si">{</span><span class="n">sample_location_id</span><span class="si">}</span><span class="s2">, algorithm </span><span class="si">{</span><span class="n">sample_algorithm</span><span class="si">}</span><span class="s2">, best error </span><span class="si">{</span><span class="n">sample_error</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># Plot forecast prediction using best model for this pickup location ID.</span>
+<span class="c1"># If prophet model, use prophet built-in plot</span>
+<span class="k">if</span> <span class="n">sample_algorithm</span> <span class="o">==</span> <span class="s2">&quot;arima&quot;</span><span class="p">:</span>
+    <span class="n">forecast_df</span><span class="p">[[</span><span class="s2">&quot;trend&quot;</span><span class="p">,</span> <span class="s2">&quot;yhat&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">plot1</span> <span class="o">=</span> <span class="n">sample_model</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">forecast_df</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>checkpoint type:: &lt;class &#39;ray.air.checkpoint.Checkpoint&#39;&gt;
+location 173, algorithm prophet_multiplicative, best error 2.528968219366575
+</pre></div>
+</div>
+<img alt="../../_images/batch_forecasting_27_1.png" src="../../_images/batch_forecasting_27_1.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get the pickup location for the worst model</span>
+<span class="n">sample_location_id</span> <span class="o">=</span> <span class="n">final_df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">final_df</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span><span class="p">]</span>
+
+<span class="c1"># Get the algorithm used</span>
+<span class="n">sample_algorithm</span> <span class="o">=</span> <span class="n">final_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="n">sample_location_id</span><span class="p">]]</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1"># Get a checkpoint directly from the pandas dataframe of Tune results</span>
+<span class="n">checkpoint</span> <span class="o">=</span> <span class="n">final_df</span><span class="o">.</span><span class="n">checkpoint</span><span class="p">[</span><span class="n">sample_location_id</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;checkpoint type:: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Restore a model from checkpoint</span>
+<span class="n">sample_model</span> <span class="o">=</span> <span class="n">checkpoint</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()[</span><span class="s2">&quot;model&quot;</span><span class="p">]</span>
+
+<span class="c1"># Prophet .fit() performs inference + prediction.</span>
+<span class="c1"># Arima train only performs inference; prediction is an extra step.</span>
+<span class="k">if</span> <span class="n">sample_algorithm</span> <span class="o">==</span> <span class="s2">&quot;arima&quot;</span><span class="p">:</span>
+    <span class="n">prediction</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">sample_model</span><span class="o">.</span><span class="n">forecast</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">FORECAST_LENGTH</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;ds&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;trend&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">prediction</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;AutoARIMA&quot;</span><span class="p">:</span> <span class="s2">&quot;yhat&quot;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">prediction</span> <span class="o">=</span> <span class="n">prediction</span><span class="o">.</span><span class="n">tail</span><span class="p">(</span><span class="n">FORECAST_LENGTH</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Restore already-created inferences from model training and eval</span>
+<span class="n">forecast_df</span> <span class="o">=</span> <span class="n">checkpoint</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()[</span><span class="s2">&quot;forecast_df&quot;</span><span class="p">]</span>
+
+<span class="c1"># Append the prediction to the inferences</span>
+<span class="n">forecast_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">forecast_df</span><span class="p">,</span> <span class="n">prediction</span><span class="p">])</span>
+
+<span class="c1"># Print pickup location ID, algorithm used, and model validation error.</span>
+<span class="n">sample_error</span> <span class="o">=</span> <span class="n">final_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="n">sample_location_id</span><span class="p">]]</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;location </span><span class="si">{</span><span class="n">sample_location_id</span><span class="si">}</span><span class="s2">, algorithm </span><span class="si">{</span><span class="n">sample_algorithm</span><span class="si">}</span><span class="s2">, best error </span><span class="si">{</span><span class="n">sample_error</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># Plot forecast prediction using best model for this pickup location ID.</span>
+<span class="k">if</span> <span class="n">sample_algorithm</span> <span class="o">==</span> <span class="s2">&quot;arima&quot;</span><span class="p">:</span>
+    <span class="n">forecast_df</span><span class="p">[[</span><span class="s2">&quot;trend&quot;</span><span class="p">,</span> <span class="s2">&quot;yhat&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">plot1</span> <span class="o">=</span> <span class="n">sample_model</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">forecast_df</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>checkpoint type:: &lt;class &#39;ray.air.checkpoint.Checkpoint&#39;&gt;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;__array_function__ internals&gt;:200: RuntimeWarning: invalid value encountered in cast
+/home/ray/anaconda3/lib/python3.8/site-packages/statsforecast/arima.py:914: UserWarning: possible convergence problem: minimize gave code 1]
+  warnings.warn(
+/home/ray/anaconda3/lib/python3.8/site-packages/statsforecast/arima.py:914: UserWarning: possible convergence problem: minimize gave code 2]
+  warnings.warn(
+/home/ray/anaconda3/lib/python3.8/site-packages/statsforecast/arima.py:914: UserWarning: possible convergence problem: minimize gave code 2]
+  warnings.warn(
+/home/ray/anaconda3/lib/python3.8/site-packages/statsforecast/arima.py:914: UserWarning: possible convergence problem: minimize gave code 2]
+  warnings.warn(
+/home/ray/anaconda3/lib/python3.8/site-packages/statsforecast/arima.py:914: UserWarning: possible convergence problem: minimize gave code 2]
+  warnings.warn(
+/home/ray/anaconda3/lib/python3.8/site-packages/statsforecast/arima.py:914: UserWarning: possible convergence problem: minimize gave code 2]
+  warnings.warn(
+/home/ray/anaconda3/lib/python3.8/site-packages/statsforecast/arima.py:914: UserWarning: possible convergence problem: minimize gave code 2]
+  warnings.warn(
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>location 141, algorithm arima, best error 342.35020228794644
+</pre></div>
+</div>
+<img alt="../../_images/batch_forecasting_28_3.png" src="../../_images/batch_forecasting_28_3.png" />
+</div>
+</div>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="batch_tuning.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Batch training &amp; tuning on Ray Tune</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="stablediffusion_batch_prediction.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Stable Diffusion Batch Prediction with Ray AIR</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

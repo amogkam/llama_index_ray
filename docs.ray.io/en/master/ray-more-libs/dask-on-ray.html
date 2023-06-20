@@ -1,0 +1,1140 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Using Dask on Ray &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/js/versionwarning.js"></script>
+    <script src="../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../_static/js/docsearch.js"></script>
+    <script src="../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../_static/js/termynal.js"></script>
+    <script defer="defer" src="../_static/js/custom.js"></script>
+    <script defer="defer" src="../_static/js/top-navigation.js"></script>
+    <script src="../_static/js/tags.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../_static/design-tabs.js"></script>
+    <script async="async" src="../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/ray-more-libs/dask-on-ray.html" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Using Spark on Ray (RayDP)" href="raydp.html" />
+    <link rel="prev" title="Using Ray with Pytorch Lightning" href="using-ray-with-pytorch-lightning.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "ray-more-libs/dask-on-ray", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".rst", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../tune.html">
+   Ray Tune
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="index.html">
+   More Libraries
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../joblib.html">
+     Distributed Scikit-learn / Joblib
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="multiprocessing.html">
+     Distributed multiprocessing.Pool
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="ray-collective.html">
+     Ray Collective Communication Lib
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="using-ray-with-pytorch-lightning.html">
+     Using Ray with Pytorch Lightning
+    </a>
+   </li>
+   <li class="toctree-l2 current active">
+    <a class="current reference internal" href="dask-on-ray.html#">
+     Using Dask on Ray
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="raydp.html">
+     Using Spark on Ray (RayDP)
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="mars-on-ray.html">
+     Using Mars on Ray
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modin/index.html">
+     Using Pandas on Ray (Modin)
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../workflows/index.html">
+     Ray Workflows (Alpha)
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Fray-more-libs/dask-on-ray.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/ray-more-libs/dask-on-ray.rst"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../_sources/ray-more-libs/dask-on-ray.rst.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.rst</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="dask-on-ray.html#scheduler">
+   Scheduler
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="dask-on-ray.html#best-practice-for-large-scale-workloads">
+   Best Practice for Large Scale workloads
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="dask-on-ray.html#out-of-core-data-processing">
+   Out-of-Core Data Processing
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="dask-on-ray.html#persist">
+   Persist
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="dask-on-ray.html#annotations-resources-and-task-options">
+   Annotations, Resources, and Task Options
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="dask-on-ray.html#custom-optimization-for-dask-dataframe-shuffling">
+   Custom optimization for Dask DataFrame shuffling
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="dask-on-ray.html#callbacks">
+   Callbacks
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Using Dask on Ray</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="dask-on-ray.html#scheduler">
+   Scheduler
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="dask-on-ray.html#best-practice-for-large-scale-workloads">
+   Best Practice for Large Scale workloads
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="dask-on-ray.html#out-of-core-data-processing">
+   Out-of-Core Data Processing
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="dask-on-ray.html#persist">
+   Persist
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="dask-on-ray.html#annotations-resources-and-task-options">
+   Annotations, Resources, and Task Options
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="dask-on-ray.html#custom-optimization-for-dask-dataframe-shuffling">
+   Custom optimization for Dask DataFrame shuffling
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="dask-on-ray.html#callbacks">
+   Callbacks
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section id="using-dask-on-ray">
+<span id="dask-on-ray"></span><h1>Using Dask on Ray<a class="headerlink" href="dask-on-ray.html#using-dask-on-ray" title="Permalink to this headline">#</a></h1>
+<p><a class="reference external" href="https://dask.org/">Dask</a> is a Python parallel computing library geared towards scaling analytics and
+scientific computing workloads. It provides <a class="reference external" href="https://docs.dask.org/en/latest/user-interfaces.html">big data collections</a> that mimic the APIs of
+the familiar <a class="reference external" href="https://numpy.org/">NumPy</a> and <a class="reference external" href="https://pandas.pydata.org/">Pandas</a> libraries,
+allowing those abstractions to represent
+larger-than-memory data and/or allowing operations on that data to be run on a multi-machine cluster,
+while also providing automatic data parallelism, smart scheduling,
+and optimized operations. Operations on these collections create a task graph, which is
+executed by a scheduler.</p>
+<p>Ray provides a scheduler for Dask (<code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_on_ray</span></code>) which allows you to build data
+analyses using Dask’s collections and execute
+the underlying tasks on a Ray cluster.</p>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_on_ray</span></code> uses Dask’s scheduler API, which allows you to
+specify any callable as the scheduler that you would like Dask to use to execute your
+workload. Using the Dask-on-Ray scheduler, the entire Dask ecosystem can be executed on top of Ray.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<blockquote>
+<div><p>We always ensure that the latest Dask versions are compatible with Ray nightly.
+The table below shows the latest Dask versions that are tested with Ray versions.</p>
+</div></blockquote>
+<table class="table" id="id1">
+<caption><span class="caption-text">Latest Dask versions for each Ray version.</span><a class="headerlink" href="dask-on-ray.html#id1" title="Permalink to this table">#</a></caption>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Ray Version</p></th>
+<th class="head"><p>Dask Version</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">2.5.0</span></code></p></td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">2022.2.0</span> <span class="pre">(Python</span> <span class="pre">version</span> <span class="pre">&lt;</span> <span class="pre">3.8)</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">2022.10.1</span> <span class="pre">(Python</span> <span class="pre">version</span> <span class="pre">&gt;=</span> <span class="pre">3.8)</span></code></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">2.4.0</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2022.10.1</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">2.3.0</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2022.10.1</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">2.2.0</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2022.10.1</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">2.1.0</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2022.2.0</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">2.0.0</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2022.2.0</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">1.13.0</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2022.2.0</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">1.12.0</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2022.2.0</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">1.11.0</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2022.1.0</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">1.10.0</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2021.12.0</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">1.9.2</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2021.11.0</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">1.9.1</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2021.11.0</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">1.9.0</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2021.11.0</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">1.8.0</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2021.9.1</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">1.7.0</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2021.9.1</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">1.6.0</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2021.8.1</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">1.5.0</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2021.7.0</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">1.4.1</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2021.6.1</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">1.4.0</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2021.5.0</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<section id="scheduler">
+<h2>Scheduler<a class="headerlink" href="dask-on-ray.html#scheduler" title="Permalink to this headline">#</a></h2>
+<p id="dask-on-ray-scheduler">The Dask-on-Ray scheduler can execute any valid Dask graph, and can be used with
+any Dask <a class="reference external" href="https://docs.dask.org/en/latest/api.html#dask.compute">.compute()</a>
+call.
+Here’s an example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">from</span> <span class="nn">ray.util.dask</span> <span class="kn">import</span> <span class="n">ray_dask_get</span><span class="p">,</span> <span class="n">enable_dask_on_ray</span><span class="p">,</span> <span class="n">disable_dask_on_ray</span>
+<span class="kn">import</span> <span class="nn">dask.array</span> <span class="k">as</span> <span class="nn">da</span>
+<span class="kn">import</span> <span class="nn">dask.dataframe</span> <span class="k">as</span> <span class="nn">dd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="c1"># Start Ray.</span>
+<span class="c1"># Tip: If connecting to an existing cluster, use ray.init(address=&quot;auto&quot;).</span>
+<span class="n">ray</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+
+<span class="n">d_arr</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">)))</span>
+
+<span class="c1"># The Dask scheduler submits the underlying task graph to Ray.</span>
+<span class="n">d_arr</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">scheduler</span><span class="o">=</span><span class="n">ray_dask_get</span><span class="p">)</span>
+
+<span class="c1"># Use our Dask config helper to set the scheduler to ray_dask_get globally,</span>
+<span class="c1"># without having to specify it on each compute call.</span>
+<span class="n">enable_dask_on_ray</span><span class="p">()</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">dd</span><span class="o">.</span><span class="n">from_pandas</span><span class="p">(</span>
+    <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">1024</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">,</span> <span class="s2">&quot;grade&quot;</span><span class="p">]),</span>
+    <span class="n">npartitions</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;age&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+
+<span class="n">disable_dask_on_ray</span><span class="p">()</span>
+
+<span class="c1"># The Dask config helper can be used as a context manager, limiting the scope</span>
+<span class="c1"># of the Dask-on-Ray scheduler to the context.</span>
+<span class="k">with</span> <span class="n">enable_dask_on_ray</span><span class="p">():</span>
+    <span class="n">d_arr</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+
+<span class="n">ray</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For execution on a Ray cluster, you should <em>not</em> use the
+<a class="reference external" href="https://distributed.dask.org/en/latest/quickstart.html">Dask.distributed</a>
+client; simply use plain Dask and its collections, and pass <code class="docutils literal notranslate"><span class="pre">ray_dask_get</span></code>
+to <code class="docutils literal notranslate"><span class="pre">.compute()</span></code> calls, set the scheduler in one of the other ways detailed <a class="reference external" href="https://docs.dask.org/en/latest/scheduling.html#configuration">here</a>, or use our <code class="docutils literal notranslate"><span class="pre">enable_dask_on_ray</span></code> configuration helper. Follow the instructions for
+<a class="reference internal" href="../ray-core/cluster/index.html#cluster-index"><span class="std std-ref">using Ray on a cluster</span></a> to modify the
+<code class="docutils literal notranslate"><span class="pre">ray.init()</span></code> call.</p>
+</div>
+<p>Why use Dask on Ray?</p>
+<ol class="arabic simple">
+<li><dl class="simple">
+<dt>To take advantage of Ray-specific features such as the</dt><dd><p><a class="reference internal" href="../ray-core/cluster/index.html#cluster-index"><span class="std std-ref">launching cloud clusters</span></a> and
+<a class="reference internal" href="../ray-core/scheduling/memory-management.html#memory"><span class="std std-ref">shared-memory store</span></a>.</p>
+</dd>
+</dl>
+</li>
+<li><p>If you’d like to use Dask and Ray libraries in the same application without having two different clusters.</p></li>
+<li><p>If you’d like to create data analyses using the familiar NumPy and Pandas APIs provided by Dask and execute them on a fast, fault-tolerant distributed task execution system geared towards production, like Ray.</p></li>
+</ol>
+<p>Dask-on-Ray is an ongoing project and is not expected to achieve the same performance as using Ray directly. All <a class="reference external" href="https://docs.dask.org/en/latest/user-interfaces.html">Dask abstractions</a> should run seamlessly on top of Ray using this scheduler, so if you find that one of these abstractions doesn’t run on Ray, please <a class="reference external" href="https://github.com/ray-project/ray/issues/new/choose">open an issue</a>.</p>
+</section>
+<section id="best-practice-for-large-scale-workloads">
+<h2>Best Practice for Large Scale workloads<a class="headerlink" href="dask-on-ray.html#best-practice-for-large-scale-workloads" title="Permalink to this headline">#</a></h2>
+<p>For Ray 1.3, the default scheduling policy is to pack tasks to the same node as much as possible.
+It is more desirable to spread tasks if you run a large scale / memory intensive Dask on Ray workloads.</p>
+<p>In this case, there are two recommended setup.
+- Reducing the config flag <code class="xref py py-obj docutils literal notranslate"><span class="pre">scheduler_spread_threshold</span></code> to tell the scheduler to prefer spreading tasks across the cluster instead of packing.
+- Setting the head node’s <code class="xref py py-obj docutils literal notranslate"><span class="pre">num-cpus</span></code> to 0 so that tasks are not scheduled on a head node.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Head node. Set `num_cpus=0` to avoid tasks are being scheduled on a head node.</span>
+<span class="nv">RAY_scheduler_spread_threshold</span><span class="o">=</span><span class="m">0</span>.0 ray start --head --num-cpus<span class="o">=</span><span class="m">0</span>
+
+<span class="c1"># Worker node.</span>
+<span class="nv">RAY_scheduler_spread_threshold</span><span class="o">=</span><span class="m">0</span>.0 ray start --address<span class="o">=[</span>head-node-address<span class="o">]</span>
+</pre></div>
+</div>
+</section>
+<section id="out-of-core-data-processing">
+<h2>Out-of-Core Data Processing<a class="headerlink" href="dask-on-ray.html#out-of-core-data-processing" title="Permalink to this headline">#</a></h2>
+<p id="dask-on-ray-out-of-core">Processing datasets larger than cluster memory is supported via Ray’s <a class="reference internal" href="../ray-core/objects/object-spilling.html#id1"><span class="std std-ref">object spilling</span></a>: if
+the in-memory object store is full, objects will be spilled to external storage (local disk by
+default). This feature is available but off by default in Ray 1.2, and is on by default
+in Ray 1.3+. Please see your Ray version’s object spilling documentation for steps to enable and/or configure
+object spilling.</p>
+</section>
+<section id="persist">
+<h2>Persist<a class="headerlink" href="dask-on-ray.html#persist" title="Permalink to this headline">#</a></h2>
+<p id="dask-on-ray-persist">Dask-on-Ray patches <a class="reference external" href="https://docs.dask.org/en/latest/api.html#dask.persist">dask.persist()</a>  in order to match <a class="reference external" href="https://distributed.dask.org/en/latest/manage-computation.html#client-persist">Dask
+Distributed’s persist semantics</a>; namely, calling <code class="xref py py-obj docutils literal notranslate"><span class="pre">dask.persist()</span></code> with a Dask-on-Ray
+scheduler will submit the tasks to the Ray cluster and return Ray futures inlined in the
+Dask collection. This is nice if you wish to compute some base collection (such as
+a Dask array), followed by multiple different downstream computations (such as
+aggregations): those downstream computations will be faster since that base collection
+computation was kicked off early and referenced by all downstream computations, often
+via shared memory.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">from</span> <span class="nn">ray.util.dask</span> <span class="kn">import</span> <span class="n">enable_dask_on_ray</span>
+<span class="kn">import</span> <span class="nn">dask</span>
+<span class="kn">import</span> <span class="nn">dask.array</span> <span class="k">as</span> <span class="nn">da</span>
+
+<span class="c1"># Start Ray.</span>
+<span class="c1"># Tip: If connecting to an existing cluster, use ray.init(address=&quot;auto&quot;).</span>
+<span class="n">ray</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+
+<span class="c1"># Use our Dask config helper to set the scheduler to ray_dask_get globally,</span>
+<span class="c1"># without having to specify it on each compute call.</span>
+<span class="n">enable_dask_on_ray</span><span class="p">()</span>
+
+<span class="n">d_arr</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">dask</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">collections_to_dsk</span><span class="p">([</span><span class="n">d_arr</span><span class="p">]))</span>
+<span class="c1"># {(&#39;ones-c345e6f8436ff9bcd68ddf25287d27f3&#39;,</span>
+<span class="c1">#   0): (functools.partial(&lt;function _broadcast_trick_inner at 0x7f27f1a71f80&gt;,</span>
+<span class="c1">#   dtype=dtype(&#39;float64&#39;)), (5,))}</span>
+
+<span class="c1"># This submits all underlying Ray tasks to the cluster and returns</span>
+<span class="c1"># a Dask array with the Ray futures inlined.</span>
+<span class="n">d_arr_p</span> <span class="o">=</span> <span class="n">d_arr</span><span class="o">.</span><span class="n">persist</span><span class="p">()</span>
+
+<span class="c1"># Notice that the Ray ObjectRef is inlined. The dask.ones() task has</span>
+<span class="c1"># been submitted to and is running on the Ray cluster.</span>
+<span class="n">dask</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">collections_to_dsk</span><span class="p">([</span><span class="n">d_arr_p</span><span class="p">])</span>
+<span class="c1"># {(&#39;ones-c345e6f8436ff9bcd68ddf25287d27f3&#39;,</span>
+<span class="c1">#   0): ObjectRef(8b4e50dc1ddac855ffffffffffffffffffffffff0100000001000000)}</span>
+
+<span class="c1"># Future computations on this persisted Dask Array will be fast since we</span>
+<span class="c1"># already started computing d_arr_p in the background.</span>
+<span class="n">d_arr_p</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+<span class="n">d_arr_p</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+<span class="n">d_arr_p</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+
+<span class="n">ray</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="annotations-resources-and-task-options">
+<h2>Annotations, Resources, and Task Options<a class="headerlink" href="dask-on-ray.html#annotations-resources-and-task-options" title="Permalink to this headline">#</a></h2>
+<p id="dask-on-ray-annotations">Dask-on-Ray supports specifying resources or any other Ray task option via <a class="reference external" href="https://docs.dask.org/en/stable/api.html#dask.annotate">Dask’s
+annotation API</a>. This
+annotation context manager can be used to attach resource requests (or any other Ray task
+option) to specific Dask operations, with the annotations funneling down to the
+underlying Ray tasks. Resource requests and other Ray task options can also be specified
+globally via the <code class="docutils literal notranslate"><span class="pre">.compute(ray_remote_args={...})</span></code> API, which will
+serve as a default for all Ray tasks launched via the Dask workload. Annotations on
+individual Dask operations will override this global default.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">from</span> <span class="nn">ray.util.dask</span> <span class="kn">import</span> <span class="n">enable_dask_on_ray</span>
+<span class="kn">import</span> <span class="nn">dask</span>
+<span class="kn">import</span> <span class="nn">dask.array</span> <span class="k">as</span> <span class="nn">da</span>
+
+<span class="c1"># Start Ray.</span>
+<span class="c1"># Tip: If connecting to an existing cluster, use ray.init(address=&quot;auto&quot;).</span>
+<span class="n">ray</span><span class="o">.</span><span class="n">init</span><span class="p">(</span>
+    <span class="n">resources</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;custom_resource&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;other_custom_resource&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;another_custom_resource&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+
+<span class="c1"># Use our Dask config helper to set the scheduler to ray_dask_get globally,</span>
+<span class="c1"># without having to specify it on each compute call.</span>
+<span class="n">enable_dask_on_ray</span><span class="p">()</span>
+
+<span class="c1"># All Ray tasks that underly the Dask operations performed in an annotation</span>
+<span class="c1"># context will require the indicated resources: 2 CPUs and 0.01 of the custom</span>
+<span class="c1"># resource.</span>
+<span class="k">with</span> <span class="n">dask</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span>
+    <span class="n">ray_remote_args</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">num_cpus</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">resources</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;custom_resource&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">})</span>
+<span class="p">):</span>
+    <span class="n">d_arr</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+
+<span class="c1"># Operations on the same collection can have different annotations.</span>
+<span class="k">with</span> <span class="n">dask</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">ray_remote_args</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">resources</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;other_custom_resource&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">})):</span>
+    <span class="n">d_arr</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">d_arr</span>
+
+<span class="c1"># This happens outside of the annotation context, so no resource constraints</span>
+<span class="c1"># will be attached to the underlying Ray tasks for the sum() operation.</span>
+<span class="n">sum_</span> <span class="o">=</span> <span class="n">d_arr</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+<span class="c1"># Compute the result, passing in a default resource request that will be</span>
+<span class="c1"># applied to all operations that aren&#39;t already annotated with a resource</span>
+<span class="c1"># request. In this case, only the sum() operation will get this default</span>
+<span class="c1"># resource request.</span>
+<span class="c1"># We also give ray_remote_args, which will be given to every Ray task that</span>
+<span class="c1"># Dask-on-Ray submits; note that this can also be overridden for individual</span>
+<span class="c1"># Dask operations via the dask.annotate API.</span>
+<span class="c1"># NOTE: We disable graph optimization since it can break annotations,</span>
+<span class="c1"># see this issue: https://github.com/dask/dask/issues/7036.</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">sum_</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span>
+    <span class="n">ray_remote_args</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">max_retries</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">resources</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;another_custom_resource&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">}),</span>
+    <span class="n">optimize_graph</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+<span class="c1"># 200</span>
+
+<span class="n">ray</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Note that you may need to disable graph optimizations since it can break annotations,
+see <a class="reference external" href="https://github.com/dask/dask/issues/7036">this Dask issue</a>.</p>
+</section>
+<section id="custom-optimization-for-dask-dataframe-shuffling">
+<h2>Custom optimization for Dask DataFrame shuffling<a class="headerlink" href="dask-on-ray.html#custom-optimization-for-dask-dataframe-shuffling" title="Permalink to this headline">#</a></h2>
+<p id="dask-on-ray-shuffle-optimization">Dask-on-Ray provides a Dask DataFrame optimizer that leverages Ray’s ability to
+execute multiple-return tasks in order to speed up shuffling by as much as 4x on Ray.
+Simply set the <code class="xref py py-obj docutils literal notranslate"><span class="pre">dataframe_optimize</span></code> configuration option to our optimizer function, similar to how you specify the Dask-on-Ray scheduler:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">from</span> <span class="nn">ray.util.dask</span> <span class="kn">import</span> <span class="n">dataframe_optimize</span><span class="p">,</span> <span class="n">ray_dask_get</span>
+<span class="kn">import</span> <span class="nn">dask</span>
+<span class="kn">import</span> <span class="nn">dask.dataframe</span> <span class="k">as</span> <span class="nn">dd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="c1"># Start Ray.</span>
+<span class="c1"># Tip: If connecting to an existing cluster, use ray.init(address=&quot;auto&quot;).</span>
+<span class="n">ray</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+
+<span class="c1"># Set the Dask DataFrame optimizer to</span>
+<span class="c1"># our custom optimization function, this time using the config setter as a</span>
+<span class="c1"># context manager.</span>
+<span class="k">with</span> <span class="n">dask</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">scheduler</span><span class="o">=</span><span class="n">ray_dask_get</span><span class="p">,</span> <span class="n">dataframe_optimize</span><span class="o">=</span><span class="n">dataframe_optimize</span><span class="p">):</span>
+    <span class="n">npartitions</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">dd</span><span class="o">.</span><span class="n">from_pandas</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">10000</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">,</span> <span class="s2">&quot;grade&quot;</span><span class="p">]</span>
+        <span class="p">),</span>
+        <span class="n">npartitions</span><span class="o">=</span><span class="n">npartitions</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># We set max_branch to infinity in order to ensure that the task-based</span>
+    <span class="c1"># shuffle happens in a single stage, which is required in order for our</span>
+    <span class="c1"># optimization to work.</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">&quot;age&quot;</span><span class="p">],</span> <span class="n">shuffle</span><span class="o">=</span><span class="s2">&quot;tasks&quot;</span><span class="p">,</span> <span class="n">max_branch</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">head</span><span class="p">(</span>
+        <span class="mi">10</span><span class="p">,</span> <span class="n">npartitions</span><span class="o">=-</span><span class="mi">1</span>
+    <span class="p">)</span>
+
+<span class="n">ray</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="callbacks">
+<h2>Callbacks<a class="headerlink" href="dask-on-ray.html#callbacks" title="Permalink to this headline">#</a></h2>
+<p id="dask-on-ray-callbacks">Dask’s <a class="reference external" href="https://docs.dask.org/en/latest/diagnostics-local.html#custom-callbacks">custom callback abstraction</a>
+is extended with Ray-specific callbacks, allowing the user to hook into the
+Ray task submission and execution lifecycles.
+With these hooks, implementing Dask-level scheduler and task introspection,
+such as progress reporting, diagnostics, caching, etc., is simple.</p>
+<p>Here’s an example that measures and logs the execution time of each task using
+the <code class="docutils literal notranslate"><span class="pre">ray_pretask</span></code> and <code class="docutils literal notranslate"><span class="pre">ray_posttask</span></code> hooks:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ray.util.dask</span> <span class="kn">import</span> <span class="n">RayDaskCallback</span><span class="p">,</span> <span class="n">ray_dask_get</span>
+<span class="kn">from</span> <span class="nn">timeit</span> <span class="kn">import</span> <span class="n">default_timer</span> <span class="k">as</span> <span class="n">timer</span>
+
+
+<span class="k">class</span> <span class="nc">MyTimerCallback</span><span class="p">(</span><span class="n">RayDaskCallback</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_ray_pretask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">object_refs</span><span class="p">):</span>
+        <span class="c1"># Executed at the start of the Ray task.</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">timer</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">start_time</span>
+
+    <span class="k">def</span> <span class="nf">_ray_posttask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">pre_state</span><span class="p">):</span>
+        <span class="c1"># Executed at the end of the Ray task.</span>
+        <span class="n">execution_time</span> <span class="o">=</span> <span class="n">timer</span><span class="p">()</span> <span class="o">-</span> <span class="n">pre_state</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Execution time for task </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">execution_time</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">)</span>
+
+
+<span class="k">with</span> <span class="n">MyTimerCallback</span><span class="p">():</span>
+    <span class="c1"># Any .compute() calls within this context will get MyTimerCallback()</span>
+    <span class="c1"># as a Dask-Ray callback.</span>
+    <span class="n">z</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">scheduler</span><span class="o">=</span><span class="n">ray_dask_get</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The following Ray-specific callbacks are provided:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">ray_presubmit(task,</span> <span class="pre">key,</span> <span class="pre">deps)</span></code>: Run before submitting a Ray
+task. If this callback returns a non-<code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code> value, a Ray task will _not_
+be created and this value will be used as the would-be task’s result
+value.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">ray_postsubmit(task,</span> <span class="pre">key,</span> <span class="pre">deps,</span> <span class="pre">object_ref)</span></code>: Run after submitting
+a Ray task.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">ray_pretask(key,</span> <span class="pre">object_refs)</span></code>: Run before executing a Dask task
+within a Ray task. This executes after the task has been submitted,
+within a Ray worker. The return value of this task will be passed to the
+ray_posttask callback, if provided.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">ray_posttask(key,</span> <span class="pre">result,</span> <span class="pre">pre_state)</span></code>: Run after executing a Dask
+task within a Ray task. This executes within a Ray worker. This callback
+receives the return value of the ray_pretask callback, if provided.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">ray_postsubmit_all(object_refs,</span> <span class="pre">dsk)</span></code>: Run after all Ray tasks
+have been submitted.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">ray_finish(result)</span></code>: Run after all Ray tasks have finished
+executing and the final result has been returned.</p></li>
+</ol>
+</div></blockquote>
+<p>See the docstring for
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">RayDaskCallback.__init__()</span> <span class="pre">&lt;ray.util.dask.callbacks.RayDaskCallback&gt;.__init__()</span></code>
+for further details about these callbacks, their arguments, and their return
+values.</p>
+<p>When creating your own callbacks, you can use
+<code class="xref py py-class docutils literal notranslate"><span class="pre">RayDaskCallback</span></code>
+directly, passing the callback functions as constructor arguments:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">my_presubmit_cb</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">deps</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;About to submit task </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">!&quot;</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="n">RayDaskCallback</span><span class="p">(</span><span class="n">ray_presubmit</span><span class="o">=</span><span class="n">my_presubmit_cb</span><span class="p">):</span>
+    <span class="n">z</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">scheduler</span><span class="o">=</span><span class="n">ray_dask_get</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>or you can subclass it, implementing the callback methods that you need:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyPresubmitCallback</span><span class="p">(</span><span class="n">RayDaskCallback</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_ray_presubmit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">deps</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;About to submit task </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">!&quot;</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="n">MyPresubmitCallback</span><span class="p">():</span>
+    <span class="n">z</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">scheduler</span><span class="o">=</span><span class="n">ray_dask_get</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can also specify multiple callbacks:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># The hooks for both MyTimerCallback and MyPresubmitCallback will be</span>
+<span class="c1"># called.</span>
+<span class="k">with</span> <span class="n">MyTimerCallback</span><span class="p">(),</span> <span class="n">MyPresubmitCallback</span><span class="p">():</span>
+    <span class="n">z</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">scheduler</span><span class="o">=</span><span class="n">ray_dask_get</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Combining Dask callbacks with an actor yields simple patterns for stateful data
+aggregation, such as capturing task execution statistics and caching results.
+Here is an example that does both, caching the result of a task if its
+execution time exceeds some user-defined threshold:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@ray</span><span class="o">.</span><span class="n">remote</span>
+<span class="k">class</span> <span class="nc">SimpleCacheActor</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="c1"># Raises KeyError if key isn&#39;t in cache.</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+
+<span class="k">class</span> <span class="nc">SimpleCacheCallback</span><span class="p">(</span><span class="n">RayDaskCallback</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_actor_handle</span><span class="p">,</span> <span class="n">put_threshold</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache_actor</span> <span class="o">=</span> <span class="n">cache_actor_handle</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">put_threshold</span> <span class="o">=</span> <span class="n">put_threshold</span>
+
+    <span class="k">def</span> <span class="nf">_ray_presubmit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">deps</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_actor</span><span class="o">.</span><span class="n">get</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)))</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_ray_pretask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">object_refs</span><span class="p">):</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">timer</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">start_time</span>
+
+    <span class="k">def</span> <span class="nf">_ray_posttask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">pre_state</span><span class="p">):</span>
+        <span class="n">execution_time</span> <span class="o">=</span> <span class="n">timer</span><span class="p">()</span> <span class="o">-</span> <span class="n">pre_state</span>
+        <span class="k">if</span> <span class="n">execution_time</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">put_threshold</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cache_actor</span><span class="o">.</span><span class="n">put</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">),</span> <span class="n">result</span><span class="p">)</span>
+
+
+<span class="n">cache_actor</span> <span class="o">=</span> <span class="n">SimpleCacheActor</span><span class="o">.</span><span class="n">remote</span><span class="p">()</span>
+<span class="n">cache_callback</span> <span class="o">=</span> <span class="n">SimpleCacheCallback</span><span class="p">(</span><span class="n">cache_actor</span><span class="p">,</span> <span class="n">put_threshold</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">cache_callback</span><span class="p">:</span>
+    <span class="n">z</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">scheduler</span><span class="o">=</span><span class="n">ray_dask_get</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The existing Dask scheduler callbacks (<code class="docutils literal notranslate"><span class="pre">start</span></code>, <code class="docutils literal notranslate"><span class="pre">start_state</span></code>,
+<code class="docutils literal notranslate"><span class="pre">pretask</span></code>, <code class="docutils literal notranslate"><span class="pre">posttask</span></code>, <code class="docutils literal notranslate"><span class="pre">finish</span></code>) are also available, which can be used to
+introspect the Dask task to Ray task conversion process, but note that the <code class="docutils literal notranslate"><span class="pre">pretask</span></code>
+and <code class="docutils literal notranslate"><span class="pre">posttask</span></code> hooks are executed before and after the Ray task is <em>submitted</em>, not
+executed, and that <code class="docutils literal notranslate"><span class="pre">finish</span></code> is executed after all Ray tasks have been
+<em>submitted</em>, not executed.</p>
+</div>
+<p>This callback API is currently unstable and subject to change.</p>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="using-ray-with-pytorch-lightning.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Using Ray with Pytorch Lightning</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="raydp.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Using Spark on Ray (RayDP)</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

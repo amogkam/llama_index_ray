@@ -1,0 +1,1908 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Online reinforcement learning with Ray AIR &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/js/versionwarning.js"></script>
+    <script src="../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../_static/js/docsearch.js"></script>
+    <script src="../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../_static/js/top-navigation.js"></script>
+    <script src="../../_static/js/tags.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/ray-air/examples/rl_online_example.html" />
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Offline reinforcement learning with Ray AIR" href="rl_offline_example.html" />
+    <link rel="prev" title="Serving reinforcement learning policy models" href="rl_serving_example.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "ray-air/examples/rl_online_example", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".ipynb", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../user-guides.html">
+     User Guides
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="index.html">
+     Examples
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="opt_deepspeed_batch_inference.html">
+       Batch Inference with OPT 30B and Ray Data
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="torch_image_example.html">
+       Training a Torch Image Classifier
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="torch_detection.html">
+       Fine-tuning a Torch object detection model
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="convert_existing_pytorch_code_to_ray_air.html">
+       Convert existing PyTorch code to Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="convert_existing_tf_code_to_ray_air.html">
+       Convert existing Tensorflow/Keras code to Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tfx_tabular_train_to_serve.html">
+       Tabular data training and serving with Keras and Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="huggingface_text_classification.html">
+       Fine-tune a 🤗 Transformers model
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="sklearn_example.html">
+       Training a model with Sklearn
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="xgboost_example.html">
+       Training a model with distributed XGBoost
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="analyze_tuning_results.html">
+       Hyperparameter tuning with XGBoostTrainer
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="lightgbm_example.html">
+       Training a model with distributed LightGBM
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="torch_incremental_learning.html">
+       Incremental Learning with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rl_serving_example.html">
+       Serving reinforcement learning policy models
+      </a>
+     </li>
+     <li class="toctree-l3 current active">
+      <a class="current reference internal" href="rl_online_example.html#">
+       Online reinforcement learning with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rl_offline_example.html">
+       Offline reinforcement learning with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="upload_to_comet_ml.html">
+       Logging results and uploading models to Comet ML
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="upload_to_wandb.html">
+       Logging results and uploading models to Weights &amp; Biases
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="feast_example.html">
+       Integrate Ray AIR with Feast feature store
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="automl_with_ray_air.html">
+       AutoML for time series forecasting with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="batch_tuning.html">
+       Batch training &amp; tuning on Ray Tune
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="batch_forecasting.html">
+       Parallel demand forecasting at scale using Ray Tune
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="stablediffusion_batch_prediction.html">
+       Stable Diffusion Batch Prediction with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gptj_deepspeed_fine_tuning.html">
+       GPT-J-6B Fine-Tuning with Ray AIR and DeepSpeed
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gptj_batch_prediction.html">
+       GPT-J-6B Batch Prediction with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gptj_serving.html">
+       GPT-J-6B Serving with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="dreambooth_finetuning.html">
+       Fine-tuning DreamBooth with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="dolly_lightning_fsdp_finetuning.html">
+       Fine-tune
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         dolly-v2-7b
+        </span>
+       </code>
+       with Ray AIR LightningTrainer and FSDP
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/api.html">
+     Ray AIR API
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../benchmarks.html">
+     Benchmarks
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tune.html">
+   Ray Tune
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Fray-air/examples/rl_online_example.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/ray-air/examples/rl_online_example.ipynb"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../_sources/ray-air/examples/rl_online_example.ipynb.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.ipynb</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Online reinforcement learning with Ray AIR</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section class="tex2jax_ignore mathjax_ignore" id="online-reinforcement-learning-with-ray-air">
+<h1>Online reinforcement learning with Ray AIR<a class="headerlink" href="rl_online_example.html#online-reinforcement-learning-with-ray-air" title="Permalink to this headline">#</a></h1>
+<p>In this example, we’ll train a reinforcement learning agent using online training.</p>
+<p>Online training means that the data from the environment is sampled while we are running the algorithm. In contrast, offline training uses data that has been stored on disk before.</p>
+<p>Let’s start with installing our dependencies:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>pip install -qU <span class="s2">&quot;ray[rllib]&quot;</span> gymnasium
+</pre></div>
+</div>
+</div>
+</div>
+<p>Now we can run some imports:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">gymnasium</span> <span class="k">as</span> <span class="nn">gym</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">ray.air</span> <span class="kn">import</span> <span class="n">Checkpoint</span>
+<span class="kn">from</span> <span class="nn">ray.air.config</span> <span class="kn">import</span> <span class="n">CheckpointConfig</span><span class="p">,</span> <span class="n">RunConfig</span>
+<span class="kn">from</span> <span class="nn">ray.train.rl.rl_predictor</span> <span class="kn">import</span> <span class="n">RLPredictor</span>
+<span class="kn">from</span> <span class="nn">ray.train.rl.rl_trainer</span> <span class="kn">import</span> <span class="n">RLTrainer</span>
+<span class="kn">from</span> <span class="nn">ray.air.config</span> <span class="kn">import</span> <span class="n">ScalingConfig</span>
+<span class="kn">from</span> <span class="nn">ray.air.result</span> <span class="kn">import</span> <span class="n">Result</span>
+<span class="kn">from</span> <span class="nn">ray.tune.tuner</span> <span class="kn">import</span> <span class="n">Tuner</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2022-05-19 13:54:16,520	WARNING deprecation.py:47 -- DeprecationWarning: `ray.rllib.execution.buffers` has been deprecated. Use `ray.rllib.utils.replay_buffers` instead. This will raise an error in the future!
+2022-05-19 13:54:16,531	WARNING deprecation.py:47 -- DeprecationWarning: `ray.rllib.agents.marwil` has been deprecated. Use `ray.rllib.algorithms.marwil` instead. This will raise an error in the future!
+</pre></div>
+</div>
+</div>
+</div>
+<p>Here we define the training function. It will create an <code class="docutils literal notranslate"><span class="pre">RLTrainer</span></code> using the <code class="docutils literal notranslate"><span class="pre">PPO</span></code> algorithm and kick off training on the <code class="docutils literal notranslate"><span class="pre">CartPole-v1</span></code> environment:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">train_rl_ppo_online</span><span class="p">(</span><span class="n">num_workers</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">use_gpu</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Result</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Starting online training&quot;</span><span class="p">)</span>
+    <span class="n">trainer</span> <span class="o">=</span> <span class="n">RLTrainer</span><span class="p">(</span>
+        <span class="n">run_config</span><span class="o">=</span><span class="n">RunConfig</span><span class="p">(</span>
+            <span class="n">stop</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;training_iteration&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">},</span>
+            <span class="n">checkpoint_config</span><span class="o">=</span><span class="n">CheckpointConfig</span><span class="p">(</span><span class="n">checkpoint_at_end</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">),</span>
+        <span class="n">scaling_config</span><span class="o">=</span><span class="n">ScalingConfig</span><span class="p">(</span><span class="n">num_workers</span><span class="o">=</span><span class="n">num_workers</span><span class="p">,</span> <span class="n">use_gpu</span><span class="o">=</span><span class="n">use_gpu</span><span class="p">),</span>
+        <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;PPO&quot;</span><span class="p">,</span>
+        <span class="n">config</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;env&quot;</span><span class="p">:</span> <span class="s2">&quot;CartPole-v1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;framework&quot;</span><span class="p">:</span> <span class="s2">&quot;tf&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">result</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Once we trained our RL policy, we want to evaluate it on a fresh environment. For this, we will also define a utility function:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">evaluate_using_checkpoint</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">:</span> <span class="n">Checkpoint</span><span class="p">,</span> <span class="n">num_episodes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+    <span class="n">predictor</span> <span class="o">=</span> <span class="n">RLPredictor</span><span class="o">.</span><span class="n">from_checkpoint</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">)</span>
+
+    <span class="n">env</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;CartPole-v1&quot;</span><span class="p">)</span>
+
+    <span class="n">rewards</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_episodes</span><span class="p">):</span>
+        <span class="n">obs</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="n">reward</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">terminated</span> <span class="o">=</span> <span class="n">truncated</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">terminated</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">truncated</span><span class="p">:</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">obs</span><span class="p">]))</span>
+            <span class="n">obs</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">terminated</span><span class="p">,</span> <span class="n">truncated</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">reward</span> <span class="o">+=</span> <span class="n">r</span>
+        <span class="n">rewards</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reward</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">rewards</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Let’s put it all together. First, we run training:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">train_rl_ppo_online</span><span class="p">(</span><span class="n">num_workers</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">use_gpu</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2022-05-19 13:54:16,582	WARNING deprecation.py:47 -- DeprecationWarning: `ray.rllib.agents.dqn.dqn.DEFAULT_CONFIG` has been deprecated. Use `ray.rllib.agents.dqn.dqn.DQNConfig(...)` instead. This will raise an error in the future!
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Starting online training
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2022-05-19 13:54:19,326	INFO services.py:1483 -- View the Ray dashboard at <span class=" -Color -Color-Bold -Color-Bold-Green">http://127.0.0.1:8267</span>
+</pre></div>
+</div>
+<div class="output text_html">== Status ==<br>Current time: 2022-05-19 13:54:57 (running for 00:00:35.99)<br>Memory usage on this node: 9.6/16.0 GiB<br>Using FIFO scheduling algorithm.<br>Resources requested: 0/16 CPUs, 0/0 GPUs, 0.0/4.54 GiB heap, 0.0/2.0 GiB objects<br>Result logdir: /Users/kai/ray_results/AIRPPOTrainer_2022-05-19_13-54-16<br>Number of trials: 1/1 (1 TERMINATED)<br><table>
+<thead>
+<tr><th>Trial name               </th><th>status    </th><th>loc            </th><th style="text-align: right;">  iter</th><th style="text-align: right;">  total time (s)</th><th style="text-align: right;">   ts</th><th style="text-align: right;">  reward</th><th style="text-align: right;">  episode_reward_max</th><th style="text-align: right;">  episode_reward_min</th><th style="text-align: right;">  episode_len_mean</th></tr>
+</thead>
+<tbody>
+<tr><td>AIRPPOTrainer_cd8d6_00000</td><td>TERMINATED</td><td>127.0.0.1:14174</td><td style="text-align: right;">     5</td><td style="text-align: right;">         16.7029</td><td style="text-align: right;">20000</td><td style="text-align: right;">  124.79</td><td style="text-align: right;">                 200</td><td style="text-align: right;">                   9</td><td style="text-align: right;">            124.79</td></tr>
+</tbody>
+</table><br><br></div><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Faint -Color-Faint-Yellow">(raylet)</span> 2022-05-19 13:54:23,061	INFO context.py:70 -- Exec&#39;ing worker with command: exec /Users/kai/.pyenv/versions/3.7.7/bin/python3.7 /Users/kai/coding/ray/python/ray/workers/default_worker.py --node-ip-address=127.0.0.1 --node-manager-port=63729 --object-store-name=/tmp/ray/session_2022-05-19_13-54-16_649144_14093/sockets/plasma_store --raylet-name=/tmp/ray/session_2022-05-19_13-54-16_649144_14093/sockets/raylet --redis-address=None --storage=None --temp-dir=/tmp/ray --metrics-agent-port=63909 --logging-rotate-bytes=536870912 --logging-rotate-backup-count=5 --gcs-address=127.0.0.1:65260 --redis-password=5241590000000000 --startup-token=16 --runtime-env-hash=-2010331134
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=14174)</span> 2022-05-19 13:54:30,271	WARNING deprecation.py:47 -- DeprecationWarning: `ray.rllib.execution.buffers` has been deprecated. Use `ray.rllib.utils.replay_buffers` instead. This will raise an error in the future!
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(AIRPPOTrainer pid=14174)</span> 2022-05-19 13:54:30,749	INFO trainer.py:1728 -- Your framework setting is &#39;tf&#39;, meaning you are using static-graph mode. Set framework=&#39;tf2&#39; to enable eager execution with tf2.x. You may also then want to set eager_tracing=True in order to reach similar execution speed as with static-graph mode.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(AIRPPOTrainer pid=14174)</span> 2022-05-19 13:54:30,750	INFO ppo.py:361 -- In multi-agent mode, policies will be optimized sequentially by the multi-GPU optimizer. Consider setting simple_optimizer=True if this doesn&#39;t work for you.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(AIRPPOTrainer pid=14174)</span> 2022-05-19 13:54:30,750	INFO trainer.py:328 -- Current log_level is WARN. For more information, set &#39;log_level&#39;: &#39;INFO&#39; / &#39;DEBUG&#39; or use the -v and -vv flags.
+<span class=" -Color -Color-Faint -Color-Faint-Yellow">(raylet)</span> 2022-05-19 13:54:31,857	INFO context.py:70 -- Exec&#39;ing worker with command: exec /Users/kai/.pyenv/versions/3.7.7/bin/python3.7 /Users/kai/coding/ray/python/ray/workers/default_worker.py --node-ip-address=127.0.0.1 --node-manager-port=63729 --object-store-name=/tmp/ray/session_2022-05-19_13-54-16_649144_14093/sockets/plasma_store --raylet-name=/tmp/ray/session_2022-05-19_13-54-16_649144_14093/sockets/raylet --redis-address=None --storage=None --temp-dir=/tmp/ray --metrics-agent-port=63909 --logging-rotate-bytes=536870912 --logging-rotate-backup-count=5 --gcs-address=127.0.0.1:65260 --redis-password=5241590000000000 --startup-token=17 --runtime-env-hash=-2010331134
+<span class=" -Color -Color-Faint -Color-Faint-Yellow">(raylet)</span> 2022-05-19 13:54:31,857	INFO context.py:70 -- Exec&#39;ing worker with command: exec /Users/kai/.pyenv/versions/3.7.7/bin/python3.7 /Users/kai/coding/ray/python/ray/workers/default_worker.py --node-ip-address=127.0.0.1 --node-manager-port=63729 --object-store-name=/tmp/ray/session_2022-05-19_13-54-16_649144_14093/sockets/plasma_store --raylet-name=/tmp/ray/session_2022-05-19_13-54-16_649144_14093/sockets/raylet --redis-address=None --storage=None --temp-dir=/tmp/ray --metrics-agent-port=63909 --logging-rotate-bytes=536870912 --logging-rotate-backup-count=5 --gcs-address=127.0.0.1:65260 --redis-password=5241590000000000 --startup-token=18 --runtime-env-hash=-2010331134
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(RolloutWorker pid=14179)</span> 2022-05-19 13:54:39,442	WARNING deprecation.py:47 -- DeprecationWarning: `ray.rllib.execution.buffers` has been deprecated. Use `ray.rllib.utils.replay_buffers` instead. This will raise an error in the future!
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(RolloutWorker pid=14180)</span> 2022-05-19 13:54:39,492	WARNING deprecation.py:47 -- DeprecationWarning: `ray.rllib.execution.buffers` has been deprecated. Use `ray.rllib.utils.replay_buffers` instead. This will raise an error in the future!
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(AIRPPOTrainer pid=14174)</span> 2022-05-19 13:54:40,836	INFO trainable.py:163 -- Trainable.setup took 10.087 seconds. If your trainable is slow to initialize, consider setting reuse_actors=True to reduce actor creation overheads.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(AIRPPOTrainer pid=14174)</span> 2022-05-19 13:54:40,836	WARNING util.py:65 -- Install gputil for GPU system monitoring.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(AIRPPOTrainer pid=14174)</span> 2022-05-19 13:54:42,569	WARNING deprecation.py:47 -- DeprecationWarning: `slice` has been deprecated. Use `SampleBatch[start:stop]` instead. This will raise an error in the future!
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Result for AIRPPOTrainer_cd8d6_00000:
+  agent_timesteps_total: 4000
+  counters:
+    num_agent_steps_sampled: 4000
+    num_agent_steps_trained: 4000
+    num_env_steps_sampled: 4000
+    num_env_steps_trained: 4000
+  custom_metrics: {}
+  date: 2022-05-19_13-54-44
+  done: false
+  episode_len_mean: 22.11731843575419
+  episode_media: {}
+  episode_reward_max: 87.0
+  episode_reward_mean: 22.11731843575419
+  episode_reward_min: 8.0
+  episodes_this_iter: 179
+  episodes_total: 179
+  experiment_id: 158c57d8b6e142ad85b393db57c8bdff
+  hostname: Kais-MacBook-Pro.local
+  info:
+    learner:
+      default_policy:
+        custom_metrics: {}
+        learner_stats:
+          cur_kl_coeff: 0.20000000298023224
+          cur_lr: 4.999999873689376e-05
+          entropy: 0.6653298139572144
+          entropy_coeff: 0.0
+          kl: 0.02798665314912796
+          model: {}
+          policy_loss: -0.0422092080116272
+          total_loss: 8.986403465270996
+          vf_explained_var: -0.06533512473106384
+          vf_loss: 9.023015022277832
+        num_agent_steps_trained: 128.0
+    num_agent_steps_sampled: 4000
+    num_agent_steps_trained: 4000
+    num_env_steps_sampled: 4000
+    num_env_steps_trained: 4000
+  iterations_since_restore: 1
+  node_ip: 127.0.0.1
+  num_agent_steps_sampled: 4000
+  num_agent_steps_trained: 4000
+  num_env_steps_sampled: 4000
+  num_env_steps_sampled_this_iter: 4000
+  num_env_steps_trained: 4000
+  num_env_steps_trained_this_iter: 4000
+  num_healthy_workers: 2
+  off_policy_estimator: {}
+  perf:
+    cpu_util_percent: 24.849999999999998
+    ram_util_percent: 61.199999999999996
+  pid: 14174
+  policy_reward_max: {}
+  policy_reward_mean: {}
+  policy_reward_min: {}
+  sampler_perf:
+    mean_action_processing_ms: 0.06886580197141673
+    mean_env_render_ms: 0.0
+    mean_env_wait_ms: 0.05465748139159193
+    mean_inference_ms: 0.6132523881103351
+    mean_raw_obs_processing_ms: 0.10609273714105154
+  sampler_results:
+    custom_metrics: {}
+    episode_len_mean: 22.11731843575419
+    episode_media: {}
+    episode_reward_max: 87.0
+    episode_reward_mean: 22.11731843575419
+    episode_reward_min: 8.0
+    episodes_this_iter: 179
+    hist_stats:
+      episode_lengths:
+      - 28
+      - 9
+      - 12
+      - 23
+      - 13
+      - 21
+      - 15
+      - 16
+      - 19
+      - 44
+      - 14
+      - 19
+      - 19
+      - 17
+      - 17
+      - 12
+      - 9
+      - 48
+      - 43
+      - 15
+      - 21
+      - 25
+      - 16
+      - 14
+      - 22
+      - 21
+      - 24
+      - 53
+      - 21
+      - 16
+      - 17
+      - 14
+      - 20
+      - 22
+      - 18
+      - 17
+      - 14
+      - 11
+      - 46
+      - 12
+      - 18
+      - 21
+      - 13
+      - 58
+      - 10
+      - 20
+      - 14
+      - 25
+      - 22
+      - 33
+      - 23
+      - 10
+      - 25
+      - 11
+      - 32
+      - 48
+      - 12
+      - 12
+      - 10
+      - 24
+      - 15
+      - 28
+      - 14
+      - 16
+      - 14
+      - 21
+      - 12
+      - 13
+      - 8
+      - 12
+      - 13
+      - 10
+      - 10
+      - 14
+      - 30
+      - 16
+      - 23
+      - 47
+      - 14
+      - 22
+      - 11
+      - 18
+      - 12
+      - 21
+      - 21
+      - 20
+      - 18
+      - 29
+      - 18
+      - 24
+      - 50
+      - 87
+      - 21
+      - 41
+      - 21
+      - 34
+      - 47
+      - 20
+      - 26
+      - 14
+      - 9
+      - 24
+      - 16
+      - 18
+      - 44
+      - 28
+      - 37
+      - 10
+      - 19
+      - 11
+      - 56
+      - 11
+      - 28
+      - 16
+      - 14
+      - 19
+      - 23
+      - 11
+      - 22
+      - 63
+      - 22
+      - 13
+      - 29
+      - 11
+      - 64
+      - 44
+      - 45
+      - 38
+      - 17
+      - 18
+      - 21
+      - 13
+      - 12
+      - 13
+      - 10
+      - 17
+      - 14
+      - 16
+      - 10
+      - 19
+      - 25
+      - 15
+      - 50
+      - 13
+      - 10
+      - 15
+      - 12
+      - 15
+      - 11
+      - 14
+      - 17
+      - 17
+      - 14
+      - 49
+      - 18
+      - 13
+      - 28
+      - 31
+      - 19
+      - 26
+      - 31
+      - 29
+      - 21
+      - 23
+      - 17
+      - 23
+      - 32
+      - 35
+      - 10
+      - 11
+      - 30
+      - 21
+      - 16
+      - 15
+      - 23
+      - 40
+      - 24
+      - 24
+      - 14
+      episode_reward:
+      - 28.0
+      - 9.0
+      - 12.0
+      - 23.0
+      - 13.0
+      - 21.0
+      - 15.0
+      - 16.0
+      - 19.0
+      - 44.0
+      - 14.0
+      - 19.0
+      - 19.0
+      - 17.0
+      - 17.0
+      - 12.0
+      - 9.0
+      - 48.0
+      - 43.0
+      - 15.0
+      - 21.0
+      - 25.0
+      - 16.0
+      - 14.0
+      - 22.0
+      - 21.0
+      - 24.0
+      - 53.0
+      - 21.0
+      - 16.0
+      - 17.0
+      - 14.0
+      - 20.0
+      - 22.0
+      - 18.0
+      - 17.0
+      - 14.0
+      - 11.0
+      - 46.0
+      - 12.0
+      - 18.0
+      - 21.0
+      - 13.0
+      - 58.0
+      - 10.0
+      - 20.0
+      - 14.0
+      - 25.0
+      - 22.0
+      - 33.0
+      - 23.0
+      - 10.0
+      - 25.0
+      - 11.0
+      - 32.0
+      - 48.0
+      - 12.0
+      - 12.0
+      - 10.0
+      - 24.0
+      - 15.0
+      - 28.0
+      - 14.0
+      - 16.0
+      - 14.0
+      - 21.0
+      - 12.0
+      - 13.0
+      - 8.0
+      - 12.0
+      - 13.0
+      - 10.0
+      - 10.0
+      - 14.0
+      - 30.0
+      - 16.0
+      - 23.0
+      - 47.0
+      - 14.0
+      - 22.0
+      - 11.0
+      - 18.0
+      - 12.0
+      - 21.0
+      - 21.0
+      - 20.0
+      - 18.0
+      - 29.0
+      - 18.0
+      - 24.0
+      - 50.0
+      - 87.0
+      - 21.0
+      - 41.0
+      - 21.0
+      - 34.0
+      - 47.0
+      - 20.0
+      - 26.0
+      - 14.0
+      - 9.0
+      - 24.0
+      - 16.0
+      - 18.0
+      - 44.0
+      - 28.0
+      - 37.0
+      - 10.0
+      - 19.0
+      - 11.0
+      - 56.0
+      - 11.0
+      - 28.0
+      - 16.0
+      - 14.0
+      - 19.0
+      - 23.0
+      - 11.0
+      - 22.0
+      - 63.0
+      - 22.0
+      - 13.0
+      - 29.0
+      - 11.0
+      - 64.0
+      - 44.0
+      - 45.0
+      - 38.0
+      - 17.0
+      - 18.0
+      - 21.0
+      - 13.0
+      - 12.0
+      - 13.0
+      - 10.0
+      - 17.0
+      - 14.0
+      - 16.0
+      - 10.0
+      - 19.0
+      - 25.0
+      - 15.0
+      - 50.0
+      - 13.0
+      - 10.0
+      - 15.0
+      - 12.0
+      - 15.0
+      - 11.0
+      - 14.0
+      - 17.0
+      - 17.0
+      - 14.0
+      - 49.0
+      - 18.0
+      - 13.0
+      - 28.0
+      - 31.0
+      - 19.0
+      - 26.0
+      - 31.0
+      - 29.0
+      - 21.0
+      - 23.0
+      - 17.0
+      - 23.0
+      - 32.0
+      - 35.0
+      - 10.0
+      - 11.0
+      - 30.0
+      - 21.0
+      - 16.0
+      - 15.0
+      - 23.0
+      - 40.0
+      - 24.0
+      - 24.0
+      - 14.0
+    off_policy_estimator: {}
+    policy_reward_max: {}
+    policy_reward_mean: {}
+    policy_reward_min: {}
+    sampler_perf:
+      mean_action_processing_ms: 0.06886580197141673
+      mean_env_render_ms: 0.0
+      mean_env_wait_ms: 0.05465748139159193
+      mean_inference_ms: 0.6132523881103351
+      mean_raw_obs_processing_ms: 0.10609273714105154
+  time_since_restore: 3.7304069995880127
+  time_this_iter_s: 3.7304069995880127
+  time_total_s: 3.7304069995880127
+  timers:
+    learn_throughput: 2006.2
+    learn_time_ms: 1993.819
+    load_throughput: 24708712.813
+    load_time_ms: 0.162
+    training_iteration_time_ms: 3726.731
+    update_time_ms: 1.95
+  timestamp: 1652964884
+  timesteps_since_restore: 0
+  timesteps_total: 4000
+  training_iteration: 1
+  trial_id: cd8d6_00000
+  warmup_time: 10.095139741897583
+  
+Result for AIRPPOTrainer_cd8d6_00000:
+  agent_timesteps_total: 12000
+  counters:
+    num_agent_steps_sampled: 12000
+    num_agent_steps_trained: 12000
+    num_env_steps_sampled: 12000
+    num_env_steps_trained: 12000
+  custom_metrics: {}
+  date: 2022-05-19_13-54-51
+  done: false
+  episode_len_mean: 65.15
+  episode_media: {}
+  episode_reward_max: 200.0
+  episode_reward_mean: 65.15
+  episode_reward_min: 9.0
+  episodes_this_iter: 44
+  episodes_total: 311
+  experiment_id: 158c57d8b6e142ad85b393db57c8bdff
+  hostname: Kais-MacBook-Pro.local
+  info:
+    learner:
+      default_policy:
+        custom_metrics: {}
+        learner_stats:
+          cur_kl_coeff: 0.30000001192092896
+          cur_lr: 4.999999873689376e-05
+          entropy: 0.5750519633293152
+          entropy_coeff: 0.0
+          kl: 0.012749233283102512
+          model: {}
+          policy_loss: -0.026830431073904037
+          total_loss: 9.414541244506836
+          vf_explained_var: 0.046859823167324066
+          vf_loss: 9.43754768371582
+        num_agent_steps_trained: 128.0
+    num_agent_steps_sampled: 12000
+    num_agent_steps_trained: 12000
+    num_env_steps_sampled: 12000
+    num_env_steps_trained: 12000
+  iterations_since_restore: 3
+  node_ip: 127.0.0.1
+  num_agent_steps_sampled: 12000
+  num_agent_steps_trained: 12000
+  num_env_steps_sampled: 12000
+  num_env_steps_sampled_this_iter: 4000
+  num_env_steps_trained: 12000
+  num_env_steps_trained_this_iter: 4000
+  num_healthy_workers: 2
+  off_policy_estimator: {}
+  perf:
+    cpu_util_percent: 20.9
+    ram_util_percent: 61.379999999999995
+  pid: 14174
+  policy_reward_max: {}
+  policy_reward_mean: {}
+  policy_reward_min: {}
+  sampler_perf:
+    mean_action_processing_ms: 0.06834399059626647
+    mean_env_render_ms: 0.0
+    mean_env_wait_ms: 0.05423359203664157
+    mean_inference_ms: 0.5997818239241897
+    mean_raw_obs_processing_ms: 0.0982917359628421
+  sampler_results:
+    custom_metrics: {}
+    episode_len_mean: 65.15
+    episode_media: {}
+    episode_reward_max: 200.0
+    episode_reward_mean: 65.15
+    episode_reward_min: 9.0
+    episodes_this_iter: 44
+    hist_stats:
+      episode_lengths:
+      - 34
+      - 37
+      - 38
+      - 23
+      - 29
+      - 56
+      - 38
+      - 13
+      - 10
+      - 18
+      - 40
+      - 23
+      - 46
+      - 84
+      - 29
+      - 44
+      - 54
+      - 32
+      - 30
+      - 100
+      - 28
+      - 67
+      - 47
+      - 40
+      - 74
+      - 133
+      - 32
+      - 28
+      - 86
+      - 133
+      - 46
+      - 60
+      - 17
+      - 43
+      - 12
+      - 51
+      - 57
+      - 70
+      - 54
+      - 73
+      - 16
+      - 29
+      - 113
+      - 45
+      - 31
+      - 44
+      - 103
+      - 62
+      - 72
+      - 20
+      - 15
+      - 35
+      - 12
+      - 9
+      - 24
+      - 10
+      - 102
+      - 93
+      - 73
+      - 27
+      - 52
+      - 144
+      - 19
+      - 140
+      - 91
+      - 133
+      - 147
+      - 140
+      - 90
+      - 14
+      - 73
+      - 71
+      - 200
+      - 55
+      - 184
+      - 103
+      - 196
+      - 168
+      - 177
+      - 38
+      - 33
+      - 50
+      - 149
+      - 67
+      - 87
+      - 25
+      - 134
+      - 42
+      - 26
+      - 24
+      - 121
+      - 61
+      - 109
+      - 19
+      - 200
+      - 60
+      - 40
+      - 51
+      - 88
+      - 30
+      episode_reward:
+      - 34.0
+      - 37.0
+      - 38.0
+      - 23.0
+      - 29.0
+      - 56.0
+      - 38.0
+      - 13.0
+      - 10.0
+      - 18.0
+      - 40.0
+      - 23.0
+      - 46.0
+      - 84.0
+      - 29.0
+      - 44.0
+      - 54.0
+      - 32.0
+      - 30.0
+      - 100.0
+      - 28.0
+      - 67.0
+      - 47.0
+      - 40.0
+      - 74.0
+      - 133.0
+      - 32.0
+      - 28.0
+      - 86.0
+      - 133.0
+      - 46.0
+      - 60.0
+      - 17.0
+      - 43.0
+      - 12.0
+      - 51.0
+      - 57.0
+      - 70.0
+      - 54.0
+      - 73.0
+      - 16.0
+      - 29.0
+      - 113.0
+      - 45.0
+      - 31.0
+      - 44.0
+      - 103.0
+      - 62.0
+      - 72.0
+      - 20.0
+      - 15.0
+      - 35.0
+      - 12.0
+      - 9.0
+      - 24.0
+      - 10.0
+      - 102.0
+      - 93.0
+      - 73.0
+      - 27.0
+      - 52.0
+      - 144.0
+      - 19.0
+      - 140.0
+      - 91.0
+      - 133.0
+      - 147.0
+      - 140.0
+      - 90.0
+      - 14.0
+      - 73.0
+      - 71.0
+      - 200.0
+      - 55.0
+      - 184.0
+      - 103.0
+      - 196.0
+      - 168.0
+      - 177.0
+      - 38.0
+      - 33.0
+      - 50.0
+      - 149.0
+      - 67.0
+      - 87.0
+      - 25.0
+      - 134.0
+      - 42.0
+      - 26.0
+      - 24.0
+      - 121.0
+      - 61.0
+      - 109.0
+      - 19.0
+      - 200.0
+      - 60.0
+      - 40.0
+      - 51.0
+      - 88.0
+      - 30.0
+    off_policy_estimator: {}
+    policy_reward_max: {}
+    policy_reward_mean: {}
+    policy_reward_min: {}
+    sampler_perf:
+      mean_action_processing_ms: 0.06834399059626647
+      mean_env_render_ms: 0.0
+      mean_env_wait_ms: 0.05423359203664157
+      mean_inference_ms: 0.5997818239241897
+      mean_raw_obs_processing_ms: 0.0982917359628421
+  time_since_restore: 10.289561986923218
+  time_this_iter_s: 3.3495230674743652
+  time_total_s: 10.289561986923218
+  timers:
+    learn_throughput: 2276.977
+    learn_time_ms: 1756.715
+    load_throughput: 20798201.653
+    load_time_ms: 0.192
+    training_iteration_time_ms: 3425.704
+    update_time_ms: 1.814
+  timestamp: 1652964891
+  timesteps_since_restore: 0
+  timesteps_total: 12000
+  training_iteration: 3
+  trial_id: cd8d6_00000
+  warmup_time: 10.095139741897583
+  
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Result for AIRPPOTrainer_cd8d6_00000:
+  agent_timesteps_total: 20000
+  counters:
+    num_agent_steps_sampled: 20000
+    num_agent_steps_trained: 20000
+    num_env_steps_sampled: 20000
+    num_env_steps_trained: 20000
+  custom_metrics: {}
+  date: 2022-05-19_13-54-57
+  done: true
+  episode_len_mean: 124.79
+  episode_media: {}
+  episode_reward_max: 200.0
+  episode_reward_mean: 124.79
+  episode_reward_min: 9.0
+  episodes_this_iter: 20
+  episodes_total: 354
+  experiment_id: 158c57d8b6e142ad85b393db57c8bdff
+  hostname: Kais-MacBook-Pro.local
+  info:
+    learner:
+      default_policy:
+        custom_metrics: {}
+        learner_stats:
+          cur_kl_coeff: 0.30000001192092896
+          cur_lr: 4.999999873689376e-05
+          entropy: 0.5436986684799194
+          entropy_coeff: 0.0
+          kl: 0.0034858626313507557
+          model: {}
+          policy_loss: -0.012989979237318039
+          total_loss: 9.49295425415039
+          vf_explained_var: 0.025460055097937584
+          vf_loss: 9.504897117614746
+        num_agent_steps_trained: 128.0
+    num_agent_steps_sampled: 20000
+    num_agent_steps_trained: 20000
+    num_env_steps_sampled: 20000
+    num_env_steps_trained: 20000
+  iterations_since_restore: 5
+  node_ip: 127.0.0.1
+  num_agent_steps_sampled: 20000
+  num_agent_steps_trained: 20000
+  num_env_steps_sampled: 20000
+  num_env_steps_sampled_this_iter: 4000
+  num_env_steps_trained: 20000
+  num_env_steps_trained_this_iter: 4000
+  num_healthy_workers: 2
+  off_policy_estimator: {}
+  perf:
+    cpu_util_percent: 24.599999999999998
+    ram_util_percent: 59.775
+  pid: 14174
+  policy_reward_max: {}
+  policy_reward_mean: {}
+  policy_reward_min: {}
+  sampler_perf:
+    mean_action_processing_ms: 0.06817872750804764
+    mean_env_render_ms: 0.0
+    mean_env_wait_ms: 0.05424549075766555
+    mean_inference_ms: 0.5976919122059019
+    mean_raw_obs_processing_ms: 0.09603803519062176
+  sampler_results:
+    custom_metrics: {}
+    episode_len_mean: 124.79
+    episode_media: {}
+    episode_reward_max: 200.0
+    episode_reward_mean: 124.79
+    episode_reward_min: 9.0
+    episodes_this_iter: 20
+    hist_stats:
+      episode_lengths:
+      - 45
+      - 31
+      - 44
+      - 103
+      - 62
+      - 72
+      - 20
+      - 15
+      - 35
+      - 12
+      - 9
+      - 24
+      - 10
+      - 102
+      - 93
+      - 73
+      - 27
+      - 52
+      - 144
+      - 19
+      - 140
+      - 91
+      - 133
+      - 147
+      - 140
+      - 90
+      - 14
+      - 73
+      - 71
+      - 200
+      - 55
+      - 184
+      - 103
+      - 196
+      - 168
+      - 177
+      - 38
+      - 33
+      - 50
+      - 149
+      - 67
+      - 87
+      - 25
+      - 134
+      - 42
+      - 26
+      - 24
+      - 121
+      - 61
+      - 109
+      - 19
+      - 200
+      - 60
+      - 40
+      - 51
+      - 88
+      - 30
+      - 200
+      - 186
+      - 200
+      - 182
+      - 196
+      - 200
+      - 200
+      - 200
+      - 200
+      - 200
+      - 200
+      - 43
+      - 200
+      - 109
+      - 156
+      - 200
+      - 183
+      - 200
+      - 200
+      - 200
+      - 200
+      - 200
+      - 107
+      - 200
+      - 200
+      - 200
+      - 200
+      - 200
+      - 200
+      - 200
+      - 200
+      - 200
+      - 200
+      - 200
+      - 89
+      - 200
+      - 200
+      - 200
+      - 200
+      - 200
+      - 200
+      - 200
+      - 200
+      episode_reward:
+      - 45.0
+      - 31.0
+      - 44.0
+      - 103.0
+      - 62.0
+      - 72.0
+      - 20.0
+      - 15.0
+      - 35.0
+      - 12.0
+      - 9.0
+      - 24.0
+      - 10.0
+      - 102.0
+      - 93.0
+      - 73.0
+      - 27.0
+      - 52.0
+      - 144.0
+      - 19.0
+      - 140.0
+      - 91.0
+      - 133.0
+      - 147.0
+      - 140.0
+      - 90.0
+      - 14.0
+      - 73.0
+      - 71.0
+      - 200.0
+      - 55.0
+      - 184.0
+      - 103.0
+      - 196.0
+      - 168.0
+      - 177.0
+      - 38.0
+      - 33.0
+      - 50.0
+      - 149.0
+      - 67.0
+      - 87.0
+      - 25.0
+      - 134.0
+      - 42.0
+      - 26.0
+      - 24.0
+      - 121.0
+      - 61.0
+      - 109.0
+      - 19.0
+      - 200.0
+      - 60.0
+      - 40.0
+      - 51.0
+      - 88.0
+      - 30.0
+      - 200.0
+      - 186.0
+      - 200.0
+      - 182.0
+      - 196.0
+      - 200.0
+      - 200.0
+      - 200.0
+      - 200.0
+      - 200.0
+      - 200.0
+      - 43.0
+      - 200.0
+      - 109.0
+      - 156.0
+      - 200.0
+      - 183.0
+      - 200.0
+      - 200.0
+      - 200.0
+      - 200.0
+      - 200.0
+      - 107.0
+      - 200.0
+      - 200.0
+      - 200.0
+      - 200.0
+      - 200.0
+      - 200.0
+      - 200.0
+      - 200.0
+      - 200.0
+      - 200.0
+      - 200.0
+      - 89.0
+      - 200.0
+      - 200.0
+      - 200.0
+      - 200.0
+      - 200.0
+      - 200.0
+      - 200.0
+      - 200.0
+    off_policy_estimator: {}
+    policy_reward_max: {}
+    policy_reward_mean: {}
+    policy_reward_min: {}
+    sampler_perf:
+      mean_action_processing_ms: 0.06817872750804764
+      mean_env_render_ms: 0.0
+      mean_env_wait_ms: 0.05424549075766555
+      mean_inference_ms: 0.5976919122059019
+      mean_raw_obs_processing_ms: 0.09603803519062176
+  time_since_restore: 16.702913284301758
+  time_this_iter_s: 3.1872010231018066
+  time_total_s: 16.702913284301758
+  timers:
+    learn_throughput: 2378.661
+    learn_time_ms: 1681.619
+    load_throughput: 16503261.853
+    load_time_ms: 0.242
+    training_iteration_time_ms: 3336.7
+    update_time_ms: 1.759
+  timestamp: 1652964897
+  timesteps_since_restore: 0
+  timesteps_total: 20000
+  training_iteration: 5
+  trial_id: cd8d6_00000
+  warmup_time: 10.095139741897583
+  
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2022-05-19 13:54:58,548	INFO tune.py:753 -- Total run time: 36.92 seconds (35.95 seconds for the tuning loop).
+</pre></div>
+</div>
+</div>
+</div>
+<p>And then, using the obtained checkpoint, we evaluate the policy on a fresh environment:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">num_eval_episodes</span> <span class="o">=</span> <span class="mi">3</span>
+
+<span class="n">rewards</span> <span class="o">=</span> <span class="n">evaluate_using_checkpoint</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">checkpoint</span><span class="p">,</span> <span class="n">num_episodes</span><span class="o">=</span><span class="n">num_eval_episodes</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Average reward over </span><span class="si">{</span><span class="n">num_eval_episodes</span><span class="si">}</span><span class="s2"> episodes: &quot;</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">rewards</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2022-05-19 13:54:58,589	INFO trainer.py:1728 -- Your framework setting is &#39;tf&#39;, meaning you are using static-graph mode. Set framework=&#39;tf2&#39; to enable eager execution with tf2.x. You may also then want to set eager_tracing=True in order to reach similar execution speed as with static-graph mode.
+2022-05-19 13:54:58,590	WARNING deprecation.py:47 -- DeprecationWarning: `simple_optimizer` has been deprecated. This will raise an error in the future!
+2022-05-19 13:54:58,591	INFO ppo.py:361 -- In multi-agent mode, policies will be optimized sequentially by the multi-GPU optimizer. Consider setting simple_optimizer=True if this doesn&#39;t work for you.
+2022-05-19 13:54:58,591	INFO trainer.py:328 -- Current log_level is WARN. For more information, set &#39;log_level&#39;: &#39;INFO&#39; / &#39;DEBUG&#39; or use the -v and -vv flags.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(RolloutWorker pid=14191)</span> 2022-05-19 13:55:06,622	WARNING deprecation.py:47 -- DeprecationWarning: `ray.rllib.execution.buffers` has been deprecated. Use `ray.rllib.utils.replay_buffers` instead. This will raise an error in the future!
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(RolloutWorker pid=14192)</span> 2022-05-19 13:55:06,622	WARNING deprecation.py:47 -- DeprecationWarning: `ray.rllib.execution.buffers` has been deprecated. Use `ray.rllib.utils.replay_buffers` instead. This will raise an error in the future!
+2022-05-19 13:55:07,968	WARNING util.py:65 -- Install gputil for GPU system monitoring.
+2022-05-19 13:55:08,021	INFO trainable.py:589 -- Restored on 127.0.0.1 from checkpoint: /Users/kai/ray_results/AIRPPOTrainer_2022-05-19_13-54-16/AIRPPOTrainer_cd8d6_00000_0_2022-05-19_13-54-22/checkpoint_000005/checkpoint-5
+2022-05-19 13:55:08,021	INFO trainable.py:597 -- Current state after restoring: {&#39;_iteration&#39;: 5, &#39;_timesteps_total&#39;: None, &#39;_time_total&#39;: 16.702913284301758, &#39;_episodes_total&#39;: 354}
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Average reward over 3 episodes: 200.0
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="rl_serving_example.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Serving reinforcement learning policy models</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="rl_offline_example.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Offline reinforcement learning with Ray AIR</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

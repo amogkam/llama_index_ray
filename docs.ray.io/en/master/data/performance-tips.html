@@ -1,0 +1,899 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Performance Tips and Tuning &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/js/versionwarning.js"></script>
+    <script src="../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../_static/js/docsearch.js"></script>
+    <script src="../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../_static/js/termynal.js"></script>
+    <script defer="defer" src="../_static/js/custom.js"></script>
+    <script defer="defer" src="../_static/js/top-navigation.js"></script>
+    <script src="../_static/js/tags.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../_static/design-tabs.js"></script>
+    <script async="async" src="../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/data/performance-tips.html" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="End-to-end: Offline Batch Inference" href="batch_inference.html" />
+    <link rel="prev" title="Scheduling, Execution, and Memory Management" href="data-internals.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "data/performance-tips", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".rst", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="data.html">
+   Ray Data
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="overview.html">
+     Overview
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="getting-started.html">
+     Getting Started
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="user-guide.html">
+     User Guides
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="loading-data.html">
+       Loading Data
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="transforming-data.html">
+       Transforming Data
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="inspecting-data.html">
+       Inspecting Data
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="iterating-over-data.html">
+       Iterating over Data
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="saving-data.html">
+       Saving Data
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="working-with-tensors.html">
+       Working with Tensors
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="data-internals.html">
+       Scheduling, Execution, and Memory Management
+      </a>
+     </li>
+     <li class="toctree-l3 current active">
+      <a class="current reference internal" href="performance-tips.html#">
+       Performance Tips and Tuning
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="batch_inference.html">
+       End-to-end: Offline Batch Inference
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="examples/index.html">
+     Ray Data Examples
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="faq.html">
+     FAQ
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="api/api.html">
+     Ray Data API
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../tune.html">
+   Ray Tune
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Fdata/performance-tips.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/data/performance-tips.rst"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../_sources/data/performance-tips.rst.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.rst</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="performance-tips.html#monitoring-your-application">
+   Monitoring your application
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="performance-tips.html#debugging-statistics">
+   Debugging Statistics
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="performance-tips.html#batching-transforms">
+   Batching Transforms
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="performance-tips.html#format-overheads">
+   Format Overheads
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="performance-tips.html#parquet-column-pruning">
+   Parquet Column Pruning
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="performance-tips.html#parquet-row-pruning">
+   Parquet Row Pruning
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="performance-tips.html#tuning-read-parallelism">
+   Tuning Read Parallelism
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="performance-tips.html#tuning-read-resources">
+   Tuning Read Resources
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="performance-tips.html#enabling-push-based-shuffle">
+   Enabling Push-Based Shuffle
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Performance Tips and Tuning</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="performance-tips.html#monitoring-your-application">
+   Monitoring your application
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="performance-tips.html#debugging-statistics">
+   Debugging Statistics
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="performance-tips.html#batching-transforms">
+   Batching Transforms
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="performance-tips.html#format-overheads">
+   Format Overheads
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="performance-tips.html#parquet-column-pruning">
+   Parquet Column Pruning
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="performance-tips.html#parquet-row-pruning">
+   Parquet Row Pruning
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="performance-tips.html#tuning-read-parallelism">
+   Tuning Read Parallelism
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="performance-tips.html#tuning-read-resources">
+   Tuning Read Resources
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="performance-tips.html#enabling-push-based-shuffle">
+   Enabling Push-Based Shuffle
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section id="performance-tips-and-tuning">
+<span id="data-performance-tips"></span><h1>Performance Tips and Tuning<a class="headerlink" href="performance-tips.html#performance-tips-and-tuning" title="Permalink to this headline">#</a></h1>
+<section id="monitoring-your-application">
+<h2>Monitoring your application<a class="headerlink" href="performance-tips.html#monitoring-your-application" title="Permalink to this headline">#</a></h2>
+<p>View the Ray dashboard to monitor your application and troubleshoot issues. To learn
+more about the Ray dashboard, read <a class="reference internal" href="../ray-observability/getting-started.html#observability-getting-started"><span class="std std-ref">Ray Dashboard</span></a>.</p>
+</section>
+<section id="debugging-statistics">
+<h2>Debugging Statistics<a class="headerlink" href="performance-tips.html#debugging-statistics" title="Permalink to this headline">#</a></h2>
+<p>You can view debug stats for your Dataset executions via <a class="reference internal" href="api/doc/ray.data.Dataset.stats.html#ray.data.Dataset.stats" title="ray.data.Dataset.stats"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ds.stats()</span></code></a>.
+These stats can be used to understand the performance of your Dataset workload and can help you debug problematic bottlenecks. Note that both execution and iterator statistics are available:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="k">def</span> <span class="nf">pause</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">.0001</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">x</span>
+
+<span class="n">ds</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">ray</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;s3://anonymous@air-example-data/iris.csv&quot;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">pause</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">iter_batches</span><span class="p">():</span>
+    <span class="k">pass</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">stats</span><span class="p">())</span>
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Stage 1 ReadRange-&gt;Map-&gt;Map: 16/16 blocks executed in 0.37s
+* Remote wall time: 101.55ms min, 331.39ms max, 135.24ms mean, 2.16s total
+* Remote cpu time: 7.42ms min, 15.88ms max, 11.01ms mean, 176.15ms total
+* Peak heap memory usage (MiB): 157.18 min, 157.73 max, 157 mean
+* Output num rows: 625 min, 625 max, 625 mean, 10000 total
+* Output size bytes: 3658 min, 4392 max, 4321 mean, 69150 total
+* Tasks per node: 16 min, 16 max, 16 mean; 1 nodes used
+* Extra metrics: {&#39;obj_store_mem_alloc&#39;: 3658, &#39;obj_store_mem_freed&#39;: 5000, &#39;obj_store_mem_peak&#39;: 40000}
+
+Dataset iterator time breakdown:
+* Total time user code is blocked: 551.67ms
+* Total time in user code: 144.97us
+* Total time overall: 1.01s
+* Num blocks local: 0
+* Num blocks remote: 0
+* Num blocks unknown location: 16
+* Batch iteration time breakdown (summed across prefetch threads):
+    * In ray.get(): 75.68us min, 220.26us max, 131.89us avg, 2.11ms total
+    * In batch creation: 326.58us min, 1.37ms max, 644.86us avg, 25.79ms total
+    * In batch formatting: 101.81us min, 898.73us max, 172.38us avg, 6.9ms total
+</pre></div>
+</div>
+</section>
+<section id="batching-transforms">
+<h2>Batching Transforms<a class="headerlink" href="performance-tips.html#batching-transforms" title="Permalink to this headline">#</a></h2>
+<p>Mapping individual records using <a class="reference internal" href="api/doc/ray.data.Dataset.map.html#ray.data.Dataset.map" title="ray.data.Dataset.map"><code class="xref py py-meth docutils literal notranslate"><span class="pre">.map(fn)</span></code></a> can be quite slow.
+Instead, consider using <a class="reference internal" href="api/doc/ray.data.Dataset.map_batches.html#ray.data.Dataset.map_batches" title="ray.data.Dataset.map_batches"><code class="xref py py-meth docutils literal notranslate"><span class="pre">.map_batches(batch_fn,</span> <span class="pre">batch_format=&quot;pandas&quot;)</span></code></a> and writing your <code class="docutils literal notranslate"><span class="pre">batch_fn</span></code> to
+perform vectorized pandas operations.</p>
+</section>
+<section id="format-overheads">
+<span id="data-format-overheads"></span><h2>Format Overheads<a class="headerlink" href="performance-tips.html#format-overheads" title="Permalink to this headline">#</a></h2>
+<p>Converting between the internal block types (Arrow, Pandas)
+and the requested batch format (<code class="docutils literal notranslate"><span class="pre">&quot;numpy&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;pandas&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;pyarrow&quot;</span></code>)
+may incur data copies; which conversions cause data copying is given in the below table:</p>
+<table class="table" id="id2">
+<caption><span class="caption-text">Data Format Conversion Costs</span><a class="headerlink" href="performance-tips.html#id2" title="Permalink to this table">#</a></caption>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head stub"><p>Block Type x Batch Format</p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">&quot;pandas&quot;</span></code></p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">&quot;numpy&quot;</span></code></p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">&quot;pyarrow&quot;</span></code></p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><th class="stub"><p>Pandas Block</p></th>
+<td><p>Zero-copy</p></td>
+<td><p>Copy*</p></td>
+<td><p>Copy*</p></td>
+<td><p>Zero-copy</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>Arrow Block</p></th>
+<td><p>Copy*</p></td>
+<td><p>Zero-copy*</p></td>
+<td><p>Zero-copy</p></td>
+<td><p>Zero-copy</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>* No copies occur when converting between Arrow, Pandas, and NumPy formats for columns
+represented as ndarrays (except for bool arrays).</p>
+</div>
+</section>
+<section id="parquet-column-pruning">
+<h2>Parquet Column Pruning<a class="headerlink" href="performance-tips.html#parquet-column-pruning" title="Permalink to this headline">#</a></h2>
+<p>Current Dataset will read all Parquet columns into memory.
+If you only need a subset of the columns, make sure to specify the list of columns
+explicitly when calling <a class="reference internal" href="api/doc/ray.data.read_parquet.html#ray.data.read_parquet" title="ray.data.read_parquet"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ray.data.read_parquet()</span></code></a> to
+avoid loading unnecessary data (projection pushdown).
+For example, use <code class="docutils literal notranslate"><span class="pre">ray.data.read_parquet(&quot;example://iris.parquet&quot;,</span> <span class="pre">columns=[&quot;sepal.length&quot;,</span> <span class="pre">&quot;variety&quot;])</span></code> to read
+just two of the five columns of Iris dataset.</p>
+</section>
+<section id="parquet-row-pruning">
+<span id="id1"></span><h2>Parquet Row Pruning<a class="headerlink" href="performance-tips.html#parquet-row-pruning" title="Permalink to this headline">#</a></h2>
+<p>Similarly, you can pass in a filter to <code class="xref py py-meth docutils literal notranslate"><span class="pre">ray.data.read_parquet()</span></code> (filter pushdown)
+which will be applied at the file scan so only rows that match the filter predicate
+will be returned.
+For example, use <code class="docutils literal notranslate"><span class="pre">ray.data.read_parquet(&quot;example://iris.parquet&quot;,</span> <span class="pre">filter=pyarrow.dataset.field(&quot;sepal.length&quot;)</span> <span class="pre">&gt;</span> <span class="pre">5.0)</span></code>
+(where <code class="docutils literal notranslate"><span class="pre">pyarrow</span></code> has to be imported)
+to read rows with sepal.length greater than 5.0.
+This can be used in conjunction with column pruning when appropriate to get the benefits of both.</p>
+</section>
+<section id="tuning-read-parallelism">
+<h2>Tuning Read Parallelism<a class="headerlink" href="performance-tips.html#tuning-read-parallelism" title="Permalink to this headline">#</a></h2>
+<p>By default, Ray Data automatically selects the read <code class="docutils literal notranslate"><span class="pre">parallelism</span></code> according to the following procedure:</p>
+<ol class="arabic simple">
+<li><p>The number of available CPUs is estimated. If in a placement group, the number of CPUs in the cluster is scaled by the size of the placement group compared to the cluster size. If not in a placement group, this is the number of CPUs in the cluster.</p></li>
+<li><p>The parallelism is set to the estimated number of CPUs multiplied by 2. If the parallelism is less than 8, it is set to 8.</p></li>
+<li><p>The in-memory data size is estimated. If the parallelism would create in-memory blocks that are larger on average than the target block size (512MiB), the parallelism is increased until the blocks are &lt; 512MiB in size.</p></li>
+<li><p>The parallelism is truncated to <code class="docutils literal notranslate"><span class="pre">min(num_files,</span> <span class="pre">parallelism)</span></code>.</p></li>
+</ol>
+<p>Occasionally, it is advantageous to manually tune the parallelism to optimize the application. This can be done when loading data via the <code class="docutils literal notranslate"><span class="pre">parallelism</span></code> parameter.
+For example, use <code class="docutils literal notranslate"><span class="pre">ray.data.read_parquet(path,</span> <span class="pre">parallelism=1000)</span></code> to force up to 1000 read tasks to be created.</p>
+</section>
+<section id="tuning-read-resources">
+<h2>Tuning Read Resources<a class="headerlink" href="performance-tips.html#tuning-read-resources" title="Permalink to this headline">#</a></h2>
+<p>By default, Ray requests 1 CPU per read task, which means one read tasks per CPU can execute concurrently.
+For data sources that can benefit from higher degress of I/O parallelism, you can specify a lower <code class="docutils literal notranslate"><span class="pre">num_cpus</span></code> value for the read function via the <code class="docutils literal notranslate"><span class="pre">ray_remote_args</span></code> parameter.
+For example, use <code class="docutils literal notranslate"><span class="pre">ray.data.read_parquet(path,</span> <span class="pre">ray_remote_args={&quot;num_cpus&quot;:</span> <span class="pre">0.25})</span></code> to allow up to four read tasks per CPU.</p>
+</section>
+<section id="enabling-push-based-shuffle">
+<span id="shuffle-performance-tips"></span><h2>Enabling Push-Based Shuffle<a class="headerlink" href="performance-tips.html#enabling-push-based-shuffle" title="Permalink to this headline">#</a></h2>
+<p>Some Dataset operations require a <em>shuffle</em> operation, meaning that data is shuffled from all of the input partitions to all of the output partitions.
+These operations include <a class="reference internal" href="api/doc/ray.data.Dataset.random_shuffle.html#ray.data.Dataset.random_shuffle" title="ray.data.Dataset.random_shuffle"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Dataset.random_shuffle</span></code></a>,
+<a class="reference internal" href="api/doc/ray.data.Dataset.sort.html#ray.data.Dataset.sort" title="ray.data.Dataset.sort"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Dataset.sort</span></code></a> and <a class="reference internal" href="api/doc/ray.data.Dataset.groupby.html#ray.data.Dataset.groupby" title="ray.data.Dataset.groupby"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Dataset.groupby</span></code></a>.
+Shuffle can be challenging to scale to large data sizes and clusters, especially when the total dataset size cannot fit into memory.</p>
+<p>Datasets provides an alternative shuffle implementation known as push-based shuffle for improving large-scale performance.
+We recommend trying this out if your dataset has more than 1000 blocks or is larger than 1 TB in size.</p>
+<p>To try this out locally or on a cluster, you can start with the <a class="reference external" href="https://github.com/ray-project/ray/blob/master/release/nightly_tests/dataset/sort.py">nightly release test</a> that Ray runs for <a class="reference internal" href="api/doc/ray.data.Dataset.random_shuffle.html#ray.data.Dataset.random_shuffle" title="ray.data.Dataset.random_shuffle"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Dataset.random_shuffle</span></code></a> and <a class="reference internal" href="api/doc/ray.data.Dataset.sort.html#ray.data.Dataset.sort" title="ray.data.Dataset.sort"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Dataset.sort</span></code></a>.
+To get an idea of the performance you can expect, here are some run time results for <a class="reference internal" href="api/doc/ray.data.Dataset.random_shuffle.html#ray.data.Dataset.random_shuffle" title="ray.data.Dataset.random_shuffle"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Dataset.random_shuffle</span></code></a> on 1-10TB of data on 20 machines (m5.4xlarge instances on AWS EC2, each with 16 vCPUs, 64GB RAM).</p>
+<img alt="https://docs.google.com/spreadsheets/d/e/2PACX-1vQvBWpdxHsW0-loasJsBpdarAixb7rjoo-lTgikghfCeKPQtjQDDo2fY51Yc1B6k_S4bnYEoChmFrH2/pubchart?oid=598567373&amp;format=image" class="align-center" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQvBWpdxHsW0-loasJsBpdarAixb7rjoo-lTgikghfCeKPQtjQDDo2fY51Yc1B6k_S4bnYEoChmFrH2/pubchart?oid=598567373&amp;format=image" />
+<p>To try out push-based shuffle, set the environment variable <code class="docutils literal notranslate"><span class="pre">RAY_DATA_PUSH_BASED_SHUFFLE=1</span></code> when running your application:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ wget https://raw.githubusercontent.com/ray-project/ray/master/release/nightly_tests/dataset/sort.py
+$ <span class="nv">RAY_DATA_PUSH_BASED_SHUFFLE</span><span class="o">=</span><span class="m">1</span> python sort.py --num-partitions<span class="o">=</span><span class="m">10</span> --partition-size<span class="o">=</span>1e7
+<span class="c1"># Dataset size: 10 partitions, 0.01GB partition size, 0.1GB total</span>
+<span class="c1"># [dataset]: Run `pip install tqdm` to enable progress reporting.</span>
+<span class="c1"># 2022-05-04 17:30:28,806   INFO push_based_shuffle.py:118 -- Using experimental push-based shuffle.</span>
+<span class="c1"># Finished in 9.571171760559082</span>
+<span class="c1"># ...</span>
+</pre></div>
+</div>
+<p>You can also specify the shuffle implementation during program execution by
+setting the <code class="docutils literal notranslate"><span class="pre">DataContext.use_push_based_shuffle</span></code> flag:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ray</span>
+
+<span class="n">ctx</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataContext</span><span class="o">.</span><span class="n">get_current</span><span class="p">()</span>
+<span class="n">ctx</span><span class="o">.</span><span class="n">use_push_based_shuffle</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="n">ds</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">ray</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">random_shuffle</span><span class="p">()</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="data-internals.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Scheduling, Execution, and Memory Management</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="batch_inference.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">End-to-end: Offline Batch Inference</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

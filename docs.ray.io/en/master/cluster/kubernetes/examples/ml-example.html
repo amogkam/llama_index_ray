@@ -1,0 +1,999 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Ray AIR XGBoostTrainer on Kubernetes &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/js/versionwarning.js"></script>
+    <script src="../../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../../_static/js/docsearch.js"></script>
+    <script src="../../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../../_static/js/top-navigation.js"></script>
+    <script src="../../../_static/js/tags.js"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/cluster/kubernetes/examples/ml-example.html" />
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="ML training with GPUs on Kubernetes" href="gpu-training-example.html" />
+    <link rel="prev" title="Examples" href="../examples.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "cluster/kubernetes/examples/ml-example", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".md", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../tune.html">
+   Ray Tune
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="../index.html">
+     Deploying on Kubernetes
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="../getting-started.html">
+       Getting Started
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../user-guides.html">
+       User Guides
+      </a>
+     </li>
+     <li class="toctree-l3 current active has-children">
+      <a class="reference internal" href="../examples.html">
+       Examples
+      </a>
+      <input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+      <label for="toctree-checkbox-3">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul class="current">
+       <li class="toctree-l4 current active">
+        <a class="current reference internal" href="ml-example.html#">
+         Ray AIR XGBoostTrainer on Kubernetes
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="gpu-training-example.html">
+         ML training with GPUs on Kubernetes
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../references.html">
+       API Reference
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../vms/index.html">
+     Deploying on VMs
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../metrics.html">
+     Collecting and monitoring metrics
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../configure-manage-dashboard.html">
+     Configuring and Managing Ray Dashboard
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../running-applications/index.html">
+     Applications Guide
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../faq.html">
+     FAQ
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../package-overview.html">
+     Ray Cluster Management API
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Fcluster/kubernetes/examples/ml-example.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/cluster/kubernetes/examples/ml-example.md"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../../_sources/cluster/kubernetes/examples/ml-example.md.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.md</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="ml-example.html#kubernetes-infrastructure-setup-on-gcp">
+   Kubernetes infrastructure setup on GCP
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="ml-example.html#deploy-the-kuberay-operator">
+   Deploy the KubeRay operator
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="ml-example.html#deploy-a-ray-cluster">
+   Deploy a Ray cluster
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="ml-example.html#run-the-workload">
+   Run the workload
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="ml-example.html#connect-to-the-cluster">
+     Connect to the cluster.
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="ml-example.html#submit-the-workload">
+     Submit the workload.
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="ml-example.html#observe-progress">
+     Observe progress.
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="ml-example.html#job-logs">
+       Job logs
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="ml-example.html#kubectl">
+       Kubectl
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="ml-example.html#ray-dashboard">
+       Ray Dashboard
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="ml-example.html#ray-status">
+       Ray Status
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="ml-example.html#job-completion">
+     Job completion
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="ml-example.html#benchmark-results">
+       Benchmark results
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="ml-example.html#model-parameters">
+       Model parameters
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="ml-example.html#clean-up">
+       Clean-up
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Ray AIR XGBoostTrainer on Kubernetes</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="ml-example.html#kubernetes-infrastructure-setup-on-gcp">
+   Kubernetes infrastructure setup on GCP
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="ml-example.html#deploy-the-kuberay-operator">
+   Deploy the KubeRay operator
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="ml-example.html#deploy-a-ray-cluster">
+   Deploy a Ray cluster
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="ml-example.html#run-the-workload">
+   Run the workload
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="ml-example.html#connect-to-the-cluster">
+     Connect to the cluster.
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="ml-example.html#submit-the-workload">
+     Submit the workload.
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="ml-example.html#observe-progress">
+     Observe progress.
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="ml-example.html#job-logs">
+       Job logs
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="ml-example.html#kubectl">
+       Kubectl
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="ml-example.html#ray-dashboard">
+       Ray Dashboard
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="ml-example.html#ray-status">
+       Ray Status
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="ml-example.html#job-completion">
+     Job completion
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="ml-example.html#benchmark-results">
+       Benchmark results
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="ml-example.html#model-parameters">
+       Model parameters
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="ml-example.html#clean-up">
+       Clean-up
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section class="tex2jax_ignore mathjax_ignore" id="ray-air-xgboosttrainer-on-kubernetes">
+<span id="kuberay-ml-example"></span><h1>Ray AIR XGBoostTrainer on Kubernetes<a class="headerlink" href="ml-example.html#ray-air-xgboosttrainer-on-kubernetes" title="Permalink to this headline">#</a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To learn the basics of Ray on Kubernetes, we recommend taking a look
+at the <a class="reference internal" href="../getting-started.html#kuberay-quickstart"><span class="std std-ref">introductory guide</span></a> first.</p>
+</div>
+<p>In this guide, we show you how to run a sample Ray machine learning
+workload on Kubernetes infrastructure.</p>
+<p>We will run Ray’s <a class="reference internal" href="../../../ray-air/benchmarks.html#xgboost-benchmark"><span class="std std-ref">XGBoost training benchmark</span></a> with a 100 gigabyte training set.
+To learn more about using Ray’s XGBoostTrainer, check out <a class="reference internal" href="../../../train/gbdt.html#train-gbdt-guide"><span class="std std-ref">the XGBoostTrainer documentation</span></a>.</p>
+<section id="kubernetes-infrastructure-setup-on-gcp">
+<h2>Kubernetes infrastructure setup on GCP<a class="headerlink" href="ml-example.html#kubernetes-infrastructure-setup-on-gcp" title="Permalink to this headline">#</a></h2>
+<p>This document provides instructions for GCP to create a Kubernetes cluster, but a similar setup would work for any major cloud provider.
+Check out the <a class="reference internal" href="../user-guides/k8s-cluster-setup.html#kuberay-k8s-setup"><span class="std std-ref">introductory guide</span></a> if you want to set up a Kubernetes cluster on other cloud providers.
+If you have an existing Kubernetes cluster, you can ignore this step.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set up a cluster on Google Kubernetes Engine (GKE)</span>
+gcloud container clusters create autoscaler-ray-cluster <span class="se">\</span>
+    --num-nodes<span class="o">=</span><span class="m">10</span> --zone<span class="o">=</span>us-central1-c --machine-type e2-standard-16 --disk-size 1000GB
+
+<span class="c1"># (Optional) Set up a cluster with autopilot on Google Kubernetes Engine (GKE).</span>
+<span class="c1"># The following command creates an autoscaling node pool with a 1 node minimum and a 10 node maximum.</span>
+<span class="c1"># The 1 static node will be used to run the Ray head pod. This node may also host the KubeRay</span>
+<span class="c1"># operator and Kubernetes system components. After the workload is submitted, 9 additional nodes will</span>
+<span class="c1"># scale up to accommodate Ray worker pods. These nodes will scale back down after the workload is complete.</span>
+gcloud container clusters create autoscaler-ray-cluster <span class="se">\</span>
+    --num-nodes<span class="o">=</span><span class="m">1</span> --min-nodes <span class="m">1</span> --max-nodes <span class="m">10</span> --enable-autoscaling <span class="se">\</span>
+    --zone<span class="o">=</span>us-central1-c --machine-type e2-standard-16 --disk-size 1000GB
+</pre></div>
+</div>
+<p>Make sure you are connected to your Kubernetes cluster. For GCP, you can do so by:</p>
+<ul class="simple">
+<li><p>Navigate to your GKE cluster page, and click “CONNECT” button. Then, copy “Command-line access”.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gcloud</span> <span class="pre">container</span> <span class="pre">clusters</span> <span class="pre">get-credentials</span> <span class="pre">&lt;your-cluster-name&gt;</span> <span class="pre">--region</span> <span class="pre">&lt;your-region&gt;</span> <span class="pre">--project</span> <span class="pre">&lt;your-project&gt;</span></code> (<a class="reference external" href="https://cloud.google.com/sdk/gcloud/reference/container/clusters/get-credentials">Link</a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kubectl</span> <span class="pre">config</span> <span class="pre">use-context</span></code> (<a class="reference external" href="https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters/">Link</a>)</p></li>
+</ul>
+<p>For the workload in this guide, it is recommended to use a pool or group of Kubernetes nodes
+with the following properties:</p>
+<ul class="simple">
+<li><p>10 nodes total</p></li>
+<li><p>A capacity of 16 CPU and 64 Gi memory per node. For the major cloud providers, suitable instance types include</p>
+<ul>
+<li><p>m5.4xlarge (Amazon Web Services)</p></li>
+<li><p>Standard_D5_v2 (Azure)</p></li>
+<li><p>e2-standard-16 (Google Cloud)</p></li>
+</ul>
+</li>
+<li><p>Each node should be configured with 1000 gigabytes of disk space (to store the training set).</p></li>
+</ul>
+</section>
+<section id="deploy-the-kuberay-operator">
+<h2>Deploy the KubeRay operator<a class="headerlink" href="ml-example.html#deploy-the-kuberay-operator" title="Permalink to this headline">#</a></h2>
+<p>Once you have set up your Kubernetes cluster, deploy the KubeRay operator.
+Refer to the <a class="reference internal" href="../getting-started.html#kuberay-operator-deploy"><span class="std std-ref">Getting Started guide</span></a>
+for instructions on this step.</p>
+</section>
+<section id="deploy-a-ray-cluster">
+<h2>Deploy a Ray cluster<a class="headerlink" href="ml-example.html#deploy-a-ray-cluster" title="Permalink to this headline">#</a></h2>
+<p>Now we’re ready to deploy the Ray cluster that will execute our workload.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>The Ray cluster we’ll deploy is configured such that one Ray pod will be scheduled
+per 16-CPU Kubernetes node. The pattern of one Ray pod per Kubernetes node is encouraged, but not required.
+Broadly speaking, it is more efficient to use a few large Ray pods than many small ones.</p>
+</div>
+<p>We recommend taking a look at the <a class="reference external" href="https://raw.githubusercontent.com/ray-project/ray/releases/2.0.0/doc/source/cluster/kubernetes/configs/xgboost-benchmark.yaml">config file</a> applied in the following command.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>kubectl apply -f https://raw.githubusercontent.com/ray-project/ray/releases/2.0.0/doc/source/cluster/kubernetes/configs/xgboost-benchmark.yaml
+</pre></div>
+</div>
+<p>A Ray head pod and 9 Ray worker pods will be created.</p>
+<div class="admonition-optional-deploying-an-autoscaling-ray-cluster admonition">
+<p class="admonition-title">Optional: Deploying an autoscaling Ray cluster</p>
+<p>If you’ve set up an autoscaling node group or pool, you may wish to deploy
+an autoscaling cluster by applying the config <a class="reference external" href="https://raw.githubusercontent.com/ray-project/ray/releases/2.0.0/doc/source/cluster/kubernetes/configs/xgboost-benchmark-autoscaler.yaml">xgboost-benchmark-autoscaler.yaml</a>.
+One Ray head pod will be created. Once the workload starts, the Ray autoscaler will trigger
+creation of Ray worker pods. Kubernetes autoscaling will then create nodes to place the Ray pods.</p>
+</div>
+</section>
+<section id="run-the-workload">
+<h2>Run the workload<a class="headerlink" href="ml-example.html#run-the-workload" title="Permalink to this headline">#</a></h2>
+<p>To observe the startup progress of the Ray head pod, run the following command.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># If you&#39;re on MacOS, first `brew install watch`.</span>
+watch -n <span class="m">1</span> kubectl get pod
+</pre></div>
+</div>
+<p>Once the Ray head pod enters <code class="docutils literal notranslate"><span class="pre">Running</span></code> state, we are ready to execute the XGBoost workload.
+We will use <a class="reference internal" href="../../running-applications/job-submission/index.html#jobs-overview"><span class="std std-ref">Ray Job Submission</span></a> to kick off the workload.</p>
+<section id="connect-to-the-cluster">
+<h3>Connect to the cluster.<a class="headerlink" href="ml-example.html#connect-to-the-cluster" title="Permalink to this headline">#</a></h3>
+<p>We use port-forwarding in this guide as a simple way to experiment with a Ray cluster’s services.
+See the <a class="reference internal" href="../user-guides/config.html#kuberay-networking"><span class="std std-ref">networking notes</span></a> for production use-cases.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run the following blocking command in a separate shell.</span>
+kubectl port-forward --address <span class="m">0</span>.0.0.0 service/raycluster-xgboost-benchmark-head-svc <span class="m">8265</span>:8265
+</pre></div>
+</div>
+</section>
+<section id="submit-the-workload">
+<h3>Submit the workload.<a class="headerlink" href="ml-example.html#submit-the-workload" title="Permalink to this headline">#</a></h3>
+<p>We’ll use the <a class="reference internal" href="../../running-applications/job-submission/sdk.html#ray-job-sdk"><span class="std std-ref">Ray Job Python SDK</span></a> to submit the XGBoost workload.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ray.job_submission</span> <span class="kn">import</span> <span class="n">JobSubmissionClient</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">JobSubmissionClient</span><span class="p">(</span><span class="s2">&quot;http://127.0.0.1:8265&quot;</span><span class="p">)</span>
+
+<span class="n">kick_off_xgboost_benchmark</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="c1"># Clone ray. If ray is already present, don&#39;t clone again.</span>
+    <span class="s2">&quot;git clone https://github.com/ray-project/ray || true;&quot;</span>
+    <span class="c1"># Run the benchmark.</span>
+    <span class="s2">&quot; python ray/release/air_tests/air_benchmarks/workloads/xgboost_benchmark.py&quot;</span>
+    <span class="s2">&quot; --size 100G --disable-check&quot;</span>
+<span class="p">)</span>
+
+
+<span class="n">submission_id</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">submit_job</span><span class="p">(</span>
+    <span class="n">entrypoint</span><span class="o">=</span><span class="n">kick_off_xgboost_benchmark</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Use the following command to follow this Job&#39;s logs:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ray job logs &#39;</span><span class="si">{</span><span class="n">submission_id</span><span class="si">}</span><span class="s2">&#39; --follow&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To submit the workload, run the above Python script.
+The script is available <a class="reference external" href="https://github.com/ray-project/ray/blob/releases/2.0.0/doc/source/cluster/doc_code/xgboost_submit.py">in the Ray repository</a>.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Download the above script.</span>
+curl https://raw.githubusercontent.com/ray-project/ray/releases/2.0.0/doc/source/cluster/doc_code/xgboost_submit.py -o xgboost_submit.py
+<span class="c1"># Run the script.</span>
+python xgboost_submit.py
+</pre></div>
+</div>
+</section>
+<section id="observe-progress">
+<h3>Observe progress.<a class="headerlink" href="ml-example.html#observe-progress" title="Permalink to this headline">#</a></h3>
+<p>The benchmark may take up to 60 minutes to run.
+Use the following tools to observe its progress.</p>
+<section id="job-logs">
+<h4>Job logs<a class="headerlink" href="ml-example.html#job-logs" title="Permalink to this headline">#</a></h4>
+<p>To follow the job’s logs, use the command printed by the above submission script.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Substitute the Ray Job&#39;s submission id.</span>
+ray job logs <span class="s1">&#39;raysubmit_xxxxxxxxxxxxxxxx&#39;</span> --follow --address http://127.0.0.1:8265
+</pre></div>
+</div>
+</section>
+<section id="kubectl">
+<h4>Kubectl<a class="headerlink" href="ml-example.html#kubectl" title="Permalink to this headline">#</a></h4>
+<p>Observe the pods in your cluster with</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># If you&#39;re on MacOS, first `brew install watch`.</span>
+watch -n <span class="m">1</span> kubectl get pod
+</pre></div>
+</div>
+</section>
+<section id="ray-dashboard">
+<h4>Ray Dashboard<a class="headerlink" href="ml-example.html#ray-dashboard" title="Permalink to this headline">#</a></h4>
+<p>View <code class="docutils literal notranslate"><span class="pre">localhost:8265</span></code> in your browser to access the Ray Dashboard.</p>
+</section>
+<section id="ray-status">
+<h4>Ray Status<a class="headerlink" href="ml-example.html#ray-status" title="Permalink to this headline">#</a></h4>
+<p>Observe autoscaling status and Ray resource usage with</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Substitute the name of your Ray cluster&#39;s head pod.</span>
+watch -n <span class="m">1</span> kubectl <span class="nb">exec</span> -it raycluster-xgboost-benchmark-head-xxxxx -- ray status
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Under some circumstances and for certain cloud providers,
+the K8s API server may become briefly unavailable during Kubernetes
+cluster resizing events.</p>
+<p>Don’t worry if that happens – the Ray workload should be uninterrupted.
+For the example in this guide, wait until the API server is back up, restart the port-forwarding process,
+and re-run the job log command.</p>
+</div>
+</section>
+</section>
+<section id="job-completion">
+<h3>Job completion<a class="headerlink" href="ml-example.html#job-completion" title="Permalink to this headline">#</a></h3>
+<section id="benchmark-results">
+<h4>Benchmark results<a class="headerlink" href="ml-example.html#benchmark-results" title="Permalink to this headline">#</a></h4>
+<p>Once the benchmark is complete, the job log will display the results:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Results</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;training_time&#39;</span><span class="p">:</span> <span class="mf">1338.488839321999</span><span class="p">,</span> <span class="s1">&#39;prediction_time&#39;</span><span class="p">:</span> <span class="mf">403.36653568099973</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>The performance of the benchmark is sensitive to the underlying cloud infrastructure –
+you might not match <a class="reference internal" href="../../../ray-air/benchmarks.html#xgboost-benchmark"><span class="std std-ref">the numbers quoted in the benchmark docs</span></a>.</p>
+</section>
+<section id="model-parameters">
+<h4>Model parameters<a class="headerlink" href="ml-example.html#model-parameters" title="Permalink to this headline">#</a></h4>
+<p>The file <code class="docutils literal notranslate"><span class="pre">model.json</span></code> in the Ray head pod contains the parameters for the trained model.
+Other result data will be available in the directory <code class="docutils literal notranslate"><span class="pre">ray_results</span></code> in the head pod.
+Refer to the <a class="reference internal" href="../../../train/gbdt.html#train-gbdt-guide"><span class="std std-ref">the XGBoostTrainer documentation</span></a> for details.</p>
+<div class="admonition-scale-down admonition">
+<p class="admonition-title">Scale-down</p>
+<p>If autoscaling is enabled, Ray worker pods will scale down after 60 seconds.
+After the Ray worker pods are gone, your Kubernetes infrastructure should scale down
+the nodes that hosted these pods.</p>
+</div>
+</section>
+<section id="clean-up">
+<h4>Clean-up<a class="headerlink" href="ml-example.html#clean-up" title="Permalink to this headline">#</a></h4>
+<p>Delete your Ray cluster with the following command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>kubectl delete raycluster raycluster-xgboost-benchmark
+</pre></div>
+</div>
+<p>If you’re on a public cloud, don’t forget to clean up the underlying
+node group and/or Kubernetes cluster.</p>
+</section>
+</section>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="../examples.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Examples</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="gpu-training-example.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">ML training with GPUs on Kubernetes</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

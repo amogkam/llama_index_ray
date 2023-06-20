@@ -1,0 +1,1071 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Logging and Outputs in Tune &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/js/versionwarning.js"></script>
+    <script src="../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../_static/js/docsearch.js"></script>
+    <script src="../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../_static/js/top-navigation.js"></script>
+    <script src="../../_static/js/tags.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/tune/tutorials/tune-output.html" />
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="A Guide To Parallelism and Resources for Ray Tune" href="tune-resources.html" />
+    <link rel="prev" title="Running Basic Tune Experiments" href="tune-run.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "tune/tutorials/tune-output", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".rst", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../../tune.html">
+   Ray Tune
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../getting-started.html">
+     Getting Started
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="overview.html">
+     User Guides
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="tune-run.html">
+       Running Basic Experiments
+      </a>
+     </li>
+     <li class="toctree-l3 current active">
+      <a class="current reference internal" href="tune-output.html#">
+       Logging and Outputs in Tune
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tune-resources.html">
+       Setting Trial Resources
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tune-search-spaces.html">
+       Using Search Spaces
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tune-stopping.html">
+       How to Define Stopping Criteria for a Ray Tune Experiment
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tune-trial-checkpoints.html">
+       How to Save and Load Trial Checkpoints
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tune-storage.html">
+       How to Configure Storage Options for a Distributed Tune Experiment
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tune-fault-tolerance.html">
+       How to Enable Fault Tolerance in Ray Tune
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tune-metrics.html">
+       Using Callbacks and Metrics
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tune_get_data_in_and_out.html">
+       Getting Data in and out of Tune
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../examples/tune_analyze_results.html">
+       Analyzing Tune Experiment Results
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../examples/pbt_guide.html">
+       A Guide to Population Based Training with Tune
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tune-distributed.html">
+       Deploying Tune in the Cloud
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tune-lifecycle.html">
+       Tune Architecture
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tune-scalability.html">
+       Scalability Benchmarks
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../examples/index.html">
+     Ray Tune Examples
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../faq.html">
+     Ray Tune FAQ
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/api.html">
+     Ray Tune API
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Ftune/tutorials/tune-output.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/tune/tutorials/tune-output.rst"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../_sources/tune/tutorials/tune-output.rst.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.rst</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-output.html#how-to-configure-logging-in-tune">
+   How to configure logging in Tune?
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-output.html#how-to-log-your-tune-runs-to-tensorboard">
+   How to log your Tune runs to TensorBoard?
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-output.html#how-to-control-console-output-with-tune">
+   How to control console output with Tune?
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-output.html#how-to-redirect-trainable-logs-to-files-in-a-tune-run">
+   How to redirect Trainable logs to files in a Tune run?
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="tune-output.html#caveats">
+     Caveats
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="tune-output.html#where-to-find-log-to-file-files">
+     Where to find
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       log_to_file
+      </span>
+     </code>
+     files?
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="tune-output.html#leave-us-feedback-on-this-feature">
+     Leave us feedback on this feature
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-output.html#how-do-you-log-arbitrary-files-from-a-tune-trainable">
+   How do you log arbitrary files from a Tune Trainable?
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-output.html#how-to-build-custom-tune-loggers">
+   How to Build Custom Tune Loggers?
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Logging and Outputs in Tune</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-output.html#how-to-configure-logging-in-tune">
+   How to configure logging in Tune?
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-output.html#how-to-log-your-tune-runs-to-tensorboard">
+   How to log your Tune runs to TensorBoard?
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-output.html#how-to-control-console-output-with-tune">
+   How to control console output with Tune?
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-output.html#how-to-redirect-trainable-logs-to-files-in-a-tune-run">
+   How to redirect Trainable logs to files in a Tune run?
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="tune-output.html#caveats">
+     Caveats
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="tune-output.html#where-to-find-log-to-file-files">
+     Where to find
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       log_to_file
+      </span>
+     </code>
+     files?
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="tune-output.html#leave-us-feedback-on-this-feature">
+     Leave us feedback on this feature
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-output.html#how-do-you-log-arbitrary-files-from-a-tune-trainable">
+   How do you log arbitrary files from a Tune Trainable?
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-output.html#how-to-build-custom-tune-loggers">
+   How to Build Custom Tune Loggers?
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section id="logging-and-outputs-in-tune">
+<h1>Logging and Outputs in Tune<a class="headerlink" href="tune-output.html#logging-and-outputs-in-tune" title="Permalink to this headline">#</a></h1>
+<p>By default, Tune logs results for TensorBoard, CSV, and JSON formats.
+If you need to log something lower level like model weights or gradients, see <a class="reference internal" href="tune-output.html#trainable-logging"><span class="std std-ref">Trainable Logging</span></a>.
+You can learn more about logging and customizations here: <a class="reference internal" href="../api/logging.html#loggers-docstring"><span class="std std-ref">Tune Loggers (tune.logger)</span></a>.</p>
+<section id="how-to-configure-logging-in-tune">
+<span id="tune-logging"></span><h2>How to configure logging in Tune?<a class="headerlink" href="tune-output.html#how-to-configure-logging-in-tune" title="Permalink to this headline">#</a></h2>
+<p>Tune will log the results of each trial to a sub-folder under a specified local dir, which defaults to <code class="docutils literal notranslate"><span class="pre">~/ray_results</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># This logs to two different trial folders:</span>
+<span class="c1"># ~/ray_results/trainable_name/trial_name_1 and ~/ray_results/trainable_name/trial_name_2</span>
+<span class="c1"># trainable_name and trial_name are autogenerated.</span>
+<span class="nv">tuner</span> <span class="o">=</span> tune.Tuner<span class="o">(</span>trainable, <span class="nv">run_config</span><span class="o">=</span>air.RunConfig<span class="o">(</span><span class="nv">num_samples</span><span class="o">=</span><span class="m">2</span><span class="o">))</span>
+<span class="nv">results</span> <span class="o">=</span> tuner.fit<span class="o">()</span>
+</pre></div>
+</div>
+<p>You can specify the <code class="docutils literal notranslate"><span class="pre">storage_path</span></code> and <code class="docutils literal notranslate"><span class="pre">trainable_name</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># This logs to 2 different trial folders:</span>
+<span class="c1"># ./results/test_experiment/trial_name_1 and ./results/test_experiment/trial_name_2</span>
+<span class="c1"># Only trial_name is autogenerated.</span>
+<span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span><span class="n">trainable</span><span class="p">,</span>
+    <span class="n">tune_config</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">TuneConfig</span><span class="p">(</span><span class="n">num_samples</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
+    <span class="n">run_config</span><span class="o">=</span><span class="n">air</span><span class="o">.</span><span class="n">RunConfig</span><span class="p">(</span><span class="n">storage_path</span><span class="o">=</span><span class="s2">&quot;./results&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;test_experiment&quot;</span><span class="p">))</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>To learn more about Trials, see its detailed API documentation: <a class="reference internal" href="../api/internals.html#trial-docstring"><span class="std std-ref">Trial</span></a>.</p>
+</section>
+<section id="how-to-log-your-tune-runs-to-tensorboard">
+<span id="tensorboard"></span><h2>How to log your Tune runs to TensorBoard?<a class="headerlink" href="tune-output.html#how-to-log-your-tune-runs-to-tensorboard" title="Permalink to this headline">#</a></h2>
+<p>Tune automatically outputs TensorBoard files during <code class="docutils literal notranslate"><span class="pre">Tuner.fit()</span></code>.
+To visualize learning in tensorboard, install tensorboardX:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pip install tensorboardX
+</pre></div>
+</div>
+<p>Then, after you run an experiment, you can visualize your experiment with TensorBoard by specifying
+the output directory of your results.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ tensorboard --logdir<span class="o">=</span>~/ray_results/my_experiment
+</pre></div>
+</div>
+<p>If you are running Ray on a remote multi-user cluster where you do not have sudo access,
+you can run the following commands to make sure tensorboard is able to write to the tmp directory:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">export</span> <span class="nv">TMPDIR</span><span class="o">=</span>/tmp/<span class="nv">$USER</span><span class="p">;</span> mkdir -p <span class="nv">$TMPDIR</span><span class="p">;</span> tensorboard --logdir<span class="o">=</span>~/ray_results
+</pre></div>
+</div>
+<img alt="../../_images/ray-tune-tensorboard.png" src="../../_images/ray-tune-tensorboard.png" />
+<p>If using TensorFlow <code class="docutils literal notranslate"><span class="pre">2.x</span></code>, Tune also automatically generates TensorBoard HParams output, as shown below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
+    <span class="o">...</span><span class="p">,</span>
+    <span class="n">param_space</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;lr&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">grid_search</span><span class="p">([</span><span class="mf">1e-5</span><span class="p">,</span> <span class="mf">1e-4</span><span class="p">]),</span>
+        <span class="s2">&quot;momentum&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">grid_search</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">])</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+<img alt="../../_images/tune-hparams.png" src="../../_images/tune-hparams.png" />
+</section>
+<section id="how-to-control-console-output-with-tune">
+<span id="tune-console-output"></span><h2>How to control console output with Tune?<a class="headerlink" href="tune-output.html#how-to-control-console-output-with-tune" title="Permalink to this headline">#</a></h2>
+<p>User-provided fields will be outputted automatically on a best-effort basis.
+You can use a <a class="reference internal" href="../api/reporters.html#tune-reporter-doc"><span class="std std-ref">Reporter</span></a> object to customize the console output.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">==</span> <span class="nv">Status</span> <span class="o">==</span>
+Memory usage on this node: <span class="m">11</span>.4/16.0 GiB
+Using FIFO scheduling algorithm.
+Resources requested: <span class="m">4</span>/12 CPUs, <span class="m">0</span>/0 GPUs, <span class="m">0</span>.0/3.17 GiB heap, <span class="m">0</span>.0/1.07 GiB objects
+Result logdir: /Users/foo/ray_results/myexp
+Number of trials: <span class="m">4</span> <span class="o">(</span><span class="m">4</span> RUNNING<span class="o">)</span>
++----------------------+----------+---------------------+-----------+--------+--------+----------------+-------+
+<span class="p">|</span> Trial name           <span class="p">|</span> status   <span class="p">|</span> loc                 <span class="p">|</span>    param1 <span class="p">|</span> param2 <span class="p">|</span>    acc <span class="p">|</span> total <span class="nb">time</span> <span class="o">(</span>s<span class="o">)</span> <span class="p">|</span>  iter <span class="p">|</span>
+<span class="p">|</span>----------------------+----------+---------------------+-----------+--------+--------+----------------+-------<span class="p">|</span>
+<span class="p">|</span> MyTrainable_a826033a <span class="p">|</span> RUNNING  <span class="p">|</span> <span class="m">10</span>.234.98.164:31115 <span class="p">|</span> <span class="m">0</span>.303706  <span class="p">|</span> <span class="m">0</span>.0761 <span class="p">|</span> <span class="m">0</span>.1289 <span class="p">|</span>        <span class="m">7</span>.54952 <span class="p">|</span>    <span class="m">15</span> <span class="p">|</span>
+<span class="p">|</span> MyTrainable_a8263fc6 <span class="p">|</span> RUNNING  <span class="p">|</span> <span class="m">10</span>.234.98.164:31117 <span class="p">|</span> <span class="m">0</span>.929276  <span class="p">|</span> <span class="m">0</span>.158  <span class="p">|</span> <span class="m">0</span>.4865 <span class="p">|</span>        <span class="m">7</span>.0501  <span class="p">|</span>    <span class="m">14</span> <span class="p">|</span>
+<span class="p">|</span> MyTrainable_a8267914 <span class="p">|</span> RUNNING  <span class="p">|</span> <span class="m">10</span>.234.98.164:31111 <span class="p">|</span> <span class="m">0</span>.068426  <span class="p">|</span> <span class="m">0</span>.0319 <span class="p">|</span> <span class="m">0</span>.9585 <span class="p">|</span>        <span class="m">7</span>.0477  <span class="p">|</span>    <span class="m">14</span> <span class="p">|</span>
+<span class="p">|</span> MyTrainable_a826b7bc <span class="p">|</span> RUNNING  <span class="p">|</span> <span class="m">10</span>.234.98.164:31112 <span class="p">|</span> <span class="m">0</span>.729127  <span class="p">|</span> <span class="m">0</span>.0748 <span class="p">|</span> <span class="m">0</span>.1797 <span class="p">|</span>        <span class="m">7</span>.05715 <span class="p">|</span>    <span class="m">14</span> <span class="p">|</span>
++----------------------+----------+---------------------+-----------+--------+--------+----------------+-------+
+</pre></div>
+</div>
+</section>
+<section id="how-to-redirect-trainable-logs-to-files-in-a-tune-run">
+<span id="tune-log-to-file"></span><h2>How to redirect Trainable logs to files in a Tune run?<a class="headerlink" href="tune-output.html#how-to-redirect-trainable-logs-to-files-in-a-tune-run" title="Permalink to this headline">#</a></h2>
+<p>In Tune, Trainables are run as remote actors. By default, Ray collects actors’ stdout and stderr and prints them to
+the head process (see <a class="reference internal" href="../../ray-observability/key-concepts.html#ray-worker-logs"><span class="std std-ref">ray worker logs</span></a> for more information).
+Logging that happens within Tune Trainables follows this handling by default.
+However, if you wish to collect Trainable logs in files for analysis, Tune offers the option
+<code class="docutils literal notranslate"><span class="pre">log_to_file</span></code> for this.
+This applies to print statements, <code class="docutils literal notranslate"><span class="pre">warnings.warn</span></code> and <code class="docutils literal notranslate"><span class="pre">logger.info</span></code> etc.</p>
+<p>By passing <code class="docutils literal notranslate"><span class="pre">log_to_file=True</span></code> to <code class="docutils literal notranslate"><span class="pre">air.RunConfig</span></code>, which is taken in by <code class="docutils literal notranslate"><span class="pre">Tuner</span></code>, stdout and stderr will be logged
+to <code class="docutils literal notranslate"><span class="pre">trial_logdir/stdout</span></code> and <code class="docutils literal notranslate"><span class="pre">trial_logdir/stderr</span></code>, respectively:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
+    <span class="n">trainable</span><span class="p">,</span>
+    <span class="n">run_config</span><span class="o">=</span><span class="n">air</span><span class="o">.</span><span class="n">RunConfig</span><span class="p">(</span><span class="n">log_to_file</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>If you would like to specify the output files, you can either pass one filename,
+where the combined output will be stored, or two filenames, for stdout and stderr,
+respectively:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
+    <span class="n">trainable</span><span class="p">,</span>
+    <span class="n">run_config</span><span class="o">=</span><span class="n">air</span><span class="o">.</span><span class="n">RunConfig</span><span class="p">(</span><span class="n">log_to_file</span><span class="o">=</span><span class="s2">&quot;std_combined.log&quot;</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+
+<span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
+    <span class="n">trainable</span><span class="p">,</span>
+    <span class="n">run_config</span><span class="o">=</span><span class="n">air</span><span class="o">.</span><span class="n">RunConfig</span><span class="p">(</span><span class="n">log_to_file</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;my_stdout.log&quot;</span><span class="p">,</span> <span class="s2">&quot;my_stderr.log&quot;</span><span class="p">)))</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The file names are relative to the trial’s logdir. You can pass absolute paths,
+too.</p>
+<section id="caveats">
+<h3>Caveats<a class="headerlink" href="tune-output.html#caveats" title="Permalink to this headline">#</a></h3>
+<p>Logging that happens in distributed training workers (if you happen to use Ray Tune together with Ray Train)
+is not part of this <code class="docutils literal notranslate"><span class="pre">log_to_file</span></code> configuration.</p>
+</section>
+<section id="where-to-find-log-to-file-files">
+<h3>Where to find <code class="docutils literal notranslate"><span class="pre">log_to_file</span></code> files?<a class="headerlink" href="tune-output.html#where-to-find-log-to-file-files" title="Permalink to this headline">#</a></h3>
+<p>If your Tune workload is configured with syncing to head node, then the corresponding <code class="docutils literal notranslate"><span class="pre">log_to_file</span></code> outputs
+can be located under each trial folder.
+If your Tune workload is instead configured with syncing to cloud, then the corresponding <code class="docutils literal notranslate"><span class="pre">log_to_file</span></code>
+outputs are <em>NOT</em> synced to cloud and can only be found in the worker nodes that the corresponding trial happens.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This can cause problems when the trainable is moved across different nodes throughout its lifetime.
+This can happen with some schedulers or with node failures.
+We may prioritize enabling this if there are enough user requests.
+If this impacts your workflow, consider commenting on
+[this ticket](<a class="reference external" href="https://github.com/ray-project/ray/issues/32142">https://github.com/ray-project/ray/issues/32142</a>).</p>
+</div>
+</section>
+<section id="leave-us-feedback-on-this-feature">
+<h3>Leave us feedback on this feature<a class="headerlink" href="tune-output.html#leave-us-feedback-on-this-feature" title="Permalink to this headline">#</a></h3>
+<p>We know that logging and observability can be a huge performance boost for your workflow. Let us know what is your
+preferred way to interact with logging that happens in trainables. Leave you comments in
+[this ticket](<a class="reference external" href="https://github.com/ray-project/ray/issues/32142">https://github.com/ray-project/ray/issues/32142</a>).</p>
+</section>
+</section>
+<section id="how-do-you-log-arbitrary-files-from-a-tune-trainable">
+<span id="trainable-logging"></span><h2>How do you log arbitrary files from a Tune Trainable?<a class="headerlink" href="tune-output.html#how-do-you-log-arbitrary-files-from-a-tune-trainable" title="Permalink to this headline">#</a></h2>
+<p>By default, Tune only logs the <em>training result dictionaries</em> and <em>checkpoints</em> from your Trainable.
+However, you may want to save a file that visualizes the model weights or model graph,
+or use a custom logging library that requires multi-process logging.
+For example, you may want to do this if you’re trying to log images to TensorBoard.
+We refer to these saved files as <strong>trial artifacts</strong>.</p>
+<p>You can save trial artifacts directly in the trainable, as shown below:</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Make sure that any logging calls or objects stay within scope of the Trainable.
+You may see pickling or other serialization errors or inconsistent logs otherwise.</p>
+</div>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
+</input><label class="sd-tab-label" for="sd-tab-item-0">
+Function API</label><div class="sd-tab-content docutils">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging_library</span>  <span class="c1"># ex: mlflow, wandb</span>
+<span class="kn">from</span> <span class="nn">ray.air</span> <span class="kn">import</span> <span class="n">session</span>
+
+<span class="k">def</span> <span class="nf">trainable</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="n">logging_library</span><span class="o">.</span><span class="n">init</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">trial_id</span><span class="p">,</span>
+        <span class="nb">id</span><span class="o">=</span><span class="n">trial_id</span><span class="p">,</span>
+        <span class="n">resume</span><span class="o">=</span><span class="n">trial_id</span><span class="p">,</span>
+        <span class="n">reinit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">allow_val_change</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">logging_library</span><span class="o">.</span><span class="n">set_log_path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
+
+    <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>
+        <span class="n">logging_library</span><span class="o">.</span><span class="n">log_model</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+        <span class="n">logging_library</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">step</span><span class="p">)</span>
+
+        <span class="c1"># You can also just write to a file directly.</span>
+        <span class="c1"># The working directory is set to the trial directory, so</span>
+        <span class="c1"># you don&#39;t need to worry about multiple workers saving</span>
+        <span class="c1"># to the same location.</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;./artifact_</span><span class="si">{</span><span class="n">step</span><span class="si">}</span><span class="s2">.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Artifact Data&quot;</span><span class="p">)</span>
+
+        <span class="n">session</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
+</input><label class="sd-tab-label" for="sd-tab-item-1">
+Class API</label><div class="sd-tab-content docutils">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging_library</span>  <span class="c1"># ex: mlflow, wandb</span>
+<span class="kn">from</span> <span class="nn">ray</span> <span class="kn">import</span> <span class="n">tune</span>
+
+<span class="k">class</span> <span class="nc">CustomLogging</span><span class="p">(</span><span class="n">tune</span><span class="o">.</span><span class="n">Trainable</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="n">trial_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trial_id</span>
+        <span class="n">logging_library</span><span class="o">.</span><span class="n">init</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">trial_id</span><span class="p">,</span>
+            <span class="nb">id</span><span class="o">=</span><span class="n">trial_id</span><span class="p">,</span>
+            <span class="n">resume</span><span class="o">=</span><span class="n">trial_id</span><span class="p">,</span>
+            <span class="n">reinit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">allow_val_change</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="n">logging_library</span><span class="o">.</span><span class="n">set_log_path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">logging_library</span><span class="o">.</span><span class="n">log_model</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+
+        <span class="c1"># You can also write to a file directly.</span>
+        <span class="c1"># The working directory is set to the trial directory, so</span>
+        <span class="c1"># you don&#39;t need to worry about multiple workers saving</span>
+        <span class="c1"># to the same location.</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;./artifact_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">iteration</span><span class="si">}</span><span class="s2">.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Artifact Data&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">log_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result</span><span class="p">):</span>
+        <span class="n">res_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="n">v</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">v</span> <span class="ow">and</span> <span class="s2">&quot;config&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">k</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">))</span>
+        <span class="p">}</span>
+        <span class="n">step</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;training_iteration&quot;</span><span class="p">]</span>
+        <span class="n">logging_library</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">res_dict</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">step</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>In the code snippet above, <code class="docutils literal notranslate"><span class="pre">logging_library</span></code> refers to whatever 3rd party logging library you are using.
+Note that <code class="docutils literal notranslate"><span class="pre">logging_library.set_log_path(os.getcwd())</span></code> is an imaginary API that we are using
+for demonstation purposes, and it highlights that the third-party library
+should be configured to log to the Trainable’s <em>working directory.</em> By default,
+the current working directory of both functional and class trainables is set to the
+corresponding trial directory once it’s been launched as a remote Ray actor.</p>
+<p>When running with multiple nodes using the <a class="reference internal" href="tune-storage.html#tune-default-syncing"><span class="std std-ref">default syncing method</span></a>,
+trial artifacts are synchronized to the driver node under the specified path.
+This will allow you to visualize and analyze logs of all distributed training workers on a single machine.</p>
+<p>When <a class="reference internal" href="tune-storage.html#tune-cloud-checkpointing"><span class="std std-ref">specifying a cloud upload directory</span></a>, trial artifacts are uploaded to that cloud bucket
+for later analysis. Note that the driver node does not necessarily contain
+artifacts from <em>all</em> trials – only the ones that were running on that node.
+To disable artifacts from being uploaded to the cloud, set <code class="docutils literal notranslate"><span class="pre">SyncConfig(sync_artifacts=False)</span></code> in <a class="reference internal" href="../api/doc/ray.tune.syncer.SyncConfig.html#ray.tune.syncer.SyncConfig" title="ray.tune.syncer.SyncConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">SyncConfig</span></code></a>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Appending to trial artifacts upon restoration is not supported.
+As a workaround, save trial artifacts to separate files with unique filenames.</p>
+<p>For example, instead of doing this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">appending_train_fn</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;num_epochs&quot;</span><span class="p">]):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;./artifact.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Some data about iteration </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Log artifacts as independent files with unique filenames:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">separate_files_train_fn</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;num_epochs&quot;</span><span class="p">]):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;./artifact_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Some data about iteration </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If you are running into issues, <a class="reference external" href="https://github.com/ray-project/ray/issues">file an issue</a></p>
+</div>
+</section>
+<section id="how-to-build-custom-tune-loggers">
+<h2>How to Build Custom Tune Loggers?<a class="headerlink" href="tune-output.html#how-to-build-custom-tune-loggers" title="Permalink to this headline">#</a></h2>
+<p>You can create a custom logger by inheriting the LoggerCallback interface (<a class="reference internal" href="../api/logging.html#logger-interface"><span class="std std-ref">LoggerCallback Interface (tune.logger.LoggerCallback)</span></a>):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">ray.tune.logger</span> <span class="kn">import</span> <span class="n">LoggerCallback</span>
+
+
+<span class="k">class</span> <span class="nc">CustomLoggerCallback</span><span class="p">(</span><span class="n">LoggerCallback</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Custom logger interface&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;log.txt):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_trial_files</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_filename</span> <span class="o">=</span> <span class="n">filename</span>
+
+    <span class="k">def</span> <span class="nf">log_trial_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trial</span><span class="p">:</span> <span class="s2">&quot;Trial&quot;</span><span class="p">):</span>
+        <span class="n">trial_logfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">trial</span><span class="o">.</span><span class="n">logdir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_trial_files</span><span class="p">[</span><span class="n">trial</span><span class="p">]</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">trial_logfile</span><span class="p">,</span> <span class="s2">&quot;at&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">log_trial_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iteration</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">trial</span><span class="p">:</span> <span class="s2">&quot;Trial&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">:</span> <span class="n">Dict</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">trial</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trial_files</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_trial_files</span><span class="p">[</span><span class="n">trial</span><span class="p">]</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">on_trial_complete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iteration</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">trials</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="s2">&quot;Trial&quot;</span><span class="p">],</span>
+                          <span class="n">trial</span><span class="p">:</span> <span class="s2">&quot;Trial&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">info</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">trial</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trial_files</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_trial_files</span><span class="p">[</span><span class="n">trial</span><span class="p">]</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trial_files</span><span class="p">[</span><span class="n">trial</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>You can then pass in your own logger as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ray</span> <span class="kn">import</span> <span class="n">tune</span>
+
+<span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
+    <span class="n">MyTrainableClass</span><span class="p">,</span>
+    <span class="n">run_config</span><span class="o">=</span><span class="n">air</span><span class="o">.</span><span class="n">RunConfig</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;experiment_name&quot;</span><span class="p">,</span> <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span><span class="n">CustomLoggerCallback</span><span class="p">(</span><span class="s2">&quot;log_test.txt&quot;</span><span class="p">)])</span>
+<span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Per default, Ray Tune creates JSON, CSV and TensorBoardX logger callbacks if you don’t pass them yourself.
+You can disable this behavior by setting the <code class="docutils literal notranslate"><span class="pre">TUNE_DISABLE_AUTO_CALLBACK_LOGGERS</span></code> environment variable to <code class="docutils literal notranslate"><span class="pre">&quot;1&quot;</span></code>.</p>
+<p>An example of creating a custom logger can be found in <a class="reference internal" href="../examples/includes/logging_example.html"><span class="doc">Logging Example</span></a>.</p>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="tune-run.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Running Basic Tune Experiments</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="tune-resources.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">A Guide To Parallelism and Resources for Ray Tune</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

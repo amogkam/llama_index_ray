@@ -1,0 +1,1762 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Batch Training with Ray Data &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/js/versionwarning.js"></script>
+    <script src="../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../_static/js/docsearch.js"></script>
+    <script src="../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../_static/js/top-navigation.js"></script>
+    <script src="../../_static/js/tags.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/data/examples/batch_training.html" />
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Scaling OCR using Ray Data" href="ocr_example.html" />
+    <link rel="prev" title="Processing NYC taxi data using Ray Data" href="nyc_taxi_basic_processing.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "data/examples/batch_training", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".ipynb", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../data.html">
+   Ray Data
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../overview.html">
+     Overview
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../getting-started.html">
+     Getting Started
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../user-guide.html">
+     User Guides
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="index.html">
+     Ray Data Examples
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="huggingface_vit_batch_prediction.html">
+       Image Classification Batch Inference with Huggingface Vision Transformer
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pytorch_resnet_batch_prediction.html">
+       Image Classification Batch Inference with PyTorch
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="batch_inference_object_detection.html">
+       Object Detection Batch Inference with PyTorch
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="nyc_taxi_basic_processing.html">
+       Processing NYC taxi data using Ray Data
+      </a>
+     </li>
+     <li class="toctree-l3 current active">
+      <a class="current reference internal" href="batch_training.html#">
+       Batch Training with Ray Data
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="ocr_example.html">
+       Scaling OCR using Ray Data
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="random-access.html">
+       Random Data Access (Experimental)
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="custom-datasource.html">
+       Implementing a Custom Datasource
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../faq.html">
+     FAQ
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/api.html">
+     Ray Data API
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tune.html">
+   Ray Tune
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Fdata/examples/batch_training.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/data/examples/batch_training.ipynb"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../_sources/data/examples/batch_training.ipynb.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.ipynb</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="batch_training.html#">
+   Batch Training with Ray Data
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="batch_training.html#contents">
+   Contents
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="batch_training.html#walkthrough">
+   Walkthrough
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="batch_training.html#creating-a-dataset-a-class-anchor-id-create-ds-a">
+     Creating a Dataset
+     <a class="anchor" id="create_ds">
+     </a>
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="batch_training.html#filtering-a-dataset-on-read-a-class-anchor-id-filter-ds-a">
+       Filtering a Dataset on Read
+       <a class="anchor" id="filter_ds">
+       </a>
+      </a>
+     </li>
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="batch_training.html#inspecting-a-dataset-a-class-anchor-id-inspect-ds-a">
+       Inspecting a Dataset
+       <a class="anchor" id="inspect_ds">
+       </a>
+      </a>
+     </li>
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="batch_training.html#transforming-a-dataset-in-parallel-using-custom-functions-a-class-anchor-id-transform-ds-a">
+       Transforming a Dataset in parallel using custom functions
+       <a class="anchor" id="transform_ds">
+       </a>
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="batch_training.html#batch-training-with-ray-data-a-class-anchor-id-batch-train-ds-a">
+     Batch training with Ray Data
+     <a class="anchor" id="batch_train_ds">
+     </a>
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="batch_training.html#define-search-space-for-training">
+       Define search space for training
+      </a>
+     </li>
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="batch_training.html#define-training-functions">
+       Define training functions
+      </a>
+     </li>
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="batch_training.html#run-batch-training-using-map-groups">
+       Run batch training using
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         map_groups
+        </span>
+       </code>
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="batch_training.html#re-load-a-model-and-perform-batch-prediction-a-class-anchor-id-load-model-a">
+     Re-load a model and perform batch prediction
+     <a class="anchor" id="load_model">
+     </a>
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Batch Training with Ray Data</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="batch_training.html#">
+   Batch Training with Ray Data
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="batch_training.html#contents">
+   Contents
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="batch_training.html#walkthrough">
+   Walkthrough
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="batch_training.html#creating-a-dataset-a-class-anchor-id-create-ds-a">
+     Creating a Dataset
+     <a class="anchor" id="create_ds">
+     </a>
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="batch_training.html#filtering-a-dataset-on-read-a-class-anchor-id-filter-ds-a">
+       Filtering a Dataset on Read
+       <a class="anchor" id="filter_ds">
+       </a>
+      </a>
+     </li>
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="batch_training.html#inspecting-a-dataset-a-class-anchor-id-inspect-ds-a">
+       Inspecting a Dataset
+       <a class="anchor" id="inspect_ds">
+       </a>
+      </a>
+     </li>
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="batch_training.html#transforming-a-dataset-in-parallel-using-custom-functions-a-class-anchor-id-transform-ds-a">
+       Transforming a Dataset in parallel using custom functions
+       <a class="anchor" id="transform_ds">
+       </a>
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="batch_training.html#batch-training-with-ray-data-a-class-anchor-id-batch-train-ds-a">
+     Batch training with Ray Data
+     <a class="anchor" id="batch_train_ds">
+     </a>
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="batch_training.html#define-search-space-for-training">
+       Define search space for training
+      </a>
+     </li>
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="batch_training.html#define-training-functions">
+       Define training functions
+      </a>
+     </li>
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="batch_training.html#run-batch-training-using-map-groups">
+       Run batch training using
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         map_groups
+        </span>
+       </code>
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="batch_training.html#re-load-a-model-and-perform-batch-prediction-a-class-anchor-id-load-model-a">
+     Re-load a model and perform batch prediction
+     <a class="anchor" id="load_model">
+     </a>
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section class="tex2jax_ignore mathjax_ignore" id="batch-training-with-ray-data">
+<span id="mmt-datasets"></span><h1>Batch Training with Ray Data<a class="headerlink" href="batch_training.html#batch-training-with-ray-data" title="Permalink to this headline">#</a></h1>
+<p><strong>Batch training</strong> and tuning are common tasks in simple machine learning use-cases such as time series forecasting. They require fitting of simple models on data batches corresponding to different locations, products, etc. Batch training can take less time to process all the data at once, but only if those batches can run in parallel!</p>
+<p>This notebook showcases how to conduct batch training regression algorithms from <a class="reference external" href="https://docs.ray.io/en/latest/tune/examples/tune-xgboost.html">XGBoost</a> and <a class="reference external" href="https://docs.ray.io/en/latest/ray-more-libs/joblib.html">Scikit-learn</a> with <strong><a class="reference internal" href="../data.html#data"><span class="std std-ref">Ray Data</span></a></strong>. <strong>XGBoost</strong> is a popular open-source library used for regression and classification. <strong>Scikit-learn</strong> is a popular open-source library with a vast assortment of well-known ML algorithms.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>The workload showcased in this notebook can be expressed using different Ray components, such as Ray Data, Ray Tune and Ray Core.
+For more information, including best practices, see <a class="reference internal" href="../../ray-overview/use-cases.html#ref-use-cases-mmt"><span class="std std-ref">Many Model Training</span></a>.</p>
+</div>
+<p><img alt="Batch training diagram" src="../../_images/batch-training.svg" /></p>
+<p>For the data, we will use the <a class="reference external" href="https://www1.nyc.gov/site/tlc/about/tlc-trip-record-data.page">NYC Taxi dataset</a>. This popular tabular dataset contains historical taxi pickups by timestamp and location in NYC.</p>
+<p>For the training, we will train separate regression models to predict <code class="docutils literal notranslate"><span class="pre">trip_duration</span></code>, with a different model for each dropoff location in NYC. Specifically, we will conduct an experiment for each <code class="docutils literal notranslate"><span class="pre">dropoff_location_id</span></code>, to find the best either XGBoost or Scikit-learn model, per location.</p>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="contents">
+<h1>Contents<a class="headerlink" href="batch_training.html#contents" title="Permalink to this headline">#</a></h1>
+<p>In this this tutorial, you will learn about:</p>
+<ol class="simple">
+<li><p><a class="reference external" href="batch_training.html#create_ds">Creating a Dataset</a></p></li>
+<li><p><a class="reference external" href="batch_training.html#filter_ds">Filtering a Dataset on Read</a></p></li>
+<li><p><a class="reference external" href="batch_training.html#inspect_ds">Inspecting a Dataset</a></p></li>
+<li><p><a class="reference external" href="batch_training.html#transform_ds">Transforming a Dataset in parallel</a></p></li>
+<li><p><a class="reference external" href="batch_training.html#batch_train_ds">Batch training with Ray Data in parallel</a></p></li>
+<li><p><a class="reference external" href="batch_training.html#load_model">Load a saved model and perform batch prediction</a></p></li>
+</ol>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="walkthrough">
+<h1>Walkthrough<a class="headerlink" href="batch_training.html#walkthrough" title="Permalink to this headline">#</a></h1>
+<p>Let us start by importing a few required libraries, including open-source <a class="reference external" href="https://github.com/ray-project/ray">Ray</a> itself!</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="n">num_cpu</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of CPUs in this system: </span><span class="si">{</span><span class="n">num_cpu</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Callable</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;numpy: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">__version__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">pyarrow</span>
+<span class="kn">import</span> <span class="nn">pyarrow.parquet</span> <span class="k">as</span> <span class="nn">pq</span>
+<span class="kn">import</span> <span class="nn">pyarrow.dataset</span> <span class="k">as</span> <span class="nn">pds</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;pyarrow: </span><span class="si">{</span><span class="n">pyarrow</span><span class="o">.</span><span class="n">__version__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">ray.data</span> <span class="kn">import</span> <span class="n">Dataset</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Number of CPUs in this system: 8
+numpy: 1.23.3
+pyarrow: 6.0.1
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ray</span>
+
+<span class="k">if</span> <span class="n">ray</span><span class="o">.</span><span class="n">is_initialized</span><span class="p">():</span>
+    <span class="n">ray</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+<span class="n">ray</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2022-12-08 17:04:06,689	INFO worker.py:1223 -- Using address localhost:9031 set in the environment variable RAY_ADDRESS
+2022-12-08 17:04:06,691	INFO worker.py:1333 -- Connecting to existing Ray cluster at address: 172.31.174.62:9031...
+2022-12-08 17:04:06,700	INFO worker.py:1509 -- Connected to Ray cluster. View the dashboard at <span class=" -Color -Color-Bold -Color-Bold-Green">https://console.anyscale-staging.com/api/v2/sessions/ses_gyl6mbksa8xt7b149ib6abld/services?redirect_to=dashboard </span>
+</pre></div>
+</div>
+<div class="output text_html"><div>
+    <div style="margin-left: 50px;display: flex;flex-direction: row;align-items: center">
+        <h3 style="color: var(--jp-ui-font-color0)">Ray</h3>
+        <svg version="1.1" id="ray" width="3em" viewBox="0 0 144.5 144.6" style="margin-left: 3em;margin-right: 3em">
+            <g id="layer-1">
+                <path fill="#00a2e9" class="st0" d="M97.3,77.2c-3.8-1.1-6.2,0.9-8.3,5.1c-3.5,6.8-9.9,9.9-17.4,9.6S58,88.1,54.8,81.2c-1.4-3-3-4-6.3-4.1
+                    c-5.6-0.1-9.9,0.1-13.1,6.4c-3.8,7.6-13.6,10.2-21.8,7.6C5.2,88.4-0.4,80.5,0,71.7c0.1-8.4,5.7-15.8,13.8-18.2
+                    c8.4-2.6,17.5,0.7,22.3,8c1.3,1.9,1.3,5.2,3.6,5.6c3.9,0.6,8,0.2,12,0.2c1.8,0,1.9-1.6,2.4-2.8c3.5-7.8,9.7-11.8,18-11.9
+                    c8.2-0.1,14.4,3.9,17.8,11.4c1.3,2.8,2.9,3.6,5.7,3.3c1-0.1,2,0.1,3,0c2.8-0.5,6.4,1.7,8.1-2.7s-2.3-5.5-4.1-7.5
+                    c-5.1-5.7-10.9-10.8-16.1-16.3C84,38,81.9,37.1,78,38.3C66.7,42,56.2,35.7,53,24.1C50.3,14,57.3,2.8,67.7,0.5
+                    C78.4-2,89,4.7,91.5,15.3c0.1,0.3,0.1,0.5,0.2,0.8c0.7,3.4,0.7,6.9-0.8,9.8c-1.7,3.2-0.8,5,1.5,7.2c6.7,6.5,13.3,13,19.8,19.7
+                    c1.8,1.8,3,2.1,5.5,1.2c9.1-3.4,17.9-0.6,23.4,7c4.8,6.9,4.6,16.1-0.4,22.9c-5.4,7.2-14.2,9.9-23.1,6.5c-2.3-0.9-3.5-0.6-5.1,1.1
+                    c-6.7,6.9-13.6,13.7-20.5,20.4c-1.8,1.8-2.5,3.2-1.4,5.9c3.5,8.7,0.3,18.6-7.7,23.6c-7.9,5-18.2,3.8-24.8-2.9
+                    c-6.4-6.4-7.4-16.2-2.5-24.3c4.9-7.8,14.5-11,23.1-7.8c3,1.1,4.7,0.5,6.9-1.7C91.7,98.4,98,92.3,104.2,86c1.6-1.6,4.1-2.7,2.6-6.2
+                    c-1.4-3.3-3.8-2.5-6.2-2.6C99.8,77.2,98.9,77.2,97.3,77.2z M72.1,29.7c5.5,0.1,9.9-4.3,10-9.8c0-0.1,0-0.2,0-0.3
+                    C81.8,14,77,9.8,71.5,10.2c-5,0.3-9,4.2-9.3,9.2c-0.2,5.5,4,10.1,9.5,10.3C71.8,29.7,72,29.7,72.1,29.7z M72.3,62.3
+                    c-5.4-0.1-9.9,4.2-10.1,9.7c0,0.2,0,0.3,0,0.5c0.2,5.4,4.5,9.7,9.9,10c5.1,0.1,9.9-4.7,10.1-9.8c0.2-5.5-4-10-9.5-10.3
+                    C72.6,62.3,72.4,62.3,72.3,62.3z M115,72.5c0.1,5.4,4.5,9.7,9.8,9.9c5.6-0.2,10-4.8,10-10.4c-0.2-5.4-4.6-9.7-10-9.7
+                    c-5.3-0.1-9.8,4.2-9.9,9.5C115,72.1,115,72.3,115,72.5z M19.5,62.3c-5.4,0.1-9.8,4.4-10,9.8c-0.1,5.1,5.2,10.4,10.2,10.3
+                    c5.6-0.2,10-4.9,9.8-10.5c-0.1-5.4-4.5-9.7-9.9-9.6C19.6,62.3,19.5,62.3,19.5,62.3z M71.8,134.6c5.9,0.2,10.3-3.9,10.4-9.6
+                    c0.5-5.5-3.6-10.4-9.1-10.8c-5.5-0.5-10.4,3.6-10.8,9.1c0,0.5,0,0.9,0,1.4c-0.2,5.3,4,9.8,9.3,10
+                    C71.6,134.6,71.7,134.6,71.8,134.6z"/>
+            </g>
+        </svg>
+        <table>
+            <tr>
+                <td style="text-align: left"><b>Python version:</b></td>
+                <td style="text-align: left"><b>3.8.5</b></td>
+            </tr>
+            <tr>
+                <td style="text-align: left"><b>Ray version:</b></td>
+                <td style="text-align: left"><b> 2.0.0</b></td>
+            </tr>
+            <tr>
+    <td style="text-align: left"><b>Dashboard:</b></td>
+    <td style="text-align: left"><b><a href="http://console.anyscale-staging.com/api/v2/sessions/ses_gyl6mbksa8xt7b149ib6abld/services?redirect_to=dashboard" target="_blank">http://console.anyscale-staging.com/api/v2/sessions/ses_gyl6mbksa8xt7b149ib6abld/services?redirect_to=dashboard</a></b></td>
+</tr>
+
+        </table>
+    </div>
+</div>
+</div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">ray</span><span class="o">.</span><span class="n">cluster_resources</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;CPU&#39;: 8.0, &#39;object_store_memory&#39;: 9093674188.0, &#39;memory&#39;: 18187348379.0, &#39;node:172.31.174.62&#39;: 1.0}
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># For benchmarking purposes, we can print the times of various operations.</span>
+<span class="c1"># In order to reduce clutter in the output, this is set to False by default.</span>
+<span class="n">PRINT_TIMES</span> <span class="o">=</span> <span class="kc">False</span>
+
+
+<span class="k">def</span> <span class="nf">print_time</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">PRINT_TIMES</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+
+<span class="c1"># To speed things up, we’ll only use a small subset of the full dataset consisting of two last months of 2019.</span>
+<span class="c1"># You can choose to use the full dataset for 2018-2019 by setting the SMOKE_TEST variable to False.</span>
+<span class="n">SMOKE_TEST</span> <span class="o">=</span> <span class="kc">True</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="creating-a-dataset-a-class-anchor-id-create-ds-a">
+<h2>Creating a Dataset <a class="anchor" id="create_ds"></a><a class="headerlink" href="batch_training.html#creating-a-dataset-a-class-anchor-id-create-ds-a" title="Permalink to this headline">#</a></h2>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Ray Data uses PyArrow dataset and table for reading or writing large parquet files. Its native multithreaded C++ adpater is faster than pandas <code class="docutils literal notranslate"><span class="pre">read_parquet</span></code>, even using <code class="docutils literal notranslate"><span class="pre">engine='pyarrow'</span></code>. For more details see <a class="reference external" href="https://docs.ray.io/en/latest/data/user-guide.html">Ray Data User Guide</a>.</p>
+</div>
+<p><a class="reference internal" href="../data.html#data"><span class="std std-ref">Ray Data</span></a> is the standard way to load and exchange data in Ray libraries and applications. We will use the <a class="reference internal" href="../api/api.html#data-api"><span class="std std-ref">Ray Data APIs</span></a> to read the data and quickly inspect it.</p>
+<p>First, we will define some global variables we will use throughout the notebook, such as the list of S3 links to the files making up the dataset and the possible location IDs.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define some global variables.</span>
+<span class="n">TARGET</span> <span class="o">=</span> <span class="s2">&quot;trip_duration&quot;</span>
+<span class="n">s3_partitions</span> <span class="o">=</span> <span class="n">pds</span><span class="o">.</span><span class="n">dataset</span><span class="p">(</span>
+    <span class="s2">&quot;s3://anonymous@air-example-data/ursa-labs-taxi-data/by_year/&quot;</span><span class="p">,</span>
+    <span class="n">partitioning</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">,</span> <span class="s2">&quot;month&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+<span class="n">s3_files</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;s3://anonymous@</span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">s3_partitions</span><span class="o">.</span><span class="n">files</span><span class="p">]</span>
+
+<span class="c1"># Obtain all location IDs</span>
+<span class="n">location_ids</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">pq</span><span class="o">.</span><span class="n">read_table</span><span class="p">(</span><span class="n">s3_files</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;dropoff_location_id&quot;</span><span class="p">])[</span><span class="s2">&quot;dropoff_location_id&quot;</span><span class="p">]</span>
+    <span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">to_pylist</span><span class="p">()</span>
+<span class="p">)</span>
+
+<span class="c1"># Use smoke testing or not.</span>
+<span class="n">starting_idx</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="k">if</span> <span class="n">SMOKE_TEST</span> <span class="k">else</span> <span class="mi">0</span>
+<span class="c1"># drop location 199 to test error-handling before final git checkin</span>
+<span class="n">sample_locations</span> <span class="o">=</span> <span class="p">[</span><span class="mi">141</span><span class="p">,</span> <span class="mi">229</span><span class="p">,</span> <span class="mi">173</span><span class="p">]</span> <span class="k">if</span> <span class="n">SMOKE_TEST</span> <span class="k">else</span> <span class="n">location_ids</span>
+
+<span class="c1"># Display what data will be used.</span>
+<span class="n">s3_files</span> <span class="o">=</span> <span class="n">s3_files</span><span class="p">[</span><span class="n">starting_idx</span><span class="p">:]</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;NYC Taxi using </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">s3_files</span><span class="p">)</span><span class="si">}</span><span class="s2"> file(s)!&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;s3_files: </span><span class="si">{</span><span class="n">s3_files</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Locations: </span><span class="si">{</span><span class="n">sample_locations</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>NYC Taxi using 1 file(s)!
+s3_files: [&#39;s3://anonymous@air-example-data/ursa-labs-taxi-data/by_year/2019/06/data.parquet/ab5b9d2b8cc94be19346e260b543ec35_000000.parquet&#39;]
+Locations: [141, 229, 173]
+</pre></div>
+</div>
+</div>
+</div>
+<p>The easiest way to create a ray dataset is to use <code class="docutils literal notranslate"><span class="pre">ray.data.read_parquet</span></code> to read parquet files in parallel onto the Ray cluster.</p>
+<p>Uncomment the cell below if you want to try it out.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># # This cell is commented out because it can take a long time!</span>
+<span class="c1"># # In the next section &quot;Filtering Read&quot; we make it faster.</span>
+
+<span class="c1"># # Read everything in the files list into a ray dataset.</span>
+<span class="c1"># start = time.time()</span>
+<span class="c1"># ds = ray.data.read_parquet(s3_files)</span>
+<span class="c1"># print(f&quot;Data loading time: {data_loading_time:.2f} seconds&quot;)</span>
+<span class="c1"># ds</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="filtering-a-dataset-on-read-a-class-anchor-id-filter-ds-a">
+<h3>Filtering a Dataset on Read <a class="anchor" id="filter_ds"></a><a class="headerlink" href="batch_training.html#filtering-a-dataset-on-read-a-class-anchor-id-filter-ds-a" title="Permalink to this headline">#</a></h3>
+<p>Normally there is some last-mile data processing required before training. Let’s just assume we know the data processing steps are:</p>
+<ul class="simple">
+<li><p>Drop negative trip distances, 0 fares, 0 passengers.</p></li>
+<li><p>Drop 2 unknown zones: <code class="docutils literal notranslate"><span class="pre">['264',</span> <span class="pre">'265']</span></code>.</p></li>
+<li><p>Calculate trip duration and add it as a new column.</p></li>
+<li><p>Drop trip durations smaller than 1 minute and greater than 24 hours.</p></li>
+</ul>
+<p>Instead of blindly reading all the data, it would be better if we only read the data we needed. This is similar concept to SQL <code class="docutils literal notranslate"><span class="pre">SELECT</span> <span class="pre">only</span> <span class="pre">rows,</span> <span class="pre">columns</span> <span class="pre">you</span> <span class="pre">need</span></code> vs <code class="docutils literal notranslate"><span class="pre">SELECT</span> <span class="pre">*</span></code>.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Best practice is to filter as much as you can directly in the Dataset <code class="docutils literal notranslate"><span class="pre">read_parquet()</span></code>.</p>
+</div>
+<p>Note that Ray Data’ Parquet reader supports projection (column selection) and row filter pushdown, where we can push the above column selection and the row-based filter to the Parquet read. If we specify column selection at Parquet read time, the unselected columns won’t even be read from disk. This can save a lot of memory, especially with big datasets, and allow us to avoid OOM issues.</p>
+<p>The row-based filter is specified via <a class="reference external" href="https://arrow.apache.org/docs/6.0/python/generated/pyarrow.dataset.Expression.html#pyarrow.dataset.Expression">Arrow’s dataset field expressions</a>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">pushdown_read_data</span><span class="p">(</span><span class="n">files_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">sample_ids</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dataset</span><span class="p">:</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+    <span class="n">filter_expr</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">pds</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;passenger_count&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">pds</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;trip_distance&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">pds</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;fare_amount&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="o">~</span><span class="n">pds</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;pickup_location_id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="mi">264</span><span class="p">,</span> <span class="mi">265</span><span class="p">]))</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="o">~</span><span class="n">pds</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;dropoff_location_id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="mi">264</span><span class="p">,</span> <span class="mi">265</span><span class="p">]))</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">pds</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;dropoff_location_id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">sample_ids</span><span class="p">))</span>
+    <span class="p">)</span>
+
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
+        <span class="n">files_list</span><span class="p">,</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
+            <span class="s2">&quot;pickup_at&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;dropoff_at&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pickup_location_id&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;dropoff_location_id&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;passenger_count&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;trip_distance&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fare_amount&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="nb">filter</span><span class="o">=</span><span class="n">filter_expr</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">data_loading_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+    <span class="n">print_time</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Data loading time: </span><span class="si">{</span><span class="n">data_loading_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> seconds&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">dataset</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test the pushdown_read_data function</span>
+<span class="n">ds_raw</span> <span class="o">=</span> <span class="n">pushdown_read_data</span><span class="p">(</span><span class="n">s3_files</span><span class="p">,</span> <span class="n">sample_locations</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2022-12-08 17:04:09,202	WARNING read_api.py:291 -- ⚠️  The number of blocks in this dataset (1) limits its parallelism to 1 concurrent tasks. This is much less than the number of available CPU slots in the cluster. Use `.repartition(n)` to increase the number of dataset blocks.
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="inspecting-a-dataset-a-class-anchor-id-inspect-ds-a">
+<h3>Inspecting a Dataset <a class="anchor" id="inspect_ds"></a><a class="headerlink" href="batch_training.html#inspecting-a-dataset-a-class-anchor-id-inspect-ds-a" title="Permalink to this headline">#</a></h3>
+<p>Let’s get some basic statistics about our newly created Dataset.</p>
+<p>As our Dataset is backed by Parquet, we can obtain the number of rows from the metadata without triggering a full data read.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of rows: </span><span class="si">{</span><span class="n">ds_raw</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Number of rows: 6941024
+</pre></div>
+</div>
+</div>
+</div>
+<p>Similarly, we can obtain the Dataset size (in bytes) from the metadata.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Size bytes (from parquet metadata): </span><span class="si">{</span><span class="n">ds_raw</span><span class="o">.</span><span class="n">size_bytes</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Size bytes (from parquet metadata): 925892280
+</pre></div>
+</div>
+</div>
+</div>
+<p>Let’s fetch and inspect the schema of the underlying Parquet files.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Schema data types:&quot;</span><span class="p">)</span>
+<span class="n">data_types</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">ds_raw</span><span class="o">.</span><span class="n">schema</span><span class="p">()</span><span class="o">.</span><span class="n">names</span><span class="p">,</span> <span class="n">ds_raw</span><span class="o">.</span><span class="n">schema</span><span class="p">()</span><span class="o">.</span><span class="n">types</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">data_types</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Schema data types:
+pickup_at: timestamp[us]
+dropoff_at: timestamp[us]
+pickup_location_id: int32
+dropoff_location_id: int32
+passenger_count: int8
+trip_distance: float
+fare_amount: float
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="transforming-a-dataset-in-parallel-using-custom-functions-a-class-anchor-id-transform-ds-a">
+<h3>Transforming a Dataset in parallel using custom functions <a class="anchor" id="transform_ds"></a><a class="headerlink" href="batch_training.html#transforming-a-dataset-in-parallel-using-custom-functions-a-class-anchor-id-transform-ds-a" title="Permalink to this headline">#</a></h3>
+<p>Ray Data allows you to specify custom data transform functions. These <a class="reference internal" href="../transforming-data.html#transforming-data"><span class="std std-ref">user defined functions (UDFs)</span></a> can be called using <code class="docutils literal notranslate"><span class="pre">Dataset.map_batches(my_function)</span></code>. The transformation will be conducted in parallel for each data batch.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>You may need to call <code class="docutils literal notranslate"><span class="pre">Dataset.repartition(n)</span></code> first to split the Dataset into more blocks internally. By default, each block corresponds to one file. The upper bound of parallelism is the number of blocks.</p>
+</div>
+<p>You can specify the data format you are using in the <code class="docutils literal notranslate"><span class="pre">batch_format</span></code> parameter. The dataset will be divided into batches and those batches converted into the specified format. Available data formats you can specify in the <code class="docutils literal notranslate"><span class="pre">batch_format</span></code> paramater include <code class="docutils literal notranslate"><span class="pre">&quot;pandas&quot;,</span> <span class="pre">&quot;pyarrow&quot;,</span> <span class="pre">&quot;numpy&quot;</span></code>. Tabular data will be passed into your UDF by default as a pandas DataFrame. Tensor data will be passed into your UDF as a numpy array.</p>
+<p>Here, we will use <code class="docutils literal notranslate"><span class="pre">batch_format=&quot;pandas&quot;</span></code> explicitly for clarity.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># A pandas DataFrame UDF for transforming the Dataset in parallel.</span>
+<span class="k">def</span> <span class="nf">transform_df</span><span class="p">(</span><span class="n">input_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">input_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c1"># calculate trip_duration</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;trip_duration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;dropoff_at&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;pickup_at&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">seconds</span>
+    <span class="c1"># filter trip_durations &gt; 1 minute and less than 24 hours</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;trip_duration&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">60</span><span class="p">]</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;trip_duration&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">24</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">60</span><span class="p">]</span>
+    <span class="c1"># keep only necessary columns</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+        <span class="p">[</span><span class="s2">&quot;dropoff_at&quot;</span><span class="p">,</span> <span class="s2">&quot;pickup_at&quot;</span><span class="p">,</span> <span class="s2">&quot;pickup_location_id&quot;</span><span class="p">,</span> <span class="s2">&quot;fare_amount&quot;</span><span class="p">],</span>
+        <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;dropoff_location_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;dropoff_location_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%time</span>
+
+<span class="c1"># Test the transform UDF.</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of rows before transformation: </span><span class="si">{</span><span class="n">ds_raw</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Repartition the dataset to allow for higher parallelism.</span>
+<span class="c1"># Best practice: repartition to all available cpu except a few, with a cap</span>
+<span class="n">num_partitions</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">num_cpu</span> <span class="o">-</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">32</span><span class="p">)</span>
+<span class="n">ds</span> <span class="o">=</span> <span class="n">ds_raw</span><span class="o">.</span><span class="n">repartition</span><span class="p">(</span><span class="n">num_partitions</span><span class="p">)</span>
+
+<span class="c1"># .map_batches applies a UDF to each partition of the data in parallel.</span>
+<span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">map_batches</span><span class="p">(</span><span class="n">transform_df</span><span class="p">,</span> <span class="n">batch_format</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span><span class="p">)</span>
+
+<span class="c1"># Verify row count.</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of rows after transformation: </span><span class="si">{</span><span class="n">ds</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Number of rows before transformation: 6941024
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Read: 100%|██████████| 1/1 [00:01&lt;00:00,  1.97s/it]
+Repartition: 100%|██████████| 6/6 [00:02&lt;00:00,  2.87it/s]
+Map_Batches: 100%|██████████| 6/6 [00:02&lt;00:00,  2.90it/s]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Number of rows after transformation: 285323
+CPU times: user 320 ms, sys: 114 ms, total: 434 ms
+Wall time: 6.19 s
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="batch-training-with-ray-data-a-class-anchor-id-batch-train-ds-a">
+<h2>Batch training with Ray Data <a class="anchor" id="batch_train_ds"></a><a class="headerlink" href="batch_training.html#batch-training-with-ray-data-a-class-anchor-id-batch-train-ds-a" title="Permalink to this headline">#</a></h2>
+<p>Now that we have learned more about our data and written a pandas UDF to transform our data, we are ready to train a model on batches of this data in parallel.</p>
+<ol class="simple">
+<li><p>We will use the <code class="docutils literal notranslate"><span class="pre">dropoff_location_id</span></code> column in the dataset to group the dataset into data batches.</p></li>
+<li><p>Then we will fit a separate model for each batch to predict <code class="docutils literal notranslate"><span class="pre">trip_duration</span></code>.</p></li>
+</ol>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># import standard sklearn libraries</span>
+<span class="kn">import</span> <span class="nn">sklearn</span>
+<span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="kn">import</span> <span class="n">BaseEstimator</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LinearRegression</span>
+<span class="kn">from</span> <span class="nn">sklearn.tree</span> <span class="kn">import</span> <span class="n">DecisionTreeRegressor</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">mean_absolute_error</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;sklearn: </span><span class="si">{</span><span class="n">sklearn</span><span class="o">.</span><span class="n">__version__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">xgboost</span> <span class="k">as</span> <span class="nn">xgb</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;xgboost: </span><span class="si">{</span><span class="n">xgb</span><span class="o">.</span><span class="n">__version__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="c1"># set global random seed for sklearn models</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">415</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>sklearn: 1.1.2
+xgboost: 1.3.3
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/home/ray/anaconda3/lib/python3.8/site-packages/xgboost/compat.py:31: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+  from pandas import MultiIndex, Int64Index
+</pre></div>
+</div>
+</div>
+</div>
+<section id="define-search-space-for-training">
+<h3>Define search space for training<a class="headerlink" href="batch_training.html#define-search-space-for-training" title="Permalink to this headline">#</a></h3>
+<p>In this notebook, we will run parallel training jobs per data batch, drop-off location. The training jobs will be defined using a search space and simple grid search. Depending on your need, fancier search spaces and search algorithms are possible with <a class="reference external" href="../../tune/tutorials/tune-search-spaces.html#tune-search-space-tutorial">Ray Tune</a>.</p>
+<p><strong>Below, we define our search space consists of:</strong></p>
+<ul class="simple">
+<li><p>Different algorithms, either:</p>
+<ul>
+<li><p>Linear Regression or XGBoost Tree Regression.</p></li>
+</ul>
+</li>
+</ul>
+<p>We want to train using every algorithm in the search space. What this means is every algorithm will be applied to every NYC Taxi drop-off location.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ALGORITHMS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">LinearRegression</span><span class="p">(</span><span class="n">fit_intercept</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="n">xgb</span><span class="o">.</span><span class="n">XGBRegressor</span><span class="p">(</span><span class="n">max_depth</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="define-training-functions">
+<h3>Define training functions<a class="headerlink" href="batch_training.html#define-training-functions" title="Permalink to this headline">#</a></h3>
+<p>We want to fit a linear regression model to the trip duration for each drop-off location. For scoring, we will calculate mean absolute error on the validation set, and report that as model error per drop-off location.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">fit_and_score_sklearn</span></code> function contains the logic necessary to fit a scikit-learn model and evaluate it using mean absolute error.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">fit_and_score_sklearn</span><span class="p">(</span>
+    <span class="n">train_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">test_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">BaseEstimator</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+
+    <span class="c1"># Assemble train/test pandas dfs</span>
+    <span class="n">train_X</span> <span class="o">=</span> <span class="n">train_df</span><span class="p">[[</span><span class="s2">&quot;passenger_count&quot;</span><span class="p">,</span> <span class="s2">&quot;trip_distance&quot;</span><span class="p">]]</span>
+    <span class="n">train_y</span> <span class="o">=</span> <span class="n">train_df</span><span class="p">[</span><span class="n">TARGET</span><span class="p">]</span>
+    <span class="n">test_X</span> <span class="o">=</span> <span class="n">test_df</span><span class="p">[[</span><span class="s2">&quot;passenger_count&quot;</span><span class="p">,</span> <span class="s2">&quot;trip_distance&quot;</span><span class="p">]]</span>
+    <span class="n">test_y</span> <span class="o">=</span> <span class="n">test_df</span><span class="p">[</span><span class="n">TARGET</span><span class="p">]</span>
+
+    <span class="c1"># Start training.</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_X</span><span class="p">,</span> <span class="n">train_y</span><span class="p">)</span>
+    <span class="n">pred_y</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test_X</span><span class="p">)</span>
+
+    <span class="c1"># Evaluate.</span>
+    <span class="n">error</span> <span class="o">=</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">mean_absolute_error</span><span class="p">(</span><span class="n">test_y</span><span class="p">,</span> <span class="n">pred_y</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">error</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mf">10000.0</span>
+
+    <span class="c1"># Assemble return as a pandas dataframe.</span>
+    <span class="n">return_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">model</span><span class="p">],</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">error</span><span class="p">]})</span>
+
+    <span class="c1"># return model, error</span>
+    <span class="k">return</span> <span class="n">return_df</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">train_and_evaluate</span></code> function contains the logic for train-test splitting and fitting of a model using the <code class="docutils literal notranslate"><span class="pre">fit_and_score_sklearn</span></code> function.</p>
+<p>As an input, this function takes in a pandas DataFrame. When we call <code class="docutils literal notranslate"><span class="pre">Dataset.map_batches</span></code> or <code class="docutils literal notranslate"><span class="pre">Dataset.groupby().map_groups()</span></code>, the Dataset will be batched into multiple pandas DataFrames and this function will run for each batch in parallel. We will return the model and its error. Those results will be collected back into a Dataset.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">train_and_evaluate</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">models</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">BaseEstimator</span><span class="p">],</span> <span class="n">location_id</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+
+    <span class="c1"># We need at least 4 rows to create a train / test split.</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="n">print_time</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Data batch for LocID </span><span class="si">{</span><span class="n">location_id</span><span class="si">}</span><span class="s2"> is empty or smaller than 4 rows&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+    <span class="c1"># Train / test split</span>
+    <span class="c1"># Randomly split the data into 80/20 train/test.</span>
+    <span class="n">train_df</span><span class="p">,</span> <span class="n">test_df</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Launch a fit and score task for each model.</span>
+    <span class="c1"># results is a list of pandas dataframes, one per model</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[</span><span class="n">fit_and_score_sklearn</span><span class="p">(</span><span class="n">train_df</span><span class="p">,</span> <span class="n">test_df</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">]</span>
+
+    <span class="c1"># Assemble location_id, name of model, and metrics in a pandas DataFrame</span>
+    <span class="n">results_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">join</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">results_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="s2">&quot;location_id&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">location_id</span><span class="p">)</span>
+
+    <span class="n">training_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+    <span class="n">print_time</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Training time for LocID </span><span class="si">{</span><span class="n">location_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">training_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> seconds&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">results_df</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Recall how we wrote a data transform <code class="docutils literal notranslate"><span class="pre">transform_batch</span></code> UDF? It was called with pattern:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Dataset.map_batches(transform_batch,</span> <span class="pre">batch_format=&quot;pandas&quot;)</span></code></p></li>
+</ul>
+<p>Similarly, we can write a custom groupy-aggregate function <code class="docutils literal notranslate"><span class="pre">agg_func</span></code> which will run for each <a class="reference internal" href="../transforming-data.html#transforming-groupby"><span class="std std-ref">Dataset <em>group-by</em></span></a> group in parallel. The usage pattern is:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Dataset.groupby(column).map_groups(agg_func,</span> <span class="pre">batch_format=&quot;pandas&quot;)</span></code>.</p></li>
+</ul>
+<p>In the cell below, we define our custom <code class="docutils literal notranslate"><span class="pre">agg_func</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># A Pandas DataFrame aggregation function for processing</span>
+<span class="c1"># grouped batches of Dataset data.</span>
+<span class="k">def</span> <span class="nf">agg_func</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="n">location_id</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;dropoff_location_id&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># Handle errors in data groups</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Transform the input pandas AND fit_and_evaluate the transformed pandas</span>
+        <span class="n">results_df</span> <span class="o">=</span> <span class="n">train_and_evaluate</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">ALGORITHMS</span><span class="p">,</span> <span class="n">location_id</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">results_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="c1"># assemble a null entry</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed on LocID </span><span class="si">{</span><span class="n">location_id</span><span class="si">}</span><span class="s2">!&quot;</span><span class="p">)</span>
+        <span class="n">results_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">[[</span><span class="n">location_id</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mf">10000.0</span><span class="p">]],</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;location_id&quot;</span><span class="p">,</span> <span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">],</span>
+            <span class="n">dtypes</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;int32&quot;</span><span class="p">,</span> <span class="n">BaseEstimator</span><span class="p">,</span> <span class="s2">&quot;float64&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">results_df</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="run-batch-training-using-map-groups">
+<h3>Run batch training using <code class="docutils literal notranslate"><span class="pre">map_groups</span></code><a class="headerlink" href="batch_training.html#run-batch-training-using-map-groups" title="Permalink to this headline">#</a></h3>
+<p>The main “driver code” reads each Parquet file (where each file corresponds to one month of NYC taxi data) into a Dataset <code class="docutils literal notranslate"><span class="pre">ds</span></code>.</p>
+<p>Then we use Dataset <em>group-by</em> to map each group into a batch of data and run <code class="docutils literal notranslate"><span class="pre">agg_func</span></code> on each grouping in parallel by calling <code class="docutils literal notranslate"><span class="pre">ds.groupby(&quot;dropoff_location_id&quot;).map_groups(agg_func,</span> <span class="pre">batch_format=&quot;pandas&quot;)</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Driver code to run this.</span>
+
+<span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+<span class="c1"># Read data into Dataset</span>
+<span class="c1"># ds = pushdown_read_data(s3_files, sample_locations)\</span>
+<span class="c1">#                         .repartition(14)\</span>
+<span class="c1">#                         .ds.map_batches(transform_df, batch_format=&quot;pandas&quot;)</span>
+
+<span class="c1"># Use Dataset groupby.map_groups() to process each group in parallel and return a Dataset.</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;dropoff_location_id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">map_groups</span><span class="p">(</span><span class="n">agg_func</span><span class="p">,</span> <span class="n">batch_format</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span><span class="p">)</span>
+
+<span class="n">total_time_taken</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total number of models: </span><span class="si">{</span><span class="n">results</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TOTAL TIME TAKEN: </span><span class="si">{</span><span class="n">total_time_taken</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> seconds&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Sort Sample: 100%|██████████| 6/6 [00:01&lt;00:00,  4.17it/s]
+Shuffle Map: 100%|██████████| 6/6 [00:01&lt;00:00,  3.67it/s]
+Shuffle Reduce: 100%|██████████| 6/6 [00:01&lt;00:00,  3.61it/s]
+Map_Batches: 100%|██████████| 6/6 [01:43&lt;00:00, 17.31s/it]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Total number of models: 6
+TOTAL TIME TAKEN: 108.69 seconds
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Finally, we can inspect the models we have trained and their errors.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">results</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Dataset(num_blocks=6, num_rows=6, schema={location_id: int32, model: object, error: float64})
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># sort values by location id</span>
+<span class="n">results_df</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
+<span class="n">results_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;location_id&quot;</span><span class="p">],</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">results_df</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>location_id</th>
+      <th>model</th>
+      <th>error</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>141</td>
+      <td>LinearRegression()</td>
+      <td>535.858862</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>141</td>
+      <td>XGBRegressor(base_score=0.5, booster='gbtree',...</td>
+      <td>527.156189</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>173</td>
+      <td>LinearRegression()</td>
+      <td>1279.122424</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>173</td>
+      <td>XGBRegressor(base_score=0.5, booster='gbtree',...</td>
+      <td>1377.166627</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>229</td>
+      <td>LinearRegression()</td>
+      <td>556.860355</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>229</td>
+      <td>XGBRegressor(base_score=0.5, booster='gbtree',...</td>
+      <td>559.876944</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">results_df</span><span class="o">.</span><span class="n">dtypes</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>location_id      int32
+model           object
+error          float64
+dtype: object
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Keep only 1 model per location_id with minimum error</span>
+<span class="n">final_df</span> <span class="o">=</span> <span class="n">results_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">final_df</span> <span class="o">=</span> <span class="n">final_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">final_df</span><span class="o">.</span><span class="n">error</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">),</span> <span class="p">:]</span>
+<span class="n">final_df</span> <span class="o">=</span> <span class="n">final_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">final_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;location_id&quot;</span><span class="p">)[</span><span class="s2">&quot;error&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">idxmin</span><span class="p">()]</span>
+<span class="n">final_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;error&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">final_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;location_id&quot;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">final_df</span><span class="o">.</span><span class="n">dtypes</span><span class="p">)</span>
+<span class="n">final_df</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>model     object
+error    float64
+dtype: object
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>model</th>
+      <th>error</th>
+    </tr>
+    <tr>
+      <th>location_id</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>141</th>
+      <td>XGBRegressor(base_score=0.5, booster='gbtree',...</td>
+      <td>527.156189</td>
+    </tr>
+    <tr>
+      <th>229</th>
+      <td>LinearRegression()</td>
+      <td>556.860355</td>
+    </tr>
+    <tr>
+      <th>173</th>
+      <td>LinearRegression()</td>
+      <td>1279.122424</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">final_df</span><span class="p">[[</span><span class="s2">&quot;model&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;str&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">value_counts</span><span class="p">(</span><span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>model                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
+LinearRegression()                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0.666667
+XGBRegressor(base_score=0.5, booster=&#39;gbtree&#39;, colsample_bylevel=1,\n             colsample_bynode=1, colsample_bytree=1, gamma=0, gpu_id=-1,\n             importance_type=&#39;gain&#39;, interaction_constraints=&#39;&#39;,\n             learning_rate=0.300000012, max_delta_step=0, max_depth=4,\n             min_child_weight=1, missing=nan, monotone_constraints=&#39;()&#39;,\n             n_estimators=100, n_jobs=8, num_parallel_tree=1, random_state=0,\n             reg_alpha=0, reg_lambda=1, scale_pos_weight=1, subsample=1,\n             tree_method=&#39;exact&#39;, validate_parameters=1, verbosity=None)    0.333333
+dtype: float64
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="re-load-a-model-and-perform-batch-prediction-a-class-anchor-id-load-model-a">
+<h2>Re-load a model and perform batch prediction  <a class="anchor" id="load_model"></a><a class="headerlink" href="batch_training.html#re-load-a-model-and-perform-batch-prediction-a-class-anchor-id-load-model-a" title="Permalink to this headline">#</a></h2>
+<p>We will restore a regression model and demonstrate it can be used for prediction.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Choose a dropoff location</span>
+<span class="n">sample_location_id</span> <span class="o">=</span> <span class="n">final_df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">sample_location_id</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>141
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get the algorithm used</span>
+<span class="n">sample_algorithm</span> <span class="o">=</span> <span class="n">final_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="n">sample_location_id</span><span class="p">]]</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;algorithm type:: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">sample_algorithm</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Get the saved model directly from the pandas dataframe of results</span>
+<span class="n">sample_model</span> <span class="o">=</span> <span class="n">final_df</span><span class="o">.</span><span class="n">model</span><span class="p">[</span><span class="n">sample_location_id</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;sample_model type:: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">sample_model</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>algorithm type:: &lt;class &#39;xgboost.sklearn.XGBRegressor&#39;&gt;
+sample_model type:: &lt;class &#39;xgboost.sklearn.XGBRegressor&#39;&gt;
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create some test data</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">df</span><span class="o">.</span><span class="n">dropoff_location_id</span> <span class="o">==</span> <span class="n">sample_location_id</span><span class="p">),</span> <span class="p">:]</span>
+<span class="n">_</span><span class="p">,</span> <span class="n">test_df</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">test_X</span> <span class="o">=</span> <span class="n">test_df</span><span class="p">[[</span><span class="s2">&quot;passenger_count&quot;</span><span class="p">,</span> <span class="s2">&quot;trip_distance&quot;</span><span class="p">]]</span>
+<span class="n">test_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">test_df</span><span class="p">[</span><span class="n">TARGET</span><span class="p">])</span>  <span class="c1"># actual values</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Perform batch prediction using restored model</span>
+<span class="n">pred_y</span> <span class="o">=</span> <span class="n">sample_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test_X</span><span class="p">)</span>
+
+<span class="c1"># Zip together predictions and actuals to evaluate</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">pred_y</span><span class="p">,</span> <span class="n">test_y</span><span class="p">),</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;pred_y&quot;</span><span class="p">,</span> <span class="s2">&quot;trip_duration&quot;</span><span class="p">])[</span><span class="mi">0</span><span class="p">:</span><span class="mi">10</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/home/ray/anaconda3/lib/python3.8/site-packages/xgboost/data.py:192: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+  from pandas import MultiIndex, Int64Index
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>pred_y</th>
+      <th>trip_duration</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1175.119019</td>
+      <td>1174</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>381.193146</td>
+      <td>299</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1099.755737</td>
+      <td>1206</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>260.620178</td>
+      <td>566</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>684.046021</td>
+      <td>630</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>1038.442139</td>
+      <td>852</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>1581.762817</td>
+      <td>1596</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>533.471680</td>
+      <td>801</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>1618.910889</td>
+      <td>1363</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>695.661072</td>
+      <td>715</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p><strong>Compare validation and test error.</strong></p>
+<p>During model training we reported error on “validation” data (random sample). Below, we will report error on a pretend “test” data set (a different random sample).</p>
+<p>Do a quick validation that both errors are reasonably close together.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Evaluate restored model on test data.</span>
+<span class="n">error</span> <span class="o">=</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">mean_absolute_error</span><span class="p">(</span><span class="n">test_y</span><span class="p">,</span> <span class="n">pred_y</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Test error: </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Test error: 930.7620476282492
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Compare test error with training validation error</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Validation error: </span><span class="si">{</span><span class="n">final_df</span><span class="o">.</span><span class="n">error</span><span class="p">[</span><span class="n">sample_location_id</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Validation and test errors should be reasonably close together.</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Validation error: 527.1561889430844
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="nyc_taxi_basic_processing.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Processing NYC taxi data using Ray Data</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="ocr_example.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Scaling OCR using Ray Data</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

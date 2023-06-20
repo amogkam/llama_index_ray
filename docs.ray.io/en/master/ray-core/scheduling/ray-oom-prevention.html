@@ -1,0 +1,906 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Out-Of-Memory Prevention &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/js/versionwarning.js"></script>
+    <script src="../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../_static/js/docsearch.js"></script>
+    <script src="../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../_static/js/top-navigation.js"></script>
+    <script src="../../_static/js/tags.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/ray-core/scheduling/ray-oom-prevention.html" />
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Fault Tolerance" href="../fault-tolerance.html" />
+    <link rel="prev" title="Memory Management" href="memory-management.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "ray-core/scheduling/ray-oom-prevention", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".rst", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../walkthrough.html">
+   Ray Core
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="../user-guide.html">
+     User Guides
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="../tasks.html">
+       Tasks
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../ray-more-libs/actors.html">
+       Actors
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../objects.html">
+       Objects
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../handling-dependencies.html">
+       Environment Dependencies
+      </a>
+     </li>
+     <li class="toctree-l3 current active has-children">
+      <a class="reference internal" href="index.html">
+       Scheduling
+      </a>
+      <input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+      <label for="toctree-checkbox-3">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul class="current">
+       <li class="toctree-l4">
+        <a class="reference internal" href="resources.html">
+         Resources
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../tasks/using-ray-with-gpus.html">
+         GPU Support
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="placement-group.html">
+         Placement Groups
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="memory-management.html">
+         Memory Management
+        </a>
+       </li>
+       <li class="toctree-l4 current active">
+        <a class="current reference internal" href="ray-oom-prevention.html#">
+         Out-Of-Memory Prevention
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../fault-tolerance.html">
+       Fault Tolerance
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../patterns/index.html">
+       Design Patterns &amp; Anti-patterns
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../advanced-topics.html">
+       Advanced Topics
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../examples/overview.html">
+     Examples
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/index.html">
+     Ray Core API
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tune.html">
+   Ray Tune
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Fray-core/scheduling/ray-oom-prevention.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/ray-core/scheduling/ray-oom-prevention.rst"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../_sources/ray-core/scheduling/ray-oom-prevention.rst.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.rst</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="ray-oom-prevention.html#what-is-the-memory-monitor">
+   What is the memory monitor?
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="ray-oom-prevention.html#how-do-i-disable-the-memory-monitor">
+   How do I disable the memory monitor?
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="ray-oom-prevention.html#how-do-i-configure-the-memory-monitor">
+   How do I configure the memory monitor?
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="ray-oom-prevention.html#using-the-memory-monitor">
+   Using the Memory Monitor
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="ray-oom-prevention.html#retry-policy">
+     Retry policy
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="ray-oom-prevention.html#worker-killing-policy">
+     Worker killing policy
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="ray-oom-prevention.html#addressing-memory-issues">
+   Addressing memory issues
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="ray-oom-prevention.html#questions-or-issues">
+   Questions or Issues?
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Out-Of-Memory Prevention</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="ray-oom-prevention.html#what-is-the-memory-monitor">
+   What is the memory monitor?
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="ray-oom-prevention.html#how-do-i-disable-the-memory-monitor">
+   How do I disable the memory monitor?
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="ray-oom-prevention.html#how-do-i-configure-the-memory-monitor">
+   How do I configure the memory monitor?
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="ray-oom-prevention.html#using-the-memory-monitor">
+   Using the Memory Monitor
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="ray-oom-prevention.html#retry-policy">
+     Retry policy
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="ray-oom-prevention.html#worker-killing-policy">
+     Worker killing policy
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="ray-oom-prevention.html#addressing-memory-issues">
+   Addressing memory issues
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="ray-oom-prevention.html#questions-or-issues">
+   Questions or Issues?
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section id="out-of-memory-prevention">
+<h1>Out-Of-Memory Prevention<a class="headerlink" href="ray-oom-prevention.html#out-of-memory-prevention" title="Permalink to this headline">#</a></h1>
+<p>If application tasks or actors consume a large amount of heap space, it can cause the node to run out of memory (OOM). When that happens, the operating system will start killing worker or raylet processes, disrupting the application. OOM may also stall metrics and if this happens on the head node, it may stall the <a class="reference internal" href="../../ray-observability/getting-started.html#observability-getting-started"><span class="std std-ref">dashboard</span></a> or other control processes and cause the cluster to become unusable.</p>
+<p>In this section we will go over:</p>
+<ul class="simple">
+<li><p>What is the memory monitor and how it works</p></li>
+<li><p>How to enable and configure it</p></li>
+<li><p>How to use the memory monitor to detect and resolve memory issues</p></li>
+</ul>
+<p>Also view <a class="reference internal" href="../../ray-observability/user-guides/debug-apps/debug-memory.html#troubleshooting-out-of-memory"><span class="std std-ref">Debugging Out of Memory</span></a> to learn how to troubleshoot out-of-memory issues.</p>
+<section id="what-is-the-memory-monitor">
+<span id="ray-oom-monitor"></span><h2>What is the memory monitor?<a class="headerlink" href="ray-oom-prevention.html#what-is-the-memory-monitor" title="Permalink to this headline">#</a></h2>
+<p>The memory monitor is a component that runs within the <a class="reference internal" href="../../ray-contribute/whitepaper.html#whitepaper"><span class="std std-ref">raylet</span></a> process on each node. It periodically checks the memory usage, which includes the worker heap, the object store, and the raylet as described in <a class="reference internal" href="memory-management.html#memory"><span class="std std-ref">memory management</span></a>. If the combined usage exceeds a configurable threshold the raylet will kill a task or actor process to free up memory and prevent Ray from failing.</p>
+<p>It is available on Linux and is tested with Ray running inside a container that is using cgroup v1. If you encounter issues when running the memory monitor outside of a container or the container is using cgroup v2, please <a class="reference internal" href="ray-oom-prevention.html#oom-questions"><span class="std std-ref">file an issue or post a question</span></a>.</p>
+</section>
+<section id="how-do-i-disable-the-memory-monitor">
+<h2>How do I disable the memory monitor?<a class="headerlink" href="ray-oom-prevention.html#how-do-i-disable-the-memory-monitor" title="Permalink to this headline">#</a></h2>
+<p>The memory monitor is enabled by default and can be disabled by setting the environment variable <code class="docutils literal notranslate"><span class="pre">RAY_memory_monitor_refresh_ms</span></code> to zero when Ray starts (e.g., RAY_memory_monitor_refresh_ms=0 ray start …).</p>
+</section>
+<section id="how-do-i-configure-the-memory-monitor">
+<h2>How do I configure the memory monitor?<a class="headerlink" href="ray-oom-prevention.html#how-do-i-configure-the-memory-monitor" title="Permalink to this headline">#</a></h2>
+<p>The memory monitor is controlled by the following environment variables:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">RAY_memory_monitor_refresh_ms</span> <span class="pre">(int,</span> <span class="pre">defaults</span> <span class="pre">to</span> <span class="pre">250)</span></code> is the interval to check memory usage and kill tasks or actors if needed. Task killing is disabled when this value is 0. The memory monitor selects and kills one task at a time and waits for it to be killed before choosing another one, regardless of how frequent the memory monitor runs.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RAY_memory_usage_threshold</span> <span class="pre">(float,</span> <span class="pre">defaults</span> <span class="pre">to</span> <span class="pre">0.95)</span></code> is the threshold when the node is beyond the memory
+capacity. If the memory usage is above this fraction it will start killing processes to free up memory. Ranges from [0, 1].</p></li>
+</ul>
+</section>
+<section id="using-the-memory-monitor">
+<h2>Using the Memory Monitor<a class="headerlink" href="ray-oom-prevention.html#using-the-memory-monitor" title="Permalink to this headline">#</a></h2>
+<section id="retry-policy">
+<span id="ray-oom-retry-policy"></span><h3>Retry policy<a class="headerlink" href="ray-oom-prevention.html#retry-policy" title="Permalink to this headline">#</a></h3>
+<p>When a task or actor is killed by the memory monitor it will be retried with exponential backoff. There is a cap on the retry delay, which is 60 seconds. If tasks are killed by the memory monitor, it retries infinitely (not respecting <a class="reference internal" href="../fault_tolerance/tasks.html#task-fault-tolerance"><span class="std std-ref">max_retries</span></a>). If actors are killed by the memory monitor, it doesn’t recreate the actor infinitely (It respects <a class="reference internal" href="../fault_tolerance/actors.html#actor-fault-tolerance"><span class="std std-ref">max_restarts</span></a>, which is 0 by default).</p>
+</section>
+<section id="worker-killing-policy">
+<h3>Worker killing policy<a class="headerlink" href="ray-oom-prevention.html#worker-killing-policy" title="Permalink to this headline">#</a></h3>
+<p>The memory monitor avoids infinite loops of task retries by ensuring at least one task is able to run for each caller on each node. If it is unable to ensure this, the workload will fail with an OOM error. Note that this is only an issue for tasks, since the memory monitor will not indefinitely retry actors. If the workload fails, refer to <a class="reference internal" href="ray-oom-prevention.html#addressing-memory-issues"><span class="std std-ref">how to address memory issues</span></a> on how to adjust the workload to make it pass. For code example, see the <a class="reference internal" href="ray-oom-prevention.html#last-task-example"><span class="std std-ref">last task</span></a> example below.</p>
+<p>When a worker needs to be killed, the policy first prioritizes tasks that are retriable, i.e. when <a class="reference internal" href="../fault_tolerance/tasks.html#task-fault-tolerance"><span class="std std-ref">max_retries</span></a> or <a class="reference internal" href="../fault_tolerance/actors.html#actor-fault-tolerance"><span class="std std-ref">max_restarts</span></a> is &gt; 0. This is done to minimize workload failure. Actors by default are not retriable since <a class="reference internal" href="../fault_tolerance/actors.html#actor-fault-tolerance"><span class="std std-ref">max_restarts</span></a> defaults to 0. Therefore, by default, tasks are preferred to actors when it comes to what gets killed first.</p>
+<p>When there are multiple callers that has created tasks, the policy will pick a task from the caller with the most number of running tasks. If two callers have the same number of tasks it picks the caller whose earliest task has a later start time. This is done to ensure fairness and allow each caller to make progress.</p>
+<p>Amongst the tasks that share the same caller, the latest started task will be killed first.</p>
+<p>Below is an example to demonstrate the policy. In the example we have a script that creates two tasks, which in turn creates four more tasks each. The tasks are colored such that each color forms a “group” of tasks where they belong to the same caller.</p>
+<a class="reference internal image-reference" href="../../_images/oom_killer_example.svg"><img alt="Initial state of the task graph" src="../../_images/oom_killer_example.svg" width="1024" /></a>
+<p>If, at this point, the node runs out of memory, it will pick a task from the caller with the most number of tasks, and kill its task whose started the last:</p>
+<a class="reference internal image-reference" href="../../_images/oom_killer_example_killed_one.svg"><img alt="Initial state of the task graph" src="../../_images/oom_killer_example_killed_one.svg" width="1024" /></a>
+<p>If, at this point, the node still runs out of memory, the process will repeat:</p>
+<a class="reference internal image-reference" href="../../_images/oom_killer_example_killed_two.svg"><img alt="Initial state of the task graph" src="../../_images/oom_killer_example_killed_two.svg" width="1024" /></a>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3" id="last-task-example">
+<summary class="sd-summary-title sd-card-header">
+Example: Workloads fails if the last task of the caller is killed<div class="sd-summary-down docutils">
+<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-down" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M5.22 8.72a.75.75 0 000 1.06l6.25 6.25a.75.75 0 001.06 0l6.25-6.25a.75.75 0 00-1.06-1.06L12 14.44 6.28 8.72a.75.75 0 00-1.06 0z"></path></svg></div>
+<div class="sd-summary-up docutils">
+<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-up" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M18.78 15.28a.75.75 0 000-1.06l-6.25-6.25a.75.75 0 00-1.06 0l-6.25 6.25a.75.75 0 101.06 1.06L12 9.56l5.72 5.72a.75.75 0 001.06 0z"></path></svg></div>
+</summary><div class="sd-summary-content sd-card-body docutils">
+<p class="sd-card-text">Let’s create an application oom.py that runs a single task that requires more memory than what is available. It is set to infinite retry by setting <code class="docutils literal notranslate"><span class="pre">max_retries</span></code> to -1.</p>
+<p class="sd-card-text">The worker killer policy sees that it is the last task of the caller, and will fail the workload when it kills the task as it is the last one for the caller, even when the task is set to retry forver.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ray</span>
+
+<span class="nd">@ray</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">max_retries</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">leaks_memory</span><span class="p">():</span>
+    <span class="n">chunks</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">bits_to_allocate</span> <span class="o">=</span> <span class="mi">8</span> <span class="o">*</span> <span class="mi">100</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span>  <span class="c1"># ~100 MiB</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">chunks</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">bits_to_allocate</span><span class="p">)</span>
+
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">leaks_memory</span><span class="o">.</span><span class="n">remote</span><span class="p">())</span>
+<span class="k">except</span> <span class="n">ray</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">OutOfMemoryError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;task failed with OutOfMemoryError, which is expected&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="sd-card-text">Set <code class="docutils literal notranslate"><span class="pre">RAY_event_stats_print_interval_ms=1000</span></code> so it prints the worker kill summary every second, since by default it prints every minute.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">RAY_event_stats_print_interval_ms</span><span class="o">=</span><span class="m">1000</span> python oom.py
+
+<span class="o">(</span>raylet<span class="o">)</span> node_manager.cc:3040: <span class="m">1</span> Workers <span class="o">(</span>tasks / actors<span class="o">)</span> killed due to memory pressure <span class="o">(</span>OOM<span class="o">)</span>, <span class="m">0</span> Workers crashed due to other reasons at node <span class="o">(</span>ID: 2c82620270df6b9dd7ae2791ef51ee4b5a9d5df9f795986c10dd219c, IP: <span class="m">172</span>.31.183.172<span class="o">)</span> over the last <span class="nb">time</span> period. To see more information about the Workers killed on this node, use <span class="sb">`</span>ray logs raylet.out -ip <span class="m">172</span>.31.183.172<span class="sb">`</span>
+<span class="o">(</span>raylet<span class="o">)</span>
+<span class="o">(</span>raylet<span class="o">)</span> Refer to the documentation on how to address the out of memory issue: https://docs.ray.io/en/latest/ray-core/scheduling/ray-oom-prevention.html. Consider provisioning more memory on this node or reducing task parallelism by requesting more CPUs per task. To adjust the <span class="nb">kill</span> threshold, <span class="nb">set</span> the environment variable <span class="sb">`</span>RAY_memory_usage_threshold<span class="sb">`</span> when starting Ray. To disable worker killing, <span class="nb">set</span> the environment variable <span class="sb">`</span>RAY_memory_monitor_refresh_ms<span class="sb">`</span> to zero.
+        task failed with OutOfMemoryError, which is expected
+        Verify the task was indeed executed twice via <span class="sb">``</span>task_oom_retry<span class="sb">``</span>:
+</pre></div>
+</div>
+</div>
+</details><details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+Example: memory monitor prefers to kill a retriable task<div class="sd-summary-down docutils">
+<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-down" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M5.22 8.72a.75.75 0 000 1.06l6.25 6.25a.75.75 0 001.06 0l6.25-6.25a.75.75 0 00-1.06-1.06L12 14.44 6.28 8.72a.75.75 0 00-1.06 0z"></path></svg></div>
+<div class="sd-summary-up docutils">
+<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-up" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M18.78 15.28a.75.75 0 000-1.06l-6.25-6.25a.75.75 0 00-1.06 0l-6.25 6.25a.75.75 0 101.06 1.06L12 9.56l5.72 5.72a.75.75 0 001.06 0z"></path></svg></div>
+</summary><div class="sd-summary-content sd-card-body docutils">
+<p class="sd-card-text">Let’s first start ray and specify the memory threshold.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">RAY_memory_usage_threshold</span><span class="o">=</span><span class="m">0</span>.4 ray start --head
+</pre></div>
+</div>
+<p class="sd-card-text">Let’s create an application two_actors.py that submits two actors, where the first one is retriable and the second one is non-retriable.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">ceil</span>
+<span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">from</span> <span class="nn">ray._private.utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_system_memory</span><span class="p">,</span>
+<span class="p">)</span>  <span class="c1"># do not use outside of this example as these are private methods.</span>
+<span class="kn">from</span> <span class="nn">ray._private.utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_used_memory</span><span class="p">,</span>
+<span class="p">)</span>  <span class="c1"># do not use outside of this example as these are private methods.</span>
+
+
+<span class="c1"># estimates the number of bytes to allocate to reach the desired memory usage percentage.</span>
+<span class="k">def</span> <span class="nf">get_additional_bytes_to_reach_memory_usage_pct</span><span class="p">(</span><span class="n">pct</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="n">used</span> <span class="o">=</span> <span class="n">get_used_memory</span><span class="p">()</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="n">get_system_memory</span><span class="p">()</span>
+    <span class="n">bytes_needed</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">total</span> <span class="o">*</span> <span class="n">pct</span><span class="p">)</span> <span class="o">-</span> <span class="n">used</span>
+    <span class="k">assert</span> <span class="p">(</span>
+        <span class="n">bytes_needed</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="p">),</span> <span class="s2">&quot;memory usage is already above the target. Increase the target percentage.&quot;</span>
+    <span class="k">return</span> <span class="n">bytes_needed</span>
+
+
+<span class="nd">@ray</span><span class="o">.</span><span class="n">remote</span>
+<span class="k">class</span> <span class="nc">MemoryHogger</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">allocations</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">allocate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bytes_to_allocate</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># divide by 8 as each element in the array occupies 8 bytes</span>
+        <span class="n">new_list</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">ceil</span><span class="p">(</span><span class="n">bytes_to_allocate</span> <span class="o">/</span> <span class="mi">8</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">allocations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_list</span><span class="p">)</span>
+
+
+<span class="n">first_actor</span> <span class="o">=</span> <span class="n">MemoryHogger</span><span class="o">.</span><span class="n">options</span><span class="p">(</span>
+    <span class="n">max_restarts</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_task_retries</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;first_actor&quot;</span>
+<span class="p">)</span><span class="o">.</span><span class="n">remote</span><span class="p">()</span>
+<span class="n">second_actor</span> <span class="o">=</span> <span class="n">MemoryHogger</span><span class="o">.</span><span class="n">options</span><span class="p">(</span>
+    <span class="n">max_restarts</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_task_retries</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;second_actor&quot;</span>
+<span class="p">)</span><span class="o">.</span><span class="n">remote</span><span class="p">()</span>
+
+<span class="c1"># each task requests 0.3 of the system memory when the memory threshold is 0.4.</span>
+<span class="n">allocate_bytes</span> <span class="o">=</span> <span class="n">get_additional_bytes_to_reach_memory_usage_pct</span><span class="p">(</span><span class="mf">0.3</span><span class="p">)</span>
+
+<span class="n">first_actor_task</span> <span class="o">=</span> <span class="n">first_actor</span><span class="o">.</span><span class="n">allocate</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">allocate_bytes</span><span class="p">)</span>
+<span class="n">second_actor_task</span> <span class="o">=</span> <span class="n">second_actor</span><span class="o">.</span><span class="n">allocate</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">allocate_bytes</span><span class="p">)</span>
+
+<span class="n">error_thrown</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">first_actor_task</span><span class="p">)</span>
+<span class="k">except</span> <span class="n">ray</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">OutOfMemoryError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+    <span class="n">error_thrown</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;First started actor, which is retriable, was killed by the memory monitor.&quot;</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">error_thrown</span>
+
+<span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">second_actor_task</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Second started actor, which is not-retriable, finished.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="sd-card-text">Run the application to see that only the first actor was killed.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ python two_actors.py
+
+First started actor, which is retriable, was killed by the memory monitor.
+Second started actor, which is not-retriable, finished.
+</pre></div>
+</div>
+</div>
+</details></section>
+</section>
+<section id="addressing-memory-issues">
+<span id="id1"></span><h2>Addressing memory issues<a class="headerlink" href="ray-oom-prevention.html#addressing-memory-issues" title="Permalink to this headline">#</a></h2>
+<p>When the application fails due to OOM, consider reducing the memory usage of the tasks and actors, increasing the memory capacity of the node, or <a class="reference internal" href="../patterns/limit-running-tasks.html#core-patterns-limit-running-tasks"><span class="std std-ref">limit the number of concurrently running tasks</span></a>.</p>
+</section>
+<section id="questions-or-issues">
+<span id="oom-questions"></span><h2>Questions or Issues?<a class="headerlink" href="ray-oom-prevention.html#questions-or-issues" title="Permalink to this headline">#</a></h2>
+<p>You can post questions or issues or feedback through the following channels:</p>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://discuss.ray.io/">Discussion Board</a>: For <strong>questions about Ray usage</strong> or <strong>feature requests</strong>.</p></li>
+<li><p><a class="reference external" href="https://github.com/ray-project/ray/issues">GitHub Issues</a>: For <strong>bug reports</strong>.</p></li>
+<li><p><a class="reference external" href="https://forms.gle/9TSdDYUgxYs8SA9e8">Ray Slack</a>: For <strong>getting in touch</strong> with Ray maintainers.</p></li>
+<li><p><a class="reference external" href="https://stackoverflow.com/questions/tagged/ray">StackOverflow</a>: Use the [ray] tag <strong>questions about Ray</strong>.</p></li>
+</ol>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="memory-management.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Memory Management</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="../fault-tolerance.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Fault Tolerance</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

@@ -1,0 +1,1349 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>AutoML for time series forecasting with Ray AIR &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/js/versionwarning.js"></script>
+    <script src="../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../_static/js/docsearch.js"></script>
+    <script src="../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../_static/js/top-navigation.js"></script>
+    <script src="../../_static/js/tags.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/ray-air/examples/automl_with_ray_air.html" />
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Batch training &amp; tuning on Ray Tune" href="batch_tuning.html" />
+    <link rel="prev" title="Integrate Ray AIR with Feast feature store" href="feast_example.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "ray-air/examples/automl_with_ray_air", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".ipynb", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../user-guides.html">
+     User Guides
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="index.html">
+     Examples
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="opt_deepspeed_batch_inference.html">
+       Batch Inference with OPT 30B and Ray Data
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="torch_image_example.html">
+       Training a Torch Image Classifier
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="torch_detection.html">
+       Fine-tuning a Torch object detection model
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="convert_existing_pytorch_code_to_ray_air.html">
+       Convert existing PyTorch code to Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="convert_existing_tf_code_to_ray_air.html">
+       Convert existing Tensorflow/Keras code to Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tfx_tabular_train_to_serve.html">
+       Tabular data training and serving with Keras and Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="huggingface_text_classification.html">
+       Fine-tune a 🤗 Transformers model
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="sklearn_example.html">
+       Training a model with Sklearn
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="xgboost_example.html">
+       Training a model with distributed XGBoost
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="analyze_tuning_results.html">
+       Hyperparameter tuning with XGBoostTrainer
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="lightgbm_example.html">
+       Training a model with distributed LightGBM
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="torch_incremental_learning.html">
+       Incremental Learning with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rl_serving_example.html">
+       Serving reinforcement learning policy models
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rl_online_example.html">
+       Online reinforcement learning with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rl_offline_example.html">
+       Offline reinforcement learning with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="upload_to_comet_ml.html">
+       Logging results and uploading models to Comet ML
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="upload_to_wandb.html">
+       Logging results and uploading models to Weights &amp; Biases
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="feast_example.html">
+       Integrate Ray AIR with Feast feature store
+      </a>
+     </li>
+     <li class="toctree-l3 current active">
+      <a class="current reference internal" href="automl_with_ray_air.html#">
+       AutoML for time series forecasting with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="batch_tuning.html">
+       Batch training &amp; tuning on Ray Tune
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="batch_forecasting.html">
+       Parallel demand forecasting at scale using Ray Tune
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="stablediffusion_batch_prediction.html">
+       Stable Diffusion Batch Prediction with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gptj_deepspeed_fine_tuning.html">
+       GPT-J-6B Fine-Tuning with Ray AIR and DeepSpeed
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gptj_batch_prediction.html">
+       GPT-J-6B Batch Prediction with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gptj_serving.html">
+       GPT-J-6B Serving with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="dreambooth_finetuning.html">
+       Fine-tuning DreamBooth with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="dolly_lightning_fsdp_finetuning.html">
+       Fine-tune
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         dolly-v2-7b
+        </span>
+       </code>
+       with Ray AIR LightningTrainer and FSDP
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/api.html">
+     Ray AIR API
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../benchmarks.html">
+     Benchmarks
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tune.html">
+   Ray Tune
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Fray-air/examples/automl_with_ray_air.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/ray-air/examples/automl_with_ray_air.ipynb"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../_sources/ray-air/examples/automl_with_ray_air.ipynb.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.ipynb</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="automl_with_ray_air.html#setup">
+   Setup
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="automl_with_ray_air.html#read-a-partition-of-the-m5-dataset-from-s3">
+   Read a partition of the M5 dataset from S3
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="automl_with_ray_air.html#create-a-function-that-performs-cross-validation">
+   Create a function that performs cross-validation
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="automl_with_ray_air.html#define-the-model-search-space">
+   Define the model search space
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="automl_with_ray_air.html#create-a-tuner-to-run-a-grid-search-over-configurations">
+   Create a Tuner to run a grid search over configurations
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="automl_with_ray_air.html#analysis">
+   Analysis
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="automl_with_ray_air.html#visualize-temporal-cross-validation-splits">
+     Visualize Temporal Cross-validation Splits
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="automl_with_ray_air.html#visualize-model-forecasts">
+     Visualize model forecasts
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>AutoML for time series forecasting with Ray AIR</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="automl_with_ray_air.html#setup">
+   Setup
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="automl_with_ray_air.html#read-a-partition-of-the-m5-dataset-from-s3">
+   Read a partition of the M5 dataset from S3
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="automl_with_ray_air.html#create-a-function-that-performs-cross-validation">
+   Create a function that performs cross-validation
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="automl_with_ray_air.html#define-the-model-search-space">
+   Define the model search space
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="automl_with_ray_air.html#create-a-tuner-to-run-a-grid-search-over-configurations">
+   Create a Tuner to run a grid search over configurations
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="automl_with_ray_air.html#analysis">
+   Analysis
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="automl_with_ray_air.html#visualize-temporal-cross-validation-splits">
+     Visualize Temporal Cross-validation Splits
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="automl_with_ray_air.html#visualize-model-forecasts">
+     Visualize model forecasts
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section class="tex2jax_ignore mathjax_ignore" id="automl-for-time-series-forecasting-with-ray-air">
+<h1>AutoML for time series forecasting with Ray AIR<a class="headerlink" href="automl_with_ray_air.html#automl-for-time-series-forecasting-with-ray-air" title="Permalink to this headline">#</a></h1>
+<p>AutoML (Automatic Machine Learning) boils down to picking the best model for a given task and dataset. In <a class="reference internal" href="../../ray-core/examples/automl_for_time_series.html"><span class="doc">this Ray Core example</span></a>, we showed how to build an AutoML system which will chooses the best <code class="docutils literal notranslate"><span class="pre">statsforecast</span></code> model and its corresponding hyperparameters for a time series regression task on the <a class="reference external" href="https://www.kaggle.com/c/m5-forecasting-accuracy">M5 dataset</a>.</p>
+<p>The basic steps were:</p>
+<ol class="simple">
+<li><p>Define a set of autoregressive forecasting models to search over. For each model type, we also define a set of model parameters to search over.</p></li>
+<li><p>Perform temporal cross-validation on each model configuration in parallel.</p></li>
+<li><p>Pick the best performing model as the output of the AutoML system.</p></li>
+</ol>
+<p>We see that these steps fit into the framework of a hyperparameter optimization problem that can be tackled with the <a class="reference internal" href="../tuner.html#air-tuner"><span class="std std-ref">Ray AIR Tuner</span></a>!</p>
+<p>In this notebook, we will show how to:</p>
+<ol class="simple">
+<li><p><strong>Create an AutoML system with Ray AIR</strong> for time series forecasting.</p></li>
+<li><p>Leverage the higher-level Tuner API to <strong>define the model and hyperparameter search space</strong>, as well as <strong>parallelize cross-validation</strong> of different models.</p></li>
+<li><p>Analyze results to <strong>identify the best-performing model type and model parameters</strong> for the time-series dataset.</p></li>
+</ol>
+<p>Similar to <a class="reference internal" href="../../ray-core/examples/automl_for_time_series.html"><span class="doc">the Ray Core example</span></a>, we will be using only one partition of the <a class="reference external" href="https://www.kaggle.com/c/m5-forecasting-accuracy">M5 dataset</a> for this example.</p>
+<section id="setup">
+<h2>Setup<a class="headerlink" href="automl_with_ray_air.html#setup" title="Permalink to this headline">#</a></h2>
+<p>Let’s first start by installing the <code class="docutils literal notranslate"><span class="pre">statsforecast</span></code> and <code class="docutils literal notranslate"><span class="pre">ray[air]</span></code> packages.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>pip install statsforecast
+<span class="o">!</span>pip install ray<span class="o">[</span>air<span class="o">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Next, we’ll make the necessary imports, then initialize and connect to our Ray cluster!</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">statsforecast</span> <span class="kn">import</span> <span class="n">StatsForecast</span>
+<span class="kn">from</span> <span class="nn">statsforecast.models</span> <span class="kn">import</span> <span class="n">ETS</span><span class="p">,</span> <span class="n">AutoARIMA</span><span class="p">,</span> <span class="n">_TS</span>
+<span class="kn">from</span> <span class="nn">pyarrow</span> <span class="kn">import</span> <span class="n">parquet</span> <span class="k">as</span> <span class="n">pq</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">mean_squared_error</span><span class="p">,</span> <span class="n">mean_absolute_error</span>
+
+<span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">from</span> <span class="nn">ray</span> <span class="kn">import</span> <span class="n">air</span><span class="p">,</span> <span class="n">tune</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">ray</span><span class="o">.</span><span class="n">is_initialized</span><span class="p">():</span>
+    <span class="n">ray</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+<span class="n">ray</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">runtime_env</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;pip&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;statsforecast&quot;</span><span class="p">]})</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We may want to run on multiple nodes, and setting the <code class="docutils literal notranslate"><span class="pre">runtime_env</span></code> to include the <code class="docutils literal notranslate"><span class="pre">statsforecast</span></code> module will guarantee that we can access it on each worker, regardless of which node it lives on.</p>
+</div>
+</section>
+<section id="read-a-partition-of-the-m5-dataset-from-s3">
+<h2>Read a partition of the M5 dataset from S3<a class="headerlink" href="automl_with_ray_air.html#read-a-partition-of-the-m5-dataset-from-s3" title="Permalink to this headline">#</a></h2>
+<p>We first obtain the data from an S3 bucket and preprocess it to the format that <code class="docutils literal notranslate"><span class="pre">statsforecast</span></code> expects. As the dataset is quite large, we use PyArrow’s push-down predicate as a filter to obtain just the rows we care about without having to load them all into memory.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_m5_partition</span><span class="p">(</span><span class="n">unique_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="n">ds1</span> <span class="o">=</span> <span class="n">pq</span><span class="o">.</span><span class="n">read_table</span><span class="p">(</span>
+        <span class="s2">&quot;s3://anonymous@m5-benchmarks/data/train/target.parquet&quot;</span><span class="p">,</span>
+        <span class="n">filters</span><span class="o">=</span><span class="p">[(</span><span class="s2">&quot;item_id&quot;</span><span class="p">,</span> <span class="s2">&quot;=&quot;</span><span class="p">,</span> <span class="n">unique_id</span><span class="p">)],</span>
+    <span class="p">)</span>
+    <span class="n">Y_df</span> <span class="o">=</span> <span class="n">ds1</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
+    <span class="c1"># StatsForecasts expects specific column names!</span>
+    <span class="n">Y_df</span> <span class="o">=</span> <span class="n">Y_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;item_id&quot;</span><span class="p">:</span> <span class="s2">&quot;unique_id&quot;</span><span class="p">,</span> <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="s2">&quot;ds&quot;</span><span class="p">,</span> <span class="s2">&quot;demand&quot;</span><span class="p">:</span> <span class="s2">&quot;y&quot;</span><span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">Y_df</span><span class="p">[</span><span class="s2">&quot;unique_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Y_df</span><span class="p">[</span><span class="s2">&quot;unique_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+    <span class="n">Y_df</span><span class="p">[</span><span class="s2">&quot;ds&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">Y_df</span><span class="p">[</span><span class="s2">&quot;ds&quot;</span><span class="p">])</span>
+    <span class="n">Y_df</span> <span class="o">=</span> <span class="n">Y_df</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+    <span class="n">constant</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">Y_df</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">constant</span>
+    <span class="n">Y_df</span> <span class="o">=</span> <span class="n">Y_df</span><span class="p">[</span><span class="n">Y_df</span><span class="o">.</span><span class="n">unique_id</span> <span class="o">==</span> <span class="n">unique_id</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">Y_df</span>
+
+<span class="n">train_df</span> <span class="o">=</span> <span class="n">get_m5_partition</span><span class="p">(</span><span class="s2">&quot;FOODS_1_001_CA_1&quot;</span><span class="p">)</span>
+<span class="n">train_df</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>unique_id</th>
+      <th>ds</th>
+      <th>y</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>FOODS_1_001_CA_1</td>
+      <td>2011-01-29</td>
+      <td>13.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>FOODS_1_001_CA_1</td>
+      <td>2011-01-30</td>
+      <td>10.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>FOODS_1_001_CA_1</td>
+      <td>2011-01-31</td>
+      <td>10.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>FOODS_1_001_CA_1</td>
+      <td>2011-02-01</td>
+      <td>11.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>FOODS_1_001_CA_1</td>
+      <td>2011-02-02</td>
+      <td>14.0</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>1936</th>
+      <td>FOODS_1_001_CA_1</td>
+      <td>2016-05-18</td>
+      <td>10.0</td>
+    </tr>
+    <tr>
+      <th>1937</th>
+      <td>FOODS_1_001_CA_1</td>
+      <td>2016-05-19</td>
+      <td>11.0</td>
+    </tr>
+    <tr>
+      <th>1938</th>
+      <td>FOODS_1_001_CA_1</td>
+      <td>2016-05-20</td>
+      <td>10.0</td>
+    </tr>
+    <tr>
+      <th>1939</th>
+      <td>FOODS_1_001_CA_1</td>
+      <td>2016-05-21</td>
+      <td>10.0</td>
+    </tr>
+    <tr>
+      <th>1940</th>
+      <td>FOODS_1_001_CA_1</td>
+      <td>2016-05-22</td>
+      <td>10.0</td>
+    </tr>
+  </tbody>
+</table>
+<p>1941 rows × 3 columns</p>
+</div></div></div>
+</div>
+</section>
+<section id="create-a-function-that-performs-cross-validation">
+<h2>Create a function that performs cross-validation<a class="headerlink" href="automl_with_ray_air.html#create-a-function-that-performs-cross-validation" title="Permalink to this headline">#</a></h2>
+<p>Next, we will define two methods below:</p>
+<ol class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cross_validation</span></code> <strong>performs temporal cross-validation</strong> on the dataset and <strong>reports the mean prediction error across cross-validation splits</strong>. See the <a class="reference internal" href="automl_with_ray_air.html#automl-temporal-cross-validation-splits"><span class="std std-ref">visualizations in the analysis section below</span></a> to see what the cross-validation splits look like and what we are averaging across. The <code class="docutils literal notranslate"><span class="pre">n_splits</span></code> and <code class="docutils literal notranslate"><span class="pre">test_size</span></code> parameters are used to configure the cross-validation splits, similar to <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.TimeSeriesSplit.html"><code class="docutils literal notranslate"><span class="pre">TimeSeriesSplit</span></code> from sklearn</a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">compute_metrics_and_aggregate</span></code> is a helper function used in <code class="docutils literal notranslate"><span class="pre">cross_validation</span></code> that calculates the aggregated metrics using the dataframe output of <code class="docutils literal notranslate"><span class="pre">StatsForecast.cross_validation</span></code>. For example, we will calculate the mean squared error between the model predictions and the actual observed data, averaged over all training splits. This metric gets reported to Tune as <code class="docutils literal notranslate"><span class="pre">mse_mean</span></code>, which is the metric we will use to define the best-performing model.</p></li>
+</ol>
+<p>We will run this cross-validation function on all the model types and model parameters we are searching over, and the model that produces the lowest error metric will be the output of this AutoML example. Notice that <code class="docutils literal notranslate"><span class="pre">model_cls_and_params</span></code> is passed to the function via the <code class="docutils literal notranslate"><span class="pre">config</span></code> parameter. This is how Tune will set the corresponding model class and parameters for each trial.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ray.air</span> <span class="kn">import</span> <span class="n">Checkpoint</span><span class="p">,</span> <span class="n">session</span>
+
+<span class="k">def</span> <span class="nf">cross_validation</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">Y_train_df</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="n">Y_train_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Must pass in the dataset&quot;</span>
+
+    <span class="c1"># Get the model class</span>
+    <span class="n">model_cls</span><span class="p">,</span> <span class="n">model_params</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;model_cls_and_params&quot;</span><span class="p">)</span>
+    <span class="n">freq</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;freq&quot;</span><span class="p">)</span>
+    <span class="n">metrics</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;metrics&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;mse&quot;</span><span class="p">:</span> <span class="n">mean_squared_error</span><span class="p">})</span>
+
+    <span class="c1"># CV params</span>
+    <span class="n">test_size</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;test_size&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">n_splits</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;n_splits&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+
+    <span class="n">model</span> <span class="o">=</span> <span class="n">model_cls</span><span class="p">(</span><span class="o">**</span><span class="n">model_params</span><span class="p">)</span>
+
+    <span class="c1"># Default the parallelism to the # of cross-validation splits</span>
+    <span class="n">parallelism_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;n_jobs&quot;</span><span class="p">:</span> <span class="n">n_splits</span><span class="p">}</span>
+
+    <span class="c1"># Initialize statsforecast with the model</span>
+    <span class="n">statsforecast</span> <span class="o">=</span> <span class="n">StatsForecast</span><span class="p">(</span>
+        <span class="n">df</span><span class="o">=</span><span class="n">Y_train_df</span><span class="p">,</span>
+        <span class="n">models</span><span class="o">=</span><span class="p">[</span><span class="n">model</span><span class="p">],</span>
+        <span class="n">freq</span><span class="o">=</span><span class="n">freq</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">parallelism_kwargs</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Perform temporal cross-validation (see `sklearn.TimeSeriesSplit`)</span>
+    <span class="n">test_size</span> <span class="o">=</span> <span class="n">test_size</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">Y_train_df</span><span class="p">)</span> <span class="o">//</span> <span class="p">(</span><span class="n">n_splits</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">forecasts_cv</span> <span class="o">=</span> <span class="n">statsforecast</span><span class="o">.</span><span class="n">cross_validation</span><span class="p">(</span>
+        <span class="n">h</span><span class="o">=</span><span class="n">test_size</span><span class="p">,</span>
+        <span class="n">n_windows</span><span class="o">=</span><span class="n">n_splits</span><span class="p">,</span>
+        <span class="n">step_size</span><span class="o">=</span><span class="n">test_size</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">cv_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
+
+    <span class="c1"># Compute metrics (according to `metrics`)</span>
+    <span class="n">cv_results</span> <span class="o">=</span> <span class="n">compute_metrics_and_aggregate</span><span class="p">(</span><span class="n">forecasts_cv</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">metrics</span><span class="p">)</span>
+
+    <span class="c1"># Report metrics and save cross-validation output DataFrame</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">cv_results</span><span class="p">,</span>
+        <span class="s2">&quot;cv_time&quot;</span><span class="p">:</span> <span class="n">cv_time</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">checkpoint_dict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;cross_validation_df&quot;</span><span class="p">:</span> <span class="n">forecasts_cv</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">Checkpoint</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">checkpoint_dict</span><span class="p">)</span>
+    <span class="n">session</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">checkpoint</span><span class="o">=</span><span class="n">checkpoint</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">compute_metrics_and_aggregate</span><span class="p">(</span>
+    <span class="n">forecasts_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">_TS</span><span class="p">,</span> <span class="n">metrics</span><span class="p">:</span> <span class="nb">dict</span>
+<span class="p">):</span>
+    <span class="n">unique_ids</span> <span class="o">=</span> <span class="n">forecasts_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique_ids</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;This example only expects a single time series.&quot;</span>
+
+    <span class="n">cutoff_values</span> <span class="o">=</span> <span class="n">forecasts_df</span><span class="p">[</span><span class="s2">&quot;cutoff&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+
+    <span class="c1"># Calculate metrics of the predictions of the models fit on</span>
+    <span class="c1"># each training split</span>
+    <span class="n">cv_metrics</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">ct</span> <span class="ow">in</span> <span class="n">cutoff_values</span><span class="p">:</span>
+        <span class="c1"># Get CV metrics for a specific training split</span>
+        <span class="c1"># All forecasts made with the same `cutoff` date</span>
+        <span class="n">split_df</span> <span class="o">=</span> <span class="n">forecasts_df</span><span class="p">[</span><span class="n">forecasts_df</span><span class="p">[</span><span class="s2">&quot;cutoff&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">ct</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">metric_name</span><span class="p">,</span> <span class="n">metric_fn</span> <span class="ow">in</span> <span class="n">metrics</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">cv_metrics</span><span class="p">[</span><span class="n">metric_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">metric_fn</span><span class="p">(</span>
+                    <span class="n">split_df</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">],</span> <span class="n">split_df</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="c1"># Calculate aggregated metrics (mean, std) across training splits</span>
+    <span class="n">cv_aggregates</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">metric_name</span><span class="p">,</span> <span class="n">metric_vals</span> <span class="ow">in</span> <span class="n">cv_metrics</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">cv_aggregates</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">metric_name</span><span class="si">}</span><span class="s2">_mean&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span>
+                <span class="n">metric_vals</span>
+            <span class="p">)</span>
+            <span class="n">cv_aggregates</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">metric_name</span><span class="si">}</span><span class="s2">_std&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanstd</span><span class="p">(</span>
+                <span class="n">metric_vals</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">cv_aggregates</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">metric_name</span><span class="si">}</span><span class="s2">_mean&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="n">cv_aggregates</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">metric_name</span><span class="si">}</span><span class="s2">_std&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;unique_ids&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">unique_ids</span><span class="p">),</span>
+        <span class="o">**</span><span class="n">cv_aggregates</span><span class="p">,</span>
+        <span class="s2">&quot;cutoff_values&quot;</span><span class="p">:</span> <span class="n">cutoff_values</span><span class="p">,</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="define-the-model-search-space">
+<h2>Define the model search space<a class="headerlink" href="automl_with_ray_air.html#define-the-model-search-space" title="Permalink to this headline">#</a></h2>
+<p>We want to search over the following set of models and their corresponding parameters:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">search_space</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">AutoARIMA</span><span class="p">:</span> <span class="p">{},</span>
+    <span class="n">ETS</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;season_length&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">],</span>
+        <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;ZNA&quot;</span><span class="p">,</span> <span class="s2">&quot;ZZZ&quot;</span><span class="p">],</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>This translates to 5 possible <code class="docutils literal notranslate"><span class="pre">(model_class,</span> <span class="pre">model_params)</span></code> configurations, which we
+generate using the helper function below.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">generate_configurations</span><span class="p">(</span><span class="n">search_space</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">model</span><span class="p">,</span> <span class="n">params</span> <span class="ow">in</span> <span class="n">search_space</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">model</span><span class="p">,</span> <span class="p">{}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">configurations</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">params</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+            <span class="k">for</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">configurations</span><span class="p">:</span>
+                <span class="n">config_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">config</span><span class="p">)}</span>
+                <span class="k">yield</span> <span class="n">model</span><span class="p">,</span> <span class="n">config_dict</span>
+
+<span class="n">configs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">generate_configurations</span><span class="p">(</span><span class="n">search_space</span><span class="p">))</span>
+<span class="n">configs</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[(statsforecast.models.AutoARIMA, {}),
+ (statsforecast.models.ETS, {&#39;season_length&#39;: 6, &#39;model&#39;: &#39;ZNA&#39;}),
+ (statsforecast.models.ETS, {&#39;season_length&#39;: 6, &#39;model&#39;: &#39;ZZZ&#39;}),
+ (statsforecast.models.ETS, {&#39;season_length&#39;: 7, &#39;model&#39;: &#39;ZNA&#39;}),
+ (statsforecast.models.ETS, {&#39;season_length&#39;: 7, &#39;model&#39;: &#39;ZZZ&#39;})]
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="create-a-tuner-to-run-a-grid-search-over-configurations">
+<h2>Create a Tuner to run a grid search over configurations<a class="headerlink" href="automl_with_ray_air.html#create-a-tuner-to-run-a-grid-search-over-configurations" title="Permalink to this headline">#</a></h2>
+<p>Now that we have defined the search space as well as the cross-validation function to apply to each configuration inside that search space, we can define our Ray AIR Tuner to launch the trials in parallel.</p>
+<p>Here’s a summary of what we are doing in the code below:</p>
+<ul class="simple">
+<li><p>First, we include the training dataset using <a class="reference internal" href="../../tune/api/doc/ray.tune.with_parameters.html#ray.tune.with_parameters" title="ray.tune.with_parameters"><code class="xref py py-meth docutils literal notranslate"><span class="pre">tune.with_parameters</span></code></a>, which will put the dataset into the Ray object storage so that it can be retrieved as a common reference from every Tune trial.</p></li>
+<li><p>Next, we define the Tuner <code class="docutils literal notranslate"><span class="pre">param_space</span></code>. We use Tune’s <a class="reference internal" href="../../tune/api/doc/ray.tune.grid_search.html#ray.tune.grid_search" title="ray.tune.grid_search"><code class="xref py py-meth docutils literal notranslate"><span class="pre">tune.grid_search</span></code></a> to create one trial for each <code class="docutils literal notranslate"><span class="pre">(model_class,</span> <span class="pre">model_params)</span></code> tuple that we want to try. The rest of the parameters are constants that will be passed into the <code class="docutils literal notranslate"><span class="pre">config</span></code> parameter along with <code class="docutils literal notranslate"><span class="pre">model_cls_and_params</span></code>.</p></li>
+<li><p>Finally, we specify that we want to <em>minimize</em> the reported <code class="docutils literal notranslate"><span class="pre">mse_mean</span></code> metric.</p></li>
+</ul>
+<p>We can launch the trials by using <code class="xref py py-meth docutils literal notranslate"><span class="pre">Tuner.fit</span></code>, which returns a <a class="reference internal" href="../../tune/api/doc/ray.tune.ResultGrid.html#ray.tune.ResultGrid" title="ray.tune.result_grid.ResultGrid"><code class="xref py py-class docutils literal notranslate"><span class="pre">ResultGrid</span></code></a> that we can use for analysis.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
+    <span class="n">tune</span><span class="o">.</span><span class="n">with_parameters</span><span class="p">(</span><span class="n">cross_validation</span><span class="p">,</span> <span class="n">Y_train_df</span><span class="o">=</span><span class="n">train_df</span><span class="p">),</span>
+    <span class="n">param_space</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;model_cls_and_params&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">grid_search</span><span class="p">(</span><span class="n">configs</span><span class="p">),</span>
+        <span class="s2">&quot;n_splits&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="s2">&quot;test_size&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;freq&quot;</span><span class="p">:</span> <span class="s2">&quot;D&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;metrics&quot;</span><span class="p">:</span>  <span class="p">{</span><span class="s2">&quot;mse&quot;</span><span class="p">:</span> <span class="n">mean_squared_error</span><span class="p">,</span> <span class="s2">&quot;mae&quot;</span><span class="p">:</span> <span class="n">mean_absolute_error</span><span class="p">},</span>
+    <span class="p">},</span>
+    <span class="n">tune_config</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">TuneConfig</span><span class="p">(</span>
+        <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;mse_mean&quot;</span><span class="p">,</span>
+        <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;min&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">result_grid</span> <span class="o">=</span> <span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Great, we’ve computed cross-validation metrics for all the models! Let’s get the result of this AutoML system by selecting the best-performing trial using <code class="xref py py-meth docutils literal notranslate"><span class="pre">ResultGrid.get_best_result</span></code>!</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">best_result</span> <span class="o">=</span> <span class="n">result_grid</span><span class="o">.</span><span class="n">get_best_result</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We can take a look at the hyperparameter config of the best result:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">best_result</span><span class="o">.</span><span class="n">config</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;model_cls_and_params&#39;: (statsforecast.models.ETS,
+  {&#39;season_length&#39;: 6, &#39;model&#39;: &#39;ZNA&#39;}),
+ &#39;n_splits&#39;: 5,
+ &#39;test_size&#39;: 1,
+ &#39;freq&#39;: &#39;D&#39;,
+ &#39;metrics&#39;: {&#39;mse&#39;: &lt;function sklearn.metrics._regression.mean_squared_error(y_true, y_pred, *, sample_weight=None, multioutput=&#39;uniform_average&#39;, squared=True)&gt;,
+  &#39;mae&#39;: &lt;function sklearn.metrics._regression.mean_absolute_error(y_true, y_pred, *, sample_weight=None, multioutput=&#39;uniform_average&#39;)&gt;}}
+</pre></div>
+</div>
+</div>
+</div>
+<p>Within this config, we can pull out the model type and parameters that resulted in the lowest forecast error!</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">best_model_cls</span><span class="p">,</span> <span class="n">best_model_params</span> <span class="o">=</span> <span class="n">best_result</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;model_cls_and_params&quot;</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Best model type:&quot;</span><span class="p">,</span> <span class="n">best_model_cls</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Best model params:&quot;</span><span class="p">,</span> <span class="n">best_model_params</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Best model type: &lt;class &#39;statsforecast.models.ETS&#39;&gt;
+Best model params: {&#39;season_length&#39;: 6, &#39;model&#39;: &#39;ZNA&#39;}
+</pre></div>
+</div>
+</div>
+</div>
+<p>We can also inspect the reported metrics:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Best mse_mean:&quot;</span><span class="p">,</span> <span class="n">best_result</span><span class="o">.</span><span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;mse_mean&quot;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Best mae_mean:&quot;</span><span class="p">,</span> <span class="n">best_result</span><span class="o">.</span><span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;mae_mean&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Best mse_mean: 0.64205205
+Best mae_mean: 0.7200615
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="analysis">
+<h2>Analysis<a class="headerlink" href="automl_with_ray_air.html#analysis" title="Permalink to this headline">#</a></h2>
+<p>Finally, let’s wrap up this AutoML example by performing some basic analysis and plotting.</p>
+<section id="visualize-temporal-cross-validation-splits">
+<span id="automl-temporal-cross-validation-splits"></span><h3>Visualize Temporal Cross-validation Splits<a class="headerlink" href="automl_with_ray_air.html#visualize-temporal-cross-validation-splits" title="Permalink to this headline">#</a></h3>
+<p>Let’s first take a look at how cross-validation is being performed. This plot shows how our parameters of <code class="docutils literal notranslate"><span class="pre">n_splits=5</span></code> and <code class="docutils literal notranslate"><span class="pre">test_size=1</span></code> are being used to generate the cross-validation splits. Only the last 50 points in the dataset are shown for visualization purposes.</p>
+<p>For each of the 5 splits, the blue ticks represent the data used to train the model. The orange tick is the index that the model is tying to predict, and it’s just a single point due to setting <code class="docutils literal notranslate"><span class="pre">test_size=1</span></code>. The metrics are calculated by comparing the predicted value to the actual data at the orange data point. The grey points represent data that is not considered for the split.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cutoff_values_for_cv</span> <span class="o">=</span> <span class="n">best_result</span><span class="o">.</span><span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;cutoff_values&quot;</span><span class="p">]</span>
+<span class="n">test_size</span> <span class="o">=</span> <span class="n">best_result</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;test_size&quot;</span><span class="p">)</span>
+<span class="n">mse_per_split</span> <span class="o">=</span> <span class="n">best_result</span><span class="o">.</span><span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;mse_mean&quot;</span><span class="p">]</span>
+<span class="n">cutoff_idxs</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">train_df</span><span class="p">[</span><span class="s2">&quot;ds&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">ct</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">ct</span> <span class="ow">in</span> <span class="n">cutoff_values_for_cv</span><span class="p">]</span>
+<span class="n">colors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="s2">&quot;orange&quot;</span><span class="p">,</span> <span class="s2">&quot;grey&quot;</span><span class="p">])</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="n">show_last_n</span> <span class="o">=</span> <span class="mi">50</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">cutoff_idx</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cutoff_idxs</span><span class="p">):</span>
+    <span class="n">dataset_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">train_df</span><span class="p">))[</span><span class="o">-</span><span class="n">show_last_n</span><span class="p">:]</span>
+    <span class="n">color_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">dataset_idxs</span><span class="p">)</span>
+    <span class="n">color_idxs</span><span class="p">[</span><span class="n">dataset_idxs</span> <span class="o">&gt;</span> <span class="n">cutoff_idx</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">color_idxs</span><span class="p">[</span><span class="n">dataset_idxs</span> <span class="o">&gt;</span> <span class="n">cutoff_idx</span> <span class="o">+</span> <span class="n">test_size</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+        <span class="n">x</span><span class="o">=</span><span class="n">dataset_idxs</span><span class="p">,</span>
+        <span class="n">y</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">dataset_idxs</span><span class="p">)</span> <span class="o">*</span> <span class="n">i</span><span class="p">,</span>
+        <span class="n">c</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">color_idxs</span><span class="p">],</span>
+        <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;_&quot;</span><span class="p">,</span>
+        <span class="n">lw</span><span class="o">=</span><span class="mi">8</span>
+    <span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;Showing last </span><span class="si">{</span><span class="n">show_last_n</span><span class="si">}</span><span class="s2"> training samples of the </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">cutoff_idxs</span><span class="p">)</span><span class="si">}</span><span class="s2"> splits</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;Blue=Training, Orange=Test, Grey=Unused&quot;</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../../_images/automl_with_ray_air_28_0.png" src="../../_images/automl_with_ray_air_28_0.png" />
+</div>
+</div>
+</section>
+<section id="visualize-model-forecasts">
+<h3>Visualize model forecasts<a class="headerlink" href="automl_with_ray_air.html#visualize-model-forecasts" title="Permalink to this headline">#</a></h3>
+<p>Earlier, we saved the cross-validation output DataFrame inside a Ray AIR <a class="reference internal" href="../api/doc/ray.air.checkpoint.Checkpoint.html#ray.air.checkpoint.Checkpoint" title="ray.air.checkpoint.Checkpoint"><code class="xref py py-class docutils literal notranslate"><span class="pre">Checkpoint</span></code></a>. We can use this to visualize some predictions of the best model! The predictions are pulled from the cross-validation results, where each step is predicted with <code class="docutils literal notranslate"><span class="pre">horizon=1</span></code>.</p>
+<p>Again, we only show the last 50 timesteps for visualization purposes.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot_model_predictions</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">train_df</span><span class="p">):</span>
+    <span class="n">model_cls</span><span class="p">,</span> <span class="n">model_params</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;model_cls_and_params&quot;</span><span class="p">]</span>
+    
+    <span class="c1"># Get the predictions from the data stored within this result&#39;s checkpoint</span>
+    <span class="n">checkpoint_dict</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">checkpoint</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+    <span class="n">forecast_df</span> <span class="o">=</span> <span class="n">checkpoint_dict</span><span class="p">[</span><span class="s2">&quot;cross_validation_df&quot;</span><span class="p">]</span>
+    
+    <span class="c1"># Only show the last 50 timesteps of the ground truth data</span>
+    <span class="n">max_points_to_show</span> <span class="o">=</span> <span class="mi">50</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+        <span class="n">train_df</span><span class="p">[</span><span class="s2">&quot;ds&quot;</span><span class="p">][</span><span class="o">-</span><span class="n">max_points_to_show</span><span class="p">:],</span>
+        <span class="n">train_df</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">][</span><span class="o">-</span><span class="n">max_points_to_show</span><span class="p">:],</span>
+        <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Ground Truth&quot;</span>
+    <span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+        <span class="n">forecast_df</span><span class="p">[</span><span class="s2">&quot;ds&quot;</span><span class="p">],</span>
+        <span class="n">forecast_df</span><span class="p">[</span><span class="n">model_cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">],</span>
+        <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Forecast Predictions&quot;</span>
+    <span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">model_cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">model_params</span><span class="si">}</span><span class="s2">), &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;mae_mean=</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;mse_mean&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;Showing last </span><span class="si">{</span><span class="n">max_points_to_show</span><span class="si">}</span><span class="s2"> points&quot;</span>
+    <span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="n">plot_model_predictions</span><span class="p">(</span><span class="n">best_result</span><span class="p">,</span> <span class="n">train_df</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../../_images/automl_with_ray_air_30_0.png" src="../../_images/automl_with_ray_air_30_0.png" />
+</div>
+</div>
+<p>We can also visualize the predictions of the other models.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Plot for all results</span>
+<span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">result_grid</span><span class="p">:</span>
+    <span class="n">plot_model_predictions</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">train_df</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../../_images/automl_with_ray_air_32_0.png" src="../../_images/automl_with_ray_air_32_0.png" />
+<img alt="../../_images/automl_with_ray_air_32_1.png" src="../../_images/automl_with_ray_air_32_1.png" />
+<img alt="../../_images/automl_with_ray_air_32_2.png" src="../../_images/automl_with_ray_air_32_2.png" />
+<img alt="../../_images/automl_with_ray_air_32_3.png" src="../../_images/automl_with_ray_air_32_3.png" />
+<img alt="../../_images/automl_with_ray_air_32_4.png" src="../../_images/automl_with_ray_air_32_4.png" />
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="feast_example.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Integrate Ray AIR with Feast feature store</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="batch_tuning.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Batch training &amp; tuning on Ray Tune</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

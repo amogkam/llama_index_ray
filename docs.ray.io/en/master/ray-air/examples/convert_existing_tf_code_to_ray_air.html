@@ -1,0 +1,1379 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Convert existing Tensorflow/Keras code to Ray AIR &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/js/versionwarning.js"></script>
+    <script src="../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../_static/js/docsearch.js"></script>
+    <script src="../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../_static/js/top-navigation.js"></script>
+    <script src="../../_static/js/tags.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/ray-air/examples/convert_existing_tf_code_to_ray_air.html" />
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Tabular data training and serving with Keras and Ray AIR" href="tfx_tabular_train_to_serve.html" />
+    <link rel="prev" title="Convert existing PyTorch code to Ray AIR" href="convert_existing_pytorch_code_to_ray_air.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "ray-air/examples/convert_existing_tf_code_to_ray_air", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".ipynb", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../user-guides.html">
+     User Guides
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="index.html">
+     Examples
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="opt_deepspeed_batch_inference.html">
+       Batch Inference with OPT 30B and Ray Data
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="torch_image_example.html">
+       Training a Torch Image Classifier
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="torch_detection.html">
+       Fine-tuning a Torch object detection model
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="convert_existing_pytorch_code_to_ray_air.html">
+       Convert existing PyTorch code to Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3 current active">
+      <a class="current reference internal" href="convert_existing_tf_code_to_ray_air.html#">
+       Convert existing Tensorflow/Keras code to Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tfx_tabular_train_to_serve.html">
+       Tabular data training and serving with Keras and Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="huggingface_text_classification.html">
+       Fine-tune a 🤗 Transformers model
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="sklearn_example.html">
+       Training a model with Sklearn
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="xgboost_example.html">
+       Training a model with distributed XGBoost
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="analyze_tuning_results.html">
+       Hyperparameter tuning with XGBoostTrainer
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="lightgbm_example.html">
+       Training a model with distributed LightGBM
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="torch_incremental_learning.html">
+       Incremental Learning with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rl_serving_example.html">
+       Serving reinforcement learning policy models
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rl_online_example.html">
+       Online reinforcement learning with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rl_offline_example.html">
+       Offline reinforcement learning with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="upload_to_comet_ml.html">
+       Logging results and uploading models to Comet ML
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="upload_to_wandb.html">
+       Logging results and uploading models to Weights &amp; Biases
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="feast_example.html">
+       Integrate Ray AIR with Feast feature store
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="automl_with_ray_air.html">
+       AutoML for time series forecasting with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="batch_tuning.html">
+       Batch training &amp; tuning on Ray Tune
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="batch_forecasting.html">
+       Parallel demand forecasting at scale using Ray Tune
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="stablediffusion_batch_prediction.html">
+       Stable Diffusion Batch Prediction with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gptj_deepspeed_fine_tuning.html">
+       GPT-J-6B Fine-Tuning with Ray AIR and DeepSpeed
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gptj_batch_prediction.html">
+       GPT-J-6B Batch Prediction with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gptj_serving.html">
+       GPT-J-6B Serving with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="dreambooth_finetuning.html">
+       Fine-tuning DreamBooth with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="dolly_lightning_fsdp_finetuning.html">
+       Fine-tune
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         dolly-v2-7b
+        </span>
+       </code>
+       with Ray AIR LightningTrainer and FSDP
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/api.html">
+     Ray AIR API
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../benchmarks.html">
+     Benchmarks
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tune.html">
+   Ray Tune
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Fray-air/examples/convert_existing_tf_code_to_ray_air.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/ray-air/examples/convert_existing_tf_code_to_ray_air.ipynb"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../_sources/ray-air/examples/convert_existing_tf_code_to_ray_air.ipynb.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.ipynb</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="convert_existing_tf_code_to_ray_air.html#example-code">
+   Example Code
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="convert_existing_tf_code_to_ray_air.html#existing-tensorflow-code">
+   Existing Tensorflow Code
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="convert_existing_tf_code_to_ray_air.html#wrap-everything-in-a-training-loop-function">
+   Wrap everything in a training loop function
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="convert_existing_tf_code_to_ray_air.html#introduce-ray-air-for-distributed-data-parallel-training">
+   Introduce Ray AIR for Distributed Data-Parallel Training
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="convert_existing_tf_code_to_ray_air.html#update-the-train-function">
+     Update the train function
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="convert_existing_tf_code_to_ray_air.html#move-data-loading-inside-of-the-training-function">
+     Move data loading inside of the training function
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="convert_existing_tf_code_to_ray_air.html#start-training-with-tensorflowtrainer">
+     Start training with
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       TensorflowTrainer
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="convert_existing_tf_code_to_ray_air.html#using-the-trained-model-for-prediction">
+   Using the trained model for prediction
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="convert_existing_tf_code_to_ray_air.html#loading-the-model-for-prediction">
+     Loading the model for prediction
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="convert_existing_tf_code_to_ray_air.html#using-ray-air-for-scalable-batch-prediction">
+     Using Ray AIR for scalable batch prediction
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="convert_existing_tf_code_to_ray_air.html#summary">
+   Summary
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Convert existing Tensorflow/Keras code to Ray AIR</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="convert_existing_tf_code_to_ray_air.html#example-code">
+   Example Code
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="convert_existing_tf_code_to_ray_air.html#existing-tensorflow-code">
+   Existing Tensorflow Code
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="convert_existing_tf_code_to_ray_air.html#wrap-everything-in-a-training-loop-function">
+   Wrap everything in a training loop function
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="convert_existing_tf_code_to_ray_air.html#introduce-ray-air-for-distributed-data-parallel-training">
+   Introduce Ray AIR for Distributed Data-Parallel Training
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="convert_existing_tf_code_to_ray_air.html#update-the-train-function">
+     Update the train function
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="convert_existing_tf_code_to_ray_air.html#move-data-loading-inside-of-the-training-function">
+     Move data loading inside of the training function
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="convert_existing_tf_code_to_ray_air.html#start-training-with-tensorflowtrainer">
+     Start training with
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       TensorflowTrainer
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="convert_existing_tf_code_to_ray_air.html#using-the-trained-model-for-prediction">
+   Using the trained model for prediction
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="convert_existing_tf_code_to_ray_air.html#loading-the-model-for-prediction">
+     Loading the model for prediction
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="convert_existing_tf_code_to_ray_air.html#using-ray-air-for-scalable-batch-prediction">
+     Using Ray AIR for scalable batch prediction
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="convert_existing_tf_code_to_ray_air.html#summary">
+   Summary
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section class="tex2jax_ignore mathjax_ignore" id="convert-existing-tensorflow-keras-code-to-ray-air">
+<span id="air-convert-tf-to-air"></span><h1>Convert existing Tensorflow/Keras code to Ray AIR<a class="headerlink" href="convert_existing_tf_code_to_ray_air.html#convert-existing-tensorflow-keras-code-to-ray-air" title="Permalink to this headline">#</a></h1>
+<p>If you already have working Tensorflow code, you don’t have to start from scratch to utilize the benefits of Ray AIR. Instead, you can continue to use your existing code and incrementally add Ray AIR components as needed.</p>
+<p>Some of the benefits you’ll get by using Ray AIR with your existing Tensorflow training code:</p>
+<ul class="simple">
+<li><p>Easy distributed data-parallel training on a cluster</p></li>
+<li><p>Automatic checkpointing/fault tolerance and result tracking</p></li>
+<li><p>Parallel data preprocessing</p></li>
+<li><p>Seamless integration with hyperparameter tuning</p></li>
+<li><p>Scalable batch prediction</p></li>
+<li><p>Scalable model serving</p></li>
+</ul>
+<p>This tutorial will show you how to start with Ray AIR from your existing Tensorflow training code. We will learn how to perform <strong>distributed data-parallel training</strong> and do <strong>scalable batch prediction</strong>.</p>
+<section id="example-code">
+<h2>Example Code<a class="headerlink" href="convert_existing_tf_code_to_ray_air.html#example-code" title="Permalink to this headline">#</a></h2>
+<p>The example code we’ll be converting to Ray AIR is that of the <a class="reference external" href="https://www.tensorflow.org/tutorials/quickstart/beginner">Tensorflow quickstart tutorial</a>. This code trains a neural network classifier on the MNIST dataset.</p>
+<p>Follow along with this example by launching the notebook using the 🚀 icon above!</p>
+</section>
+<section id="existing-tensorflow-code">
+<h2>Existing Tensorflow Code<a class="headerlink" href="convert_existing_tf_code_to_ray_air.html#existing-tensorflow-code" title="Permalink to this headline">#</a></h2>
+<p>Let’s start with the unmodified code from the example. A thorough explanation of the parts is given in the full tutorial - we’ll just focus on the code here.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;TensorFlow version:&quot;</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>TensorFlow version: 2.9.2
+</pre></div>
+</div>
+</div>
+</div>
+<p>First, we load and preprocess the MNIST dataset.</p>
+<p>Assumption for this tutorial: your existing code is using the <code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code> native to Tensorflow. This tutorial continues to use <code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code> to allow you to make as few code changes as possible. <strong>Everything in this tutorial is also possible if you choose to use Ray Data, and you will also get the benefits of efficient preprocessing and multi-worker batch prediction.</strong> See <a class="reference internal" href="../../train/dl_guide.html#train-datasets"><span class="std std-ref">here</span></a> for resources to get started with Ray Data.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mnist</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">mnist</span>
+
+<span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">),</span> <span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span> <span class="o">=</span> <span class="n">mnist</span><span class="o">.</span><span class="n">load_data</span><span class="p">()</span>
+<span class="n">x_train</span><span class="p">,</span> <span class="n">x_test</span> <span class="o">=</span> <span class="n">x_train</span> <span class="o">/</span> <span class="mf">255.0</span><span class="p">,</span> <span class="n">x_test</span> <span class="o">/</span> <span class="mf">255.0</span>
+
+<span class="n">train_ds</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">from_tensor_slices</span><span class="p">(</span>
+    <span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">))</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x_train</span><span class="p">))</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span>
+<span class="n">test_ds</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">from_tensor_slices</span><span class="p">((</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">))</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Training Dataset: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">x_train</span><span class="p">)</span><span class="si">}</span><span class="s2"> samples&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Test Dataset: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">x_test</span><span class="p">)</span><span class="si">}</span><span class="s2"> samples&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Training Dataset: 60000 samples
+Test Dataset: 10000 samples
+</pre></div>
+</div>
+</div>
+</div>
+<p>Next, we define the model architecture of the neural network. We wrap the model definition inside a function for easy reuse later.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">build_model</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">InputLayer</span><span class="p">(</span><span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">28</span><span class="p">,</span> <span class="mi">28</span><span class="p">)),</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Flatten</span><span class="p">(),</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">),</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="mf">0.2</span><span class="p">),</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Next, initialize the model, loss, optimizer, and define some metrics that we want to track during training.</p>
+<p>We recommend using the Keras <code class="docutils literal notranslate"><span class="pre">Model.fit</span></code> API, as it simplifies distributing your training with <code class="docutils literal notranslate"><span class="pre">tf.distribute</span></code> and Ray AIR. Compile your model with a loss function and optimizer, then run <code class="docutils literal notranslate"><span class="pre">model.fit(train_ds)</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">loss_object</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">SparseCategoricalCrossentropy</span><span class="p">(</span><span class="n">from_logits</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">()</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">build_model</span><span class="p">()</span>
+<span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">,</span>
+    <span class="n">loss</span><span class="o">=</span><span class="n">loss_object</span><span class="p">,</span>
+    <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;accuracy&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Next, we train the model for some number of epochs, updating the model parameters to minimize the loss. Each epochs loop through the entire training dataset and perform gradient descent steps.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">train_history</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_ds</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Epoch 1/5
+1875/1875 - 3s - loss: 0.2954 - accuracy: 0.9134 - 3s/epoch - 2ms/step
+Epoch 2/5
+1875/1875 - 3s - loss: 0.1437 - accuracy: 0.9567 - 3s/epoch - 2ms/step
+Epoch 3/5
+1875/1875 - 3s - loss: 0.1078 - accuracy: 0.9673 - 3s/epoch - 1ms/step
+Epoch 4/5
+1875/1875 - 3s - loss: 0.0860 - accuracy: 0.9736 - 3s/epoch - 1ms/step
+Epoch 5/5
+1875/1875 - 3s - loss: 0.0746 - accuracy: 0.9760 - 3s/epoch - 2ms/step
+</pre></div>
+</div>
+</div>
+</div>
+<p>After training, we evaluate the model’s performance on the test set.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Evaluate on the test set and report metrics</span>
+<span class="n">eval_result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">test_ds</span><span class="p">,</span> <span class="n">return_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">test_loss</span> <span class="o">=</span> <span class="n">eval_result</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">]</span>
+<span class="n">test_accuracy</span> <span class="o">=</span> <span class="n">eval_result</span><span class="p">[</span><span class="s2">&quot;accuracy&quot;</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;Final Test Loss: </span><span class="si">{</span><span class="n">test_loss</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;Final Test Accuracy: </span><span class="si">{</span><span class="n">test_accuracy</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>313/313 - 0s - loss: 0.0735 - accuracy: 0.9788 - 457ms/epoch - 1ms/step
+Final Test Loss: 0.0735, Final Test Accuracy: 0.9788
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="wrap-everything-in-a-training-loop-function">
+<h2>Wrap everything in a training loop function<a class="headerlink" href="convert_existing_tf_code_to_ray_air.html#wrap-everything-in-a-training-loop-function" title="Permalink to this headline">#</a></h2>
+<p>Later on, we might want to perform hyperparameter optimization and launch multiple training runs, so it is useful to wrap the training logic we have so far in a function. We also introduce a function to get the training and test datasets, which is used within the training function.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_train_test_datasets</span><span class="p">(</span><span class="n">batch_size</span><span class="p">):</span>
+    <span class="n">train_ds</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">from_tensor_slices</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">))</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x_train</span><span class="p">))</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span>
+    <span class="n">test_ds</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">from_tensor_slices</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">))</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">train_ds</span><span class="p">,</span> <span class="n">test_ds</span>
+
+<span class="k">def</span> <span class="nf">train_func</span><span class="p">():</span>
+    <span class="n">epochs</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">batch_size</span> <span class="o">=</span> <span class="mi">32</span>
+
+    <span class="n">loss_object</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">SparseCategoricalCrossentropy</span><span class="p">(</span><span class="n">from_logits</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">optimizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">()</span>
+
+    <span class="n">model</span> <span class="o">=</span> <span class="n">build_model</span><span class="p">()</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+        <span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">,</span>
+        <span class="n">loss</span><span class="o">=</span><span class="n">loss_object</span><span class="p">,</span>
+        <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;accuracy&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    
+    <span class="n">train_ds</span><span class="p">,</span> <span class="n">test_ds</span> <span class="o">=</span> <span class="n">get_train_test_datasets</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span>
+    
+    <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_ds</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    
+    <span class="n">eval_result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">test_ds</span><span class="p">,</span> <span class="n">return_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">test_loss</span> <span class="o">=</span> <span class="n">eval_result</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">]</span>
+    <span class="n">test_accuracy</span> <span class="o">=</span> <span class="n">eval_result</span><span class="p">[</span><span class="s2">&quot;accuracy&quot;</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Final Test Loss: </span><span class="si">{</span><span class="n">test_loss</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;Final Test Accuracy: </span><span class="si">{</span><span class="n">test_accuracy</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="introduce-ray-air-for-distributed-data-parallel-training">
+<h2>Introduce Ray AIR for Distributed Data-Parallel Training<a class="headerlink" href="convert_existing_tf_code_to_ray_air.html#introduce-ray-air-for-distributed-data-parallel-training" title="Permalink to this headline">#</a></h2>
+<p>Now that we have set up a training loop that runs on a single worker, let’s use Ray AIR to implement <strong>distributed training</strong>, allowing us to train using any number of workers!</p>
+<p>Ray Train, the model training library within Ray AIR, implements a <code class="docutils literal notranslate"><span class="pre">TensorflowTrainer</span></code> that allows you to do <a class="reference external" href="https://www.tensorflow.org/guide/distributed_training">distributed training with Tensorflow</a> without needing to create and handle workers manually. Ray Train creates workers in a Ray cluster and configures the <code class="docutils literal notranslate"><span class="pre">TF_CONFIG</span></code> environment variable for you. This way, you can use simply use a strategy from <code class="docutils literal notranslate"><span class="pre">tf.distribute</span></code> to run your training loop across multiple workers in a distributed data-parallel fashion! Currently, the only multi-worker strategy that Train supports is <a class="reference external" href="https://www.tensorflow.org/guide/distributed_training#multiworkermirroredstrategy"><code class="docutils literal notranslate"><span class="pre">tf.distribute.MultiWorkerMirroredStrategy</span></code></a>, which shards the dataset evenly across workers and synchronizes parameter updates so that workers share the same weights at all times.</p>
+<p>Let’s start by installing Ray and AIR modules if we haven’t already:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>pip install <span class="s2">&quot;ray[air]&quot;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="update-the-train-function">
+<h3>Update the train function<a class="headerlink" href="convert_existing_tf_code_to_ray_air.html#update-the-train-function" title="Permalink to this headline">#</a></h3>
+<p>As a first step, let’s implement the following:</p>
+<ol class="simple">
+<li><p>Add a <code class="docutils literal notranslate"><span class="pre">config</span></code> argument as an easy way to pass in hyperparameters such as <code class="docutils literal notranslate"><span class="pre">batch_size_per_worker</span></code> through Ray Train.</p></li>
+<li><p>Set up the model to <strong>communicate gradients and synchronize model weights</strong> between workers under the <code class="docutils literal notranslate"><span class="pre">tf.distribute.MultiWorkerMirroredStrategy</span></code> strategy.</p></li>
+<li><p>Enable data-parallel distributed training by <strong>sharding the training data</strong> (and test data) so that each worker only deals with a subset of the data.</p></li>
+<li><p><strong>Enable checkpointing and metric reporting</strong> to get access to the trained model and results after our training job has finished.</p></li>
+</ol>
+<p>We only need change a few lines of code:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ray.air</span> <span class="kn">import</span> <span class="n">session</span>
+<span class="kn">from</span> <span class="nn">ray.air.integrations.keras</span> <span class="kn">import</span> <span class="n">ReportCheckpointCallback</span>
+
+<span class="c1"># 1. Add a `config` argument to the train function to pass in hyperparameters</span>
+
+<span class="k">def</span> <span class="nf">train_func</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+    <span class="n">epochs</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;epochs&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+    <span class="n">batch_size_per_worker</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;batch_size&quot;</span><span class="p">,</span> <span class="mi">32</span><span class="p">)</span>
+    
+    <span class="c1"># 2. Build and compile the model within tf.distribute strategy scope</span>
+    
+    <span class="c1"># Important: The strategy must be instantiated at the beginning</span>
+    <span class="c1"># of the function, since the tf.Dataset that we load later needs</span>
+    <span class="c1"># to be auto-sharded.</span>
+    <span class="c1"># See https://www.tensorflow.org/tutorials/distribute/multi_worker_with_keras</span>
+    <span class="c1"># for more details.</span>
+    <span class="n">strategy</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">distribute</span><span class="o">.</span><span class="n">MultiWorkerMirroredStrategy</span><span class="p">()</span>
+    <span class="k">with</span> <span class="n">strategy</span><span class="o">.</span><span class="n">scope</span><span class="p">():</span> 
+        <span class="n">loss_object</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">SparseCategoricalCrossentropy</span><span class="p">(</span><span class="n">from_logits</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">optimizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">()</span>
+
+        <span class="n">model</span> <span class="o">=</span> <span class="n">build_model</span><span class="p">()</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+            <span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">,</span>
+            <span class="n">loss</span><span class="o">=</span><span class="n">loss_object</span><span class="p">,</span>
+            <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;accuracy&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+    
+    <span class="c1"># 3. Set a `global_batch_size` so that every worker gets the specified</span>
+    <span class="c1">#    `batch_size_per_worker` regardless of the number of workers.</span>
+    <span class="c1">#    This is needed because the datasets are sharded across workers.</span>
+
+    <span class="n">global_batch_size</span> <span class="o">=</span> <span class="n">batch_size_per_worker</span> <span class="o">*</span> <span class="n">session</span><span class="o">.</span><span class="n">get_world_size</span><span class="p">()</span>
+    <span class="n">train_ds</span><span class="p">,</span> <span class="n">test_ds</span> <span class="o">=</span> <span class="n">get_train_test_datasets</span><span class="p">(</span><span class="n">global_batch_size</span><span class="p">)</span>
+    <span class="c1"># ^ Even though we are loading the datasets the same way as before, the</span>
+    <span class="c1"># TF dataset will automatically shard the datasets across workers,</span>
+    <span class="c1"># according to the strategy.</span>
+    
+    <span class="c1"># ...</span>
+    
+    <span class="c1"># 4. Use a Keras callback provided by Ray AIR to report metrics and checkpoint</span>
+    <span class="n">report_metrics_and_checkpoint_callback</span> <span class="o">=</span> <span class="n">ReportCheckpointCallback</span><span class="p">(</span><span class="n">report_metrics_on</span><span class="o">=</span><span class="s2">&quot;epoch_end&quot;</span><span class="p">)</span>
+
+    <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+        <span class="o">...</span><span class="p">,</span>
+        <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span><span class="n">report_metrics_and_checkpoint_callback</span><span class="p">]</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<p>We see above that we pass a Keras <a class="reference internal" href="../api/doc/ray.air.integrations.keras.ReportCheckpointCallback.html#ray.air.integrations.keras.ReportCheckpointCallback" title="ray.air.integrations.keras.ReportCheckpointCallback"><code class="xref py py-class docutils literal notranslate"><span class="pre">ReportCheckpointCallback</span></code></a> into <code class="docutils literal notranslate"><span class="pre">Model.fit</span></code>, which is an AIR integration that reports metrics and saves checkpoints after each epoch (configurable via the <code class="docutils literal notranslate"><span class="pre">on</span></code> parameter). The callback will automatically report metrics such as <code class="docutils literal notranslate"><span class="pre">loss</span></code> and <code class="docutils literal notranslate"><span class="pre">accuracy</span></code> that are specified when compiling the model.</p>
+<p>Let’s see the updated training function after these additions:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ray.air</span> <span class="kn">import</span> <span class="n">session</span>
+<span class="kn">from</span> <span class="nn">ray.air.integrations.keras</span> <span class="kn">import</span> <span class="n">ReportCheckpointCallback</span>
+
+<span class="c1"># 1. Pass in the hyperparameter config</span>
+<span class="k">def</span> <span class="nf">train_func</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+    <span class="n">epochs</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;epochs&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+    <span class="n">batch_size_per_worker</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;batch_size&quot;</span><span class="p">,</span> <span class="mi">32</span><span class="p">)</span>
+    
+    <span class="c1"># 2. Synchronized model setup</span>
+    <span class="n">strategy</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">distribute</span><span class="o">.</span><span class="n">MultiWorkerMirroredStrategy</span><span class="p">()</span>
+    <span class="k">with</span> <span class="n">strategy</span><span class="o">.</span><span class="n">scope</span><span class="p">():</span> 
+        <span class="n">loss_object</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">SparseCategoricalCrossentropy</span><span class="p">(</span><span class="n">from_logits</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">optimizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">()</span>
+        
+        <span class="n">model</span> <span class="o">=</span> <span class="n">build_model</span><span class="p">()</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+            <span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">,</span>
+            <span class="n">loss</span><span class="o">=</span><span class="n">loss_object</span><span class="p">,</span>
+            <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;accuracy&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+
+    <span class="c1"># 3. Shard the dataset across `session.get_world_size()` workers</span>
+    <span class="n">global_batch_size</span> <span class="o">=</span> <span class="n">batch_size_per_worker</span> <span class="o">*</span> <span class="n">session</span><span class="o">.</span><span class="n">get_world_size</span><span class="p">()</span>
+    <span class="n">train_ds</span><span class="p">,</span> <span class="n">test_ds</span> <span class="o">=</span> <span class="n">get_train_test_datasets</span><span class="p">(</span><span class="n">batch_size_per_worker</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">get_world_rank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Dataset is sharded across </span><span class="si">{</span><span class="n">session</span><span class="o">.</span><span class="n">get_world_size</span><span class="p">()</span><span class="si">}</span><span class="s2"> workers:&quot;</span><span class="p">)</span>
+        <span class="c1"># The number of samples is approximate, because is not always</span>
+        <span class="c1"># a multiple of batch_size, so some batches could contain fewer than</span>
+        <span class="c1"># `batch_size_per_worker` samples.</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;# training batches per worker = </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">train_ds</span><span class="p">)</span><span class="si">}</span><span class="s2"> &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;(~</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">train_ds</span><span class="p">)</span> <span class="o">*</span> <span class="n">batch_size_per_worker</span><span class="si">}</span><span class="s2"> samples)&quot;</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;# test batches per worker = </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">test_ds</span><span class="p">)</span><span class="si">}</span><span class="s2"> &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;(~</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">test_ds</span><span class="p">)</span> <span class="o">*</span> <span class="n">batch_size_per_worker</span><span class="si">}</span><span class="s2"> samples)&quot;</span>
+        <span class="p">)</span>
+  
+    <span class="c1"># 4. Report metrics and checkpoint the model</span>
+    <span class="n">report_metrics_and_checkpoint_callback</span> <span class="o">=</span> <span class="n">ReportCheckpointCallback</span><span class="p">(</span><span class="n">report_metrics_on</span><span class="o">=</span><span class="s2">&quot;epoch_end&quot;</span><span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+        <span class="n">train_ds</span><span class="p">,</span>
+        <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span>
+        <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span><span class="n">report_metrics_and_checkpoint_callback</span><span class="p">],</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span> <span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">get_world_rank</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">2</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">eval_result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">test_ds</span><span class="p">,</span> <span class="n">return_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">test_loss</span> <span class="o">=</span> <span class="n">eval_result</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">]</span>
+    <span class="n">test_accuracy</span> <span class="o">=</span> <span class="n">eval_result</span><span class="p">[</span><span class="s2">&quot;accuracy&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">get_world_rank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Final Test Loss: </span><span class="si">{</span><span class="n">test_loss</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Final Test Accuracy: </span><span class="si">{</span><span class="n">test_accuracy</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>A few notes on the <a class="reference internal" href="../api/session.html#air-session-ref"><span class="std std-ref"><code class="docutils literal notranslate"><span class="pre">session</span></code> API</span></a> introduced by Ray AIR:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../api/doc/ray.air.session.get_world_size.html#ray.air.session.get_world_size" title="ray.air.session.get_world_size"><code class="xref py py-meth docutils literal notranslate"><span class="pre">session.get_world_size()</span></code></a> is a Ray AIR helper that gets the number of workers doing training.</p></li>
+<li><p>In the updated code below, we also use the helper <a class="reference internal" href="../api/doc/ray.air.session.get_world_rank.html#ray.air.session.get_world_rank" title="ray.air.session.get_world_rank"><code class="xref py py-meth docutils literal notranslate"><span class="pre">session.get_world_rank()</span></code></a> to only print logs on the head worker node (with rank 0) so that the output isn’t spammed by logs from all workers.</p></li>
+</ul>
+</section>
+<section id="move-data-loading-inside-of-the-training-function">
+<h3>Move data loading inside of the training function<a class="headerlink" href="convert_existing_tf_code_to_ray_air.html#move-data-loading-inside-of-the-training-function" title="Permalink to this headline">#</a></h3>
+<p>One important detail is that we should not try to use loaded data from outside of the training function. If we try to reference the training data from outside the training function, Ray serializes it to make it accessible to the remote tasks (that may get executed on a remote node!), and it’s not ideal to ship the data around the cluster unnecessarily. Instead, move the dataset loading part into the <code class="docutils literal notranslate"><span class="pre">train_func()</span></code>. This will download the data <em>to disk once per machine</em> and result in much more efficient data loading.</p>
+<p>Let’s update the <code class="docutils literal notranslate"><span class="pre">get_train_test_datasets</span></code> method to load the MNIST dataset rather than use a reference from outside the train function.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_train_test_datasets</span><span class="p">(</span><span class="n">batch_size</span><span class="p">):</span>
+    <span class="c1"># NEW: Now, the dataset will be downloaded to disk once per machine</span>
+    <span class="n">mnist</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">mnist</span>
+    <span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">),</span> <span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span> <span class="o">=</span> <span class="n">mnist</span><span class="o">.</span><span class="n">load_data</span><span class="p">()</span>
+    <span class="n">x_train</span><span class="p">,</span> <span class="n">x_test</span> <span class="o">=</span> <span class="n">x_train</span> <span class="o">/</span> <span class="mf">255.0</span><span class="p">,</span> <span class="n">x_test</span> <span class="o">/</span> <span class="mf">255.0</span>
+    
+    <span class="n">train_ds</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">from_tensor_slices</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">))</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x_train</span><span class="p">))</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span>
+    <span class="n">test_ds</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">from_tensor_slices</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">))</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">train_ds</span><span class="p">,</span> <span class="n">test_ds</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="start-training-with-tensorflowtrainer">
+<h3>Start training with <code class="docutils literal notranslate"><span class="pre">TensorflowTrainer</span></code><a class="headerlink" href="convert_existing_tf_code_to_ray_air.html#start-training-with-tensorflowtrainer" title="Permalink to this headline">#</a></h3>
+<p>Now, we’ll use Ray Train’s <code class="docutils literal notranslate"><span class="pre">TensorflowTrainer</span></code> to kick off the distributed training.</p>
+<p>A few notes on the configs set below:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">train_loop_config</span></code> sets the hyperparameters passed into the training loop as the <code class="docutils literal notranslate"><span class="pre">config</span></code> parameter</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">scaling_config</span></code> configures <strong>how many parallel workers to use</strong>, the <strong>resources required per worker</strong>, and whether we want to <strong>enable GPU training</strong> or not.</p></li>
+</ul>
+<p>See this <a class="reference internal" href="../../train/config_guide.html#train-config"><span class="std std-ref">configuration guide</span></a> for more details on how to configure the trainer.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ray</span> <span class="kn">import</span> <span class="n">air</span>
+<span class="kn">from</span> <span class="nn">ray.train.tensorflow</span> <span class="kn">import</span> <span class="n">TensorflowTrainer</span>
+
+<span class="n">num_workers</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">use_gpu</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="n">trainer</span> <span class="o">=</span> <span class="n">TensorflowTrainer</span><span class="p">(</span>
+    <span class="n">train_loop_per_worker</span><span class="o">=</span><span class="n">train_func</span><span class="p">,</span>
+    <span class="n">train_loop_config</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>
+        <span class="s2">&quot;epochs&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="n">scaling_config</span><span class="o">=</span><span class="n">air</span><span class="o">.</span><span class="n">ScalingConfig</span><span class="p">(</span>
+        <span class="n">num_workers</span><span class="o">=</span><span class="n">num_workers</span><span class="p">,</span>
+        <span class="n">use_gpu</span><span class="o">=</span><span class="n">use_gpu</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Great, this works 🎉! You’re now training your model in parallel. You could now scale this up to more nodes and workers on your Ray cluster.</p>
+<p>We can use the training <code class="docutils literal notranslate"><span class="pre">Result</span></code> output of <code class="docutils literal notranslate"><span class="pre">trainer.fit()</span></code> to view some reported metrics. See the <a class="reference internal" href="../../tune/api/doc/ray.air.Result.html#ray.air.Result" title="ray.air.result.Result"><code class="xref py py-class docutils literal notranslate"><span class="pre">Result</span></code></a> documentation for a full list of what’s available. Let’s plot the training loss vs. training iteration.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">result</span><span class="o">.</span><span class="n">metrics_dataframe</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s2">&quot;training_iteration&quot;</span><span class="p">,</span> <span class="s2">&quot;loss&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;AxesSubplot: xlabel=&#39;training_iteration&#39;&gt;
+</pre></div>
+</div>
+<img alt="../../_images/convert_existing_tf_code_to_ray_air_29_1.png" src="../../_images/convert_existing_tf_code_to_ray_air_29_1.png" />
+</div>
+</div>
+</section>
+</section>
+<section id="using-the-trained-model-for-prediction">
+<h2>Using the trained model for prediction<a class="headerlink" href="convert_existing_tf_code_to_ray_air.html#using-the-trained-model-for-prediction" title="Permalink to this headline">#</a></h2>
+<p>The original Tensorflow quickstart tutorial doesn’t actually go over loading the model for prediction, but let’s see how you would complete the machine learning lifecycle with scalable batch prediction with Ray AIR!</p>
+<section id="loading-the-model-for-prediction">
+<h3>Loading the model for prediction<a class="headerlink" href="convert_existing_tf_code_to_ray_air.html#loading-the-model-for-prediction" title="Permalink to this headline">#</a></h3>
+<p>Here’s how to load an <a class="reference internal" href="../predictors.html#air-predictors"><span class="std std-ref">AIR Predictor</span></a> <code class="docutils literal notranslate"><span class="pre">TensorflowPredictor</span></code> from a checkpoint and perform model inference on some sample data.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ray.train.tensorflow</span> <span class="kn">import</span> <span class="n">TensorflowCheckpoint</span><span class="p">,</span> <span class="n">TensorflowPredictor</span>
+
+<span class="n">tf_checkpoint</span><span class="p">:</span> <span class="n">TensorflowCheckpoint</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">checkpoint</span>
+<span class="n">predictor</span> <span class="o">=</span> <span class="n">TensorflowPredictor</span><span class="o">.</span><span class="n">from_checkpoint</span><span class="p">(</span>
+    <span class="n">tf_checkpoint</span><span class="p">,</span> <span class="n">model_definition</span><span class="o">=</span><span class="n">build_model</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="n">sample_images</span> <span class="o">=</span> <span class="n">x_test</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
+<span class="n">sample_labels</span> <span class="o">=</span> <span class="n">y_test</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
+<span class="n">preds</span> <span class="o">=</span> <span class="n">predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">sample_images</span><span class="p">)[</span><span class="s2">&quot;predictions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">image</span><span class="p">,</span> <span class="n">pred</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">sample_images</span><span class="p">,</span> <span class="n">preds</span><span class="p">,</span> <span class="n">sample_labels</span><span class="p">):</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Prediction = </span><span class="si">{</span><span class="n">pred</span><span class="si">}</span><span class="s2">, Label = </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">28</span><span class="p">,</span> <span class="mi">28</span><span class="p">)))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../../_images/convert_existing_tf_code_to_ray_air_33_0.png" src="../../_images/convert_existing_tf_code_to_ray_air_33_0.png" />
+<img alt="../../_images/convert_existing_tf_code_to_ray_air_33_1.png" src="../../_images/convert_existing_tf_code_to_ray_air_33_1.png" />
+<img alt="../../_images/convert_existing_tf_code_to_ray_air_33_2.png" src="../../_images/convert_existing_tf_code_to_ray_air_33_2.png" />
+</div>
+</div>
+</section>
+<section id="using-ray-air-for-scalable-batch-prediction">
+<h3>Using Ray AIR for scalable batch prediction<a class="headerlink" href="convert_existing_tf_code_to_ray_air.html#using-ray-air-for-scalable-batch-prediction" title="Permalink to this headline">#</a></h3>
+<p>Although what we did above works for a small amount of test data, we can use Ray AIR’s <a class="reference internal" href="../api/doc/ray.train.batch_predictor.BatchPredictor.html#ray.train.batch_predictor.BatchPredictor" title="ray.train.batch_predictor.BatchPredictor"><code class="xref py py-class docutils literal notranslate"><span class="pre">BatchPredictor</span></code></a> to do scalable prediction on a much larger dataset.</p>
+<p>We can create a <code class="docutils literal notranslate"><span class="pre">BatchPredictor</span></code> from a checkpoint. We pass in the predictor class <code class="docutils literal notranslate"><span class="pre">TensorflowPredictor</span></code> and the <code class="docutils literal notranslate"><span class="pre">model_definition</span></code> of the checkpointed model.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">from</span> <span class="nn">ray.train.batch_predictor</span> <span class="kn">import</span> <span class="n">BatchPredictor</span>
+<span class="kn">from</span> <span class="nn">ray.train.tensorflow</span> <span class="kn">import</span> <span class="n">TensorflowPredictor</span>
+
+<span class="n">checkpoint</span><span class="p">:</span> <span class="n">TensorflowCheckpoint</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">checkpoint</span>
+
+<span class="n">batch_predictor</span> <span class="o">=</span> <span class="n">BatchPredictor</span><span class="o">.</span><span class="n">from_checkpoint</span><span class="p">(</span>
+    <span class="n">checkpoint</span><span class="p">,</span>
+    <span class="n">TensorflowPredictor</span><span class="p">,</span>
+    <span class="c1"># A function that returns the model architecture</span>
+    <span class="n">model_definition</span><span class="o">=</span><span class="n">build_model</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Batch predictors work with <a class="reference internal" href="../../data/data.html#data"><span class="std std-ref">Ray Data</span></a>. Here, we create a <a class="reference internal" href="../../data/api/doc/ray.data.Dataset.html#ray.data.Dataset" title="ray.data.Dataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> of images from our test set.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">test_images_ds</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">from_items</span><span class="p">(</span><span class="n">x_test</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Let’s run <a class="reference internal" href="../api/doc/ray.train.batch_predictor.BatchPredictor.predict.html#ray.train.batch_predictor.BatchPredictor.predict" title="ray.train.batch_predictor.BatchPredictor.predict"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BatchPredictor.predict</span></code></a> on our Dataset. This will distribute the prediction across a specified number of workers!</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">predict_results</span> <span class="o">=</span> <span class="n">batch_predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test_images_ds</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">predict_results</span></code> is also a Dataset, and we can take a look at the predictions inside:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">predict_results</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;predictions&#39;</span><span class="p">:</span> <span class="n">array</span><span class="p">([</span> <span class="o">-</span><span class="mf">2.5820212</span><span class="p">,</span>  <span class="o">-</span><span class="mf">5.676518</span> <span class="p">,</span>   <span class="mf">2.0977738</span><span class="p">,</span>   <span class="mf">3.0335152</span><span class="p">,</span>  <span class="o">-</span><span class="mf">6.936249</span> <span class="p">,</span>
+        <span class="o">-</span><span class="mf">2.4465032</span><span class="p">,</span> <span class="o">-</span><span class="mf">12.235596</span> <span class="p">,</span>   <span class="mf">9.626698</span> <span class="p">,</span>  <span class="o">-</span><span class="mf">2.7761698</span><span class="p">,</span>  <span class="o">-</span><span class="mf">1.363163</span> <span class="p">],</span>
+      <span class="n">dtype</span><span class="o">=</span><span class="n">float32</span><span class="p">)}</span>
+<span class="p">{</span><span class="s1">&#39;predictions&#39;</span><span class="p">:</span> <span class="n">array</span><span class="p">([</span> <span class="o">-</span><span class="mf">2.6007364</span><span class="p">,</span>   <span class="mf">6.3847456</span><span class="p">,</span>  <span class="mf">11.046391</span> <span class="p">,</span>   <span class="mf">4.3116417</span><span class="p">,</span> <span class="o">-</span><span class="mf">12.745696</span> <span class="p">,</span>
+         <span class="mf">1.6003606</span><span class="p">,</span>  <span class="o">-</span><span class="mf">2.794311</span> <span class="p">,</span>  <span class="o">-</span><span class="mf">6.191238</span> <span class="p">,</span>   <span class="mf">2.4532976</span><span class="p">,</span>  <span class="o">-</span><span class="mf">9.940281</span> <span class="p">],</span>
+      <span class="n">dtype</span><span class="o">=</span><span class="n">float32</span><span class="p">)}</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>Our model outputs logits, but we want the actual predicted labels. We can convert the logits to labels by taking the <code class="docutils literal notranslate"><span class="pre">argmax</span></code> of each model output in <code class="docutils literal notranslate"><span class="pre">predict_results</span></code> using <a class="reference internal" href="../../data/api/doc/ray.data.Dataset.map_batches.html#ray.data.Dataset.map_batches" title="ray.data.Dataset.map_batches"><code class="xref py py-meth docutils literal notranslate"><span class="pre">map_batches</span></code></a>. Then, we can compute the accuracy by comparing to the test set labels!</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">predicted_classes</span> <span class="o">=</span> <span class="n">predict_results</span><span class="o">.</span><span class="n">map_batches</span><span class="p">(</span>
+    <span class="k">lambda</span> <span class="n">batch</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;pred&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">pred</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">pred</span> <span class="ow">in</span> <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;predictions&quot;</span><span class="p">]]},</span> 
+    <span class="n">batch_format</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span>
+<span class="p">)</span>
+<span class="n">predicted_classes_np</span> <span class="o">=</span> <span class="n">predicted_classes</span><span class="o">.</span><span class="n">take_batch</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">))[</span><span class="s2">&quot;pred&quot;</span><span class="p">]</span>
+
+<span class="n">pred_accuracy</span> <span class="o">=</span> <span class="p">(</span><span class="n">predicted_classes_np</span> <span class="o">==</span> <span class="n">y_test</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">predicted_classes_np</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Prediction Accuracy =&quot;</span><span class="p">,</span> <span class="n">pred_accuracy</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Map_Batches: 100%|██████████| 3/3 [00:01&lt;00:00,  1.56it/s]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Prediction Accuracy = 0.976
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(BlockWorker pid=15393) 2022-10-17 16:44:40.531349: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library &#39;libcuda.so.1&#39;; dlerror: libcuda.so.1: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /usr/local/nvidia/lib:/usr/local/nvidia/lib64
+(BlockWorker pid=15393) 2022-10-17 16:44:40.531385: W tensorflow/stream_executor/cuda/cuda_driver.cc:269] failed call to cuInit: UNKNOWN ERROR (303)
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="convert_existing_tf_code_to_ray_air.html#summary" title="Permalink to this headline">#</a></h2>
+<p>This tutorial demonstrated how a few lines of code with Ray AIR API’s can allow you to scale up your Tensorflow model training.</p>
+<p>We learned how to:</p>
+<ul class="simple">
+<li><p>enable distributed training using Ray Train abstractions</p></li>
+<li><p>save and retrieve model checkpoints via Ray AIR</p></li>
+<li><p>load a model for batch prediction</p></li>
+</ul>
+<p>In our <a class="reference internal" href="index.html#air-examples-ref"><span class="std std-ref">other examples</span></a> you can learn how to do more things with the Ray AIR API, such as <strong>serving your model with Ray Serve</strong> or <strong>tune your hyperparameters with Ray Tune</strong>. You can also learn how to <strong>construct Ray Data</strong> to leverage Ray AIR’s <strong>preprocessing</strong> API.</p>
+<p>See <a class="reference internal" href="../../train/train.html#train-framework-catalog"><span class="std std-ref">this table</span></a> for a full catalog of frameworks that AIR supports out of the box.</p>
+<p>We hope this tutorial gave you a good starting point to leverage Ray AIR. If you have any questions, suggestions, or run into any problems pelase reach out on <a class="reference external" href="https://discuss.ray.io/">Discuss</a>, <a class="reference external" href="https://github.com/ray-project/ray">GitHub</a> or the <a class="reference external" href="https://forms.gle/9TSdDYUgxYs8SA9e8">Ray Slack</a>!</p>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="convert_existing_pytorch_code_to_ray_air.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Convert existing PyTorch code to Ray AIR</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="tfx_tabular_train_to_serve.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Tabular data training and serving with Keras and Ray AIR</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

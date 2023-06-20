@@ -1,0 +1,1285 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Running Tune experiments with AxSearch &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/js/versionwarning.js"></script>
+    <script src="../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../_static/js/docsearch.js"></script>
+    <script src="../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../_static/js/top-navigation.js"></script>
+    <script src="../../_static/js/tags.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/tune/examples/ax_example.html" />
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Running Tune experiments with Dragonfly" href="dragonfly_example.html" />
+    <link rel="prev" title="Tune Hyperparameter Optimization Framework Examples" href="hpo-frameworks.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "tune/examples/ax_example", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".ipynb", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../../tune.html">
+   Ray Tune
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../getting-started.html">
+     Getting Started
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../tutorials/overview.html">
+     User Guides
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="index.html">
+     Ray Tune Examples
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="ml-frameworks.html">
+       Examples using Ray Tune with ML Frameworks
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="experiment-tracking.html">
+       Tune Experiment Tracking Examples
+      </a>
+     </li>
+     <li class="toctree-l3 current active has-children">
+      <a class="reference internal" href="hpo-frameworks.html">
+       Tune Hyperparameter Optimization Framework Examples
+      </a>
+      <input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+      <label for="toctree-checkbox-3">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul class="current">
+       <li class="toctree-l4 current active">
+        <a class="current reference internal" href="ax_example.html#">
+         Ax Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="dragonfly_example.html">
+         Dragonfly Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="skopt_example.html">
+         Skopt Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="hyperopt_example.html">
+         HyperOpt Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="bayesopt_example.html">
+         Bayesopt Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="flaml_example.html">
+         FLAML Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="bohb_example.html">
+         BOHB Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="nevergrad_example.html">
+         Nevergrad Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="optuna_example.html">
+         Optuna Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="zoopt_example.html">
+         ZOOpt Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="sigopt_example.html">
+         SigOpt Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="hebo_example.html">
+         HEBO Example
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="other-examples.html">
+       Other Examples
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="exercises.html">
+       Exercises
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../faq.html">
+     Ray Tune FAQ
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/api.html">
+     Ray Tune API
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Ftune/examples/ax_example.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/tune/examples/ax_example.ipynb"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../_sources/tune/examples/ax_example.ipynb.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.ipynb</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Running Tune experiments with AxSearch</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section class="tex2jax_ignore mathjax_ignore" id="running-tune-experiments-with-axsearch">
+<h1>Running Tune experiments with AxSearch<a class="headerlink" href="ax_example.html#running-tune-experiments-with-axsearch" title="Permalink to this headline">#</a></h1>
+<p>In this tutorial we introduce Ax, while running a simple Ray Tune experiment. Tune’s Search Algorithms integrate with Ax and, as a result, allow you to seamlessly scale up a Ax optimization process - without sacrificing performance.</p>
+<p>Ax is a platform for optimizing any kind of experiment, including machine learning experiments, A/B tests, and simulations. Ax can optimize discrete configurations (e.g., variants of an A/B test) using multi-armed bandit optimization, and continuous/ordered configurations (e.g. float/int parameters) using Bayesian optimization. Results of A/B tests and simulations with reinforcement learning agents often exhibit high amounts of noise. Ax supports state-of-the-art algorithms which work better than traditional Bayesian optimization in high-noise settings. Ax also supports multi-objective and constrained optimization which are common to real-world problems (e.g. improving load time without increasing data use). Ax belongs to the domain of  “derivative-free” and “black-box” optimization.</p>
+<p>In this example we minimize a simple objective to briefly demonstrate the usage of AxSearch with Ray Tune via <code class="docutils literal notranslate"><span class="pre">AxSearch</span></code>. It’s useful to keep in mind that despite the emphasis on machine learning experiments, Ray Tune optimizes any implicit or explicit objective. Here we assume <code class="docutils literal notranslate"><span class="pre">ax-platform==0.2.4</span></code> library is installed withe python version &gt;= 3.7. To learn more, please refer to the <a class="reference external" href="https://ax.dev/">Ax website</a>.</p>
+<p>Click below to see all the imports we need for this example.
+You can also launch directly into a Binder instance to run this notebook yourself.
+Just click on the rocket symbol at the top of the navigation.</p>
+<div class="cell tag_hide-input docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">from</span> <span class="nn">ray</span> <span class="kn">import</span> <span class="n">air</span><span class="p">,</span> <span class="n">tune</span>
+<span class="kn">from</span> <span class="nn">ray.air</span> <span class="kn">import</span> <span class="n">session</span>
+<span class="kn">from</span> <span class="nn">ray.tune.search.ax</span> <span class="kn">import</span> <span class="n">AxSearch</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Let’s start by defining a classic benchmark for global optimization.
+The form here is explicit for demonstration, yet it is typically a black-box.
+We artificially sleep for a bit (<code class="docutils literal notranslate"><span class="pre">0.02</span></code> seconds) to simulate a long-running ML experiment.
+This setup assumes that we’re running multiple <code class="docutils literal notranslate"><span class="pre">step</span></code>s of an experiment and try to tune 6-dimensions of the <code class="docutils literal notranslate"><span class="pre">x</span></code> hyperparameter.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">landscape</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Hartmann 6D function containing 6 local minima.</span>
+<span class="sd">    It is a classic benchmark for developing global optimization algorithms.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">3.2</span><span class="p">])</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">17</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">,</span> <span class="mf">1.7</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.05</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">17</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">14</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">,</span> <span class="mf">1.7</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">17</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">17</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">14</span><span class="p">],</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">P</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="p">[</span><span class="mi">1312</span><span class="p">,</span> <span class="mi">1696</span><span class="p">,</span> <span class="mi">5569</span><span class="p">,</span> <span class="mi">124</span><span class="p">,</span> <span class="mi">8283</span><span class="p">,</span> <span class="mi">5886</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">2329</span><span class="p">,</span> <span class="mi">4135</span><span class="p">,</span> <span class="mi">8307</span><span class="p">,</span> <span class="mi">3736</span><span class="p">,</span> <span class="mi">1004</span><span class="p">,</span> <span class="mi">9991</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">2348</span><span class="p">,</span> <span class="mi">1451</span><span class="p">,</span> <span class="mi">3522</span><span class="p">,</span> <span class="mi">2883</span><span class="p">,</span> <span class="mi">3047</span><span class="p">,</span> <span class="mi">6650</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">4047</span><span class="p">,</span> <span class="mi">8828</span><span class="p">,</span> <span class="mi">8732</span><span class="p">,</span> <span class="mi">5743</span><span class="p">,</span> <span class="mi">1091</span><span class="p">,</span> <span class="mi">381</span><span class="p">],</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">alpha_j</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">alpha</span><span class="p">):</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">):</span>
+            <span class="n">t</span> <span class="o">+=</span> <span class="n">A</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="p">((</span><span class="n">x</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">-</span> <span class="n">P</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">-=</span> <span class="n">alpha_j</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">t</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">y</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Next, our <code class="docutils literal notranslate"><span class="pre">objective</span></code> function takes a Tune <code class="docutils literal notranslate"><span class="pre">config</span></code>, evaluates the <code class="docutils literal notranslate"><span class="pre">landscape</span></code> of our experiment in a training loop,
+and uses <code class="docutils literal notranslate"><span class="pre">session.report</span></code> to report the <code class="docutils literal notranslate"><span class="pre">landscape</span></code> back to Tune.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">objective</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;iterations&quot;</span><span class="p">]):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;x</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">)])</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">report</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;timesteps_total&quot;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span> <span class="s2">&quot;landscape&quot;</span><span class="p">:</span> <span class="n">landscape</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="s2">&quot;l2norm&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">x</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())}</span>
+        <span class="p">)</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.02</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Next we define a search space. The critical assumption is that the optimal hyperparamters live within this space. Yet, if the space is very large, then those hyperparamters may be difficult to find in a short amount of time.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">search_space</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;iterations&quot;</span><span class="p">:</span><span class="mi">100</span><span class="p">,</span>
+    <span class="s2">&quot;x1&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+    <span class="s2">&quot;x2&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+    <span class="s2">&quot;x3&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+    <span class="s2">&quot;x4&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+    <span class="s2">&quot;x5&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+    <span class="s2">&quot;x6&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Now we define the search algorithm from <code class="docutils literal notranslate"><span class="pre">AxSearch</span></code>. If you want to constrain your parameters or even the space of outcomes, that can be easily done by passing the argumentsas below.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">algo</span> <span class="o">=</span> <span class="n">AxSearch</span><span class="p">(</span>
+    <span class="n">parameter_constraints</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;x1 + x2 &lt;= 2.0&quot;</span><span class="p">],</span>
+    <span class="n">outcome_constraints</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;l2norm &lt;= 1.25&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We also use <code class="docutils literal notranslate"><span class="pre">ConcurrencyLimiter</span></code> to constrain to 4 concurrent trials.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">algo</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">search</span><span class="o">.</span><span class="n">ConcurrencyLimiter</span><span class="p">(</span><span class="n">algo</span><span class="p">,</span> <span class="n">max_concurrent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The number of samples is the number of hyperparameter combinations that will be tried out. This Tune run is set to <code class="docutils literal notranslate"><span class="pre">1000</span></code> samples.
+You can decrease this if it takes too long on your machine, or you can set a time limit easily through <code class="docutils literal notranslate"><span class="pre">stop</span></code> argument in the <code class="docutils literal notranslate"><span class="pre">air.RunConfig()</span></code> as we will show here.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">num_samples</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">stop_timesteps</span> <span class="o">=</span> <span class="mi">200</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Finally, we run the experiment to find the global minimum of the provided landscape (which contains 5 false minima). The argument to metric, <code class="docutils literal notranslate"><span class="pre">&quot;landscape&quot;</span></code>, is provided via the <code class="docutils literal notranslate"><span class="pre">objective</span></code> function’s <code class="docutils literal notranslate"><span class="pre">session.report</span></code>. The experiment <code class="docutils literal notranslate"><span class="pre">&quot;min&quot;</span></code>imizes the “mean_loss” of the <code class="docutils literal notranslate"><span class="pre">landscape</span></code> by searching within <code class="docutils literal notranslate"><span class="pre">search_space</span></code> via <code class="docutils literal notranslate"><span class="pre">algo</span></code>, <code class="docutils literal notranslate"><span class="pre">num_samples</span></code> times or when <code class="docutils literal notranslate"><span class="pre">&quot;timesteps_total&quot;:</span> <span class="pre">stop_timesteps</span></code>. This previous sentence is fully characterizes the search problem we aim to solve. With this in mind, notice how efficient it is to execute <code class="docutils literal notranslate"><span class="pre">tuner.fit()</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
+    <span class="n">objective</span><span class="p">,</span>
+    <span class="n">tune_config</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">TuneConfig</span><span class="p">(</span>
+        <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;landscape&quot;</span><span class="p">,</span>
+        <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;min&quot;</span><span class="p">,</span>
+        <span class="n">search_alg</span><span class="o">=</span><span class="n">algo</span><span class="p">,</span>
+        <span class="n">num_samples</span><span class="o">=</span><span class="n">num_samples</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">run_config</span><span class="o">=</span><span class="n">air</span><span class="o">.</span><span class="n">RunConfig</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ax&quot;</span><span class="p">,</span>
+        <span class="n">stop</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;timesteps_total&quot;</span><span class="p">:</span> <span class="n">stop_timesteps</span><span class="p">}</span>
+    <span class="p">),</span>
+    <span class="n">param_space</span><span class="o">=</span><span class="n">search_space</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Function checkpointing is disabled. This may result in unexpected behavior when using checkpointing features or certain schedulers. To enable, set the train function arguments to be `func(config, checkpoint_dir=None)`.
+[INFO 07-22 15:04:18] ax.service.ax_client: Starting optimization with verbose logging. To disable logging, set the `verbose_logging` argument to `False`. Note that float values in the logs are rounded to 6 decimal points.
+[INFO 07-22 15:04:18] ax.service.utils.instantiation: Created search space: SearchSpace(parameters=[FixedParameter(name=&#39;iterations&#39;, parameter_type=INT, value=100), RangeParameter(name=&#39;x1&#39;, parameter_type=FLOAT, range=[0.0, 1.0]), RangeParameter(name=&#39;x2&#39;, parameter_type=FLOAT, range=[0.0, 1.0]), RangeParameter(name=&#39;x3&#39;, parameter_type=FLOAT, range=[0.0, 1.0]), RangeParameter(name=&#39;x4&#39;, parameter_type=FLOAT, range=[0.0, 1.0]), RangeParameter(name=&#39;x5&#39;, parameter_type=FLOAT, range=[0.0, 1.0]), RangeParameter(name=&#39;x6&#39;, parameter_type=FLOAT, range=[0.0, 1.0])], parameter_constraints=[ParameterConstraint(1.0*x1 + 1.0*x2 &lt;= 2.0)]).
+[INFO 07-22 15:04:18] ax.modelbridge.dispatch_utils: Using Bayesian optimization since there are more ordered parameters than there are categories for the unordered categorical parameters.
+[INFO 07-22 15:04:18] ax.modelbridge.dispatch_utils: Using Bayesian Optimization generation strategy: GenerationStrategy(name=&#39;Sobol+GPEI&#39;, steps=[Sobol for 12 trials, GPEI for subsequent trials]). Iterations after 12 will take longer to generate due to  model-fitting.
+Detected sequential enforcement. Be sure to use a ConcurrencyLimiter.
+</pre></div>
+</div>
+<div class="output text_html">== Status ==<br>Current time: 2022-07-22 15:04:35 (running for 00:00:16.56)<br>Memory usage on this node: 9.9/16.0 GiB<br>Using FIFO scheduling algorithm.<br>Resources requested: 0/16 CPUs, 0/0 GPUs, 0.0/5.13 GiB heap, 0.0/2.0 GiB objects<br>Current best trial: 34b7abda with landscape=-1.6624439263544026 and parameters={'iterations': 100, 'x1': 0.26526361983269453, 'x2': 0.9248840995132923, 'x3': 0.15171580761671066, 'x4': 0.43602637108415365, 'x5': 0.8573104059323668, 'x6': 0.08981018699705601}<br>Result logdir: /Users/kai/ray_results/ax<br>Number of trials: 10/10 (10 TERMINATED)<br><table>
+<thead>
+<tr><th>Trial name        </th><th>status    </th><th>loc            </th><th style="text-align: right;">  iterations</th><th style="text-align: right;">       x1</th><th style="text-align: right;">       x2</th><th style="text-align: right;">       x3</th><th style="text-align: right;">       x4</th><th style="text-align: right;">       x5</th><th style="text-align: right;">        x6</th><th style="text-align: right;">  iter</th><th style="text-align: right;">  total time (s)</th><th style="text-align: right;">  ts</th><th style="text-align: right;">  landscape</th><th style="text-align: right;">  l2norm</th></tr>
+</thead>
+<tbody>
+<tr><td>objective_2dfbe86a</td><td>TERMINATED</td><td>127.0.0.1:44721</td><td style="text-align: right;">         100</td><td style="text-align: right;">0.0558336</td><td style="text-align: right;">0.0896192</td><td style="text-align: right;">0.958956 </td><td style="text-align: right;">0.234474 </td><td style="text-align: right;">0.174516 </td><td style="text-align: right;">0.970311  </td><td style="text-align: right;">   100</td><td style="text-align: right;">         2.57372</td><td style="text-align: right;">  99</td><td style="text-align: right;">-0.805233  </td><td style="text-align: right;"> 1.39917</td></tr>
+<tr><td>objective_2fa776c0</td><td>TERMINATED</td><td>127.0.0.1:44726</td><td style="text-align: right;">         100</td><td style="text-align: right;">0.744772 </td><td style="text-align: right;">0.754537 </td><td style="text-align: right;">0.0950125</td><td style="text-align: right;">0.273877 </td><td style="text-align: right;">0.0966829</td><td style="text-align: right;">0.368943  </td><td style="text-align: right;">   100</td><td style="text-align: right;">         2.6361 </td><td style="text-align: right;">  99</td><td style="text-align: right;">-0.11286   </td><td style="text-align: right;"> 1.16341</td></tr>
+<tr><td>objective_2fabaa1a</td><td>TERMINATED</td><td>127.0.0.1:44727</td><td style="text-align: right;">         100</td><td style="text-align: right;">0.405704 </td><td style="text-align: right;">0.374626 </td><td style="text-align: right;">0.935628 </td><td style="text-align: right;">0.222185 </td><td style="text-align: right;">0.787212 </td><td style="text-align: right;">0.00812439</td><td style="text-align: right;">   100</td><td style="text-align: right;">         2.62393</td><td style="text-align: right;">  99</td><td style="text-align: right;">-0.11348   </td><td style="text-align: right;"> 1.35995</td></tr>
+<tr><td>objective_2faee7c0</td><td>TERMINATED</td><td>127.0.0.1:44728</td><td style="text-align: right;">         100</td><td style="text-align: right;">0.664728 </td><td style="text-align: right;">0.207519 </td><td style="text-align: right;">0.359514 </td><td style="text-align: right;">0.704578 </td><td style="text-align: right;">0.755882 </td><td style="text-align: right;">0.812402  </td><td style="text-align: right;">   100</td><td style="text-align: right;">         2.62069</td><td style="text-align: right;">  99</td><td style="text-align: right;">-0.0119837 </td><td style="text-align: right;"> 1.53035</td></tr>
+<tr><td>objective_313d3d3a</td><td>TERMINATED</td><td>127.0.0.1:44747</td><td style="text-align: right;">         100</td><td style="text-align: right;">0.0418746</td><td style="text-align: right;">0.992783 </td><td style="text-align: right;">0.906027 </td><td style="text-align: right;">0.594429 </td><td style="text-align: right;">0.825393 </td><td style="text-align: right;">0.646362  </td><td style="text-align: right;">   100</td><td style="text-align: right;">         3.16233</td><td style="text-align: right;">  99</td><td style="text-align: right;">-0.00677976</td><td style="text-align: right;"> 1.80573</td></tr>
+<tr><td>objective_32c9acd8</td><td>TERMINATED</td><td>127.0.0.1:44726</td><td style="text-align: right;">         100</td><td style="text-align: right;">0.126064 </td><td style="text-align: right;">0.703408 </td><td style="text-align: right;">0.344681 </td><td style="text-align: right;">0.337363 </td><td style="text-align: right;">0.401396 </td><td style="text-align: right;">0.679202  </td><td style="text-align: right;">   100</td><td style="text-align: right;">         3.12119</td><td style="text-align: right;">  99</td><td style="text-align: right;">-0.904622  </td><td style="text-align: right;"> 1.16864</td></tr>
+<tr><td>objective_32cf8ca2</td><td>TERMINATED</td><td>127.0.0.1:44756</td><td style="text-align: right;">         100</td><td style="text-align: right;">0.0910936</td><td style="text-align: right;">0.304138 </td><td style="text-align: right;">0.869848 </td><td style="text-align: right;">0.405435 </td><td style="text-align: right;">0.567922 </td><td style="text-align: right;">0.228608  </td><td style="text-align: right;">   100</td><td style="text-align: right;">         2.70791</td><td style="text-align: right;">  99</td><td style="text-align: right;">-0.146532  </td><td style="text-align: right;"> 1.18178</td></tr>
+<tr><td>objective_32d8dd20</td><td>TERMINATED</td><td>127.0.0.1:44758</td><td style="text-align: right;">         100</td><td style="text-align: right;">0.603178 </td><td style="text-align: right;">0.409057 </td><td style="text-align: right;">0.729056 </td><td style="text-align: right;">0.0825984</td><td style="text-align: right;">0.572948 </td><td style="text-align: right;">0.508304  </td><td style="text-align: right;">   100</td><td style="text-align: right;">         2.64158</td><td style="text-align: right;">  99</td><td style="text-align: right;">-0.247223  </td><td style="text-align: right;"> 1.28691</td></tr>
+<tr><td>objective_34adf04a</td><td>TERMINATED</td><td>127.0.0.1:44768</td><td style="text-align: right;">         100</td><td style="text-align: right;">0.454189 </td><td style="text-align: right;">0.271772 </td><td style="text-align: right;">0.530871 </td><td style="text-align: right;">0.991841 </td><td style="text-align: right;">0.691843 </td><td style="text-align: right;">0.472366  </td><td style="text-align: right;">   100</td><td style="text-align: right;">         2.70327</td><td style="text-align: right;">  99</td><td style="text-align: right;">-0.0132915 </td><td style="text-align: right;"> 1.49917</td></tr>
+<tr><td>objective_34b7abda</td><td>TERMINATED</td><td>127.0.0.1:44771</td><td style="text-align: right;">         100</td><td style="text-align: right;">0.265264 </td><td style="text-align: right;">0.924884 </td><td style="text-align: right;">0.151716 </td><td style="text-align: right;">0.436026 </td><td style="text-align: right;">0.85731  </td><td style="text-align: right;">0.0898102 </td><td style="text-align: right;">   100</td><td style="text-align: right;">         2.68521</td><td style="text-align: right;">  99</td><td style="text-align: right;">-1.66244   </td><td style="text-align: right;"> 1.37185</td></tr>
+</tbody>
+</table><br><br></div><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[INFO 07-22 15:04:19] ax.service.ax_client: Generated new trial 0 with parameters {&#39;x1&#39;: 0.055834, &#39;x2&#39;: 0.089619, &#39;x3&#39;: 0.958956, &#39;x4&#39;: 0.234474, &#39;x5&#39;: 0.174516, &#39;x6&#39;: 0.970311, &#39;iterations&#39;: 100}.
+[INFO 07-22 15:04:22] ax.service.ax_client: Generated new trial 1 with parameters {&#39;x1&#39;: 0.744772, &#39;x2&#39;: 0.754537, &#39;x3&#39;: 0.095012, &#39;x4&#39;: 0.273877, &#39;x5&#39;: 0.096683, &#39;x6&#39;: 0.368943, &#39;iterations&#39;: 100}.
+[INFO 07-22 15:04:22] ax.service.ax_client: Generated new trial 2 with parameters {&#39;x1&#39;: 0.405704, &#39;x2&#39;: 0.374626, &#39;x3&#39;: 0.935628, &#39;x4&#39;: 0.222185, &#39;x5&#39;: 0.787212, &#39;x6&#39;: 0.008124, &#39;iterations&#39;: 100}.
+[INFO 07-22 15:04:22] ax.service.ax_client: Generated new trial 3 with parameters {&#39;x1&#39;: 0.664728, &#39;x2&#39;: 0.207519, &#39;x3&#39;: 0.359514, &#39;x4&#39;: 0.704578, &#39;x5&#39;: 0.755882, &#39;x6&#39;: 0.812402, &#39;iterations&#39;: 100}.
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Result for objective_2dfbe86a:
+  date: 2022-07-22_15-04-22
+  done: false
+  experiment_id: 4ef8a12ac94a4f4fa483ec18e347967f
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  l2norm: 1.3991721132671366
+  landscape: -0.8052333562869153
+  node_ip: 127.0.0.1
+  pid: 44721
+  time_since_restore: 0.00022912025451660156
+  time_this_iter_s: 0.00022912025451660156
+  time_total_s: 0.00022912025451660156
+  timestamp: 1658498662
+  timesteps_since_restore: 0
+  timesteps_total: 0
+  training_iteration: 1
+  trial_id: 2dfbe86a
+  warmup_time: 0.0035619735717773438
+  
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[INFO 07-22 15:04:24] ax.service.ax_client: Completed trial 0 with data: {&#39;landscape&#39;: (-0.805233, None), &#39;l2norm&#39;: (1.399172, None)}.
+[INFO 07-22 15:04:24] ax.service.ax_client: Generated new trial 4 with parameters {&#39;x1&#39;: 0.041875, &#39;x2&#39;: 0.992783, &#39;x3&#39;: 0.906027, &#39;x4&#39;: 0.594429, &#39;x5&#39;: 0.825393, &#39;x6&#39;: 0.646362, &#39;iterations&#39;: 100}.
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Result for objective_2faee7c0:
+  date: 2022-07-22_15-04-24
+  done: false
+  experiment_id: 3699644e85ac439cb7c1a36ed0976307
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  l2norm: 1.530347488145437
+  landscape: -0.011983676977099367
+  node_ip: 127.0.0.1
+  pid: 44728
+  time_since_restore: 0.00022292137145996094
+  time_this_iter_s: 0.00022292137145996094
+  time_total_s: 0.00022292137145996094
+  timestamp: 1658498664
+  timesteps_since_restore: 0
+  timesteps_total: 0
+  training_iteration: 1
+  trial_id: 2faee7c0
+  warmup_time: 0.0027179718017578125
+  
+Result for objective_2fa776c0:
+  date: 2022-07-22_15-04-24
+  done: false
+  experiment_id: c555bfed13ac43e5b8c8e9f6d4b9b2f7
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  l2norm: 1.1634068454629019
+  landscape: -0.11285961764770336
+  node_ip: 127.0.0.1
+  pid: 44726
+  time_since_restore: 0.000225067138671875
+  time_this_iter_s: 0.000225067138671875
+  time_total_s: 0.000225067138671875
+  timestamp: 1658498664
+  timesteps_since_restore: 0
+  timesteps_total: 0
+  training_iteration: 1
+  trial_id: 2fa776c0
+  warmup_time: 0.0026290416717529297
+  
+Result for objective_2dfbe86a:
+  date: 2022-07-22_15-04-24
+  done: true
+  experiment_id: 4ef8a12ac94a4f4fa483ec18e347967f
+  experiment_tag: 1_iterations=100,x1=0.0558,x2=0.0896,x3=0.9590,x4=0.2345,x5=0.1745,x6=0.9703
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 100
+  l2norm: 1.3991721132671366
+  landscape: -0.8052333562869153
+  node_ip: 127.0.0.1
+  pid: 44721
+  time_since_restore: 2.573719024658203
+  time_this_iter_s: 0.0251619815826416
+  time_total_s: 2.573719024658203
+  timestamp: 1658498664
+  timesteps_since_restore: 0
+  timesteps_total: 99
+  training_iteration: 100
+  trial_id: 2dfbe86a
+  warmup_time: 0.0035619735717773438
+  
+Result for objective_2fabaa1a:
+  date: 2022-07-22_15-04-24
+  done: false
+  experiment_id: eb9287e4fe5f44c7868dc943e2642312
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  l2norm: 1.3599537840291782
+  landscape: -0.11348012497414121
+  node_ip: 127.0.0.1
+  pid: 44727
+  time_since_restore: 0.00022077560424804688
+  time_this_iter_s: 0.00022077560424804688
+  time_total_s: 0.00022077560424804688
+  timestamp: 1658498664
+  timesteps_since_restore: 0
+  timesteps_total: 0
+  training_iteration: 1
+  trial_id: 2fabaa1a
+  warmup_time: 0.0025510787963867188
+  
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[INFO 07-22 15:04:27] ax.service.ax_client: Completed trial 3 with data: {&#39;landscape&#39;: (-0.011984, None), &#39;l2norm&#39;: (1.530347, None)}.
+[INFO 07-22 15:04:27] ax.service.ax_client: Generated new trial 5 with parameters {&#39;x1&#39;: 0.126064, &#39;x2&#39;: 0.703408, &#39;x3&#39;: 0.344681, &#39;x4&#39;: 0.337363, &#39;x5&#39;: 0.401396, &#39;x6&#39;: 0.679202, &#39;iterations&#39;: 100}.
+[INFO 07-22 15:04:27] ax.service.ax_client: Completed trial 1 with data: {&#39;landscape&#39;: (-0.11286, None), &#39;l2norm&#39;: (1.163407, None)}.
+[INFO 07-22 15:04:27] ax.service.ax_client: Generated new trial 6 with parameters {&#39;x1&#39;: 0.091094, &#39;x2&#39;: 0.304138, &#39;x3&#39;: 0.869848, &#39;x4&#39;: 0.405435, &#39;x5&#39;: 0.567922, &#39;x6&#39;: 0.228608, &#39;iterations&#39;: 100}.
+[INFO 07-22 15:04:27] ax.service.ax_client: Completed trial 2 with data: {&#39;landscape&#39;: (-0.11348, None), &#39;l2norm&#39;: (1.359954, None)}.
+[INFO 07-22 15:04:27] ax.service.ax_client: Generated new trial 7 with parameters {&#39;x1&#39;: 0.603178, &#39;x2&#39;: 0.409057, &#39;x3&#39;: 0.729056, &#39;x4&#39;: 0.082598, &#39;x5&#39;: 0.572948, &#39;x6&#39;: 0.508304, &#39;iterations&#39;: 100}.
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Result for objective_313d3d3a:
+  date: 2022-07-22_15-04-27
+  done: false
+  experiment_id: fa7afd557e154fbebe4f54d8eedb3573
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  l2norm: 1.805729990121368
+  landscape: -0.006779757704679272
+  node_ip: 127.0.0.1
+  pid: 44747
+  time_since_restore: 0.00021076202392578125
+  time_this_iter_s: 0.00021076202392578125
+  time_total_s: 0.00021076202392578125
+  timestamp: 1658498667
+  timesteps_since_restore: 0
+  timesteps_total: 0
+  training_iteration: 1
+  trial_id: 313d3d3a
+  warmup_time: 0.0029790401458740234
+  
+Result for objective_2faee7c0:
+  date: 2022-07-22_15-04-27
+  done: true
+  experiment_id: 3699644e85ac439cb7c1a36ed0976307
+  experiment_tag: 4_iterations=100,x1=0.6647,x2=0.2075,x3=0.3595,x4=0.7046,x5=0.7559,x6=0.8124
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 100
+  l2norm: 1.530347488145437
+  landscape: -0.011983676977099367
+  node_ip: 127.0.0.1
+  pid: 44728
+  time_since_restore: 2.6206929683685303
+  time_this_iter_s: 0.027359962463378906
+  time_total_s: 2.6206929683685303
+  timestamp: 1658498667
+  timesteps_since_restore: 0
+  timesteps_total: 99
+  training_iteration: 100
+  trial_id: 2faee7c0
+  warmup_time: 0.0027179718017578125
+  
+Result for objective_2fa776c0:
+  date: 2022-07-22_15-04-27
+  done: true
+  experiment_id: c555bfed13ac43e5b8c8e9f6d4b9b2f7
+  experiment_tag: 2_iterations=100,x1=0.7448,x2=0.7545,x3=0.0950,x4=0.2739,x5=0.0967,x6=0.3689
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 100
+  l2norm: 1.1634068454629019
+  landscape: -0.11285961764770336
+  node_ip: 127.0.0.1
+  pid: 44726
+  time_since_restore: 2.6361019611358643
+  time_this_iter_s: 0.0264589786529541
+  time_total_s: 2.6361019611358643
+  timestamp: 1658498667
+  timesteps_since_restore: 0
+  timesteps_total: 99
+  training_iteration: 100
+  trial_id: 2fa776c0
+  warmup_time: 0.0026290416717529297
+  
+Result for objective_32c9acd8:
+  date: 2022-07-22_15-04-27
+  done: false
+  experiment_id: c555bfed13ac43e5b8c8e9f6d4b9b2f7
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  l2norm: 1.1686440476629836
+  landscape: -0.9046216637367911
+  node_ip: 127.0.0.1
+  pid: 44726
+  time_since_restore: 0.00020194053649902344
+  time_this_iter_s: 0.00020194053649902344
+  time_total_s: 0.00020194053649902344
+  timestamp: 1658498667
+  timesteps_since_restore: 0
+  timesteps_total: 0
+  training_iteration: 1
+  trial_id: 32c9acd8
+  warmup_time: 0.0026290416717529297
+  
+Result for objective_2fabaa1a:
+  date: 2022-07-22_15-04-27
+  done: true
+  experiment_id: eb9287e4fe5f44c7868dc943e2642312
+  experiment_tag: 3_iterations=100,x1=0.4057,x2=0.3746,x3=0.9356,x4=0.2222,x5=0.7872,x6=0.0081
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 100
+  l2norm: 1.3599537840291782
+  landscape: -0.11348012497414121
+  node_ip: 127.0.0.1
+  pid: 44727
+  time_since_restore: 2.623929977416992
+  time_this_iter_s: 0.032716989517211914
+  time_total_s: 2.623929977416992
+  timestamp: 1658498667
+  timesteps_since_restore: 0
+  timesteps_total: 99
+  training_iteration: 100
+  trial_id: 2fabaa1a
+  warmup_time: 0.0025510787963867188
+  
+Result for objective_32d8dd20:
+  date: 2022-07-22_15-04-30
+  done: false
+  experiment_id: 171527593b0f4cbf941c0a03faaf0953
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  l2norm: 1.2869105702896437
+  landscape: -0.24722262157458608
+  node_ip: 127.0.0.1
+  pid: 44758
+  time_since_restore: 0.00021886825561523438
+  time_this_iter_s: 0.00021886825561523438
+  time_total_s: 0.00021886825561523438
+  timestamp: 1658498670
+  timesteps_since_restore: 0
+  timesteps_total: 0
+  training_iteration: 1
+  trial_id: 32d8dd20
+  warmup_time: 0.002732992172241211
+  
+Result for objective_32cf8ca2:
+  date: 2022-07-22_15-04-29
+  done: false
+  experiment_id: 37610500f6df493aae4e7e46bb21bf09
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  l2norm: 1.1817810425508524
+  landscape: -0.14653248187442922
+  node_ip: 127.0.0.1
+  pid: 44756
+  time_since_restore: 0.00025081634521484375
+  time_this_iter_s: 0.00025081634521484375
+  time_total_s: 0.00025081634521484375
+  timestamp: 1658498669
+  timesteps_since_restore: 0
+  timesteps_total: 0
+  training_iteration: 1
+  trial_id: 32cf8ca2
+  warmup_time: 0.0032138824462890625
+  
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[INFO 07-22 15:04:30] ax.service.ax_client: Completed trial 4 with data: {&#39;landscape&#39;: (-0.00678, None), &#39;l2norm&#39;: (1.80573, None)}.
+[INFO 07-22 15:04:30] ax.service.ax_client: Generated new trial 8 with parameters {&#39;x1&#39;: 0.454189, &#39;x2&#39;: 0.271772, &#39;x3&#39;: 0.530871, &#39;x4&#39;: 0.991841, &#39;x5&#39;: 0.691843, &#39;x6&#39;: 0.472366, &#39;iterations&#39;: 100}.
+[INFO 07-22 15:04:30] ax.service.ax_client: Completed trial 5 with data: {&#39;landscape&#39;: (-0.904622, None), &#39;l2norm&#39;: (1.168644, None)}.
+[INFO 07-22 15:04:30] ax.service.ax_client: Generated new trial 9 with parameters {&#39;x1&#39;: 0.265264, &#39;x2&#39;: 0.924884, &#39;x3&#39;: 0.151716, &#39;x4&#39;: 0.436026, &#39;x5&#39;: 0.85731, &#39;x6&#39;: 0.08981, &#39;iterations&#39;: 100}.
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Result for objective_313d3d3a:
+  date: 2022-07-22_15-04-30
+  done: true
+  experiment_id: fa7afd557e154fbebe4f54d8eedb3573
+  experiment_tag: 5_iterations=100,x1=0.0419,x2=0.9928,x3=0.9060,x4=0.5944,x5=0.8254,x6=0.6464
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 100
+  l2norm: 1.805729990121368
+  landscape: -0.006779757704679272
+  node_ip: 127.0.0.1
+  pid: 44747
+  time_since_restore: 3.1623308658599854
+  time_this_iter_s: 0.02911996841430664
+  time_total_s: 3.1623308658599854
+  timestamp: 1658498670
+  timesteps_since_restore: 0
+  timesteps_total: 99
+  training_iteration: 100
+  trial_id: 313d3d3a
+  warmup_time: 0.0029790401458740234
+  
+Result for objective_32c9acd8:
+  date: 2022-07-22_15-04-30
+  done: true
+  experiment_id: c555bfed13ac43e5b8c8e9f6d4b9b2f7
+  experiment_tag: 6_iterations=100,x1=0.1261,x2=0.7034,x3=0.3447,x4=0.3374,x5=0.4014,x6=0.6792
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 100
+  l2norm: 1.1686440476629836
+  landscape: -0.9046216637367911
+  node_ip: 127.0.0.1
+  pid: 44726
+  time_since_restore: 3.1211891174316406
+  time_this_iter_s: 0.02954697608947754
+  time_total_s: 3.1211891174316406
+  timestamp: 1658498670
+  timesteps_since_restore: 0
+  timesteps_total: 99
+  training_iteration: 100
+  trial_id: 32c9acd8
+  warmup_time: 0.0026290416717529297
+  
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[INFO 07-22 15:04:32] ax.service.ax_client: Completed trial 7 with data: {&#39;landscape&#39;: (-0.247223, None), &#39;l2norm&#39;: (1.286911, None)}.
+[INFO 07-22 15:04:32] ax.service.ax_client: Completed trial 6 with data: {&#39;landscape&#39;: (-0.146532, None), &#39;l2norm&#39;: (1.181781, None)}.
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Result for objective_32d8dd20:
+  date: 2022-07-22_15-04-32
+  done: true
+  experiment_id: 171527593b0f4cbf941c0a03faaf0953
+  experiment_tag: 8_iterations=100,x1=0.6032,x2=0.4091,x3=0.7291,x4=0.0826,x5=0.5729,x6=0.5083
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 100
+  l2norm: 1.2869105702896437
+  landscape: -0.24722262157458608
+  node_ip: 127.0.0.1
+  pid: 44758
+  time_since_restore: 2.6415798664093018
+  time_this_iter_s: 0.026781082153320312
+  time_total_s: 2.6415798664093018
+  timestamp: 1658498672
+  timesteps_since_restore: 0
+  timesteps_total: 99
+  training_iteration: 100
+  trial_id: 32d8dd20
+  warmup_time: 0.002732992172241211
+  
+Result for objective_32cf8ca2:
+  date: 2022-07-22_15-04-32
+  done: true
+  experiment_id: 37610500f6df493aae4e7e46bb21bf09
+  experiment_tag: 7_iterations=100,x1=0.0911,x2=0.3041,x3=0.8698,x4=0.4054,x5=0.5679,x6=0.2286
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 100
+  l2norm: 1.1817810425508524
+  landscape: -0.14653248187442922
+  node_ip: 127.0.0.1
+  pid: 44756
+  time_since_restore: 2.707913875579834
+  time_this_iter_s: 0.027456998825073242
+  time_total_s: 2.707913875579834
+  timestamp: 1658498672
+  timesteps_since_restore: 0
+  timesteps_total: 99
+  training_iteration: 100
+  trial_id: 32cf8ca2
+  warmup_time: 0.0032138824462890625
+  
+Result for objective_34adf04a:
+  date: 2022-07-22_15-04-33
+  done: false
+  experiment_id: 4f65c5b68f5c49d98fda388e37c83deb
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  l2norm: 1.4991655675380078
+  landscape: -0.01329150870283869
+  node_ip: 127.0.0.1
+  pid: 44768
+  time_since_restore: 0.00021600723266601562
+  time_this_iter_s: 0.00021600723266601562
+  time_total_s: 0.00021600723266601562
+  timestamp: 1658498673
+  timesteps_since_restore: 0
+  timesteps_total: 0
+  training_iteration: 1
+  trial_id: 34adf04a
+  warmup_time: 0.0027239322662353516
+  
+Result for objective_34b7abda:
+  date: 2022-07-22_15-04-33
+  done: false
+  experiment_id: f135a2c40f5644ba9d2ae096a9dd10e0
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  l2norm: 1.3718451333547932
+  landscape: -1.6624439263544026
+  node_ip: 127.0.0.1
+  pid: 44771
+  time_since_restore: 0.0002338886260986328
+  time_this_iter_s: 0.0002338886260986328
+  time_total_s: 0.0002338886260986328
+  timestamp: 1658498673
+  timesteps_since_restore: 0
+  timesteps_total: 0
+  training_iteration: 1
+  trial_id: 34b7abda
+  warmup_time: 0.002721071243286133
+  
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[INFO 07-22 15:04:35] ax.service.ax_client: Completed trial 8 with data: {&#39;landscape&#39;: (-0.013292, None), &#39;l2norm&#39;: (1.499166, None)}.
+[INFO 07-22 15:04:35] ax.service.ax_client: Completed trial 9 with data: {&#39;landscape&#39;: (-1.662444, None), &#39;l2norm&#39;: (1.371845, None)}.
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Result for objective_34adf04a:
+  date: 2022-07-22_15-04-35
+  done: true
+  experiment_id: 4f65c5b68f5c49d98fda388e37c83deb
+  experiment_tag: 9_iterations=100,x1=0.4542,x2=0.2718,x3=0.5309,x4=0.9918,x5=0.6918,x6=0.4724
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 100
+  l2norm: 1.4991655675380078
+  landscape: -0.01329150870283869
+  node_ip: 127.0.0.1
+  pid: 44768
+  time_since_restore: 2.7032668590545654
+  time_this_iter_s: 0.029300928115844727
+  time_total_s: 2.7032668590545654
+  timestamp: 1658498675
+  timesteps_since_restore: 0
+  timesteps_total: 99
+  training_iteration: 100
+  trial_id: 34adf04a
+  warmup_time: 0.0027239322662353516
+  
+Result for objective_34b7abda:
+  date: 2022-07-22_15-04-35
+  done: true
+  experiment_id: f135a2c40f5644ba9d2ae096a9dd10e0
+  experiment_tag: 10_iterations=100,x1=0.2653,x2=0.9249,x3=0.1517,x4=0.4360,x5=0.8573,x6=0.0898
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 100
+  l2norm: 1.3718451333547932
+  landscape: -1.6624439263544026
+  node_ip: 127.0.0.1
+  pid: 44771
+  time_since_restore: 2.6852078437805176
+  time_this_iter_s: 0.029579877853393555
+  time_total_s: 2.6852078437805176
+  timestamp: 1658498675
+  timesteps_since_restore: 0
+  timesteps_total: 99
+  training_iteration: 100
+  trial_id: 34b7abda
+  warmup_time: 0.002721071243286133
+  
+</pre></div>
+</div>
+</div>
+</div>
+<p>And now we have the hyperparameters found to minimize the mean loss.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Best hyperparameters found were: &quot;</span><span class="p">,</span> <span class="n">results</span><span class="o">.</span><span class="n">get_best_result</span><span class="p">()</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Best hyperparameters found were:  {&#39;iterations&#39;: 100, &#39;x1&#39;: 0.26526361983269453, &#39;x2&#39;: 0.9248840995132923, &#39;x3&#39;: 0.15171580761671066, &#39;x4&#39;: 0.43602637108415365, &#39;x5&#39;: 0.8573104059323668, &#39;x6&#39;: 0.08981018699705601}
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="hpo-frameworks.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Tune Hyperparameter Optimization Framework Examples</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="dragonfly_example.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Running Tune experiments with Dragonfly</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

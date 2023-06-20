@@ -1,0 +1,1162 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Finetuning a Pytorch Image Classifier with Ray AIR &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/js/versionwarning.js"></script>
+    <script src="../../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../../_static/js/docsearch.js"></script>
+    <script src="../../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../../_static/js/top-navigation.js"></script>
+    <script src="../../../_static/js/tags.js"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/train/examples/pytorch/pytorch_resnet_finetune.html" />
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Ray Train FAQ" href="../../faq.html" />
+    <link rel="prev" title="Torch Data Prefetching Benchmark for Ray Train" href="torch_data_prefetch_benchmark/benchmark_example.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "train/examples/pytorch/pytorch_resnet_finetune", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".ipynb", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../../train.html">
+   Ray Train
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../getting-started.html">
+     Getting Started
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../user-guides.html">
+     User Guides
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="../../examples.html">
+     Examples
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="torch_fashion_mnist_example.html">
+       PyTorch Fashion MNIST Example
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../lightning/lightning_mnist_example.html">
+       PyTorch Lightning Basic Example
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../lightning/lightning_cola_advanced.html">
+       PyTorch Lightning Advanced Example
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../lightning/lightning_exp_tracking.html">
+       PyTorch Lightning with Experiment Tracking Tools
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../transformers/transformers_example.html">
+       HF Transformers Example
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../tf/tensorflow_mnist_example.html">
+       TensorFlow MNIST Example
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../horovod/horovod_example.html">
+       Horovod Example
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../mlflow_fashion_mnist_example.html">
+       MLflow Callback Example
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../tf/tune_tensorflow_mnist_example.html">
+       Tune &amp; TensorFlow Example
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tune_cifar_torch_pbt_example.html">
+       Tune &amp; PyTorch Example
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="torch_data_prefetch_benchmark/benchmark_example.html">
+       Torch Data Prefetching Benchmark
+      </a>
+     </li>
+     <li class="toctree-l3 current active">
+      <a class="current reference internal" href="pytorch_resnet_finetune.html#">
+       PyTorch Finetuning ResNet Example
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../faq.html">
+     Ray Train FAQ
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../api/api.html">
+     Ray Train API
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../tune.html">
+   Ray Tune
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Ftrain/examples/pytorch/pytorch_resnet_finetune.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/train/examples/pytorch/pytorch_resnet_finetune.ipynb"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../../_sources/train/examples/pytorch/pytorch_resnet_finetune.ipynb.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.ipynb</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="pytorch_resnet_finetune.html#load-and-preprocess-finetuning-dataset">
+   Load and preprocess finetuning dataset
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="pytorch_resnet_finetune.html#initialize-model-and-fine-tuning-configs">
+   Initialize Model and Fine-tuning configs
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="pytorch_resnet_finetune.html#define-the-training-loop">
+   Define the Training Loop
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="pytorch_resnet_finetune.html#load-the-checkpoint-for-prediction">
+   Load the checkpoint for prediction:
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Finetuning a Pytorch Image Classifier with Ray AIR</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="pytorch_resnet_finetune.html#load-and-preprocess-finetuning-dataset">
+   Load and preprocess finetuning dataset
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="pytorch_resnet_finetune.html#initialize-model-and-fine-tuning-configs">
+   Initialize Model and Fine-tuning configs
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="pytorch_resnet_finetune.html#define-the-training-loop">
+   Define the Training Loop
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="pytorch_resnet_finetune.html#load-the-checkpoint-for-prediction">
+   Load the checkpoint for prediction:
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section class="tex2jax_ignore mathjax_ignore" id="finetuning-a-pytorch-image-classifier-with-ray-air">
+<h1>Finetuning a Pytorch Image Classifier with Ray AIR<a class="headerlink" href="pytorch_resnet_finetune.html#finetuning-a-pytorch-image-classifier-with-ray-air" title="Permalink to this headline">#</a></h1>
+<p>This example fine tunes a pre-trained ResNet model with Ray Train.</p>
+<p>For this example, the network architecture consists of the intermediate layer output of a pre-trained ResNet model, which feeds into a randomly initialized linear layer that outputs classification logits for our new task.</p>
+<section id="load-and-preprocess-finetuning-dataset">
+<h2>Load and preprocess finetuning dataset<a class="headerlink" href="pytorch_resnet_finetune.html#load-and-preprocess-finetuning-dataset" title="Permalink to this headline">#</a></h2>
+<p>This example is adapted from Pytorch’s <a class="reference external" href="https://pytorch.org/tutorials/beginner/finetuning_torchvision_models_tutorial.html">Finetuning Torchvision Models</a> tutorial.
+We will use <em>hymenoptera_data</em> as the finetuning dataset, which contains two classes (bees and ants) and 397 total images (across training and validation). This is a quite small dataset and used only for demonstration purposes.</p>
+<p>The dataset is publicly available <a class="reference external" href="https://www.kaggle.com/datasets/ajayrana/hymenoptera-data">here</a>. Note that it is structured with directory names as the labels. Use <code class="docutils literal notranslate"><span class="pre">torchvision.datasets.ImageFolder()</span></code> to load the images and their corresponding labels.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+<span class="kn">import</span> <span class="nn">torch.optim</span> <span class="k">as</span> <span class="nn">optim</span>
+<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">DataLoader</span>
+<span class="kn">from</span> <span class="nn">torchvision</span> <span class="kn">import</span> <span class="n">datasets</span><span class="p">,</span> <span class="n">models</span><span class="p">,</span> <span class="n">transforms</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="c1"># Data augmentation and normalization for training</span>
+<span class="c1"># Just normalization for validation</span>
+<span class="n">data_transforms</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;train&quot;</span><span class="p">:</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">RandomResizedCrop</span><span class="p">(</span><span class="mi">224</span><span class="p">),</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">RandomHorizontalFlip</span><span class="p">(),</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">Normalize</span><span class="p">([</span><span class="mf">0.485</span><span class="p">,</span> <span class="mf">0.456</span><span class="p">,</span> <span class="mf">0.406</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.229</span><span class="p">,</span> <span class="mf">0.224</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">]),</span>
+        <span class="p">]</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">Resize</span><span class="p">(</span><span class="mi">224</span><span class="p">),</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">CenterCrop</span><span class="p">(</span><span class="mi">224</span><span class="p">),</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">Normalize</span><span class="p">([</span><span class="mf">0.485</span><span class="p">,</span> <span class="mf">0.456</span><span class="p">,</span> <span class="mf">0.406</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.229</span><span class="p">,</span> <span class="mf">0.224</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">]),</span>
+        <span class="p">]</span>
+    <span class="p">),</span>
+<span class="p">}</span>
+
+<span class="c1"># Download and build torch datasets</span>
+<span class="k">def</span> <span class="nf">build_datasets</span><span class="p">():</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span>
+        <span class="s2">&quot;wget https://download.pytorch.org/tutorial/hymenoptera_data.zip &gt;/dev/null 2&gt;&amp;1&quot;</span>
+    <span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s2">&quot;unzip hymenoptera_data.zip &gt;/dev/null 2&gt;&amp;1&quot;</span><span class="p">)</span>
+
+    <span class="n">torch_datasets</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">split</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">,</span> <span class="s2">&quot;val&quot;</span><span class="p">]:</span>
+        <span class="n">torch_datasets</span><span class="p">[</span><span class="n">split</span><span class="p">]</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">ImageFolder</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;./hymenoptera_data&quot;</span><span class="p">,</span> <span class="n">split</span><span class="p">),</span> <span class="n">data_transforms</span><span class="p">[</span><span class="n">split</span><span class="p">]</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">torch_datasets</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="initialize-model-and-fine-tuning-configs">
+<h2>Initialize Model and Fine-tuning configs<a class="headerlink" href="pytorch_resnet_finetune.html#initialize-model-and-fine-tuning-configs" title="Permalink to this headline">#</a></h2>
+<p>Next, let’s define the training configuration that will be passed into the training loop function later.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">train_loop_config</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;input_size&quot;</span><span class="p">:</span> <span class="mi">224</span><span class="p">,</span>  <span class="c1"># Input image size (224 x 224)</span>
+    <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>  <span class="c1"># Batch size for training</span>
+    <span class="s2">&quot;num_epochs&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>  <span class="c1"># Number of epochs to train for</span>
+    <span class="s2">&quot;lr&quot;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span>  <span class="c1"># Learning Rate</span>
+    <span class="s2">&quot;momentum&quot;</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>  <span class="c1"># SGD optimizer momentum</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Next, let’s define our model. You can either create a model from pre-trained weights or reload the model checkpoint from a previous run.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ray.train.torch</span> <span class="kn">import</span> <span class="n">TorchCheckpoint</span>
+
+<span class="c1"># Option 1: Initialize model with pretrained weights</span>
+<span class="k">def</span> <span class="nf">initialize_model</span><span class="p">():</span>
+    <span class="c1"># Load pretrained model params</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">resnet50</span><span class="p">(</span><span class="n">pretrained</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Replace the original classifier with a new Linear layer</span>
+    <span class="n">num_features</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fc</span><span class="o">.</span><span class="n">in_features</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">fc</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">num_features</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="c1"># Ensure all params get updated during finetuning</span>
+    <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">():</span>
+        <span class="n">param</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="n">model</span>
+
+
+<span class="c1"># Option 2: Initialize model with an AIR checkpoint</span>
+<span class="c1"># Replace this with your own uri</span>
+<span class="n">CHECKPOINT_URI</span> <span class="o">=</span> <span class="s2">&quot;s3://air-example-data/finetune-resnet-checkpoint/TorchTrainer_4f69f_00000_0_2023-02-14_14-04-09/checkpoint_000000/&quot;</span>
+
+
+<span class="k">def</span> <span class="nf">initialize_model_from_uri</span><span class="p">(</span><span class="n">checkpoint_uri</span><span class="p">):</span>
+    <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">TorchCheckpoint</span><span class="o">.</span><span class="n">from_uri</span><span class="p">(</span><span class="n">checkpoint_uri</span><span class="p">)</span>
+    <span class="n">resnet50</span> <span class="o">=</span> <span class="n">initialize_model</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">checkpoint</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">resnet50</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="define-the-training-loop">
+<h2>Define the Training Loop<a class="headerlink" href="pytorch_resnet_finetune.html#define-the-training-loop" title="Permalink to this headline">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">train_loop_per_worker</span></code> function defines the fine-tuning procedure for each worker.</p>
+<p><strong>1. Prepare dataloaders for each worker</strong>:</p>
+<ul class="simple">
+<li><p>This tutorial assumes you are using PyTorch’s native <code class="docutils literal notranslate"><span class="pre">torch.utils.data.Dataset</span></code> for data input. <a class="reference internal" href="../../api/doc/ray.train.torch.prepare_data_loader.html#ray.train.torch.prepare_data_loader" title="ray.train.torch.prepare_data_loader"><code class="xref py py-meth docutils literal notranslate"><span class="pre">train.torch.prepare_data_loader()</span></code></a>  prepares your dataLoader for distributed execution. You can also use Ray Data for more efficient preprocessing(see this <a class="reference internal" href="../../../ray-air/examples/torch_image_example.html"><span class="doc">example</span></a>).</p></li>
+</ul>
+<p><strong>2. Prepare your model</strong>:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../../api/doc/ray.train.torch.prepare_model.html#ray.train.torch.prepare_model" title="ray.train.torch.prepare_model"><code class="xref py py-meth docutils literal notranslate"><span class="pre">train.torch.prepare_model()</span></code></a> prepares the model for distributed training. Under the hood, it converts your torch model to <code class="docutils literal notranslate"><span class="pre">DistributedDataParallel</span></code> model, which synchronize its weights across all workers.</p></li>
+</ul>
+<p><strong>3. Report metrics and checkpoint</strong>:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../../../ray-air/api/doc/ray.air.session.report.html#ray.air.session.report" title="ray.air.session.report"><code class="xref py py-meth docutils literal notranslate"><span class="pre">session.report()</span></code></a> will report metrics and checkpoints to Ray AIR.</p></li>
+<li><p>Saving checkpoints through <a class="reference internal" href="../../../ray-air/api/doc/ray.air.session.report.html#ray.air.session.report" title="ray.air.session.report"><code class="xref py py-meth docutils literal notranslate"><span class="pre">session.report(metrics,</span> <span class="pre">checkpoint=...)</span></code></a> will automatically <a class="reference internal" href="../../../tune/tutorials/tune-storage.html#tune-cloud-checkpointing"><span class="std std-ref">upload checkpoints to cloud storage</span></a> (if configured), and allow you to easily enable Ray AIR worker fault tolerance in the future.</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ray.train</span> <span class="k">as</span> <span class="nn">train</span>
+<span class="kn">from</span> <span class="nn">ray.air</span> <span class="kn">import</span> <span class="n">session</span>
+<span class="kn">from</span> <span class="nn">ray.train.torch</span> <span class="kn">import</span> <span class="n">TorchCheckpoint</span>
+
+
+<span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">preds</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">corrects</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">preds</span> <span class="o">==</span> <span class="n">labels</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">corrects</span>
+
+
+<span class="k">def</span> <span class="nf">train_loop_per_worker</span><span class="p">(</span><span class="n">configs</span><span class="p">):</span>
+    <span class="kn">import</span> <span class="nn">warnings</span>
+
+    <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Calculate the batch size for a single worker</span>
+    <span class="n">worker_batch_size</span> <span class="o">=</span> <span class="n">configs</span><span class="p">[</span><span class="s2">&quot;batch_size&quot;</span><span class="p">]</span> <span class="o">//</span> <span class="n">session</span><span class="o">.</span><span class="n">get_world_size</span><span class="p">()</span>
+
+    <span class="c1"># Build datasets on each worker</span>
+    <span class="n">torch_datasets</span> <span class="o">=</span> <span class="n">build_datasets</span><span class="p">()</span>
+
+    <span class="c1"># Prepare dataloader for each worker</span>
+    <span class="n">dataloaders</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">dataloaders</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span>
+        <span class="n">torch_datasets</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">],</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">worker_batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">dataloaders</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span>
+        <span class="n">torch_datasets</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">],</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">worker_batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Distribute</span>
+    <span class="n">dataloaders</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">train</span><span class="o">.</span><span class="n">torch</span><span class="o">.</span><span class="n">prepare_data_loader</span><span class="p">(</span><span class="n">dataloaders</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">])</span>
+    <span class="n">dataloaders</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">train</span><span class="o">.</span><span class="n">torch</span><span class="o">.</span><span class="n">prepare_data_loader</span><span class="p">(</span><span class="n">dataloaders</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">])</span>
+
+    <span class="n">device</span> <span class="o">=</span> <span class="n">train</span><span class="o">.</span><span class="n">torch</span><span class="o">.</span><span class="n">get_device</span><span class="p">()</span>
+
+    <span class="c1"># Prepare DDP Model, optimizer, and loss function</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">initialize_model</span><span class="p">()</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">train</span><span class="o">.</span><span class="n">torch</span><span class="o">.</span><span class="n">prepare_model</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+
+    <span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="n">configs</span><span class="p">[</span><span class="s2">&quot;lr&quot;</span><span class="p">],</span> <span class="n">momentum</span><span class="o">=</span><span class="n">configs</span><span class="p">[</span><span class="s2">&quot;momentum&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">criterion</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">CrossEntropyLoss</span><span class="p">()</span>
+
+    <span class="c1"># Start training loops</span>
+    <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">configs</span><span class="p">[</span><span class="s2">&quot;num_epochs&quot;</span><span class="p">]):</span>
+        <span class="c1"># Each epoch has a training and validation phase</span>
+        <span class="k">for</span> <span class="n">phase</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">,</span> <span class="s2">&quot;val&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">phase</span> <span class="o">==</span> <span class="s2">&quot;train&quot;</span><span class="p">:</span>
+                <span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>  <span class="c1"># Set model to training mode</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>  <span class="c1"># Set model to evaluate mode</span>
+
+            <span class="n">running_loss</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="n">running_corrects</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="k">for</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">labels</span> <span class="ow">in</span> <span class="n">dataloaders</span><span class="p">[</span><span class="n">phase</span><span class="p">]:</span>
+                <span class="n">inputs</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+                <span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+
+                <span class="c1"># zero the parameter gradients</span>
+                <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+
+                <span class="c1"># forward</span>
+                <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">set_grad_enabled</span><span class="p">(</span><span class="n">phase</span> <span class="o">==</span> <span class="s2">&quot;train&quot;</span><span class="p">):</span>
+                    <span class="c1"># Get model outputs and calculate loss</span>
+                    <span class="n">outputs</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+                    <span class="n">loss</span> <span class="o">=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+
+                    <span class="c1"># backward + optimize only if in training phase</span>
+                    <span class="k">if</span> <span class="n">phase</span> <span class="o">==</span> <span class="s2">&quot;train&quot;</span><span class="p">:</span>
+                        <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+                        <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
+                <span class="c1"># calculate statistics</span>
+                <span class="n">running_loss</span> <span class="o">+=</span> <span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="o">*</span> <span class="n">inputs</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">running_corrects</span> <span class="o">+=</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+
+            <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">torch_datasets</span><span class="p">[</span><span class="n">phase</span><span class="p">])</span> <span class="o">//</span> <span class="n">session</span><span class="o">.</span><span class="n">get_world_size</span><span class="p">()</span>
+            <span class="n">epoch_loss</span> <span class="o">=</span> <span class="n">running_loss</span> <span class="o">/</span> <span class="n">size</span>
+            <span class="n">epoch_acc</span> <span class="o">=</span> <span class="n">running_corrects</span> <span class="o">/</span> <span class="n">size</span>
+
+            <span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">get_world_rank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="s2">&quot;Epoch </span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2"> Loss: </span><span class="si">{:.4f}</span><span class="s2"> Acc: </span><span class="si">{:.4f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">epoch</span><span class="p">,</span> <span class="n">phase</span><span class="p">,</span> <span class="n">epoch_loss</span><span class="p">,</span> <span class="n">epoch_acc</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+            <span class="c1"># Report metrics and checkpoint every epoch</span>
+            <span class="k">if</span> <span class="n">phase</span> <span class="o">==</span> <span class="s2">&quot;val&quot;</span><span class="p">:</span>
+                <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">TorchCheckpoint</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;epoch&quot;</span><span class="p">:</span> <span class="n">epoch</span><span class="p">,</span>
+                        <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">model</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span>
+                        <span class="s2">&quot;optimizer_state_dict&quot;</span><span class="p">:</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+                <span class="n">session</span><span class="o">.</span><span class="n">report</span><span class="p">(</span>
+                    <span class="n">metrics</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;loss&quot;</span><span class="p">:</span> <span class="n">epoch_loss</span><span class="p">,</span> <span class="s2">&quot;acc&quot;</span><span class="p">:</span> <span class="n">epoch_acc</span><span class="p">},</span>
+                    <span class="n">checkpoint</span><span class="o">=</span><span class="n">checkpoint</span><span class="p">,</span>
+                <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Next, setup the TorchTrainer:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ray.train.torch</span> <span class="kn">import</span> <span class="n">TorchTrainer</span><span class="p">,</span> <span class="n">TorchCheckpoint</span>
+<span class="kn">from</span> <span class="nn">ray.air.config</span> <span class="kn">import</span> <span class="n">ScalingConfig</span><span class="p">,</span> <span class="n">RunConfig</span><span class="p">,</span> <span class="n">CheckpointConfig</span>
+
+<span class="c1"># Scale out model training across 4 GPUs.</span>
+<span class="n">scaling_config</span> <span class="o">=</span> <span class="n">ScalingConfig</span><span class="p">(</span>
+    <span class="n">num_workers</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">use_gpu</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">resources_per_worker</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;CPU&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;GPU&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+<span class="p">)</span>
+
+<span class="c1"># Save the latest checkpoint</span>
+<span class="n">checkpoint_config</span> <span class="o">=</span> <span class="n">CheckpointConfig</span><span class="p">(</span><span class="n">num_to_keep</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Set experiment name and checkpoint configs</span>
+<span class="n">run_config</span> <span class="o">=</span> <span class="n">RunConfig</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;finetune-resnet&quot;</span><span class="p">,</span>
+    <span class="n">storage_path</span><span class="o">=</span><span class="s2">&quot;/tmp/ray_results&quot;</span><span class="p">,</span>
+    <span class="n">checkpoint_config</span><span class="o">=</span><span class="n">checkpoint_config</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">trainer</span> <span class="o">=</span> <span class="n">TorchTrainer</span><span class="p">(</span>
+    <span class="n">train_loop_per_worker</span><span class="o">=</span><span class="n">train_loop_per_worker</span><span class="p">,</span>
+    <span class="n">train_loop_config</span><span class="o">=</span><span class="n">train_loop_config</span><span class="p">,</span>
+    <span class="n">scaling_config</span><span class="o">=</span><span class="n">scaling_config</span><span class="p">,</span>
+    <span class="n">run_config</span><span class="o">=</span><span class="n">run_config</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-03-01 12:40:15,468	INFO worker.py:1360 -- Connecting to existing Ray cluster at address: 10.0.53.212:6379...
+2023-03-01 12:40:15,520	INFO worker.py:1548 -- Connected to Ray cluster. View the dashboard at <span class=" -Color -Color-Bold -Color-Bold-Green">https://console.anyscale-staging.com/api/v2/sessions/ses_49hwcjc1pzcddc2nf6cg9itj6b/services?redirect_to=dashboard </span>
+2023-03-01 12:40:16,841	INFO packaging.py:330 -- Pushing file package &#39;gcs://_ray_pkg_d6a92d7fa9e73b7fc2276251a1203373.zip&#39; (451.72MiB) to Ray cluster...
+2023-03-01 12:40:26,413	INFO packaging.py:343 -- Successfully pushed file package &#39;gcs://_ray_pkg_d6a92d7fa9e73b7fc2276251a1203373.zip&#39;.
+</pre></div>
+</div>
+<div class="output text_html"><div class="tuneStatus">
+  <div style="display: flex;flex-direction: row">
+    <div style="display: flex;flex-direction: column;">
+      <h3>Tune Status</h3>
+      <table>
+<tbody>
+<tr><td>Current time:</td><td>2023-03-01 12:41:31</td></tr>
+<tr><td>Running for: </td><td>00:01:05.01        </td></tr>
+<tr><td>Memory:      </td><td>8.3/62.0 GiB       </td></tr>
+</tbody>
+</table>
+    </div>
+    <div class="vDivider"></div>
+    <div class="systemInfo">
+      <h3>System Info</h3>
+      Using FIFO scheduling algorithm.<br>Resources requested: 0/64 CPUs, 0/4 GPUs, 0.0/163.97 GiB heap, 0.0/72.85 GiB objects (0.0/4.0 accelerator_type:T4)
+    </div>
+
+  </div>
+  <div class="hDivider"></div>
+  <div class="trialStatus">
+    <h3>Trial Status</h3>
+    <table>
+<thead>
+<tr><th>Trial name              </th><th>status    </th><th>loc             </th><th style="text-align: right;">  iter</th><th style="text-align: right;">  total time (s)</th><th style="text-align: right;">    loss</th><th style="text-align: right;">     acc</th></tr>
+</thead>
+<tbody>
+<tr><td>TorchTrainer_4c393_00000</td><td>TERMINATED</td><td>10.0.62.120:1395</td><td style="text-align: right;">    10</td><td style="text-align: right;">         51.9574</td><td style="text-align: right;">0.143938</td><td style="text-align: right;">0.973684</td></tr>
+</tbody>
+</table>
+  </div>
+</div>
+<style>
+.tuneStatus {
+  color: var(--jp-ui-font-color1);
+}
+.tuneStatus .systemInfo {
+  display: flex;
+  flex-direction: column;
+}
+.tuneStatus td {
+  white-space: nowrap;
+}
+.tuneStatus .trialStatus {
+  display: flex;
+  flex-direction: column;
+}
+.tuneStatus h3 {
+  font-weight: bold;
+}
+.tuneStatus .hDivider {
+  border-bottom-width: var(--jp-border-width);
+  border-bottom-color: var(--jp-border-color0);
+  border-bottom-style: solid;
+}
+.tuneStatus .vDivider {
+  border-left-width: var(--jp-border-width);
+  border-left-color: var(--jp-border-color0);
+  border-left-style: solid;
+  margin: 0.5em 1em 0.5em 1em;
+}
+</style>
+</div><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(RayTrainWorker pid=1478, ip=10.0.62.120) 2023-03-01 12:40:37,398	INFO config.py:86 -- Setting up process group for: env:// [rank=0, world_size=4]
+(RayTrainWorker pid=89742) 2023-03-01 12:40:39,344	INFO train_loop_utils.py:307 -- Moving model to device: cuda:0
+(RayTrainWorker pid=1478, ip=10.0.62.120) 2023-03-01 12:40:39,474	INFO train_loop_utils.py:307 -- Moving model to device: cuda:0
+(RayTrainWorker pid=1902, ip=10.0.24.64) 2023-03-01 12:40:39,495	INFO train_loop_utils.py:307 -- Moving model to device: cuda:0
+(RayTrainWorker pid=3689, ip=10.0.52.145) 2023-03-01 12:40:39,588	INFO train_loop_utils.py:307 -- Moving model to device: cuda:0
+(RayTrainWorker pid=89742) 2023-03-01 12:40:40,888	INFO train_loop_utils.py:367 -- Wrapping provided model in DistributedDataParallel.
+(RayTrainWorker pid=1478, ip=10.0.62.120) 2023-03-01 12:40:41,001	INFO train_loop_utils.py:367 -- Wrapping provided model in DistributedDataParallel.
+(RayTrainWorker pid=1902, ip=10.0.24.64) 2023-03-01 12:40:41,019	INFO train_loop_utils.py:367 -- Wrapping provided model in DistributedDataParallel.
+(RayTrainWorker pid=3689, ip=10.0.52.145) 2023-03-01 12:40:41,123	INFO train_loop_utils.py:367 -- Wrapping provided model in DistributedDataParallel.
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(RayTrainWorker pid=1478, ip=10.0.62.120) Epoch 0-train Loss: 0.7398 Acc: 0.4426
+(RayTrainWorker pid=1478, ip=10.0.62.120) Epoch 0-val Loss: 0.5739 Acc: 0.7105
+</pre></div>
+</div>
+<div class="output text_html"><div class="trialProgress">
+  <h3>Trial Progress</h3>
+  <table>
+<thead>
+<tr><th>Trial name              </th><th style="text-align: right;">     acc</th><th>date               </th><th>done  </th><th style="text-align: right;">  experiment_tag</th><th>hostname      </th><th style="text-align: right;">  iterations_since_restore</th><th style="text-align: right;">    loss</th><th>node_ip    </th><th style="text-align: right;">  pid</th><th>should_checkpoint  </th><th style="text-align: right;">  time_since_restore</th><th style="text-align: right;">  time_this_iter_s</th><th style="text-align: right;">  time_total_s</th><th style="text-align: right;">  timestamp</th><th style="text-align: right;">  training_iteration</th><th>trial_id   </th></tr>
+</thead>
+<tbody>
+<tr><td>TorchTrainer_4c393_00000</td><td style="text-align: right;">0.973684</td><td>2023-03-01_12-41-26</td><td>True  </td><td style="text-align: right;">               0</td><td>ip-10-0-62-120</td><td style="text-align: right;">                        10</td><td style="text-align: right;">0.143938</td><td>10.0.62.120</td><td style="text-align: right;"> 1395</td><td>True               </td><td style="text-align: right;">             51.9574</td><td style="text-align: right;">            4.0961</td><td style="text-align: right;">       51.9574</td><td style="text-align: right;"> 1677703285</td><td style="text-align: right;">                  10</td><td>4c393_00000</td></tr>
+</tbody>
+</table>
+</div>
+<style>
+.trialProgress {
+  display: flex;
+  flex-direction: column;
+  color: var(--jp-ui-font-color1);
+}
+.trialProgress h3 {
+  font-weight: bold;
+}
+.trialProgress td {
+  white-space: nowrap;
+}
+</style>
+</div><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(RayTrainWorker pid=1478, ip=10.0.62.120) Epoch 1-train Loss: 0.5130 Acc: 0.8197
+(RayTrainWorker pid=1478, ip=10.0.62.120) Epoch 1-val Loss: 0.3553 Acc: 0.9737
+(RayTrainWorker pid=1478, ip=10.0.62.120) Epoch 2-train Loss: 0.4676 Acc: 0.7705
+(RayTrainWorker pid=1478, ip=10.0.62.120) Epoch 2-val Loss: 0.2600 Acc: 0.9737
+(RayTrainWorker pid=1478, ip=10.0.62.120) Epoch 3-train Loss: 0.3940 Acc: 0.8525
+(RayTrainWorker pid=1478, ip=10.0.62.120) Epoch 3-val Loss: 0.2136 Acc: 0.9737
+(RayTrainWorker pid=1478, ip=10.0.62.120) Epoch 4-train Loss: 0.3602 Acc: 0.8852
+(RayTrainWorker pid=1478, ip=10.0.62.120) Epoch 4-val Loss: 0.1854 Acc: 1.0000
+(RayTrainWorker pid=1478, ip=10.0.62.120) Epoch 5-train Loss: 0.2871 Acc: 0.8689
+(RayTrainWorker pid=1478, ip=10.0.62.120) Epoch 5-val Loss: 0.1691 Acc: 1.0000
+(RayTrainWorker pid=1478, ip=10.0.62.120) Epoch 6-train Loss: 0.2858 Acc: 0.9344
+(RayTrainWorker pid=1478, ip=10.0.62.120) Epoch 6-val Loss: 0.1459 Acc: 1.0000
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-03-01 12:41:13,026	WARNING util.py:244 -- The `process_trial_save` operation took 2.925 s, which may be a performance bottleneck.
+2023-03-01 12:41:13,027	WARNING trial_runner.py:678 -- Consider turning off forced head-worker trial checkpoint syncs by setting sync_on_checkpoint=False. Note that this may result in faulty trial restoration if a failure occurs while the checkpoint is being synced from the worker to the head node.
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(RayTrainWorker pid=1478, ip=10.0.62.120) Epoch 7-train Loss: 0.1965 Acc: 0.9344
+(RayTrainWorker pid=1478, ip=10.0.62.120) Epoch 7-val Loss: 0.1387 Acc: 1.0000
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-03-01 12:41:17,101	WARNING util.py:244 -- The `process_trial_save` operation took 2.925 s, which may be a performance bottleneck.
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(RayTrainWorker pid=1478, ip=10.0.62.120) Epoch 8-train Loss: 0.2277 Acc: 0.9344
+(RayTrainWorker pid=1478, ip=10.0.62.120) Epoch 8-val Loss: 0.1500 Acc: 0.9737
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-03-01 12:41:21,195	WARNING util.py:244 -- The `process_trial_save` operation took 2.936 s, which may be a performance bottleneck.
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(RayTrainWorker pid=1478, ip=10.0.62.120) Epoch 9-train Loss: 0.1884 Acc: 0.9344
+(RayTrainWorker pid=1478, ip=10.0.62.120) Epoch 9-val Loss: 0.1439 Acc: 0.9737
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-03-01 12:41:25,360	WARNING util.py:244 -- The `process_trial_save` operation took 2.947 s, which may be a performance bottleneck.
+2023-03-01 12:41:29,205	WARNING util.py:244 -- The `process_trial_save` operation took 2.696 s, which may be a performance bottleneck.
+2023-03-01 12:41:33,757	INFO tune.py:825 -- Total run time: 66.96 seconds (65.01 seconds for the tuning loop).
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Result(
+  metrics={&#39;loss&#39;: 0.14393797124686994, &#39;acc&#39;: 0.9736842105263158, &#39;should_checkpoint&#39;: True, &#39;done&#39;: True, &#39;trial_id&#39;: &#39;4c393_00000&#39;, &#39;experiment_tag&#39;: &#39;0&#39;},
+  log_dir=PosixPath(&#39;/tmp/ray_results/finetune-resnet/TorchTrainer_4c393_00000_0_2023-03-01_12-40-31&#39;),
+  checkpoint=TorchCheckpoint(local_path=/tmp/ray_results/finetune-resnet/TorchTrainer_4c393_00000_0_2023-03-01_12-40-31/checkpoint_000009)
+)
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="load-the-checkpoint-for-prediction">
+<h2>Load the checkpoint for prediction:<a class="headerlink" href="pytorch_resnet_finetune.html#load-the-checkpoint-for-prediction" title="Permalink to this headline">#</a></h2>
+<p>The metadata and checkpoints have already been saved in the <code class="docutils literal notranslate"><span class="pre">storage_path</span></code> specified in TorchTrainer:</p>
+<p>We now need to load the trained model and evaluate it on test data. The best model parameters have been saved in <code class="docutils literal notranslate"><span class="pre">log_dir</span></code>. We can load the resulting checkpoint from our fine-tuning run using the previously defined <code class="docutils literal notranslate"><span class="pre">initialize_model_from_uri()</span></code> function.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">initialize_model_from_uri</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">checkpoint</span><span class="o">.</span><span class="n">uri</span><span class="p">)</span>
+<span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/home/ray/anaconda3/lib/python3.9/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter &#39;pretrained&#39; is deprecated since 0.13 and may be removed in the future, please use &#39;weights&#39; instead.
+  warnings.warn(
+/home/ray/anaconda3/lib/python3.9/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for &#39;weights&#39; are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=ResNet50_Weights.IMAGENET1K_V1`. You can also use `weights=ResNet50_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+</pre></div>
+</div>
+</div>
+</div>
+<p>Finally, define a simple evaluation loop and check the performance of the checkpoint model.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+
+<span class="n">torch_datasets</span> <span class="o">=</span> <span class="n">build_datasets</span><span class="p">()</span>
+<span class="n">dataloader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">torch_datasets</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">],</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">corrects</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">labels</span> <span class="ow">in</span> <span class="n">dataloader</span><span class="p">:</span>
+    <span class="n">inputs</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">preds</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+    <span class="n">corrects</span> <span class="o">+=</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">preds</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Accuracy: &quot;</span><span class="p">,</span> <span class="n">corrects</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataloader</span><span class="o">.</span><span class="n">dataset</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Accuracy:  0.934640522875817
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="torch_data_prefetch_benchmark/benchmark_example.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Torch Data Prefetching Benchmark for Ray Train</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="../../faq.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Ray Train FAQ</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

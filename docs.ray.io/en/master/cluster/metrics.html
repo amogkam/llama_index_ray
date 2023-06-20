@@ -1,0 +1,949 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Collecting and monitoring metrics &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/js/versionwarning.js"></script>
+    <script src="../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../_static/js/docsearch.js"></script>
+    <script src="../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../_static/js/termynal.js"></script>
+    <script defer="defer" src="../_static/js/custom.js"></script>
+    <script defer="defer" src="../_static/js/top-navigation.js"></script>
+    <script src="../_static/js/tags.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../_static/design-tabs.js"></script>
+    <script async="async" src="../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/cluster/metrics.html" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Configuring and Managing Ray Dashboard" href="configure-manage-dashboard.html" />
+    <link rel="prev" title="Cluster YAML Configuration Options" href="vms/references/ray-cluster-configuration.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "cluster/metrics", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".md", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../tune.html">
+   Ray Tune
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="kubernetes/index.html">
+     Deploying on Kubernetes
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="vms/index.html">
+     Deploying on VMs
+    </a>
+   </li>
+   <li class="toctree-l2 current active">
+    <a class="current reference internal" href="metrics.html#">
+     Collecting and monitoring metrics
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="configure-manage-dashboard.html">
+     Configuring and Managing Ray Dashboard
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="running-applications/index.html">
+     Applications Guide
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="faq.html">
+     FAQ
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="package-overview.html">
+     Ray Cluster Management API
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Fcluster/metrics.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/cluster/metrics.md"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../_sources/cluster/metrics.md.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.md</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="metrics.html#system-and-application-metrics">
+   System and application metrics
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="metrics.html#setting-up-your-prometheus-server">
+   Setting up your Prometheus server
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="metrics.html#troubleshooting">
+     Troubleshooting
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="metrics.html#using-ray-configurations-in-prometheus-with-homebrew-on-macos-x">
+       Using Ray configurations in Prometheus with Homebrew on macOS X
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="metrics.html#macos-does-not-trust-the-developer-to-install-prometheus">
+       macOS does not trust the developer to install Prometheus
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="metrics.html#scraping-metrics">
+   Scraping metrics
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="metrics.html#auto-discovering-metrics-endpoints">
+     Auto-discovering metrics endpoints
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="metrics.html#manually-discovering-metrics-endpoints">
+     Manually discovering metrics endpoints
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="metrics.html#processing-and-exporting-metrics">
+   Processing and exporting metrics
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="metrics.html#monitoring-metrics">
+   Monitoring metrics
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="metrics.html#simplist-setting-up-grafana-with-ray-provided-configurations">
+     Simplist: Setting up Grafana with Ray-provided configurations
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="metrics.html#recommended-use-ray-dashboard-with-embedded-grafana-visualizations">
+     Recommended: Use Ray Dashboard with embedded Grafana visualizations
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="metrics.html#manual-set-up-grafana-or-other-tools-like-cloudwatch-cloud-monitoring-and-datadog-from-scratch">
+     Manual: Set up Grafana, or other tools like CloudWatch, Cloud Monitoring and Datadog from scratch
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Collecting and monitoring metrics</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="metrics.html#system-and-application-metrics">
+   System and application metrics
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="metrics.html#setting-up-your-prometheus-server">
+   Setting up your Prometheus server
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="metrics.html#troubleshooting">
+     Troubleshooting
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="metrics.html#using-ray-configurations-in-prometheus-with-homebrew-on-macos-x">
+       Using Ray configurations in Prometheus with Homebrew on macOS X
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="metrics.html#macos-does-not-trust-the-developer-to-install-prometheus">
+       macOS does not trust the developer to install Prometheus
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="metrics.html#scraping-metrics">
+   Scraping metrics
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="metrics.html#auto-discovering-metrics-endpoints">
+     Auto-discovering metrics endpoints
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="metrics.html#manually-discovering-metrics-endpoints">
+     Manually discovering metrics endpoints
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="metrics.html#processing-and-exporting-metrics">
+   Processing and exporting metrics
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="metrics.html#monitoring-metrics">
+   Monitoring metrics
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="metrics.html#simplist-setting-up-grafana-with-ray-provided-configurations">
+     Simplist: Setting up Grafana with Ray-provided configurations
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="metrics.html#recommended-use-ray-dashboard-with-embedded-grafana-visualizations">
+     Recommended: Use Ray Dashboard with embedded Grafana visualizations
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="metrics.html#manual-set-up-grafana-or-other-tools-like-cloudwatch-cloud-monitoring-and-datadog-from-scratch">
+     Manual: Set up Grafana, or other tools like CloudWatch, Cloud Monitoring and Datadog from scratch
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section class="tex2jax_ignore mathjax_ignore" id="collecting-and-monitoring-metrics">
+<span id="collect-metrics"></span><h1>Collecting and monitoring metrics<a class="headerlink" href="metrics.html#collecting-and-monitoring-metrics" title="Permalink to this headline">#</a></h1>
+<p>Metrics are useful for monitoring and troubleshooting Ray applications and Clusters. For example, you may want to access a node’s metrics if it terminates unexpectedly.</p>
+<p>Ray records and emits time-series metrics using the <a class="reference external" href="https://prometheus.io/docs/instrumenting/exposition_formats/">Prometheus format</a>. Ray does not provide a native storage solution for metrics. Users need to manage the lifecycle of the metrics by themselves. This page provides instructions on how to collect and monitor metrics from Ray Clusters.</p>
+<section id="system-and-application-metrics">
+<h2>System and application metrics<a class="headerlink" href="metrics.html#system-and-application-metrics" title="Permalink to this headline">#</a></h2>
+<p>Ray exports metrics if you use <code class="docutils literal notranslate"><span class="pre">ray[default]</span></code>, <code class="docutils literal notranslate"><span class="pre">ray[air]</span></code>, or <a class="reference internal" href="../ray-more-libs/installation.html#installation"><span class="std std-ref">other installation commands</span></a> that include Dashboard component. Dashboard agent process is responsbile for aggregating and reporting metrics to the endpoints for Prometheus to scrape.</p>
+<p><strong>System metrics</strong>: Ray exports a number of system metrics. View <a class="reference internal" href="../ray-observability/reference/system-metrics.html#system-metrics"><span class="std std-ref">system metrics</span></a> for more details about the emitted metrics.</p>
+<p><strong>Application metrics</strong>: Application-specific metrics are useful for monitoring your application states. View <a class="reference internal" href="../ray-observability/user-guides/add-app-metrics.html#application-level-metrics"><span class="std std-ref">adding application metrics</span></a> for how to record metrics.</p>
+</section>
+<section id="setting-up-your-prometheus-server">
+<span id="prometheus-setup"></span><h2>Setting up your Prometheus server<a class="headerlink" href="metrics.html#setting-up-your-prometheus-server" title="Permalink to this headline">#</a></h2>
+<p>Use Promtheus to scrape metrics from Ray Clusters. Ray doesn’t start Prometheus servers for users. Users need to decide where to host and configure it to scrape the metrics from Clusters.</p>
+<div class="tip admonition">
+<p class="admonition-title">Tip</p>
+<p>The instructions below describe one way of setting up Prometheus on your local machine. View <a class="reference external" href="https://prometheus.io/docs/introduction/overview/">Prometheus documentation</a> for the best strategy to set up your Prometheus server.</p>
+<p>For KubeRay users, follow <a class="reference external" href="https://ray-project.github.io/kuberay/guidance/prometheus-grafana/">these instructions</a> to set up Prometheus.</p>
+</div>
+<p>First, <a class="reference external" href="https://prometheus.io/download/">download Prometheus</a>. Make sure to download the correct binary for your operating system. (For example, Darwin for macOS X.)</p>
+<p>Then, unzip the archive into a local directory using the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>tar xvfz prometheus-*.tar.gz
+<span class="nb">cd</span> prometheus-*
+</pre></div>
+</div>
+<p>Ray provides a Prometheus config that works out of the box. After running Ray, you can find the config at <code class="docutils literal notranslate"><span class="pre">/tmp/ray/session_latest/metrics/prometheus/prometheus.yml</span></code>.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">global</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">scrape_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">15s</span><span class="w"></span>
+<span class="w">  </span><span class="nt">evaluation_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">15s</span><span class="w"></span>
+
+<span class="nt">scrape_configs</span><span class="p">:</span><span class="w"></span>
+<span class="c1"># Scrape from each Ray node as defined in the service_discovery.json provided by Ray.</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">job_name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;ray&#39;</span><span class="w"></span>
+<span class="w">  </span><span class="nt">file_sd_configs</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">files</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;/tmp/ray/prom_metrics_service_discovery.json&#39;</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Next, start Prometheus:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./prometheus --config.file<span class="o">=</span>/tmp/ray/session_latest/metrics/prometheus/prometheus.yml
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>If you are using macOS, you may receive an error at this point about trying to launch an application where the developer has not been verified. See the “Troubleshooting” guide below to fix the issue.</p>
+</div>
+<p>Now, you can access Ray metrics from the default Prometheus URL, <code class="docutils literal notranslate"><span class="pre">http://localhost:9090</span></code>.</p>
+<section id="troubleshooting">
+<h3>Troubleshooting<a class="headerlink" href="metrics.html#troubleshooting" title="Permalink to this headline">#</a></h3>
+<section id="using-ray-configurations-in-prometheus-with-homebrew-on-macos-x">
+<h4>Using Ray configurations in Prometheus with Homebrew on macOS X<a class="headerlink" href="metrics.html#using-ray-configurations-in-prometheus-with-homebrew-on-macos-x" title="Permalink to this headline">#</a></h4>
+<p>Homebrew installs Prometheus as a service that is automatically launched for you.
+To configure these services, you cannot simply pass in the config files as command line arguments.</p>
+<p>Instead, change the –config-file line in <code class="docutils literal notranslate"><span class="pre">/usr/local/etc/prometheus.args</span></code> to read <code class="docutils literal notranslate"><span class="pre">--config.file</span> <span class="pre">/tmp/ray/session_latest/metrics/prometheus/prometheus.yml</span></code>.</p>
+<p>You can then start or restart the services with <code class="docutils literal notranslate"><span class="pre">brew</span> <span class="pre">services</span> <span class="pre">start</span> <span class="pre">prometheus</span></code>.</p>
+</section>
+<section id="macos-does-not-trust-the-developer-to-install-prometheus">
+<h4>macOS does not trust the developer to install Prometheus<a class="headerlink" href="metrics.html#macos-does-not-trust-the-developer-to-install-prometheus" title="Permalink to this headline">#</a></h4>
+<p>You may receive the following error:</p>
+<p><img alt="trust error" src="https://raw.githubusercontent.com/ray-project/Images/master/docs/troubleshooting/prometheus-trusted-developer.png" /></p>
+<p>When downloading binaries from the internet, macOS requires that the binary be signed by a trusted developer ID.
+Many developers are not on macOS’s trusted list. Users can manually override this requirement.</p>
+<p>See <a class="reference external" href="https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unidentified-developer-mh40616/mac">these instructions</a> for how to override the restriction and install or run the application.</p>
+</section>
+</section>
+</section>
+<section id="scraping-metrics">
+<span id="scrape-metrics"></span><h2>Scraping metrics<a class="headerlink" href="metrics.html#scraping-metrics" title="Permalink to this headline">#</a></h2>
+<p>Ray runs a metrics agent per node to export system and application metrics. Each metrics agent collects metrics from the local
+node and exposes them in a Prometheus format. You can then scrape each endpoint to access the metrics.</p>
+<p>To scrape the endpoints, we need to ensure service discovery, which allows Prometheus to find the metrics agents’ endpoints on each node.</p>
+<section id="auto-discovering-metrics-endpoints">
+<h3>Auto-discovering metrics endpoints<a class="headerlink" href="metrics.html#auto-discovering-metrics-endpoints" title="Permalink to this headline">#</a></h3>
+<p>You can allow Prometheus to dynamically find the endpoints to scrape by using Prometheus’ <a class="reference external" href="https://prometheus.io/docs/guides/file-sd/#installing-configuring-and-running-prometheus">file based service discovery</a>.
+Use auto-discovery to export Prometheus metrics when using the Ray <a class="reference internal" href="vms/getting-started.html#vm-cluster-quick-start"><span class="std std-ref">cluster launcher</span></a>, as node IP addresses can often change as the cluster scales up and down.</p>
+<p>Ray auto-generates a Prometheus <a class="reference external" href="https://prometheus.io/docs/guides/file-sd/#installing-configuring-and-running-prometheus">service discovery file</a> on the head node to facilitate metrics agents’ service discovery. This function allows you to scrape all metrics in the cluster without knowing their IPs. The following information guides you on the setup.</p>
+<p>The service discovery file is generated on the <a class="reference internal" href="key-concepts.html#cluster-head-node"><span class="std std-ref">head node</span></a>. On this node, look for <code class="docutils literal notranslate"><span class="pre">/tmp/ray/prom_metrics_service_discovery.json</span></code> (or the eqiuvalent file if using a custom Ray <code class="docutils literal notranslate"><span class="pre">temp_dir</span></code>). Ray periodically updates this file with the addresses of all metrics agents in the cluster.</p>
+<p>Ray automatically produces a Prometheus config, which scrapes the file for service discovery found at <code class="docutils literal notranslate"><span class="pre">/tmp/ray/session_latest/metrics/prometheus/prometheus.yml</span></code>. You can choose to use this config or modify your own config to enable this behavior. See the details of the config below. Find the full documentation <a class="reference external" href="https://prometheus.io/docs/prometheus/latest/configuration/configuration/">here</a>.</p>
+<p>With this config, Prometheus automatically updates the addresses that it scrapes based on the contents of Ray’s service discovery file.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Prometheus config file</span><span class="w"></span>
+
+<span class="c1"># my global config</span><span class="w"></span>
+<span class="nt">global</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">scrape_interval</span><span class="p">:</span><span class="w">     </span><span class="l l-Scalar l-Scalar-Plain">2s</span><span class="w"></span>
+<span class="w">  </span><span class="nt">evaluation_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2s</span><span class="w"></span>
+
+<span class="c1"># Scrape from Ray.</span><span class="w"></span>
+<span class="nt">scrape_configs</span><span class="p">:</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">job_name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;ray&#39;</span><span class="w"></span>
+<span class="w">  </span><span class="nt">file_sd_configs</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">files</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;/tmp/ray/prom_metrics_service_discovery.json&#39;</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="manually-discovering-metrics-endpoints">
+<h3>Manually discovering metrics endpoints<a class="headerlink" href="metrics.html#manually-discovering-metrics-endpoints" title="Permalink to this headline">#</a></h3>
+<p>If you know the IP addresses of the nodes in your Ray Cluster, you can configure Prometheus to read metrics from a static list of endpoints.
+Set a fixed port that Ray should use to export metrics.  If you’re using the VM Cluster Launcher, pass <code class="docutils literal notranslate"><span class="pre">--metrics-export-port=&lt;port&gt;</span></code> to <code class="docutils literal notranslate"><span class="pre">ray</span> <span class="pre">start</span></code>.  If you’re using KubeRay, specify <code class="docutils literal notranslate"><span class="pre">rayStartParams.metrics-export-port</span></code> in the RayCluster configuration file. You must specify the port on all nodes in the cluster.</p>
+<p>If you do not know the IP addresses of the nodes in your Ray Cluster, you can also programmatically discover the endpoints by reading the Ray Cluster information. The following example uses a Python script and the <a class="reference internal" href="../ray-core/api/doc/ray.nodes.html#ray.nodes" title="ray.nodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ray.nodes</span></code></a> API to find the metrics agents’ URLs, by combining the <code class="docutils literal notranslate"><span class="pre">NodeManagerAddress</span></code> with the <code class="docutils literal notranslate"><span class="pre">MetricsExportPort</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># On a cluster node:</span>
+<span class="kn">import</span> <span class="nn">ray</span>
+<span class="n">ray</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+<span class="n">pprint</span><span class="p">(</span><span class="n">ray</span><span class="o">.</span><span class="n">nodes</span><span class="p">())</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Pass the &lt;NodeManagerAddress&gt;:&lt;MetricsExportPort&gt; from each of these entries</span>
+<span class="sd">to Prometheus.</span>
+<span class="sd">[{&#39;Alive&#39;: True,</span>
+<span class="sd">  &#39;MetricsExportPort&#39;: 8080,</span>
+<span class="sd">  &#39;NodeID&#39;: &#39;2f480984702a22556b90566bdac818a4a771e69a&#39;,</span>
+<span class="sd">  &#39;NodeManagerAddress&#39;: &#39;192.168.1.82&#39;,</span>
+<span class="sd">  &#39;NodeManagerHostname&#39;: &#39;host2.attlocal.net&#39;,</span>
+<span class="sd">  &#39;NodeManagerPort&#39;: 61760,</span>
+<span class="sd">  &#39;ObjectManagerPort&#39;: 61454,</span>
+<span class="sd">  &#39;ObjectStoreSocketName&#39;: &#39;/tmp/ray/session_2020-08-04_18-18-16_481195_34255/sockets/plasma_store&#39;,</span>
+<span class="sd">  &#39;RayletSocketName&#39;: &#39;/tmp/ray/session_2020-08-04_18-18-16_481195_34255/sockets/raylet&#39;,</span>
+<span class="sd">  &#39;Resources&#39;: {&#39;CPU&#39;: 1.0,</span>
+<span class="sd">                &#39;memory&#39;: 123.0,</span>
+<span class="sd">                &#39;node:192.168.1.82&#39;: 1.0,</span>
+<span class="sd">                &#39;object_store_memory&#39;: 2.0},</span>
+<span class="sd">  &#39;alive&#39;: True},</span>
+<span class="sd">{&#39;Alive&#39;: True,</span>
+<span class="sd">  &#39;MetricsExportPort&#39;: 8080,</span>
+<span class="sd">  &#39;NodeID&#39;: &#39;ce6f30a7e2ef58c8a6893b3df171bcd464b33c77&#39;,</span>
+<span class="sd">  &#39;NodeManagerAddress&#39;: &#39;192.168.1.82&#39;,</span>
+<span class="sd">  &#39;NodeManagerHostname&#39;: &#39;host1.attlocal.net&#39;,</span>
+<span class="sd">  &#39;NodeManagerPort&#39;: 62052,</span>
+<span class="sd">  &#39;ObjectManagerPort&#39;: 61468,</span>
+<span class="sd">  &#39;ObjectStoreSocketName&#39;: &#39;/tmp/ray/session_2020-08-04_18-18-16_481195_34255/sockets/plasma_store.1&#39;,</span>
+<span class="sd">  &#39;RayletSocketName&#39;: &#39;/tmp/ray/session_2020-08-04_18-18-16_481195_34255/sockets/raylet.1&#39;,</span>
+<span class="sd">  &#39;Resources&#39;: {&#39;CPU&#39;: 1.0,</span>
+<span class="sd">                &#39;memory&#39;: 134.0,</span>
+<span class="sd">                &#39;node:192.168.1.82&#39;: 1.0,</span>
+<span class="sd">                &#39;object_store_memory&#39;: 2.0},</span>
+<span class="sd">  &#39;alive&#39;: True}]</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="processing-and-exporting-metrics">
+<h2>Processing and exporting metrics<a class="headerlink" href="metrics.html#processing-and-exporting-metrics" title="Permalink to this headline">#</a></h2>
+<p>If you need to process and export metrics into other storage or management systems, check out open source metric processing tools like <a class="reference external" href="https://vector.dev/">Vector</a>.</p>
+</section>
+<section id="monitoring-metrics">
+<h2>Monitoring metrics<a class="headerlink" href="metrics.html#monitoring-metrics" title="Permalink to this headline">#</a></h2>
+<p>To visualize and monitor collected metrics, there are 3 common paths:</p>
+<ol class="simple">
+<li><p><strong>Simplist</strong>: Use Grafana with Ray-provided configurations, which include default Grafana dashboards showing some of the most valuable metrics for debugging Ray applications.</p></li>
+<li><p><strong>Recommended</strong>: Use Ray Dashboard which embeds Grafana visualizations and look at metrics together with logs, Job info and so on in a single pane of glass.</p></li>
+<li><p><strong>Manual</strong>: Set up Grafana or other tools like CloudWatch, Cloud Monitoring, and Datadog from scratch.</p></li>
+</ol>
+<p>Here are some instructions for each of the paths:</p>
+<section id="simplist-setting-up-grafana-with-ray-provided-configurations">
+<span id="grafana"></span><h3>Simplist: Setting up Grafana with Ray-provided configurations<a class="headerlink" href="metrics.html#simplist-setting-up-grafana-with-ray-provided-configurations" title="Permalink to this headline">#</a></h3>
+<p>Grafana is a tool that supports advanced visualizations of Prometheus metrics and allows you to create custom dashboards with your favorite metrics.</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
+</input><label class="sd-tab-label" for="sd-tab-item-0">
+Creating a new Grafana server</label><div class="sd-tab-content docutils">
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>The instructions below describe one way of starting a Grafana server on a macOS machine. Refer to the <a class="reference external" href="https://grafana.com/docs/grafana/latest/setup-grafana/start-restart-grafana/#start-the-grafana-server">Grafana documentation</a> for how to start Grafana servers in different systems.</p>
+<p>For KubeRay users, follow <a class="reference external" href="https://ray-project.github.io/kuberay/guidance/prometheus-grafana/">these instructions</a> to set up Grafana.</p>
+</div>
+<p>First, <a class="reference external" href="https://grafana.com/grafana/download">download Grafana</a>. Follow the instructions on the download page to download the right binary for your operating system.</p>
+<p>Go to the location of the binary and run Grafana using the built-in configuration found in the <code class="docutils literal notranslate"><span class="pre">/tmp/ray/session_latest/metrics/grafana</span></code> folder.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./bin/grafana-server --config /tmp/ray/session_latest/metrics/grafana/grafana.ini web
+</pre></div>
+</div>
+<p>Access Grafana using the default grafana URL, <code class="docutils literal notranslate"><span class="pre">http://localhost:3000</span></code>.
+See the default dashboard by going to dashboards -&gt; manage -&gt; Ray -&gt; Default Dashboard. The same <a class="reference internal" href="../ray-observability/reference/system-metrics.html#system-metrics"><span class="std std-ref">metric graphs</span></a> are accessible in <a class="reference internal" href="../ray-observability/getting-started.html#observability-getting-started"><span class="std std-ref">Ray Dashboard</span></a> after you integrate Grafana with Ray Dashboard.</p>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>If this is your first time using Grafana, login with the username: <code class="docutils literal notranslate"><span class="pre">admin</span></code> and password <code class="docutils literal notranslate"><span class="pre">admin</span></code>.</p>
+</div>
+<p><img alt="grafana login" src="../_images/graphs.png" /></p>
+<p><strong>Troubleshooting: Using Ray configurations in Grafana with Homebrew on macOS X</strong></p>
+<p>Homebrew installs Grafana as a service that is automatically launched for you.
+Therefore, to configure these services, you cannot simply pass in the config files as command line arguments.</p>
+<p>Instead, update the <code class="docutils literal notranslate"><span class="pre">/usr/local/etc/grafana/grafana.ini</span></code> file so that it matches the contents of <code class="docutils literal notranslate"><span class="pre">/tmp/ray/session_latest/metrics/grafana/grafana.ini</span></code>.</p>
+<p>You can then start or restart the services with <code class="docutils literal notranslate"><span class="pre">brew</span> <span class="pre">services</span> <span class="pre">start</span> <span class="pre">grafana</span></code> and <code class="docutils literal notranslate"><span class="pre">brew</span> <span class="pre">services</span> <span class="pre">start</span> <span class="pre">prometheus</span></code>.</p>
+</div>
+<input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
+</input><label class="sd-tab-label" for="sd-tab-item-1">
+Using an existing Grafana server</label><div class="sd-tab-content docutils">
+<p>After your Grafana server is running, find the Ray-provided default Grafana dashboard JSON at <code class="docutils literal notranslate"><span class="pre">/tmp/ray/session_latest/metrics/grafana/dashboards/default_grafana_dashboard.json</span></code>. <a class="reference external" href="https://grafana.com/docs/grafana/latest/dashboards/manage-dashboards/#import-a-dashboard">Import this dashboard</a> to your Grafana.</p>
+<p>If Grafana reports that datasource is not found, <a class="reference external" href="https://grafana.com/docs/grafana/latest/dashboards/variables/add-template-variables/?pg=graf&amp;plcmt=data-sources-prometheus-btn-1#add-a-data-source-variable">add a datasource variable</a> and using <a class="reference external" href="https://grafana.com/docs/grafana/latest/dashboards/build-dashboards/modify-dashboard-settings/#view-dashboard-json-model">JSON model view</a>, change all values of <code class="docutils literal notranslate"><span class="pre">datasource</span></code> key in the imported <code class="docutils literal notranslate"><span class="pre">default_grafana_dashboard.json</span></code> to the name of the variable. For example, if the variable name is <code class="docutils literal notranslate"><span class="pre">data_source</span></code>, all <code class="docutils literal notranslate"><span class="pre">&quot;datasource&quot;</span></code> mappings should be:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;datasource&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;prometheus&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nt">&quot;uid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;$data_source&quot;</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="recommended-use-ray-dashboard-with-embedded-grafana-visualizations">
+<h3>Recommended: Use Ray Dashboard with embedded Grafana visualizations<a class="headerlink" href="metrics.html#recommended-use-ray-dashboard-with-embedded-grafana-visualizations" title="Permalink to this headline">#</a></h3>
+<ol class="simple">
+<li><p>Follow the instructions above to set up Grafana with Ray-provided visualizations</p></li>
+<li><p>View <a class="reference internal" href="configure-manage-dashboard.html#embed-grafana-in-dashboard"><span class="std std-ref">configuring and managing Ray Dashboard</span></a> for how to embed Grafana visualizations into Dashboard</p></li>
+<li><p>View <a class="reference internal" href="../ray-observability/getting-started.html#dash-metrics-view"><span class="std std-ref">Dashboard’s metrics view</span></a> for how to inspect the metrics in Ray Dashboard.</p></li>
+</ol>
+</section>
+<section id="manual-set-up-grafana-or-other-tools-like-cloudwatch-cloud-monitoring-and-datadog-from-scratch">
+<h3>Manual: Set up Grafana, or other tools like CloudWatch, Cloud Monitoring and Datadog from scratch<a class="headerlink" href="metrics.html#manual-set-up-grafana-or-other-tools-like-cloudwatch-cloud-monitoring-and-datadog-from-scratch" title="Permalink to this headline">#</a></h3>
+<p>Refer to the documentation of these tools for how to query and visualize the metrics.</p>
+<div class="tip admonition">
+<p class="admonition-title">Tip</p>
+<p>If you need to write Prometheus queries manually, check out the Prometheus queries in Ray-provided Grafana dashboard JSON at <code class="docutils literal notranslate"><span class="pre">/tmp/ray/session_latest/metrics/grafana/dashboards/default_grafana_dashboard.json</span></code> for inspiration.</p>
+</div>
+</section>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="vms/references/ray-cluster-configuration.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Cluster YAML Configuration Options</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="configure-manage-dashboard.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Configuring and Managing Ray Dashboard</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

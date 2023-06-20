@@ -1,0 +1,1381 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Saving and Loading your RL Algorithms and Policies &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/js/versionwarning.js"></script>
+    <script src="../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../_static/js/docsearch.js"></script>
+    <script src="../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../_static/js/termynal.js"></script>
+    <script defer="defer" src="../_static/js/custom.js"></script>
+    <script defer="defer" src="../_static/js/top-navigation.js"></script>
+    <script src="../_static/js/tags.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../_static/design-tabs.js"></script>
+    <script async="async" src="../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/rllib/rllib-saving-and-loading-algos-and-policies.html" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="How To Customize Policies" href="rllib-concepts.html" />
+    <link rel="prev" title="Models, Preprocessors, and Action Distributions" href="rllib-models.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "rllib/rllib-saving-and-loading-algos-and-policies", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".rst", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../tune.html">
+   Ray Tune
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="index.html">
+   Ray RLlib
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="rllib-training.html">
+     Getting Started with RLlib
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../rllib-env.html">
+     Environments
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="rllib-algorithms.html">
+     Algorithms
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="user-guides.html">
+     User Guides
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="rllib-advanced-api.html">
+       Advanced Python APIs
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rllib-models.html">
+       Models, Preprocessors, and Action Distributions
+      </a>
+     </li>
+     <li class="toctree-l3 current active">
+      <a class="current reference internal" href="rllib-saving-and-loading-algos-and-policies.html#">
+       Saving and Loading your RL Algorithms and Policies
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rllib-concepts.html">
+       How To Customize Policies
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rllib-sample-collection.html">
+       Sample Collections and Trajectory Views
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rllib-replay-buffers.html">
+       Replay Buffers
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rllib-offline.html">
+       Working With Offline Data
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rllib-catalogs.html">
+       Catalog (Alpha)
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rllib-connector.html">
+       Connectors (Alpha)
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rllib-rlmodule.html">
+       RL Modules (Alpha)
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rllib-fault-tolerance.html">
+       Fault Tolerance And Elastic Training
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rllib-dev.html">
+       How To Contribute to RLlib
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rllib-cli.html">
+       Working with the RLlib CLI
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="rllib-examples.html">
+     Examples
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="package_ref/index.html">
+     Ray RLlib API
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Frllib/rllib-saving-and-loading-algos-and-policies.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/rllib/rllib-saving-and-loading-algos-and-policies.rst"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../_sources/rllib/rllib-saving-and-loading-algos-and-policies.rst.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.rst</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="rllib-saving-and-loading-algos-and-policies.html#what-s-a-checkpoint">
+   What’s a checkpoint?
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="rllib-saving-and-loading-algos-and-policies.html#algorithm-checkpoints">
+   Algorithm checkpoints
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="rllib-saving-and-loading-algos-and-policies.html#how-do-i-create-an-algorithm-checkpoint">
+     How do I create an Algorithm checkpoint?
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="rllib-saving-and-loading-algos-and-policies.html#checkpoints-are-py-version-specific-but-can-be-converted-to-be-version-independent">
+     Checkpoints are py-version specific, but can be converted to be version independent
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="rllib-saving-and-loading-algos-and-policies.html#how-do-i-restore-an-algorithm-from-a-checkpoint">
+     How do I restore an Algorithm from a checkpoint?
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="rllib-saving-and-loading-algos-and-policies.html#which-algorithm-checkpoint-versions-can-i-use">
+     Which Algorithm checkpoint versions can I use?
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="rllib-saving-and-loading-algos-and-policies.html#multi-agent-algorithm-checkpoints">
+     Multi-agent Algorithm checkpoints
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="rllib-saving-and-loading-algos-and-policies.html#policy-checkpoints">
+     Policy checkpoints
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="rllib-saving-and-loading-algos-and-policies.html#how-do-i-create-a-policy-checkpoint">
+       How do I create a Policy checkpoint?
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="rllib-saving-and-loading-algos-and-policies.html#how-do-i-restore-from-a-policy-checkpoint">
+       How do I restore from a Policy checkpoint?
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="rllib-saving-and-loading-algos-and-policies.html#how-do-i-restore-a-multi-agent-algorithm-with-a-subset-of-the-original-policies">
+       How do I restore a multi-agent Algorithm with a subset of the original policies?
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="rllib-saving-and-loading-algos-and-policies.html#model-exports">
+     Model Exports
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="rllib-saving-and-loading-algos-and-policies.html#how-do-i-export-my-nn-model">
+       How do I export my NN Model?
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="rllib-saving-and-loading-algos-and-policies.html#and-what-about-exporting-my-nn-models-in-onnx-format">
+       And what about exporting my NN Models in ONNX format?
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Saving and Loading your RL Algorithms and Policies</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="rllib-saving-and-loading-algos-and-policies.html#what-s-a-checkpoint">
+   What’s a checkpoint?
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="rllib-saving-and-loading-algos-and-policies.html#algorithm-checkpoints">
+   Algorithm checkpoints
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="rllib-saving-and-loading-algos-and-policies.html#how-do-i-create-an-algorithm-checkpoint">
+     How do I create an Algorithm checkpoint?
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="rllib-saving-and-loading-algos-and-policies.html#checkpoints-are-py-version-specific-but-can-be-converted-to-be-version-independent">
+     Checkpoints are py-version specific, but can be converted to be version independent
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="rllib-saving-and-loading-algos-and-policies.html#how-do-i-restore-an-algorithm-from-a-checkpoint">
+     How do I restore an Algorithm from a checkpoint?
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="rllib-saving-and-loading-algos-and-policies.html#which-algorithm-checkpoint-versions-can-i-use">
+     Which Algorithm checkpoint versions can I use?
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="rllib-saving-and-loading-algos-and-policies.html#multi-agent-algorithm-checkpoints">
+     Multi-agent Algorithm checkpoints
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="rllib-saving-and-loading-algos-and-policies.html#policy-checkpoints">
+     Policy checkpoints
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="rllib-saving-and-loading-algos-and-policies.html#how-do-i-create-a-policy-checkpoint">
+       How do I create a Policy checkpoint?
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="rllib-saving-and-loading-algos-and-policies.html#how-do-i-restore-from-a-policy-checkpoint">
+       How do I restore from a Policy checkpoint?
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="rllib-saving-and-loading-algos-and-policies.html#how-do-i-restore-a-multi-agent-algorithm-with-a-subset-of-the-original-policies">
+       How do I restore a multi-agent Algorithm with a subset of the original policies?
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="rllib-saving-and-loading-algos-and-policies.html#model-exports">
+     Model Exports
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="rllib-saving-and-loading-algos-and-policies.html#how-do-i-export-my-nn-model">
+       How do I export my NN Model?
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="rllib-saving-and-loading-algos-and-policies.html#and-what-about-exporting-my-nn-models-in-onnx-format">
+       And what about exporting my NN Models in ONNX format?
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <a class="reference external image-reference" href="https://ray-docs-promo.netlify.app/rllib"><img alt="" src="https://ray-docs-promo.netlify.app/assets/img/rllib/top.png" /></a>
+<div class="bottom-right-promo-banner docutils">
+<a class="reference external image-reference" href="https://ray-docs-promo.netlify.app/rllib"><img alt="" src="https://ray-docs-promo.netlify.app/assets/img/rllib/square.png" /></a>
+</div>
+<section id="saving-and-loading-your-rl-algorithms-and-policies">
+<span id="rllib-saving-and-loading-algos-and-policies-docs"></span><h1>Saving and Loading your RL Algorithms and Policies<a class="headerlink" href="rllib-saving-and-loading-algos-and-policies.html#saving-and-loading-your-rl-algorithms-and-policies" title="Permalink to this headline">#</a></h1>
+<p>You can use <a class="reference internal" href="../ray-air/api/doc/ray.air.checkpoint.Checkpoint.html#ray.air.checkpoint.Checkpoint" title="ray.air.checkpoint.Checkpoint"><code class="xref py py-class docutils literal notranslate"><span class="pre">Checkpoint</span></code></a> objects to store
+and load the current state of your <a class="reference internal" href="package_ref/doc/ray.rllib.algorithms.algorithm.Algorithm.html#ray.rllib.algorithms.algorithm.Algorithm" title="ray.rllib.algorithms.algorithm.Algorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">Algorithm</span></code></a>
+or <a class="reference internal" href="package_ref/doc/ray.rllib.policy.policy.Policy.html#ray.rllib.policy.policy.Policy" title="ray.rllib.policy.policy.Policy"><code class="xref py py-class docutils literal notranslate"><span class="pre">Policy</span></code></a> and the neural networks (weights)
+within these structures. In the following, we will cover how you can create these
+checkpoints (and hence save your Algos and Policies) to disk, where you can find them,
+and how you can recover (load) your <a class="reference internal" href="package_ref/doc/ray.rllib.algorithms.algorithm.Algorithm.html#ray.rllib.algorithms.algorithm.Algorithm" title="ray.rllib.algorithms.algorithm.Algorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">Algorithm</span></code></a>
+or <a class="reference internal" href="package_ref/doc/ray.rllib.policy.policy.Policy.html#ray.rllib.policy.policy.Policy" title="ray.rllib.policy.policy.Policy"><code class="xref py py-class docutils literal notranslate"><span class="pre">Policy</span></code></a> from such a given checkpoint.</p>
+<section id="what-s-a-checkpoint">
+<h2>What’s a checkpoint?<a class="headerlink" href="rllib-saving-and-loading-algos-and-policies.html#what-s-a-checkpoint" title="Permalink to this headline">#</a></h2>
+<p>A checkpoint is a set of information, located inside a directory (which may contain
+further subdirectories) and used to restore either an <a class="reference internal" href="package_ref/doc/ray.rllib.algorithms.algorithm.Algorithm.html#ray.rllib.algorithms.algorithm.Algorithm" title="ray.rllib.algorithms.algorithm.Algorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">Algorithm</span></code></a>
+or a single <a class="reference internal" href="package_ref/doc/ray.rllib.policy.policy.Policy.html#ray.rllib.policy.policy.Policy" title="ray.rllib.policy.policy.Policy"><code class="xref py py-class docutils literal notranslate"><span class="pre">Policy</span></code></a> instance.
+The Algorithm- or Policy instances that were used to create the checkpoint in the first place
+may or may not have been trained prior to this.</p>
+<p>RLlib uses the new Ray AIR <a class="reference internal" href="../ray-air/api/doc/ray.air.checkpoint.Checkpoint.html#ray.air.checkpoint.Checkpoint" title="ray.air.checkpoint.Checkpoint"><code class="xref py py-class docutils literal notranslate"><span class="pre">Checkpoint</span></code></a> class to create checkpoints and
+restore objects from them.</p>
+<p>The main file in a checkpoint directory, containing the state information, is currently
+generated using Ray’s <code class="xref py py-obj docutils literal notranslate"><span class="pre">cloudpickle</span></code> package. Since <code class="xref py py-obj docutils literal notranslate"><span class="pre">cloudpickle</span></code> is volatile with respect to
+the python version used, we are currently experimenting with <code class="xref py py-obj docutils literal notranslate"><span class="pre">msgpack</span></code> (and <code class="xref py py-obj docutils literal notranslate"><span class="pre">msgpack_numpy</span></code>)
+as an alternative checkpoint format. In case you are interested in generating
+python-verion independent checkpoints, see below for further details.</p>
+</section>
+<section id="algorithm-checkpoints">
+<h2>Algorithm checkpoints<a class="headerlink" href="rllib-saving-and-loading-algos-and-policies.html#algorithm-checkpoints" title="Permalink to this headline">#</a></h2>
+<p>An Algorithm checkpoint contains all of the Algorithm’s state, including its configuration,
+its actual Algorithm subclass, all of its Policies’ weights, its current counters, etc..</p>
+<p>Restoring a new Algorithm from such a Checkpoint leaves you in a state, where you can continue
+working with that new Algorithm exactly like you would have continued working with the
+old Algorithm (from which the checkpoint as taken).</p>
+<section id="how-do-i-create-an-algorithm-checkpoint">
+<h3>How do I create an Algorithm checkpoint?<a class="headerlink" href="rllib-saving-and-loading-algos-and-policies.html#how-do-i-create-an-algorithm-checkpoint" title="Permalink to this headline">#</a></h3>
+<p>The <a class="reference internal" href="package_ref/doc/ray.rllib.algorithms.algorithm.Algorithm.html#ray.rllib.algorithms.algorithm.Algorithm" title="ray.rllib.algorithms.algorithm.Algorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">Algorithm</span></code></a> <code class="docutils literal notranslate"><span class="pre">save()</span></code> method creates a new checkpoint
+(directory with files in it) and returns the path to that directory.</p>
+<p>Let’s take a look at a simple example on how to create such an
+Algorithm checkpoint:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a PPO algorithm object using a config object ..</span>
+<span class="kn">from</span> <span class="nn">ray.rllib.algorithms.ppo</span> <span class="kn">import</span> <span class="n">PPOConfig</span>
+
+<span class="n">my_ppo_config</span> <span class="o">=</span> <span class="n">PPOConfig</span><span class="p">()</span><span class="o">.</span><span class="n">environment</span><span class="p">(</span><span class="s2">&quot;CartPole-v1&quot;</span><span class="p">)</span>
+<span class="n">my_ppo</span> <span class="o">=</span> <span class="n">my_ppo_config</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+
+<span class="c1"># .. train one iteration ..</span>
+<span class="n">my_ppo</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+<span class="c1"># .. and call `save()` to create a checkpoint.</span>
+<span class="n">path_to_checkpoint</span> <span class="o">=</span> <span class="n">my_ppo</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="s2">&quot;An Algorithm checkpoint has been created inside directory: &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">path_to_checkpoint</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># Let&#39;s terminate the algo for demonstration purposes.</span>
+<span class="n">my_ppo</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+<span class="c1"># Doing this will lead to an error.</span>
+<span class="c1"># my_ppo.train()</span>
+</pre></div>
+</div>
+<p>If you take a look at the directory returned by the <code class="docutils literal notranslate"><span class="pre">save()</span></code> call, you should see something
+like this:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ ls -la
+  .
+  ..
+  .is_checkpoint
+  .tune_metadata
+  policies/
+  algorithm_state.pkl
+  rllib_checkpoint.json
+</pre></div>
+</div>
+<p>As you can see, there is a <code class="xref py py-obj docutils literal notranslate"><span class="pre">policies</span></code> sub-directory created for us (more on that
+later), a <code class="docutils literal notranslate"><span class="pre">algorithm_state.pkl</span></code> file, and a <code class="docutils literal notranslate"><span class="pre">rllib_checkpoint.json</span></code> file.
+The <code class="docutils literal notranslate"><span class="pre">algorithm_state.pkl</span></code> file contains all state information
+of the Algorithm that is <strong>not</strong> Policy-specific, such as the algo’s counters and
+other important variables to persistently keep track of.
+The <code class="docutils literal notranslate"><span class="pre">rllib_checkpoint.json</span></code> file contains the checkpoint version used for the user’s
+convenience. From Ray RLlib 2.0 and up, all checkpoint versions will be
+backward compatible, meaning an RLlib version <code class="docutils literal notranslate"><span class="pre">V</span></code> will be able to
+handle any checkpoints created with Ray 2.0 or any version up to <code class="docutils literal notranslate"><span class="pre">V</span></code>.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ more rllib_checkpoint.json
+<span class="o">{</span><span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;Algorithm&quot;</span>, <span class="s2">&quot;checkpoint_version&quot;</span>: <span class="s2">&quot;1.0&quot;</span><span class="o">}</span>
+</pre></div>
+</div>
+<p>Now, let’s check out the <code class="xref py py-obj docutils literal notranslate"><span class="pre">policies/</span></code> sub-directory:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> policies
+$ ls -la
+  .
+  ..
+  default_policy/
+</pre></div>
+</div>
+<p>We can see yet another sub-directory, called <code class="docutils literal notranslate"><span class="pre">default_policy</span></code>. RLlib creates
+exactly one sub-directory inside the <code class="docutils literal notranslate"><span class="pre">policies/</span></code> dir per Policy instance that
+the Algorithm uses. In the standard single-agent case, this will be the
+“default_policy”. Note here, that “default_policy” is the so-called PolicyID.
+In the multi-agent case, depending on your particular setup and environment,
+you might see multiple sub-directories here with different names (the PolicyIDs of
+the different policies trained). For example, if you are training 2 Policies
+with the IDs “policy_1” and “policy_2”, you should see the sub-directories:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ ls -la
+  .
+  ..
+  policy_1/
+  policy_2/
+</pre></div>
+</div>
+<p>Lastly, let’s quickly take a look at our <code class="docutils literal notranslate"><span class="pre">default_policy</span></code> sub-directory:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> default_policy
+$ ls -la
+  .
+  ..
+  rllib_checkpoint.json
+  policy_state.pkl
+</pre></div>
+</div>
+<p>Similar to the algorithm’s state (saved within <code class="docutils literal notranslate"><span class="pre">algorithm_state.pkl</span></code>),
+a Policy’s state is stored under the <code class="docutils literal notranslate"><span class="pre">policy_state.pkl</span></code> file. We’ll cover more
+details on the contents of this file when talking about <a class="reference internal" href="package_ref/doc/ray.rllib.policy.policy.Policy.html#ray.rllib.policy.policy.Policy" title="ray.rllib.policy.policy.Policy"><code class="xref py py-class docutils literal notranslate"><span class="pre">Policy</span></code></a> checkpoints below.
+Note that <a class="reference internal" href="package_ref/doc/ray.rllib.policy.policy.Policy.html#ray.rllib.policy.policy.Policy" title="ray.rllib.policy.policy.Policy"><code class="xref py py-class docutils literal notranslate"><span class="pre">Policy</span></code></a> checkpoint also have a
+info file (<code class="docutils literal notranslate"><span class="pre">rllib_checkpoint.json</span></code>), which is always identical to the enclosing
+algorithm checkpoint version.</p>
+</section>
+<section id="checkpoints-are-py-version-specific-but-can-be-converted-to-be-version-independent">
+<h3>Checkpoints are py-version specific, but can be converted to be version independent<a class="headerlink" href="rllib-saving-and-loading-algos-and-policies.html#checkpoints-are-py-version-specific-but-can-be-converted-to-be-version-independent" title="Permalink to this headline">#</a></h3>
+<p>Algorithm checkpoints created via the <code class="docutils literal notranslate"><span class="pre">save()</span></code> method are always cloudpickle-based and
+thus dependent on the python version used. This means there is no guarantee that you
+will to be able to use a checkpoint created with python 3.8 to restore an Algorithm
+in a new environment that runs python 3.9.</p>
+<p>However, we now provide a utility for converting a checkpoint (generated with
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">Algorithm.save()</span></code>) into a python version independent checkpoint (based on msgpack).
+You can then use the newly converted msgpack checkpoint to restore another
+Algorithm instance from it. Look at this this short example here on how to do this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">tempfile</span>
+
+<span class="kn">from</span> <span class="nn">ray.rllib.algorithms.algorithm</span> <span class="kn">import</span> <span class="n">Algorithm</span>
+<span class="kn">from</span> <span class="nn">ray.rllib.algorithms.simple_q</span> <span class="kn">import</span> <span class="n">SimpleQConfig</span>
+<span class="kn">from</span> <span class="nn">ray.rllib.utils.checkpoints</span> <span class="kn">import</span> <span class="n">convert_to_msgpack_checkpoint</span>
+
+
+<span class="c1"># Base config used for both pickle-based checkpoint and msgpack-based one.</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">SimpleQConfig</span><span class="p">()</span><span class="o">.</span><span class="n">environment</span><span class="p">(</span><span class="s2">&quot;CartPole-v1&quot;</span><span class="p">)</span>
+<span class="c1"># Build algorithm object.</span>
+<span class="n">algo1</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+
+<span class="c1"># Create standard (pickle-based) checkpoint.</span>
+<span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">pickle_cp_dir</span><span class="p">:</span>
+    <span class="c1"># Note: `save()` always creates a pickle based checkpoint.</span>
+    <span class="n">pickle_cp_dir</span> <span class="o">=</span> <span class="n">algo1</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">checkpoint_dir</span><span class="o">=</span><span class="n">pickle_cp_dir</span><span class="p">)</span>
+
+    <span class="c1"># But we can convert this pickle checkpoint to a msgpack one using an RLlib utility</span>
+    <span class="c1"># function.</span>
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">msgpack_cp_dir</span><span class="p">:</span>
+        <span class="n">convert_to_msgpack_checkpoint</span><span class="p">(</span><span class="n">pickle_cp_dir</span><span class="p">,</span> <span class="n">msgpack_cp_dir</span><span class="p">)</span>
+
+        <span class="c1"># Try recreating a new algorithm object from the msgpack checkpoint.</span>
+        <span class="c1"># Note: `Algorithm.from_checkpoint` now works with both pickle AND msgpack</span>
+        <span class="c1"># type checkpoints.</span>
+        <span class="n">algo2</span> <span class="o">=</span> <span class="n">Algorithm</span><span class="o">.</span><span class="n">from_checkpoint</span><span class="p">(</span><span class="n">msgpack_cp_dir</span><span class="p">)</span>
+
+<span class="c1"># algo1 and algo2 are now identical.</span>
+
+</pre></div>
+</div>
+<p>This way, you can continue to run your algorithms and <code class="xref py py-obj docutils literal notranslate"><span class="pre">save()</span></code> them occasionally or
+- if you are running trials with Ray Tune - use Tune’s integrated checkpointing settings.
+As has been, this will produce cloudpickle based checkpoints. Once you need to migrate to
+a higher (or lower) python version, use the <code class="docutils literal notranslate"><span class="pre">convert_to_msgpack_checkpoint()</span></code> utility,
+create a msgpack-based checkpoint and hand that to either <code class="docutils literal notranslate"><span class="pre">Algorithm.from_checkpoint()</span></code>
+or provide this to your Tune config. RLlib is able to recreate Algorithms from both these
+formats now.</p>
+</section>
+<section id="how-do-i-restore-an-algorithm-from-a-checkpoint">
+<h3>How do I restore an Algorithm from a checkpoint?<a class="headerlink" href="rllib-saving-and-loading-algos-and-policies.html#how-do-i-restore-an-algorithm-from-a-checkpoint" title="Permalink to this headline">#</a></h3>
+<p>Given our checkpoint path (returned by <code class="docutils literal notranslate"><span class="pre">Algorithm.save()</span></code>), we can now
+create a completely new Algorithm instance and make it the exact same as the one we
+had stopped (and could thus no longer use) in the example above:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ray.rllib.algorithms.algorithm</span> <span class="kn">import</span> <span class="n">Algorithm</span>
+
+<span class="c1"># Use the Algorithm&#39;s `from_checkpoint` utility to get a new algo instance</span>
+<span class="c1"># that has the exact same state as the old one, from which the checkpoint was</span>
+<span class="c1"># created in the first place:</span>
+<span class="n">my_new_ppo</span> <span class="o">=</span> <span class="n">Algorithm</span><span class="o">.</span><span class="n">from_checkpoint</span><span class="p">(</span><span class="n">path_to_checkpoint</span><span class="p">)</span>
+
+<span class="c1"># Continue training.</span>
+<span class="n">my_new_ppo</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+
+</pre></div>
+</div>
+<p>Alternatively, you could also first create a new Algorithm instance using the
+same config that you used for the original algo, and only then call the new
+Algorithm’s <code class="docutils literal notranslate"><span class="pre">restore()</span></code> method, passing it the checkpoint directory:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Re-build a fresh algorithm.</span>
+<span class="n">my_new_ppo</span> <span class="o">=</span> <span class="n">my_ppo_config</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+
+<span class="c1"># Restore the old (checkpointed) state.</span>
+<span class="n">my_new_ppo</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="n">path_to_checkpoint</span><span class="p">)</span>
+
+<span class="c1"># Continue training.</span>
+<span class="n">my_new_ppo</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+
+</pre></div>
+</div>
+<p>The above procedure used to be the only way of restoring an algo, however, it is more tedious
+than using the <code class="docutils literal notranslate"><span class="pre">from_checkpoint()</span></code> utility as it requires an extra step and you will
+have to keep your original config stored somewhere.</p>
+</section>
+<section id="which-algorithm-checkpoint-versions-can-i-use">
+<h3>Which Algorithm checkpoint versions can I use?<a class="headerlink" href="rllib-saving-and-loading-algos-and-policies.html#which-algorithm-checkpoint-versions-can-i-use" title="Permalink to this headline">#</a></h3>
+<p>RLlib uses simple checkpoint versions (for example v0.1 or v1.0) to figure
+out how to restore an Algorithm (or a <a class="reference internal" href="package_ref/doc/ray.rllib.policy.policy.Policy.html#ray.rllib.policy.policy.Policy" title="ray.rllib.policy.policy.Policy"><code class="xref py py-class docutils literal notranslate"><span class="pre">Policy</span></code></a>;
+see below) from a given
+checkpoint directory.</p>
+<p>From Ray 2.1 on, you can find the checkpoint version written in the
+<code class="docutils literal notranslate"><span class="pre">rllib_checkpoint.json</span></code> file at the top-level of your checkpoint directory.
+RLlib does not use this file or information therein, it solely exists for the
+user’s convenience.</p>
+<p>From Ray RLlib 2.0 and up, all checkpoint versions will be
+backward compatible, meaning some RLlib version 2.x will be able to
+handle any checkpoints created by RLlib 2.0 or any version up to 2.x.</p>
+</section>
+<section id="multi-agent-algorithm-checkpoints">
+<h3>Multi-agent Algorithm checkpoints<a class="headerlink" href="rllib-saving-and-loading-algos-and-policies.html#multi-agent-algorithm-checkpoints" title="Permalink to this headline">#</a></h3>
+<p>In case you are working with a multi-agent setup and have more than one
+<a class="reference internal" href="package_ref/doc/ray.rllib.policy.policy.Policy.html#ray.rllib.policy.policy.Policy" title="ray.rllib.policy.policy.Policy"><code class="xref py py-class docutils literal notranslate"><span class="pre">Policy</span></code></a> to train inside your
+<a class="reference internal" href="package_ref/doc/ray.rllib.algorithms.algorithm.Algorithm.html#ray.rllib.algorithms.algorithm.Algorithm" title="ray.rllib.algorithms.algorithm.Algorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">Algorithm</span></code></a>, you
+can create an <a class="reference internal" href="package_ref/doc/ray.rllib.algorithms.algorithm.Algorithm.html#ray.rllib.algorithms.algorithm.Algorithm" title="ray.rllib.algorithms.algorithm.Algorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">Algorithm</span></code></a> checkpoint in the
+exact same way as described above and will find your individual
+<a class="reference internal" href="package_ref/doc/ray.rllib.policy.policy.Policy.html#ray.rllib.policy.policy.Policy" title="ray.rllib.policy.policy.Policy"><code class="xref py py-class docutils literal notranslate"><span class="pre">Policy</span></code></a> checkpoints
+inside the sub-directory <code class="docutils literal notranslate"><span class="pre">policies/</span></code>.</p>
+<p>For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="c1"># Use our example multi-agent CartPole environment to train in.</span>
+<span class="kn">from</span> <span class="nn">ray.rllib.examples.env.multi_agent</span> <span class="kn">import</span> <span class="n">MultiAgentCartPole</span>
+
+<span class="c1"># Set up a multi-agent Algorithm, training two policies independently.</span>
+<span class="n">my_ma_config</span> <span class="o">=</span> <span class="n">PPOConfig</span><span class="p">()</span><span class="o">.</span><span class="n">multi_agent</span><span class="p">(</span>
+    <span class="c1"># Which policies should RLlib create and train?</span>
+    <span class="n">policies</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;pol1&quot;</span><span class="p">,</span> <span class="s2">&quot;pol2&quot;</span><span class="p">},</span>
+    <span class="c1"># Let RLlib know, which agents in the environment (we&#39;ll have &quot;agent1&quot;</span>
+    <span class="c1"># and &quot;agent2&quot;) map to which policies.</span>
+    <span class="n">policy_mapping_fn</span><span class="o">=</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">agent_id</span><span class="p">,</span> <span class="n">episode</span><span class="p">,</span> <span class="n">worker</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;pol1&quot;</span> <span class="k">if</span> <span class="n">agent_id</span> <span class="o">==</span> <span class="s2">&quot;agent1&quot;</span> <span class="k">else</span> <span class="s2">&quot;pol2&quot;</span>
+        <span class="p">)</span>
+    <span class="p">),</span>
+    <span class="c1"># Setting these is not necessary. All policies will always be trained by default.</span>
+    <span class="c1"># However, since we do provide a list of IDs here, we need to remain in charge of</span>
+    <span class="c1"># changing this `policies_to_train` list, should we ever alter the Algorithm</span>
+    <span class="c1"># (e.g. remove one of the policies or add a new one).</span>
+    <span class="n">policies_to_train</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;pol1&quot;</span><span class="p">,</span> <span class="s2">&quot;pol2&quot;</span><span class="p">],</span>  <span class="c1"># Again, `None` would be totally fine here.</span>
+<span class="p">)</span>
+
+<span class="c1"># Add the MultiAgentCartPole env to our config and build our Algorithm.</span>
+<span class="n">my_ma_config</span><span class="o">.</span><span class="n">environment</span><span class="p">(</span>
+    <span class="n">MultiAgentCartPole</span><span class="p">,</span>
+    <span class="n">env_config</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;num_agents&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+
+<span class="n">my_ma_algo</span> <span class="o">=</span> <span class="n">my_ma_config</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+
+<span class="n">ma_checkpoint_dir</span> <span class="o">=</span> <span class="n">my_ma_algo</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span>
+    <span class="s2">&quot;An Algorithm checkpoint has been created inside directory: &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">ma_checkpoint_dir</span><span class="si">}</span><span class="s2">&#39;.</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;Individual Policy checkpoints can be found in &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ma_checkpoint_dir</span><span class="p">,</span> <span class="s1">&#39;policies&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># Create a new Algorithm instance from the above checkpoint, just as you would for</span>
+<span class="c1"># a single-agent setup:</span>
+<span class="n">my_ma_algo_clone</span> <span class="o">=</span> <span class="n">Algorithm</span><span class="o">.</span><span class="n">from_checkpoint</span><span class="p">(</span><span class="n">ma_checkpoint_dir</span><span class="p">)</span>
+
+</pre></div>
+</div>
+<p>Assuming you would like to restore all policies within the checkpoint, you would
+do so just as described above in the single-agent case
+(via <code class="docutils literal notranslate"><span class="pre">algo</span> <span class="pre">=</span> <span class="pre">Algorithm.from_checkpoint([path</span> <span class="pre">to</span> <span class="pre">your</span> <span class="pre">multi-agent</span> <span class="pre">checkpoint])</span></code>).</p>
+<p>However, there may be a situation where you have so many policies in your algorithm
+(e.g. you are doing league-based training) and would like to restore a new Algorithm
+instance from your checkpoint, but only include some of the original policies in this
+new Algorithm object. In this case, you can also do:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Here, we use the same (multi-agent Algorithm) checkpoint as above, but only restore</span>
+<span class="c1"># it with the first Policy (&quot;pol1&quot;).</span>
+
+<span class="n">my_ma_algo_only_pol1</span> <span class="o">=</span> <span class="n">Algorithm</span><span class="o">.</span><span class="n">from_checkpoint</span><span class="p">(</span>
+    <span class="n">ma_checkpoint_dir</span><span class="p">,</span>
+    <span class="c1"># Tell the `from_checkpoint` util to create a new Algo, but only with &quot;pol1&quot; in it.</span>
+    <span class="n">policy_ids</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;pol1&quot;</span><span class="p">],</span>
+    <span class="c1"># Make sure to update the mapping function (we must not map to &quot;pol2&quot; anymore</span>
+    <span class="c1"># to avoid a runtime error). Now both agents (&quot;agent0&quot; and &quot;agent1&quot;) map to</span>
+    <span class="c1"># the same policy.</span>
+    <span class="n">policy_mapping_fn</span><span class="o">=</span><span class="k">lambda</span> <span class="n">agent_id</span><span class="p">,</span> <span class="n">episode</span><span class="p">,</span> <span class="n">worker</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">:</span> <span class="s2">&quot;pol1&quot;</span><span class="p">,</span>
+    <span class="c1"># Since we defined this above, we have to re-define it here with the updated</span>
+    <span class="c1"># PolicyIDs, otherwise, RLlib will throw an error (it will think that there is an</span>
+    <span class="c1"># unknown PolicyID in this list (&quot;pol2&quot;)).</span>
+    <span class="n">policies_to_train</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;pol1&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="c1"># Make sure, pol2 is NOT in this Algorithm anymore.</span>
+<span class="k">assert</span> <span class="n">my_ma_algo_only_pol1</span><span class="o">.</span><span class="n">get_policy</span><span class="p">(</span><span class="s2">&quot;pol2&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span>
+
+<span class="c1"># Continue training (only with pol1).</span>
+<span class="n">my_ma_algo_only_pol1</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+
+</pre></div>
+</div>
+</section>
+<section id="policy-checkpoints">
+<h3>Policy checkpoints<a class="headerlink" href="rllib-saving-and-loading-algos-and-policies.html#policy-checkpoints" title="Permalink to this headline">#</a></h3>
+<p>We have already looked at the <code class="docutils literal notranslate"><span class="pre">policies/</span></code> sub-directory inside an
+<a class="reference internal" href="package_ref/doc/ray.rllib.algorithms.algorithm.Algorithm.html#ray.rllib.algorithms.algorithm.Algorithm" title="ray.rllib.algorithms.algorithm.Algorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">Algorithm</span></code></a> checkpoint dir
+and learned that individual policies inside the
+<a class="reference internal" href="package_ref/doc/ray.rllib.algorithms.algorithm.Algorithm.html#ray.rllib.algorithms.algorithm.Algorithm" title="ray.rllib.algorithms.algorithm.Algorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">Algorithm</span></code></a> store all their state
+information under their policy ID inside that sub-directory.
+Thus, we now have the entire picture of a checkpoint:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">.</span>
+<span class="o">..</span>
+<span class="o">.</span><span class="n">is_checkpoint</span>
+<span class="o">.</span><span class="n">tune_metadata</span>
+
+<span class="n">algorithm_state</span><span class="o">.</span><span class="n">pkl</span>        <span class="c1"># &lt;- state of the Algorithm (excluding Policy states)</span>
+<span class="n">rllib_checkpoint</span><span class="o">.</span><span class="n">json</span>      <span class="c1"># &lt;- checkpoint info, such as checkpoint version, e.g. &quot;1.0&quot;</span>
+
+<span class="n">policies</span><span class="o">/</span>
+  <span class="n">policy_A</span><span class="o">/</span>
+    <span class="n">policy_state</span><span class="o">.</span><span class="n">pkl</span>       <span class="c1"># &lt;- state of policy_A</span>
+    <span class="n">rllib_checkpoint</span><span class="o">.</span><span class="n">json</span>  <span class="c1"># &lt;- checkpoint info, such as checkpoint version, e.g. &quot;1.0&quot;</span>
+
+  <span class="n">policy_B</span><span class="o">/</span>
+    <span class="n">policy_state</span><span class="o">.</span><span class="n">pkl</span>       <span class="c1"># &lt;- state of policy_B</span>
+    <span class="n">rllib_checkpoint</span><span class="o">.</span><span class="n">json</span>  <span class="c1"># &lt;- checkpoint info, such as checkpoint version, e.g. &quot;1.0&quot;</span>
+</pre></div>
+</div>
+<section id="how-do-i-create-a-policy-checkpoint">
+<h4>How do I create a Policy checkpoint?<a class="headerlink" href="rllib-saving-and-loading-algos-and-policies.html#how-do-i-create-a-policy-checkpoint" title="Permalink to this headline">#</a></h4>
+<p>You can create a <a class="reference internal" href="package_ref/doc/ray.rllib.policy.policy.Policy.html#ray.rllib.policy.policy.Policy" title="ray.rllib.policy.policy.Policy"><code class="xref py py-class docutils literal notranslate"><span class="pre">Policy</span></code></a> checkpoint by
+either calling <code class="docutils literal notranslate"><span class="pre">save()</span></code> on your <a class="reference internal" href="package_ref/doc/ray.rllib.algorithms.algorithm.Algorithm.html#ray.rllib.algorithms.algorithm.Algorithm" title="ray.rllib.algorithms.algorithm.Algorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">Algorithm</span></code></a>, which
+will save each individual Policy’s checkpoint under the <code class="docutils literal notranslate"><span class="pre">policies/</span></code> sub-directory as
+described above or - if you need more fine-grained control - by doing the following:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Retrieve the Policy object from an Algorithm.</span>
+<span class="c1"># Note that for normal, single-agent Algorithms, the Policy ID is &quot;default_policy&quot;.</span>
+<span class="n">policy1</span> <span class="o">=</span> <span class="n">my_ma_algo</span><span class="o">.</span><span class="n">get_policy</span><span class="p">(</span><span class="n">policy_id</span><span class="o">=</span><span class="s2">&quot;pol1&quot;</span><span class="p">)</span>
+
+<span class="c1"># Tell RLlib to store an individual policy checkpoint (only for &quot;pol1&quot;) inside</span>
+<span class="c1"># /tmp/my_policy_checkpoint</span>
+<span class="n">policy1</span><span class="o">.</span><span class="n">export_checkpoint</span><span class="p">(</span><span class="s2">&quot;/tmp/my_policy_checkpoint&quot;</span><span class="p">)</span>
+
+</pre></div>
+</div>
+<p>If you now check out the provided directory (<code class="docutils literal notranslate"><span class="pre">/tmp/my_policy_checkpoint/</span></code>), you
+should see the following files in there:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">.</span>
+<span class="o">..</span>
+<span class="n">rllib_checkpoint</span><span class="o">.</span><span class="n">json</span>   <span class="c1"># &lt;- checkpoint info, such as checkpoint version, e.g. &quot;1.0&quot;</span>
+<span class="n">policy_state</span><span class="o">.</span><span class="n">pkl</span>        <span class="c1"># &lt;- state of &quot;pol1&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="how-do-i-restore-from-a-policy-checkpoint">
+<h4>How do I restore from a Policy checkpoint?<a class="headerlink" href="rllib-saving-and-loading-algos-and-policies.html#how-do-i-restore-from-a-policy-checkpoint" title="Permalink to this headline">#</a></h4>
+<p>Assume you would like to serve your trained policy(ies) in production and would therefore
+like to use only the RLlib <a class="reference internal" href="package_ref/doc/ray.rllib.policy.policy.Policy.html#ray.rllib.policy.policy.Policy" title="ray.rllib.policy.policy.Policy"><code class="xref py py-class docutils literal notranslate"><span class="pre">Policy</span></code></a> instance,
+without all the other functionality that
+normally comes with the <a class="reference internal" href="package_ref/doc/ray.rllib.algorithms.algorithm.Algorithm.html#ray.rllib.algorithms.algorithm.Algorithm" title="ray.rllib.algorithms.algorithm.Algorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">Algorithm</span></code></a> object, like different <code class="docutils literal notranslate"><span class="pre">RolloutWorkers</span></code> for collecting
+training samples or for evaluation (both of which include RL environment copies), etc..</p>
+<p>In this case, it would be quite useful if you had a way to restore just the
+<a class="reference internal" href="package_ref/doc/ray.rllib.policy.policy.Policy.html#ray.rllib.policy.policy.Policy" title="ray.rllib.policy.policy.Policy"><code class="xref py py-class docutils literal notranslate"><span class="pre">Policy</span></code></a>
+from either a <a class="reference internal" href="package_ref/doc/ray.rllib.policy.policy.Policy.html#ray.rllib.policy.policy.Policy" title="ray.rllib.policy.policy.Policy"><code class="xref py py-class docutils literal notranslate"><span class="pre">Policy</span></code></a> checkpoint or an
+<a class="reference internal" href="package_ref/doc/ray.rllib.algorithms.algorithm.Algorithm.html#ray.rllib.algorithms.algorithm.Algorithm" title="ray.rllib.algorithms.algorithm.Algorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">Algorithm</span></code></a> checkpoint, which - as we learned above -
+contains all its Policies’ checkpoints.</p>
+<p>Here is how you can do this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">ray.rllib.policy.policy</span> <span class="kn">import</span> <span class="n">Policy</span>
+
+<span class="c1"># Use the `from_checkpoint` utility of the Policy class:</span>
+<span class="n">my_restored_policy</span> <span class="o">=</span> <span class="n">Policy</span><span class="o">.</span><span class="n">from_checkpoint</span><span class="p">(</span><span class="s2">&quot;/tmp/my_policy_checkpoint&quot;</span><span class="p">)</span>
+
+<span class="c1"># Use the restored policy for serving actions.</span>
+<span class="n">obs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">])</span>  <span class="c1"># individual CartPole observation</span>
+<span class="n">action</span> <span class="o">=</span> <span class="n">my_restored_policy</span><span class="o">.</span><span class="n">compute_single_action</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Computed action </span><span class="si">{</span><span class="n">action</span><span class="si">}</span><span class="s2"> from given CartPole observation.&quot;</span><span class="p">)</span>
+
+</pre></div>
+</div>
+</section>
+<section id="how-do-i-restore-a-multi-agent-algorithm-with-a-subset-of-the-original-policies">
+<h4>How do I restore a multi-agent Algorithm with a subset of the original policies?<a class="headerlink" href="rllib-saving-and-loading-algos-and-policies.html#how-do-i-restore-a-multi-agent-algorithm-with-a-subset-of-the-original-policies" title="Permalink to this headline">#</a></h4>
+<p>Imagine you have trained a multi-agent <a class="reference internal" href="package_ref/doc/ray.rllib.algorithms.algorithm.Algorithm.html#ray.rllib.algorithms.algorithm.Algorithm" title="ray.rllib.algorithms.algorithm.Algorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">Algorithm</span></code></a> with e.g. 100 different Policies and created
+a checkpoint from this <a class="reference internal" href="package_ref/doc/ray.rllib.algorithms.algorithm.Algorithm.html#ray.rllib.algorithms.algorithm.Algorithm" title="ray.rllib.algorithms.algorithm.Algorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">Algorithm</span></code></a>.
+The checkpoint now includes 100 sub-directories in the
+<code class="docutils literal notranslate"><span class="pre">policies/</span></code> dir, named after the different policy IDs.</p>
+<p>After careful evaluation of the different policies, you would like to restore the
+<a class="reference internal" href="package_ref/doc/ray.rllib.algorithms.algorithm.Algorithm.html#ray.rllib.algorithms.algorithm.Algorithm" title="ray.rllib.algorithms.algorithm.Algorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">Algorithm</span></code></a>
+and continue training it, but only with a subset of the original 100 policies,
+for example only with the policies, whose IDs are “polA” and “polB”.</p>
+<p>You can use the original checkpoint (with the 100 policies in it) and the
+<code class="docutils literal notranslate"><span class="pre">Algorithm.from_checkpoint()</span></code> utility to achieve this in an efficient way.</p>
+<p>This example here shows this for five original policies that you would like reduce to
+two policies:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ray.rllib.algorithms.ppo</span> <span class="kn">import</span> <span class="n">PPOConfig</span>
+<span class="kn">from</span> <span class="nn">ray.rllib.examples.env.multi_agent</span> <span class="kn">import</span> <span class="n">MultiAgentCartPole</span>
+
+<span class="c1"># Set up an Algorithm with 5 Policies.</span>
+<span class="n">algo_w_5_policies</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">PPOConfig</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">environment</span><span class="p">(</span>
+        <span class="n">env</span><span class="o">=</span><span class="n">MultiAgentCartPole</span><span class="p">,</span>
+        <span class="n">env_config</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;num_agents&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="o">.</span><span class="n">multi_agent</span><span class="p">(</span>
+        <span class="n">policies</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;pol0&quot;</span><span class="p">,</span> <span class="s2">&quot;pol1&quot;</span><span class="p">,</span> <span class="s2">&quot;pol2&quot;</span><span class="p">,</span> <span class="s2">&quot;pol3&quot;</span><span class="p">,</span> <span class="s2">&quot;pol4&quot;</span><span class="p">},</span>
+        <span class="c1"># Map &quot;agent0&quot; -&gt; &quot;pol0&quot;, etc...</span>
+        <span class="n">policy_mapping_fn</span><span class="o">=</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">agent_id</span><span class="p">,</span> <span class="n">episode</span><span class="p">,</span> <span class="n">worker</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;pol</span><span class="si">{</span><span class="n">agent_id</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="o">.</span><span class="n">build</span><span class="p">()</span>
+<span class="p">)</span>
+
+<span class="c1"># .. train one iteration ..</span>
+<span class="n">algo_w_5_policies</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+<span class="c1"># .. and call `save()` to create a checkpoint.</span>
+<span class="n">path_to_checkpoint</span> <span class="o">=</span> <span class="n">algo_w_5_policies</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="s2">&quot;An Algorithm checkpoint has been created inside directory: &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">path_to_checkpoint</span><span class="si">}</span><span class="s2">&#39;. It should contain 5 policies in the &#39;policies/&#39; sub dir.&quot;</span>
+<span class="p">)</span>
+<span class="c1"># Let&#39;s terminate the algo for demonstration purposes.</span>
+<span class="n">algo_w_5_policies</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+<span class="c1"># We will now recreate a new algo from this checkpoint, but only with 2 of the</span>
+<span class="c1"># original policies (&quot;pol0&quot; and &quot;pol1&quot;). Note that this will require us to change the</span>
+<span class="c1"># `policy_mapping_fn` (instead of mapping 5 agents to 5 policies, we now have</span>
+<span class="c1"># to map 5 agents to only 2 policies).</span>
+
+
+<span class="k">def</span> <span class="nf">new_policy_mapping_fn</span><span class="p">(</span><span class="n">agent_id</span><span class="p">,</span> <span class="n">episode</span><span class="p">,</span> <span class="n">worker</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s2">&quot;pol0&quot;</span> <span class="k">if</span> <span class="n">agent_id</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;agent0&quot;</span><span class="p">,</span> <span class="s2">&quot;agent1&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="s2">&quot;pol1&quot;</span>
+
+
+<span class="n">algo_w_2_policies</span> <span class="o">=</span> <span class="n">Algorithm</span><span class="o">.</span><span class="n">from_checkpoint</span><span class="p">(</span>
+    <span class="n">checkpoint</span><span class="o">=</span><span class="n">path_to_checkpoint</span><span class="p">,</span>
+    <span class="n">policy_ids</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;pol0&quot;</span><span class="p">,</span> <span class="s2">&quot;pol1&quot;</span><span class="p">},</span>  <span class="c1"># &lt;- restore only those policy IDs here.</span>
+    <span class="n">policy_mapping_fn</span><span class="o">=</span><span class="n">new_policy_mapping_fn</span><span class="p">,</span>  <span class="c1"># &lt;- use this new mapping fn.</span>
+<span class="p">)</span>
+
+<span class="c1"># Test, whether we can train with this new setup.</span>
+<span class="n">algo_w_2_policies</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+<span class="c1"># Terminate the new algo.</span>
+<span class="n">algo_w_2_policies</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+</pre></div>
+</div>
+<p>Note that we had to change our original <code class="docutils literal notranslate"><span class="pre">policy_mapping_fn</span></code> from one that maps
+“agent0” to “pol0”, “agent1” to “pol1”, etc..
+to a new function that maps our five agents to only the two remaining policies:
+“agent0” and “agent1” to “pol0”, all other agents to “pol1”.</p>
+</section>
+</section>
+<section id="model-exports">
+<h3>Model Exports<a class="headerlink" href="rllib-saving-and-loading-algos-and-policies.html#model-exports" title="Permalink to this headline">#</a></h3>
+<p>Apart from creating checkpoints for your RLlib objects (such as an RLlib
+<a class="reference internal" href="package_ref/doc/ray.rllib.algorithms.algorithm.Algorithm.html#ray.rllib.algorithms.algorithm.Algorithm" title="ray.rllib.algorithms.algorithm.Algorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">Algorithm</span></code></a> or
+an individual RLlib <a class="reference internal" href="package_ref/doc/ray.rllib.policy.policy.Policy.html#ray.rllib.policy.policy.Policy" title="ray.rllib.policy.policy.Policy"><code class="xref py py-class docutils literal notranslate"><span class="pre">Policy</span></code></a>), it may also be very useful
+to only export your NN models in their native (non-RLlib dependent) format, for example
+as a keras- or PyTorch model.
+You could then use the trained NN models outside
+of RLlib, e.g. for serving purposes in your production environments.</p>
+<section id="how-do-i-export-my-nn-model">
+<h4>How do I export my NN Model?<a class="headerlink" href="rllib-saving-and-loading-algos-and-policies.html#how-do-i-export-my-nn-model" title="Permalink to this headline">#</a></h4>
+<p>There are several ways of creating Keras- or PyTorch native model “exports”.</p>
+<p>Here is the example code that illustrates these:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ray.rllib.algorithms.ppo</span> <span class="kn">import</span> <span class="n">PPOConfig</span>
+
+<span class="c1"># Create a new Algorithm (which contains a Policy, which contains a NN Model).</span>
+<span class="c1"># Switch on for native models to be included in the Policy checkpoints.</span>
+<span class="n">ppo_config</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">PPOConfig</span><span class="p">()</span><span class="o">.</span><span class="n">environment</span><span class="p">(</span><span class="s2">&quot;Pendulum-v1&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">checkpointing</span><span class="p">(</span><span class="n">export_native_model_files</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="c1"># The default framework is TensorFlow, but if you would like to do this example with</span>
+<span class="c1"># PyTorch, uncomment the following line of code:</span>
+<span class="c1"># ppo_config.framework(&quot;torch&quot;)</span>
+
+<span class="c1"># Create the Algorithm and train one iteration.</span>
+<span class="n">ppo</span> <span class="o">=</span> <span class="n">ppo_config</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+<span class="n">ppo</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+
+<span class="c1"># Get the underlying PPOTF1Policy (or PPOTorchPolicy) object.</span>
+<span class="n">ppo_policy</span> <span class="o">=</span> <span class="n">ppo</span><span class="o">.</span><span class="n">get_policy</span><span class="p">()</span>
+
+</pre></div>
+</div>
+<p>We can now export the Keras NN model (that our PPOTF1Policy inside the PPO Algorithm uses)
+to disk …</p>
+<ol class="arabic simple">
+<li><p>Using the Policy object:</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ppo_policy</span><span class="o">.</span><span class="n">export_model</span><span class="p">(</span><span class="s2">&quot;/tmp/my_nn_model&quot;</span><span class="p">)</span>
+<span class="c1"># .. check /tmp/my_nn_model/ for the model files.</span>
+
+<span class="c1"># For Keras You should be able to recover the model via:</span>
+<span class="c1"># keras_model = tf.saved_model.load(&quot;/tmp/my_nn_model/&quot;)</span>
+<span class="c1"># And pass in a Pendulum-v1 observation:</span>
+<span class="c1"># results = keras_model(tf.convert_to_tensor(</span>
+<span class="c1">#     np.array([[0.0, 0.1, 0.2]]), dtype=np.float32)</span>
+<span class="c1"># )</span>
+
+<span class="c1"># For PyTorch, do:</span>
+<span class="c1"># pytorch_model = torch.load(&quot;/tmp/my_nn_model/model.pt&quot;)</span>
+<span class="c1"># results = pytorch_model(</span>
+<span class="c1">#     input_dict={</span>
+<span class="c1">#         &quot;obs&quot;: torch.from_numpy(np.array([[0.0, 0.1, 0.2]], dtype=np.float32)),</span>
+<span class="c1">#     },</span>
+<span class="c1">#     state=[torch.tensor(0)],  # dummy value</span>
+<span class="c1">#     seq_lens=torch.tensor(0),  # dummy value</span>
+<span class="c1"># )</span>
+
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Via the Policy’s checkpointing method:</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">checkpoint_dir</span> <span class="o">=</span> <span class="n">ppo_policy</span><span class="o">.</span><span class="n">export_checkpoint</span><span class="p">(</span><span class="s2">&quot;tmp/ppo_policy&quot;</span><span class="p">)</span>
+<span class="c1"># .. check /tmp/ppo_policy/model/ for the model files.</span>
+<span class="c1"># You should be able to recover the keras model via:</span>
+<span class="c1"># keras_model = tf.saved_model.load(&quot;/tmp/ppo_policy/model&quot;)</span>
+<span class="c1"># And pass in a Pendulum-v1 observation:</span>
+<span class="c1"># results = keras_model(tf.convert_to_tensor(</span>
+<span class="c1">#     np.array([[0.0, 0.1, 0.2]]), dtype=np.float32)</span>
+<span class="c1"># )</span>
+
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Via the Algorithm (Policy) checkpoint:</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">checkpoint_dir</span> <span class="o">=</span> <span class="n">ppo</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+<span class="c1"># .. check `checkpoint_dir` for the Algorithm checkpoint files.</span>
+<span class="c1"># For keras you should be able to recover the model via:</span>
+<span class="c1"># keras_model = tf.saved_model.load(checkpoint_dir + &quot;/policies/default_policy/model/&quot;)</span>
+<span class="c1"># And pass in a Pendulum-v1 observation</span>
+<span class="c1"># results = keras_model(tf.convert_to_tensor(</span>
+<span class="c1">#     np.array([[0.0, 0.1, 0.2]]), dtype=np.float32)</span>
+<span class="c1"># )</span>
+
+</pre></div>
+</div>
+</section>
+<section id="and-what-about-exporting-my-nn-models-in-onnx-format">
+<h4>And what about exporting my NN Models in ONNX format?<a class="headerlink" href="rllib-saving-and-loading-algos-and-policies.html#and-what-about-exporting-my-nn-models-in-onnx-format" title="Permalink to this headline">#</a></h4>
+<p>RLlib also supports exporting your NN models in the ONNX format. For that, use the
+<a class="reference internal" href="package_ref/doc/ray.rllib.policy.policy.Policy.html#ray.rllib.policy.policy.Policy" title="ray.rllib.policy.policy.Policy"><code class="xref py py-class docutils literal notranslate"><span class="pre">Policy</span></code></a> <code class="docutils literal notranslate"><span class="pre">export_model</span></code> method, but provide the
+extra <code class="docutils literal notranslate"><span class="pre">onnx</span></code> arg as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Using the same Policy object, we can also export our NN Model in the ONNX format:</span>
+<span class="n">ppo_policy</span><span class="o">.</span><span class="n">export_model</span><span class="p">(</span><span class="s2">&quot;/tmp/my_nn_model&quot;</span><span class="p">,</span> <span class="n">onnx</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="rllib-models.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Models, Preprocessors, and Action Distributions</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="rllib-concepts.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">How To Customize Policies</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

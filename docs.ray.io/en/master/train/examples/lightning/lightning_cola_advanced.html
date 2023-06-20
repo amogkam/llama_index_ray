@@ -1,0 +1,1373 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Finetune a BERT Text Classifier with LightningTrainer &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/js/versionwarning.js"></script>
+    <script src="../../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../../_static/js/docsearch.js"></script>
+    <script src="../../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../../_static/js/top-navigation.js"></script>
+    <script src="../../../_static/js/tags.js"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/train/examples/lightning/lightning_cola_advanced.html" />
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Using Experiment Tracking Tools in LightningTrainer" href="lightning_exp_tracking.html" />
+    <link rel="prev" title="Train a Pytorch Lightning Image Classifier" href="lightning_mnist_example.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "train/examples/lightning/lightning_cola_advanced", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".ipynb", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../../train.html">
+   Ray Train
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../getting-started.html">
+     Getting Started
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../user-guides.html">
+     User Guides
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="../../examples.html">
+     Examples
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="../pytorch/torch_fashion_mnist_example.html">
+       PyTorch Fashion MNIST Example
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="lightning_mnist_example.html">
+       PyTorch Lightning Basic Example
+      </a>
+     </li>
+     <li class="toctree-l3 current active">
+      <a class="current reference internal" href="lightning_cola_advanced.html#">
+       PyTorch Lightning Advanced Example
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="lightning_exp_tracking.html">
+       PyTorch Lightning with Experiment Tracking Tools
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../transformers/transformers_example.html">
+       HF Transformers Example
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../tf/tensorflow_mnist_example.html">
+       TensorFlow MNIST Example
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../horovod/horovod_example.html">
+       Horovod Example
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../mlflow_fashion_mnist_example.html">
+       MLflow Callback Example
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../tf/tune_tensorflow_mnist_example.html">
+       Tune &amp; TensorFlow Example
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../pytorch/tune_cifar_torch_pbt_example.html">
+       Tune &amp; PyTorch Example
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../pytorch/torch_data_prefetch_benchmark/benchmark_example.html">
+       Torch Data Prefetching Benchmark
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../pytorch/pytorch_resnet_finetune.html">
+       PyTorch Finetuning ResNet Example
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../faq.html">
+     Ray Train FAQ
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../api/api.html">
+     Ray Train API
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../tune.html">
+   Ray Tune
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Ftrain/examples/lightning/lightning_cola_advanced.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/train/examples/lightning/lightning_cola_advanced.ipynb"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../../_sources/train/examples/lightning/lightning_cola_advanced.ipynb.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.ipynb</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="lightning_cola_advanced.html#pre-process-cola-dataset">
+   Pre-process CoLA Dataset
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="lightning_cola_advanced.html#define-a-pytorch-lightning-model">
+   Define a PyTorch Lightning Model
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="lightning_cola_advanced.html#configure-your-lightningtrainer">
+   Configure your LightningTrainer
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="lightning_cola_advanced.html#fine-tune-the-model-with-lightningtrainer">
+   Fine-tune the model with LightningTrainer
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="lightning_cola_advanced.html#do-batch-inference-with-a-saved-checkpoint">
+   Do Batch Inference with a Saved Checkpoint
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="lightning_cola_advanced.html#whats-next">
+   What’s next?
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Finetune a BERT Text Classifier with LightningTrainer</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="lightning_cola_advanced.html#pre-process-cola-dataset">
+   Pre-process CoLA Dataset
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="lightning_cola_advanced.html#define-a-pytorch-lightning-model">
+   Define a PyTorch Lightning Model
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="lightning_cola_advanced.html#configure-your-lightningtrainer">
+   Configure your LightningTrainer
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="lightning_cola_advanced.html#fine-tune-the-model-with-lightningtrainer">
+   Fine-tune the model with LightningTrainer
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="lightning_cola_advanced.html#do-batch-inference-with-a-saved-checkpoint">
+   Do Batch Inference with a Saved Checkpoint
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="lightning_cola_advanced.html#whats-next">
+   What’s next?
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section class="tex2jax_ignore mathjax_ignore" id="finetune-a-bert-text-classifier-with-lightningtrainer">
+<span id="lightning-advanced-example"></span><h1>Finetune a BERT Text Classifier with LightningTrainer<a class="headerlink" href="lightning_cola_advanced.html#finetune-a-bert-text-classifier-with-lightningtrainer" title="Permalink to this headline">#</a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is an advanced example for <a class="reference internal" href="../../api/doc/ray.train.lightning.LightningTrainer.html#ray.train.lightning.LightningTrainer" title="ray.train.lightning.LightningTrainer"><code class="xref py py-class docutils literal notranslate"><span class="pre">LightningTrainer</span></code></a>, which demonstrates how to use LightningTrainer with <a class="reference internal" href="../../../data/data.html#data"><span class="std std-ref">Dataset</span></a> and <a class="reference internal" href="../../../ray-air/predictors.html#air-predictors"><span class="std std-ref">Batch Predictor</span></a>.</p>
+<p>If you just want to quickly convert your existing PyTorch Lightning scripts into Ray AIR, you can refer to this starter example:
+<a class="reference internal" href="lightning_mnist_example.html#lightning-mnist-example"><span class="std std-ref">Train a Pytorch Lightning Image Classifier</span></a>.</p>
+</div>
+<p>In this demo, we will introduce how to finetune a text classifier on <a class="reference external" href="https://nyu-mll.github.io/CoLA/">CoLA(The Corpus of Linguistic Acceptability)</a> datasets with pretrained BERT.
+In particular, we will:</p>
+<ul class="simple">
+<li><p>Create Ray Data from the original CoLA dataset.</p></li>
+<li><p>Define a preprocessor to tokenize the sentences.</p></li>
+<li><p>Finetune a BERT model using LightningTrainer.</p></li>
+<li><p>Construct a BatchPredictor with the checkpoint and preprocessor.</p></li>
+<li><p>Do batch prediction on multiple GPUs, and evaluate the results.</p></li>
+</ul>
+<p>Run the following line in order to install all the necessary dependencies:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>pip install numpy datasets <span class="s2">&quot;transformers&gt;=4.19.1&quot;</span> <span class="s2">&quot;pytorch_lightning&gt;=1.6.5&quot;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Let’s start by importing the needed libraries:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">pytorch_lightning</span> <span class="k">as</span> <span class="nn">pl</span>
+<span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
+<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">DataLoader</span><span class="p">,</span> <span class="n">random_split</span>
+<span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">AutoTokenizer</span><span class="p">,</span> <span class="n">AutoModelForSequenceClassification</span>
+<span class="kn">from</span> <span class="nn">datasets</span> <span class="kn">import</span> <span class="n">load_dataset</span><span class="p">,</span> <span class="n">load_metric</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="pre-process-cola-dataset">
+<h2>Pre-process CoLA Dataset<a class="headerlink" href="lightning_cola_advanced.html#pre-process-cola-dataset" title="Permalink to this headline">#</a></h2>
+<p>CoLA is a binary sentence classification task with 10.6K training examples. First, we download the dataset and metrics using the HuggingFace API, and create Ray Data for each split accordingly.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;glue&quot;</span><span class="p">,</span> <span class="s2">&quot;cola&quot;</span><span class="p">)</span>
+<span class="n">metric</span> <span class="o">=</span> <span class="n">load_metric</span><span class="p">(</span><span class="s2">&quot;glue&quot;</span><span class="p">,</span> <span class="s2">&quot;cola&quot;</span><span class="p">)</span>
+
+<span class="n">ray_datasets</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">from_huggingface</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Next, define a preprocessor that tokenizes the input sentences and pads the ID sequence to length 128 using the bert-base-uncased tokenizer. The preprocessor transforms all datasets that we provide to the LightningTrainer later.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ray.data.preprocessors</span> <span class="kn">import</span> <span class="n">BatchMapper</span>
+
+<span class="n">tokenizer</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="s2">&quot;bert-base-cased&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">tokenize_sentence</span><span class="p">(</span><span class="n">batch</span><span class="p">):</span>
+    <span class="n">encoded_sent</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="p">(</span>
+        <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;sentence&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span>
+        <span class="n">truncation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;max_length&quot;</span><span class="p">,</span>
+        <span class="n">return_tensors</span><span class="o">=</span><span class="s2">&quot;pt&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;input_ids&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">encoded_sent</span><span class="p">[</span><span class="s2">&quot;input_ids&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+    <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;attention_mask&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">encoded_sent</span><span class="p">[</span><span class="s2">&quot;attention_mask&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+    <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">])</span>
+    <span class="n">batch</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;sentence&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">batch</span>
+
+
+<span class="n">preprocessor</span> <span class="o">=</span> <span class="n">BatchMapper</span><span class="p">(</span><span class="n">tokenize_sentence</span><span class="p">,</span> <span class="n">batch_format</span><span class="o">=</span><span class="s2">&quot;numpy&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="define-a-pytorch-lightning-model">
+<h2>Define a PyTorch Lightning Model<a class="headerlink" href="lightning_cola_advanced.html#define-a-pytorch-lightning-model" title="Permalink to this headline">#</a></h2>
+<p>You don’t have to make any change of your <code class="docutils literal notranslate"><span class="pre">LightningModule</span></code> definition. Just copy and paste your code here:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SentimentModel</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">LightningModule</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">2e-5</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lr</span> <span class="o">=</span> <span class="n">lr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eps</span> <span class="o">=</span> <span class="n">eps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_classes</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">AutoModelForSequenceClassification</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span>
+            <span class="s2">&quot;bert-base-cased&quot;</span><span class="p">,</span> <span class="n">num_labels</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_classes</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metric</span> <span class="o">=</span> <span class="n">load_metric</span><span class="p">(</span><span class="s2">&quot;glue&quot;</span><span class="p">,</span> <span class="s2">&quot;cola&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">predictions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">references</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">):</span>
+        <span class="n">input_ids</span><span class="p">,</span> <span class="n">attention_mask</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;input_ids&quot;</span><span class="p">],</span> <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;attention_mask&quot;</span><span class="p">]</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">input_ids</span><span class="p">,</span> <span class="n">attention_mask</span><span class="o">=</span><span class="n">attention_mask</span><span class="p">)</span>
+        <span class="n">logits</span> <span class="o">=</span> <span class="n">outputs</span><span class="o">.</span><span class="n">logits</span>
+        <span class="k">return</span> <span class="n">logits</span>
+
+    <span class="k">def</span> <span class="nf">training_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">batch_idx</span><span class="p">):</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span>
+        <span class="n">logits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">cross_entropy</span><span class="p">(</span><span class="n">logits</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_classes</span><span class="p">),</span> <span class="n">labels</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;train_loss&quot;</span><span class="p">,</span> <span class="n">loss</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">loss</span>
+
+    <span class="k">def</span> <span class="nf">validation_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">batch_idx</span><span class="p">):</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span>
+        <span class="n">logits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+        <span class="n">preds</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">predictions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">preds</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">references</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">on_validation_epoch_end</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">predictions</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">predictions</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">references</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">references</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">matthews_correlation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span>
+            <span class="n">predictions</span><span class="o">=</span><span class="n">predictions</span><span class="p">,</span> <span class="n">references</span><span class="o">=</span><span class="n">references</span>
+        <span class="p">)</span>
+
+        <span class="c1"># self.metric.compute() returns a dictionary:</span>
+        <span class="c1"># e.g. {&quot;matthews_correlation&quot;: 0.53}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_dict</span><span class="p">(</span><span class="n">matthews_correlation</span><span class="p">,</span> <span class="n">sync_dist</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">predictions</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">references</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">configure_optimizers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">AdamW</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lr</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">eps</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="configure-your-lightningtrainer">
+<h2>Configure your LightningTrainer<a class="headerlink" href="lightning_cola_advanced.html#configure-your-lightningtrainer" title="Permalink to this headline">#</a></h2>
+<p>Define a LightningTrainer with necessary configurations, including hyper-parameters, checkpointing and compute resources settings.</p>
+<p>You may find the API of <a class="reference internal" href="../../api/doc/ray.train.lightning.LightningConfigBuilder.html#ray.train.lightning.LightningConfigBuilder" title="ray.train.lightning.LightningConfigBuilder"><code class="xref py py-class docutils literal notranslate"><span class="pre">LightningConfigBuilder</span></code></a> and the discussion <a class="reference internal" href="lightning_mnist_example.html#lightning-config-builder-intro"><span class="std std-ref">here</span></a> useful.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ray.train.lightning</span> <span class="kn">import</span> <span class="n">LightningTrainer</span><span class="p">,</span> <span class="n">LightningConfigBuilder</span>
+<span class="kn">from</span> <span class="nn">ray.air.config</span> <span class="kn">import</span> <span class="n">RunConfig</span><span class="p">,</span> <span class="n">ScalingConfig</span><span class="p">,</span> <span class="n">CheckpointConfig</span>
+
+<span class="c1"># Define the configs for LightningTrainer</span>
+<span class="n">lightning_config</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">LightningConfigBuilder</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">module</span><span class="p">(</span><span class="bp">cls</span><span class="o">=</span><span class="n">SentimentModel</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">trainer</span><span class="p">(</span><span class="n">max_epochs</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">accelerator</span><span class="o">=</span><span class="s2">&quot;gpu&quot;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">checkpointing</span><span class="p">(</span><span class="n">save_on_train_epoch_end</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">build</span><span class="p">()</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Note that the <code class="docutils literal notranslate"><span class="pre">lightning_config</span></code> is created on the head node and will be passed to the worker nodes later. Be aware that the environment variables and hardware settings may differ between the head node and worker nodes.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="../../api/doc/ray.train.lightning.LightningConfigBuilder.checkpointing.html#ray.train.lightning.LightningConfigBuilder.checkpointing" title="ray.train.lightning.LightningConfigBuilder.checkpointing"><code class="xref py py-meth docutils literal notranslate"><span class="pre">LightningConfigBuilder.checkpointing()</span></code></a> creates a <a class="reference external" href="https://lightning.ai/docs/pytorch/stable/api/lightning.pytorch.callbacks.ModelCheckpoint.html#lightning.pytorch.callbacks.ModelCheckpoint">ModelCheckpoint</a> callback. This callback defines the checkpoint frequency and saves checkpoint files in Lightning style.</p>
+<p>If you want to save AIR checkpoints for Batch Prediction, please also provide an AIR <a class="reference internal" href="../../../ray-air/api/doc/ray.air.CheckpointConfig.html#ray.air.CheckpointConfig" title="ray.air.config.CheckpointConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">CheckpointConfig</span></code></a>.</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Save AIR checkpoints according to the performance on validation set</span>
+<span class="n">run_config</span> <span class="o">=</span> <span class="n">RunConfig</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ptl-sent-classification&quot;</span><span class="p">,</span>
+    <span class="n">checkpoint_config</span><span class="o">=</span><span class="n">CheckpointConfig</span><span class="p">(</span>
+        <span class="n">num_to_keep</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">checkpoint_score_attribute</span><span class="o">=</span><span class="s2">&quot;matthews_correlation&quot;</span><span class="p">,</span>
+        <span class="n">checkpoint_score_order</span><span class="o">=</span><span class="s2">&quot;max&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+
+<span class="c1"># Scale the DDP training workload across 4 GPUs</span>
+<span class="c1"># You can change this config based on your compute resources.</span>
+<span class="n">scaling_config</span> <span class="o">=</span> <span class="n">ScalingConfig</span><span class="p">(</span>
+    <span class="n">num_workers</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">use_gpu</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">resources_per_worker</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;CPU&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;GPU&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="fine-tune-the-model-with-lightningtrainer">
+<h2>Fine-tune the model with LightningTrainer<a class="headerlink" href="lightning_cola_advanced.html#fine-tune-the-model-with-lightningtrainer" title="Permalink to this headline">#</a></h2>
+<p>Train the model with the configuration we specified above.</p>
+<p>To feed data into LightningTrainer, we need to configure the following arguments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">datasets</span></code>: A dictionary of the input Ray datasets, with special keys “train” and “val”.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">datasets_iter_config</span></code>: The argument list of <a class="reference internal" href="../../../data/api/doc/ray.data.Dataset.iter_torch_batches.html#ray.data.Dataset.iter_torch_batches" title="ray.data.Dataset.iter_torch_batches"><code class="xref py py-meth docutils literal notranslate"><span class="pre">iter_torch_batches()</span></code></a>. It defines the way we iterate dataset shards for each worker.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">preprocessor</span></code>: The preprocessor that will be applied to the input dataset.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Note that we are using Dataset for data ingestion for faster preprocessing here, but you can also continue to use the native <code class="docutils literal notranslate"><span class="pre">PyTorch</span> <span class="pre">DataLoader</span></code> or <code class="docutils literal notranslate"><span class="pre">LightningDataModule</span></code>. See <a class="reference internal" href="lightning_mnist_example.html#lightning-mnist-example"><span class="std std-ref">this example</span></a>.</p>
+</div>
+<p>Now, call <code class="docutils literal notranslate"><span class="pre">trainer.fit()</span></code> to initiate the training process.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">trainer</span> <span class="o">=</span> <span class="n">LightningTrainer</span><span class="p">(</span>
+    <span class="n">lightning_config</span><span class="o">=</span><span class="n">lightning_config</span><span class="p">,</span>
+    <span class="n">run_config</span><span class="o">=</span><span class="n">run_config</span><span class="p">,</span>
+    <span class="n">scaling_config</span><span class="o">=</span><span class="n">scaling_config</span><span class="p">,</span>
+    <span class="n">datasets</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;train&quot;</span><span class="p">:</span> <span class="n">ray_datasets</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">],</span> <span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="n">ray_datasets</span><span class="p">[</span><span class="s2">&quot;validation&quot;</span><span class="p">]},</span>
+    <span class="n">datasets_iter_config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="mi">16</span><span class="p">},</span>
+    <span class="n">preprocessor</span><span class="o">=</span><span class="n">preprocessor</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div class="tuneStatus">
+  <div style="display: flex;flex-direction: row">
+    <div style="display: flex;flex-direction: column;">
+      <h3>Tune Status</h3>
+      <table>
+<tbody>
+<tr><td>Current time:</td><td>2023-04-24 10:42:50</td></tr>
+<tr><td>Running for: </td><td>00:06:26.94        </td></tr>
+<tr><td>Memory:      </td><td>23.8/186.6 GiB     </td></tr>
+</tbody>
+</table>
+    </div>
+    <div class="vDivider"></div>
+    <div class="systemInfo">
+      <h3>System Info</h3>
+      Using FIFO scheduling algorithm.<br>Logical resource usage: 0/48 CPUs, 0/4 GPUs (0.0/1.0 accelerator_type:T4)
+    </div>
+
+  </div>
+  <div class="hDivider"></div>
+  <div class="trialStatus">
+    <h3>Trial Status</h3>
+    <table>
+<thead>
+<tr><th>Trial name                  </th><th>status    </th><th>loc              </th><th style="text-align: right;">  iter</th><th style="text-align: right;">  total time (s)</th><th style="text-align: right;">  train_loss</th><th style="text-align: right;">  matthews_correlation</th><th style="text-align: right;">  epoch</th></tr>
+</thead>
+<tbody>
+<tr><td>LightningTrainer_87ecf_00000</td><td>TERMINATED</td><td>10.0.60.127:67819</td><td style="text-align: right;">     5</td><td style="text-align: right;">         376.028</td><td style="text-align: right;">   0.0119807</td><td style="text-align: right;">              0.589931</td><td style="text-align: right;">      4</td></tr>
+</tbody>
+</table>
+  </div>
+</div>
+<style>
+.tuneStatus {
+  color: var(--jp-ui-font-color1);
+}
+.tuneStatus .systemInfo {
+  display: flex;
+  flex-direction: column;
+}
+.tuneStatus td {
+  white-space: nowrap;
+}
+.tuneStatus .trialStatus {
+  display: flex;
+  flex-direction: column;
+}
+.tuneStatus h3 {
+  font-weight: bold;
+}
+.tuneStatus .hDivider {
+  border-bottom-width: var(--jp-border-width);
+  border-bottom-color: var(--jp-border-color0);
+  border-bottom-style: solid;
+}
+.tuneStatus .vDivider {
+  border-left-width: var(--jp-border-width);
+  border-left-color: var(--jp-border-color0);
+  border-left-style: solid;
+  margin: 0.5em 1em 0.5em 1em;
+}
+</style>
+</div><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(pid=67819) /home/ray/anaconda3/lib/python3.9/site-packages/xgboost/compat.py:31: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+(pid=67819)   from pandas import MultiIndex, Int64Index
+(LightningTrainer pid=67819) 2023-04-24 10:36:31,679	INFO backend_executor.py:128 -- Starting distributed worker processes: [&#39;68396 (10.0.60.127)&#39;, &#39;68397 (10.0.60.127)&#39;, &#39;68398 (10.0.60.127)&#39;, &#39;68399 (10.0.60.127)&#39;]
+(RayTrainWorker pid=68396) 2023-04-24 10:36:32,731	INFO config.py:86 -- Setting up process group for: env:// [rank=0, world_size=4]
+</pre></div>
+</div>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "f9443dd2a6dc49029ef7fb4d7a596729", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "283f3585cca4444d904ebbc138527a15", "version_major": 2, "version_minor": 0}
+</script><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(LightningTrainer pid=67819) 2023-04-24 10:36:34,052	INFO streaming_executor.py:87 -- Executing DAG InputDataBuffer[Input] -&gt; TaskPoolMapOperator[BatchMapper] -&gt; AllToAllOperator[RandomizeBlockOrder]
+(LightningTrainer pid=67819) 2023-04-24 10:36:34,052	INFO streaming_executor.py:88 -- Execution config: ExecutionOptions(resource_limits=ExecutionResources(cpu=None, gpu=None, object_store_memory=None), locality_with_output=False, preserve_order=False, actor_locality_enabled=True, verbose_progress=False)
+(LightningTrainer pid=67819) 2023-04-24 10:36:34,053	INFO streaming_executor.py:90 -- Tip: To enable per-operator progress reporting, set RAY_DATA_VERBOSE_PROGRESS=1.
+(RayTrainWorker pid=68396) /home/ray/anaconda3/lib/python3.9/site-packages/xgboost/compat.py:31: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+(RayTrainWorker pid=68396)   from pandas import MultiIndex, Int64Index
+Downloading:   0%|          | 0.00/416M [00:00&lt;?, ?B/s]
+Downloading:   0%|          | 1.41M/416M [00:00&lt;00:29, 14.8MB/s]
+Downloading:   2%|▏         | 7.52M/416M [00:00&lt;00:09, 43.8MB/s]
+Downloading:   4%|▍         | 16.8M/416M [00:00&lt;00:06, 68.4MB/s]
+Downloading:   6%|▌         | 25.7M/416M [00:00&lt;00:05, 78.2MB/s]
+Downloading:   8%|▊         | 34.1M/416M [00:00&lt;00:04, 81.8MB/s]
+Downloading:  10%|█         | 42.0M/416M [00:00&lt;00:04, 80.8MB/s]
+Downloading:  12%|█▏        | 49.7M/416M [00:00&lt;00:05, 76.4MB/s]
+Downloading:  14%|█▍        | 58.3M/416M [00:00&lt;00:04, 80.5MB/s]
+Downloading:  16%|█▌        | 66.5M/416M [00:00&lt;00:04, 82.1MB/s]
+Downloading:  18%|█▊        | 74.3M/416M [00:01&lt;00:04, 78.1MB/s]
+Downloading:  20%|██        | 83.2M/416M [00:01&lt;00:04, 82.5MB/s]
+Downloading:  22%|██▏       | 91.8M/416M [00:01&lt;00:04, 84.5MB/s]
+Downloading:  24%|██▍       | 99.9M/416M [00:01&lt;00:04, 79.3MB/s]
+Downloading:  26%|██▌       | 108M/416M [00:01&lt;00:04, 80.3MB/s] 
+Downloading:  28%|██▊       | 116M/416M [00:01&lt;00:04, 78.3MB/s]
+Downloading:  30%|██▉       | 123M/416M [00:01&lt;00:03, 79.3MB/s]
+Downloading:  31%|███▏      | 131M/416M [00:01&lt;00:04, 72.6MB/s]
+Downloading:  34%|███▎      | 139M/416M [00:01&lt;00:03, 76.8MB/s]
+Downloading:  35%|███▌      | 147M/416M [00:02&lt;00:03, 79.2MB/s]
+Downloading:  37%|███▋      | 155M/416M [00:02&lt;00:03, 77.9MB/s]
+Downloading:  39%|███▉      | 163M/416M [00:02&lt;00:03, 67.7MB/s]
+Downloading:  42%|████▏     | 173M/416M [00:02&lt;00:03, 79.2MB/s]
+Downloading:  44%|████▎     | 182M/416M [00:02&lt;00:02, 81.8MB/s]
+Downloading:  46%|████▌     | 190M/416M [00:02&lt;00:03, 70.8MB/s]
+(RayTrainWorker pid=68399) /home/ray/anaconda3/lib/python3.9/site-packages/xgboost/compat.py:31: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead. [repeated 3x across cluster] (Ray deduplicates logs by default. Set RAY_DEDUP_LOGS=0 to disable log deduplication, or see https://docs.ray.io/en/master/ray-observability/ray-logging.html#log-deduplication for more options.)
+(RayTrainWorker pid=68399)   from pandas import MultiIndex, Int64Index [repeated 3x across cluster]
+Downloading:  48%|████▊     | 198M/416M [00:02&lt;00:03, 74.1MB/s]
+Downloading:  49%|████▉     | 205M/416M [00:02&lt;00:03, 72.9MB/s]
+Downloading:  51%|█████     | 212M/416M [00:02&lt;00:02, 71.7MB/s]
+Downloading:  53%|█████▎    | 220M/416M [00:03&lt;00:02, 73.6MB/s]
+Downloading:  55%|█████▍    | 228M/416M [00:03&lt;00:02, 76.4MB/s]
+Downloading:  57%|█████▋    | 236M/416M [00:03&lt;00:02, 78.7MB/s]
+Downloading:  59%|█████▊    | 244M/416M [00:03&lt;00:02, 75.0MB/s]
+Downloading:  60%|██████    | 251M/416M [00:03&lt;00:02, 73.0MB/s]
+Downloading:  62%|██████▏   | 258M/416M [00:03&lt;00:02, 67.8MB/s]
+Downloading:  64%|██████▎   | 264M/416M [00:03&lt;00:02, 67.1MB/s]
+Downloading:  66%|██████▌   | 273M/416M [00:03&lt;00:02, 72.4MB/s]
+Downloading:  67%|██████▋   | 280M/416M [00:03&lt;00:01, 73.5MB/s]
+Downloading:  69%|██████▉   | 287M/416M [00:04&lt;00:02, 65.1MB/s]
+Downloading:  71%|███████   | 294M/416M [00:04&lt;00:01, 67.6MB/s]
+Downloading:  73%|███████▎  | 302M/416M [00:04&lt;00:01, 72.4MB/s]
+Downloading:  74%|███████▍  | 309M/416M [00:04&lt;00:01, 69.6MB/s]
+Downloading:  76%|███████▋  | 318M/416M [00:04&lt;00:01, 75.2MB/s]
+Downloading:  78%|███████▊  | 326M/416M [00:04&lt;00:01, 78.8MB/s]
+Downloading:  80%|████████  | 334M/416M [00:04&lt;00:01, 77.5MB/s]
+Downloading:  82%|████████▏ | 341M/416M [00:04&lt;00:01, 75.1MB/s]
+Downloading:  84%|████████▍ | 349M/416M [00:04&lt;00:00, 75.4MB/s]
+Downloading:  86%|████████▌ | 356M/416M [00:04&lt;00:00, 76.7MB/s]
+Downloading:  88%|████████▊ | 365M/416M [00:05&lt;00:00, 78.9MB/s]
+Downloading:  90%|████████▉ | 372M/416M [00:05&lt;00:00, 75.9MB/s]
+Downloading:  91%|█████████▏| 380M/416M [00:05&lt;00:00, 78.5MB/s]
+Downloading:  93%|█████████▎| 388M/416M [00:05&lt;00:00, 78.5MB/s]
+Downloading:  95%|█████████▌| 395M/416M [00:05&lt;00:00, 75.7MB/s]
+Downloading:  97%|█████████▋| 403M/416M [00:05&lt;00:00, 70.9MB/s]
+Downloading: 100%|██████████| 416M/416M [00:05&lt;00:00, 74.0MB/s]
+(RayTrainWorker pid=68398) Some weights of the model checkpoint at bert-base-cased were not used when initializing BertForSequenceClassification: [&#39;cls.predictions.transform.LayerNorm.weight&#39;, &#39;cls.predictions.transform.dense.bias&#39;, &#39;cls.predictions.decoder.weight&#39;, &#39;cls.seq_relationship.weight&#39;, &#39;cls.predictions.transform.LayerNorm.bias&#39;, &#39;cls.predictions.transform.dense.weight&#39;, &#39;cls.seq_relationship.bias&#39;, &#39;cls.predictions.bias&#39;]
+(RayTrainWorker pid=68398) - This IS expected if you are initializing BertForSequenceClassification from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
+(RayTrainWorker pid=68398) - This IS NOT expected if you are initializing BertForSequenceClassification from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
+(RayTrainWorker pid=68398) Some weights of BertForSequenceClassification were not initialized from the model checkpoint at bert-base-cased and are newly initialized: [&#39;classifier.bias&#39;, &#39;classifier.weight&#39;]
+(RayTrainWorker pid=68398) You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+(RayTrainWorker pid=68396) Some weights of the model checkpoint at bert-base-cased were not used when initializing BertForSequenceClassification: [&#39;cls.predictions.transform.LayerNorm.weight&#39;, &#39;cls.predictions.bias&#39;, &#39;cls.seq_relationship.weight&#39;, &#39;cls.predictions.transform.dense.bias&#39;, &#39;cls.predictions.decoder.weight&#39;, &#39;cls.seq_relationship.bias&#39;, &#39;cls.predictions.transform.dense.weight&#39;, &#39;cls.predictions.transform.LayerNorm.bias&#39;]
+(RayTrainWorker pid=68396) Some weights of BertForSequenceClassification were not initialized from the model checkpoint at bert-base-cased and are newly initialized: [&#39;classifier.weight&#39;, &#39;classifier.bias&#39;]
+(RayTrainWorker pid=68397) Some weights of the model checkpoint at bert-base-cased were not used when initializing BertForSequenceClassification: [&#39;cls.predictions.transform.dense.bias&#39;, &#39;cls.predictions.transform.LayerNorm.weight&#39;, &#39;cls.predictions.transform.LayerNorm.bias&#39;, &#39;cls.predictions.bias&#39;, &#39;cls.seq_relationship.weight&#39;, &#39;cls.seq_relationship.bias&#39;, &#39;cls.predictions.decoder.weight&#39;, &#39;cls.predictions.transform.dense.weight&#39;]
+(RayTrainWorker pid=68399) Some weights of the model checkpoint at bert-base-cased were not used when initializing BertForSequenceClassification: [&#39;cls.seq_relationship.weight&#39;, &#39;cls.predictions.transform.dense.bias&#39;, &#39;cls.seq_relationship.bias&#39;, &#39;cls.predictions.transform.LayerNorm.weight&#39;, &#39;cls.predictions.transform.LayerNorm.bias&#39;, &#39;cls.predictions.decoder.weight&#39;, &#39;cls.predictions.bias&#39;, &#39;cls.predictions.transform.dense.weight&#39;]
+(RayTrainWorker pid=68398) Missing logger folder: /home/ray/ray_results/ptl-sent-classification/LightningTrainer_87ecf_00000_0_2023-04-24_10-36-23/rank_2/lightning_logs
+(RayTrainWorker pid=68396) GPU available: True, used: True
+(RayTrainWorker pid=68396) TPU available: False, using: 0 TPU cores
+(RayTrainWorker pid=68396) IPU available: False, using: 0 IPUs
+(RayTrainWorker pid=68396) HPU available: False, using: 0 HPUs
+(RayTrainWorker pid=68398) LOCAL_RANK: 2 - CUDA_VISIBLE_DEVICES: [0,1,2,3]
+(RayTrainWorker pid=68399) - This IS expected if you are initializing BertForSequenceClassification from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model). [repeated 3x across cluster]
+(RayTrainWorker pid=68399) - This IS NOT expected if you are initializing BertForSequenceClassification from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model). [repeated 3x across cluster]
+(RayTrainWorker pid=68399) LOCAL_RANK: 2 - CUDA_VISIBLE_DEVICES: [0,1,2,3]
+(RayTrainWorker pid=68399) You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference. [repeated 3x across cluster]
+(RayTrainWorker pid=68397) LOCAL_RANK: 2 - CUDA_VISIBLE_DEVICES: [0,1,2,3]
+(RayTrainWorker pid=68399) Missing logger folder: /home/ray/ray_results/ptl-sent-classification/LightningTrainer_87ecf_00000_0_2023-04-24_10-36-23/rank_3/lightning_logs [repeated 3x across cluster]
+(RayTrainWorker pid=68396) 
+(RayTrainWorker pid=68396)   | Name  | Type                          | Params
+(RayTrainWorker pid=68396) --------------------------------------------------------
+(RayTrainWorker pid=68396) 0 | model | BertForSequenceClassification | 108 M 
+(RayTrainWorker pid=68396) --------------------------------------------------------
+(RayTrainWorker pid=68396) 108 M     Trainable params
+(RayTrainWorker pid=68396) 0         Non-trainable params
+(RayTrainWorker pid=68396) 108 M     Total params
+(RayTrainWorker pid=68396) 433.247   Total estimated model params size (MB)
+(RayTrainWorker pid=68398) 2023-04-24 10:36:59,628	INFO streaming_executor.py:87 -- Executing DAG InputDataBuffer[Input] -&gt; TaskPoolMapOperator[BatchMapper] -&gt; AllToAllOperator[RandomizeBlockOrder]
+(RayTrainWorker pid=68398) 2023-04-24 10:36:59,629	INFO streaming_executor.py:88 -- Execution config: ExecutionOptions(resource_limits=ExecutionResources(cpu=None, gpu=None, object_store_memory=None), locality_with_output=False, preserve_order=False, actor_locality_enabled=True, verbose_progress=False)
+(RayTrainWorker pid=68398) 2023-04-24 10:36:59,629	INFO streaming_executor.py:90 -- Tip: To enable per-operator progress reporting, set RAY_DATA_VERBOSE_PROGRESS=1.
+</pre></div>
+</div>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "70151d1b6133418fb5bf5e39b0089dd6", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "17b58680ece94b7699a303cad96aff25", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "76460ea09d4a4ec0b99118aa688fd5c6", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "b514a52d9e10448f8bd3dddae8e23461", "version_major": 2, "version_minor": 0}
+</script><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(RayTrainWorker pid=68396) /home/ray/anaconda3/lib/python3.9/site-packages/pytorch_lightning/trainer/connectors/data_connector.py:240: PossibleUserWarning: The dataloader, val_dataloader 0, does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` (try 48 which is the number of cpus on this machine) in the `DataLoader` init to improve performance.
+(RayTrainWorker pid=68396)   rank_zero_warn(
+</pre></div>
+</div>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "fa311ab8d9b845e0834d8c7b2fc5a9cc", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "eb96302f8c3342f092028eca25803713", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "4503395f4dac4f0ea775f627a14375d0", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "956a7115081d4a12af5b1a4308fc25a7", "version_major": 2, "version_minor": 0}
+</script><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(RayTrainWorker pid=68396) /home/ray/anaconda3/lib/python3.9/site-packages/pytorch_lightning/trainer/connectors/data_connector.py:240: PossibleUserWarning: The dataloader, train_dataloader, does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` (try 48 which is the number of cpus on this machine) in the `DataLoader` init to improve performance.
+(RayTrainWorker pid=68396)   rank_zero_warn(
+(RayTrainWorker pid=68399) LOCAL_RANK: 3 - CUDA_VISIBLE_DEVICES: [0,1,2,3] [repeated 3x across cluster]
+(RayTrainWorker pid=68399) 2023-04-24 10:36:59,628	INFO streaming_executor.py:87 -- Executing DAG InputDataBuffer[Input] -&gt; TaskPoolMapOperator[BatchMapper] -&gt; AllToAllOperator[RandomizeBlockOrder] [repeated 3x across cluster]
+(RayTrainWorker pid=68399) 2023-04-24 10:36:59,628	INFO streaming_executor.py:88 -- Execution config: ExecutionOptions(resource_limits=ExecutionResources(cpu=None, gpu=None, object_store_memory=None), locality_with_output=False, preserve_order=False, actor_locality_enabled=True, verbose_progress=False) [repeated 3x across cluster]
+(RayTrainWorker pid=68399) 2023-04-24 10:36:59,629	INFO streaming_executor.py:90 -- Tip: To enable per-operator progress reporting, set RAY_DATA_VERBOSE_PROGRESS=1. [repeated 3x across cluster]
+(RayTrainWorker pid=68398) [W reducer.cpp:1298] Warning: find_unused_parameters=True was specified in DDP constructor, but did not find any unused parameters in the forward pass. This flag results in an extra traversal of the autograd graph every iteration,  which can adversely affect performance. If your model indeed never has any unused parameters in the forward pass, consider turning this flag off. Note that this warning may be a false positive if your model has flow control causing later iterations to have unused parameters. (function operator())
+(RayTrainWorker pid=68396) 2023-04-24 10:37:27.091660: I tensorflow/core/platform/cpu_feature_guard.cc:193] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 AVX512F AVX512_VNNI FMA
+(RayTrainWorker pid=68396) To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+(RayTrainWorker pid=68399) [W reducer.cpp:1298] Warning: find_unused_parameters=True was specified in DDP constructor, but did not find any unused parameters in the forward pass. This flag results in an extra traversal of the autograd graph every iteration,  which can adversely affect performance. If your model indeed never has any unused parameters in the forward pass, consider turning this flag off. Note that this warning may be a false positive if your model has flow control causing later iterations to have unused parameters. (function operator()) [repeated 3x across cluster]
+(RayTrainWorker pid=68396) 2023-04-24 10:37:27.373013: I tensorflow/core/util/port.cc:104] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+(RayTrainWorker pid=68396) 2023-04-24 10:37:28.763569: W tensorflow/compiler/xla/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library &#39;libnvinfer.so.7&#39;; dlerror: libnvinfer.so.7: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /usr/local/nvidia/lib:/usr/local/nvidia/lib64
+(RayTrainWorker pid=68396) 2023-04-24 10:37:28.763761: W tensorflow/compiler/xla/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library &#39;libnvinfer_plugin.so.7&#39;; dlerror: libnvinfer_plugin.so.7: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /usr/local/nvidia/lib:/usr/local/nvidia/lib64
+(RayTrainWorker pid=68396) 2023-04-24 10:37:28.763770: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Cannot dlopen some TensorRT libraries. If you would like to use Nvidia GPU with TensorRT, please make sure the missing libraries mentioned above are installed properly.
+(RayTrainWorker pid=68398) 2023-04-24 10:38:01,220	INFO streaming_executor.py:87 -- Executing DAG InputDataBuffer[Input] -&gt; TaskPoolMapOperator[BatchMapper] -&gt; AllToAllOperator[RandomizeBlockOrder]
+(RayTrainWorker pid=68398) 2023-04-24 10:38:01,221	INFO streaming_executor.py:88 -- Execution config: ExecutionOptions(resource_limits=ExecutionResources(cpu=None, gpu=None, object_store_memory=None), locality_with_output=False, preserve_order=False, actor_locality_enabled=True, verbose_progress=False)
+(RayTrainWorker pid=68398) 2023-04-24 10:38:01,221	INFO streaming_executor.py:90 -- Tip: To enable per-operator progress reporting, set RAY_DATA_VERBOSE_PROGRESS=1.
+</pre></div>
+</div>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "50090e60317342e8a2fa5747b2dfc7dd", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "8ffe378ca65e4a698362350d0d49eff1", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "0453d681b8fb4bdaa984028bd2c9b93d", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "84eebff1dde74a4eb9a026dfef625756", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "7015d4b830db42318c3472d44d36ff85", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "ad928a0e15c648b9adb7d55a62f5aeda", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "9ae588ddd9b6452b885a32272a7ce434", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "30b8764d38b34068b454ae27c3c01218", "version_major": 2, "version_minor": 0}
+</script><div class="output text_html"><div class="trialProgress">
+  <h3>Trial Progress</h3>
+  <table>
+<thead>
+<tr><th>Trial name                  </th><th>_report_on    </th><th>date               </th><th>done  </th><th style="text-align: right;">  epoch</th><th style="text-align: right;">  experiment_tag</th><th>hostname      </th><th style="text-align: right;">  iterations_since_restore</th><th style="text-align: right;">  matthews_correlation</th><th>node_ip    </th><th style="text-align: right;">  pid</th><th>should_checkpoint  </th><th style="text-align: right;">  step</th><th style="text-align: right;">  time_since_restore</th><th style="text-align: right;">  time_this_iter_s</th><th style="text-align: right;">  time_total_s</th><th style="text-align: right;">  timestamp</th><th style="text-align: right;">  train_loss</th><th style="text-align: right;">  training_iteration</th><th>trial_id   </th></tr>
+</thead>
+<tbody>
+<tr><td>LightningTrainer_87ecf_00000</td><td>validation_end</td><td>2023-04-24_10-42-46</td><td>True  </td><td style="text-align: right;">      4</td><td style="text-align: right;">               0</td><td>ip-10-0-60-127</td><td style="text-align: right;">                         5</td><td style="text-align: right;">              0.589931</td><td>10.0.60.127</td><td style="text-align: right;">67819</td><td>True               </td><td style="text-align: right;">   670</td><td style="text-align: right;">             376.028</td><td style="text-align: right;">           70.6609</td><td style="text-align: right;">       376.028</td><td style="text-align: right;"> 1682358165</td><td style="text-align: right;">   0.0119807</td><td style="text-align: right;">                   5</td><td>87ecf_00000</td></tr>
+</tbody>
+</table>
+</div>
+<style>
+.trialProgress {
+  display: flex;
+  flex-direction: column;
+  color: var(--jp-ui-font-color1);
+}
+.trialProgress h3 {
+  font-weight: bold;
+}
+.trialProgress td {
+  white-space: nowrap;
+}
+</style>
+</div><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(RayTrainWorker pid=68398) 2023-04-24 10:39:03,705	INFO streaming_executor.py:87 -- Executing DAG InputDataBuffer[Input] -&gt; TaskPoolMapOperator[BatchMapper] -&gt; AllToAllOperator[RandomizeBlockOrder] [repeated 4x across cluster]
+(RayTrainWorker pid=68398) 2023-04-24 10:39:03,706	INFO streaming_executor.py:88 -- Execution config: ExecutionOptions(resource_limits=ExecutionResources(cpu=None, gpu=None, object_store_memory=None), locality_with_output=False, preserve_order=False, actor_locality_enabled=True, verbose_progress=False) [repeated 4x across cluster]
+(RayTrainWorker pid=68398) 2023-04-24 10:39:03,706	INFO streaming_executor.py:90 -- Tip: To enable per-operator progress reporting, set RAY_DATA_VERBOSE_PROGRESS=1. [repeated 4x across cluster]
+</pre></div>
+</div>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "125ccea4d26e48c0bf4e45610f9ae64a", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "42e6e09b0f12416ba9a4214f891889f6", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "b3317e738d6e48a99fb6d6474a82ea8a", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "ed9185f249694fec8d12094aed5706fe", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "0263af677aab4551b8e7395d61944ffc", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "6a96d187643d48958a9c1b6da1bbf14d", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "7786ef2aa39f4255a507f0fcd9ff007d", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "12553efe6fe442a5b20bd15e17f159da", "version_major": 2, "version_minor": 0}
+</script><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(RayTrainWorker pid=68398) 2023-04-24 10:40:09,873	INFO streaming_executor.py:87 -- Executing DAG InputDataBuffer[Input] -&gt; TaskPoolMapOperator[BatchMapper] -&gt; AllToAllOperator[RandomizeBlockOrder] [repeated 4x across cluster]
+(RayTrainWorker pid=68398) 2023-04-24 10:40:09,873	INFO streaming_executor.py:88 -- Execution config: ExecutionOptions(resource_limits=ExecutionResources(cpu=None, gpu=None, object_store_memory=None), locality_with_output=False, preserve_order=False, actor_locality_enabled=True, verbose_progress=False) [repeated 4x across cluster]
+(RayTrainWorker pid=68398) 2023-04-24 10:40:09,873	INFO streaming_executor.py:90 -- Tip: To enable per-operator progress reporting, set RAY_DATA_VERBOSE_PROGRESS=1. [repeated 4x across cluster]
+</pre></div>
+</div>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "db4c22b67b844a6d8ff3e1882540bce4", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "7de5ee4b2912422bb8ce282ec8176f27", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "2c836b08bf3d440abf6b35bf6d80b13e", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "bff92b27bd0b495e8e320473f044a1af", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "da3814c377f5457692a1cc634b7ce333", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "97b6a7cfc16f401aa43fbca727a077fd", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "a92f027724f84ff98d87f0ce0a36d78b", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "2bd8112d0b6943afbed9ced00389f93d", "version_major": 2, "version_minor": 0}
+</script><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(RayTrainWorker pid=68398) 2023-04-24 10:41:18,552	INFO streaming_executor.py:87 -- Executing DAG InputDataBuffer[Input] -&gt; TaskPoolMapOperator[BatchMapper] -&gt; AllToAllOperator[RandomizeBlockOrder] [repeated 4x across cluster]
+(RayTrainWorker pid=68398) 2023-04-24 10:41:18,552	INFO streaming_executor.py:88 -- Execution config: ExecutionOptions(resource_limits=ExecutionResources(cpu=None, gpu=None, object_store_memory=None), locality_with_output=False, preserve_order=False, actor_locality_enabled=True, verbose_progress=False) [repeated 4x across cluster]
+(RayTrainWorker pid=68398) 2023-04-24 10:41:18,552	INFO streaming_executor.py:90 -- Tip: To enable per-operator progress reporting, set RAY_DATA_VERBOSE_PROGRESS=1. [repeated 4x across cluster]
+</pre></div>
+</div>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "ccc3d13c44b344e8891a81794fd17ffe", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "51d8cf4c66b64b419648ce2a42da3dae", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "7a18bf2a62e745deaccc1eb3d219ea09", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "1861c5b19416408aa8daaab5fd52fd84", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "c8156c6329ce4325b17c3fc3bb3189b9", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "debcd88ab8554bbcb1f5a79c74c9fb9f", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "d7275d28012d4c4dbe57d32563a59e02", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "2e24892e2e474d9fbb01da32ed939f16", "version_major": 2, "version_minor": 0}
+</script><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(RayTrainWorker pid=68398) 2023-04-24 10:42:29,325	INFO streaming_executor.py:87 -- Executing DAG InputDataBuffer[Input] -&gt; TaskPoolMapOperator[BatchMapper] -&gt; AllToAllOperator[RandomizeBlockOrder] [repeated 4x across cluster]
+(RayTrainWorker pid=68398) 2023-04-24 10:42:29,325	INFO streaming_executor.py:88 -- Execution config: ExecutionOptions(resource_limits=ExecutionResources(cpu=None, gpu=None, object_store_memory=None), locality_with_output=False, preserve_order=False, actor_locality_enabled=True, verbose_progress=False) [repeated 4x across cluster]
+(RayTrainWorker pid=68398) 2023-04-24 10:42:29,325	INFO streaming_executor.py:90 -- Tip: To enable per-operator progress reporting, set RAY_DATA_VERBOSE_PROGRESS=1. [repeated 4x across cluster]
+</pre></div>
+</div>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "55f6f7e8333341d1b57a890809bc90ad", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "97080faed72f49de81a97337499b6d52", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "16b64e5dc33e47f38a785f6699192224", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "0554132542674890aad33cc55a4f8e4a", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "f309233b6e4a41fd9d566eb56d66d376", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "c90dbf036ed241b9a663a1514685afdc", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "20489e7331a44a9ea9baa64f96b7b0e3", "version_major": 2, "version_minor": 0}
+</script><script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "9f4666113bb1413f9bb35d601d8571d4", "version_major": 2, "version_minor": 0}
+</script><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-04-24 10:42:50,016	INFO tune.py:1010 -- Total run time: 387.00 seconds (386.94 seconds for the tuning loop).
+</pre></div>
+</div>
+</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Note that we are using Ray Data for data ingestion for faster preprocessing here, but you can also continue to use the native <code class="docutils literal notranslate"><span class="pre">PyTorch</span> <span class="pre">DataLoader</span></code> or <code class="docutils literal notranslate"><span class="pre">LightningDataModule</span></code>. See <a class="reference internal" href="lightning_mnist_example.html#lightning-mnist-example"><span class="std std-ref">this example</span></a>.</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">result</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Result(
+  metrics={&#39;_report_on&#39;: &#39;validation_end&#39;, &#39;train_loss&#39;: 0.011980690062046051, &#39;matthews_correlation&#39;: 0.5899314497879129, &#39;epoch&#39;: 4, &#39;step&#39;: 670, &#39;should_checkpoint&#39;: True, &#39;done&#39;: True, &#39;trial_id&#39;: &#39;87ecf_00000&#39;, &#39;experiment_tag&#39;: &#39;0&#39;},
+  path=&#39;/home/ray/ray_results/ptl-sent-classification/LightningTrainer_87ecf_00000_0_2023-04-24_10-36-23&#39;,
+  checkpoint=LightningCheckpoint(local_path=/home/ray/ray_results/ptl-sent-classification/LightningTrainer_87ecf_00000_0_2023-04-24_10-36-23/checkpoint_000004)
+)
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="do-batch-inference-with-a-saved-checkpoint">
+<h2>Do Batch Inference with a Saved Checkpoint<a class="headerlink" href="lightning_cola_advanced.html#do-batch-inference-with-a-saved-checkpoint" title="Permalink to this headline">#</a></h2>
+<p>Now that we have fine-tuned the module, we can load the checkpoint into a BatchPredictor and perform fast inference with multiple GPUs. It will distribute the inference workload across multiple workers when calling <code class="docutils literal notranslate"><span class="pre">predict()</span></code> and run prediction on multiple shards of data in parallel.</p>
+<p>You can find more details in <a class="reference internal" href="../../../ray-air/predictors.html#air-predictors"><span class="std std-ref">Using Predictors for Inference</span></a>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ray.train.batch_predictor</span> <span class="kn">import</span> <span class="n">BatchPredictor</span>
+<span class="kn">from</span> <span class="nn">ray.train.lightning</span> <span class="kn">import</span> <span class="n">LightningCheckpoint</span><span class="p">,</span> <span class="n">LightningPredictor</span>
+
+<span class="c1"># Use in-memory checkpoint object</span>
+<span class="n">checkpoint</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">checkpoint</span>
+
+<span class="c1"># You can also load a checkpoint from disk:</span>
+<span class="c1"># YOUR_CHECKPOINT_DIR = result.checkpoint.path</span>
+<span class="c1"># checkpoint = LightningCheckpoint.from_directory(YOUR_CHECKPOINT_DIR)</span>
+
+<span class="n">batch_predictor</span> <span class="o">=</span> <span class="n">BatchPredictor</span><span class="p">(</span>
+    <span class="n">checkpoint</span><span class="o">=</span><span class="n">checkpoint</span><span class="p">,</span>
+    <span class="n">predictor_cls</span><span class="o">=</span><span class="n">LightningPredictor</span><span class="p">,</span>
+    <span class="n">use_gpu</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">model_class</span><span class="o">=</span><span class="n">SentimentModel</span><span class="p">,</span>
+    <span class="n">preprocessor</span><span class="o">=</span><span class="n">preprocessor</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Use 2 GPUs for batch inference</span>
+<span class="n">predictions</span> <span class="o">=</span> <span class="n">batch_predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span>
+    <span class="n">ray_datasets</span><span class="p">[</span><span class="s2">&quot;validation&quot;</span><span class="p">],</span>
+    <span class="n">feature_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;input_ids&quot;</span><span class="p">,</span> <span class="s2">&quot;attention_mask&quot;</span><span class="p">,</span> <span class="s2">&quot;label&quot;</span><span class="p">],</span>
+    <span class="n">keep_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">],</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+    <span class="n">min_scoring_workers</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">max_scoring_workers</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">num_gpus_per_worker</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We obtained a Ray dataset containing predictions from <code class="docutils literal notranslate"><span class="pre">batch_predictor.predict()</span></code>. Now we can easily evaluate the results with just a few lines of code:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Internally, BatchPredictor calls forward() method of the LightningModule.</span>
+<span class="c1"># Convert the logits tensor into labels with argmax.</span>
+<span class="k">def</span> <span class="nf">argmax</span><span class="p">(</span><span class="n">batch</span><span class="p">):</span>
+    <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;predictions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;predictions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">batch</span>
+
+
+<span class="n">results</span> <span class="o">=</span> <span class="n">predictions</span><span class="o">.</span><span class="n">map_batches</span><span class="p">(</span><span class="n">argmax</span><span class="p">,</span> <span class="n">batch_format</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">matthews_corr</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span>
+    <span class="n">predictions</span><span class="o">=</span><span class="n">results</span><span class="p">[</span><span class="s2">&quot;predictions&quot;</span><span class="p">],</span> <span class="n">references</span><span class="o">=</span><span class="n">results</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">matthews_corr</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>   predictions  label
+0            1      1
+1            1      1
+2            0      1
+3            1      1
+4            0      0
+5            1      0
+6            1      0
+7            1      1
+8            1      1
+9            1      1
+
+{&#39;matthews_correlation&#39;: 0.5899314497879129}
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="whats-next">
+<h2>What’s next?<a class="headerlink" href="lightning_cola_advanced.html#whats-next" title="Permalink to this headline">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../../../ray-air/examples/dolly_lightning_fsdp_finetuning.html#dolly-lightning-fsdp-finetuning"><span class="std std-ref">Fine-tune a Large Language Model with LightningTrainer and FSDP</span></a></p></li>
+<li><p><a class="reference internal" href="../../../tune/examples/tune-pytorch-lightning.html#tune-pytorch-lightning-ref"><span class="std std-ref">Hyperparameter searching with LightningTrainer + Ray Tune.</span></a></p></li>
+<li><p><a class="reference internal" href="lightning_exp_tracking.html#lightning-experiment-tracking"><span class="std std-ref">Experiment Tracking with Wandb, CometML, MLFlow, and Tensorboard in LightningTrainer</span></a></p></li>
+</ul>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="lightning_mnist_example.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Train a Pytorch Lightning Image Classifier</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="lightning_exp_tracking.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Using Experiment Tracking Tools in LightningTrainer</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

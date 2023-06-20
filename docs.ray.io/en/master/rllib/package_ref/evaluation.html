@@ -1,0 +1,1974 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Sampling the Environment or offline data &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/js/versionwarning.js"></script>
+    <script src="../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../_static/js/docsearch.js"></script>
+    <script src="../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../_static/js/top-navigation.js"></script>
+    <script src="../../_static/js/tags.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/rllib/package_ref/evaluation.html" />
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="ray.rllib.evaluation.rollout_worker.RolloutWorker" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.html" />
+    <link rel="prev" title="ray.rllib.core.rl_module.marl_module.MultiAgentRLModule.framework" href="doc/ray.rllib.core.rl_module.marl_module.MultiAgentRLModule.framework.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "rllib/package_ref/evaluation", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".rst", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tune.html">
+   Ray Tune
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../index.html">
+   Ray RLlib
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../rllib-training.html">
+     Getting Started with RLlib
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../rllib-env.html">
+     Environments
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../rllib-algorithms.html">
+     Algorithms
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../user-guides.html">
+     User Guides
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../rllib-examples.html">
+     Examples
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="index.html">
+     Ray RLlib API
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="algorithm.html">
+       Algorithms
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="env.html">
+       Environments
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="policy.html">
+       Policy API
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="models.html">
+       Model APIs
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="catalogs.html">
+       Catalog API
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rl_modules.html">
+       RLModule API
+      </a>
+     </li>
+     <li class="toctree-l3 current active has-children">
+      <a class="current reference internal" href="evaluation.html#">
+       Sampling the Environment or offline data
+      </a>
+      <input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+      <label for="toctree-checkbox-3">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.html">
+         ray.rllib.evaluation.rollout_worker.RolloutWorker
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.add_policy.html">
+         ray.rllib.evaluation.rollout_worker.RolloutWorker.add_policy
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.remove_policy.html">
+         ray.rllib.evaluation.rollout_worker.RolloutWorker.remove_policy
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.get_policy.html">
+         ray.rllib.evaluation.rollout_worker.RolloutWorker.get_policy
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.set_is_policy_to_train.html">
+         ray.rllib.evaluation.rollout_worker.RolloutWorker.set_is_policy_to_train
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.set_policy_mapping_fn.html">
+         ray.rllib.evaluation.rollout_worker.RolloutWorker.set_policy_mapping_fn
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.for_policy.html">
+         ray.rllib.evaluation.rollout_worker.RolloutWorker.for_policy
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.foreach_policy.html">
+         ray.rllib.evaluation.rollout_worker.RolloutWorker.foreach_policy
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.foreach_policy_to_train.html">
+         ray.rllib.evaluation.rollout_worker.RolloutWorker.foreach_policy_to_train
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.get_filters.html">
+         ray.rllib.evaluation.rollout_worker.RolloutWorker.get_filters
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.get_global_vars.html">
+         ray.rllib.evaluation.rollout_worker.RolloutWorker.get_global_vars
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.set_global_vars.html">
+         ray.rllib.evaluation.rollout_worker.RolloutWorker.set_global_vars
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.get_host.html">
+         ray.rllib.evaluation.rollout_worker.RolloutWorker.get_host
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.get_metrics.html">
+         ray.rllib.evaluation.rollout_worker.RolloutWorker.get_metrics
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.get_node_ip.html">
+         ray.rllib.evaluation.rollout_worker.RolloutWorker.get_node_ip
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.get_weights.html">
+         ray.rllib.evaluation.rollout_worker.RolloutWorker.get_weights
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.set_weights.html">
+         ray.rllib.evaluation.rollout_worker.RolloutWorker.set_weights
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.get_state.html">
+         ray.rllib.evaluation.rollout_worker.RolloutWorker.get_state
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.set_state.html">
+         ray.rllib.evaluation.rollout_worker.RolloutWorker.set_state
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.lock.html">
+         ray.rllib.evaluation.rollout_worker.RolloutWorker.lock
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.unlock.html">
+         ray.rllib.evaluation.rollout_worker.RolloutWorker.unlock
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.sample.html">
+         ray.rllib.evaluation.rollout_worker.RolloutWorker.sample
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.sample_with_count.html">
+         ray.rllib.evaluation.rollout_worker.RolloutWorker.sample_with_count
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.sample_and_learn.html">
+         ray.rllib.evaluation.rollout_worker.RolloutWorker.sample_and_learn
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.learn_on_batch.html">
+         ray.rllib.evaluation.rollout_worker.RolloutWorker.learn_on_batch
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.setup_torch_data_parallel.html">
+         ray.rllib.evaluation.rollout_worker.RolloutWorker.setup_torch_data_parallel
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.compute_gradients.html">
+         ray.rllib.evaluation.rollout_worker.RolloutWorker.compute_gradients
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.apply_gradients.html">
+         ray.rllib.evaluation.rollout_worker.RolloutWorker.apply_gradients
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.foreach_env.html">
+         ray.rllib.evaluation.rollout_worker.RolloutWorker.foreach_env
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.foreach_env_with_context.html">
+         ray.rllib.evaluation.rollout_worker.RolloutWorker.foreach_env_with_context
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.stop.html">
+         ray.rllib.evaluation.rollout_worker.RolloutWorker.stop
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.apply.html">
+         ray.rllib.evaluation.rollout_worker.RolloutWorker.apply
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.sync_filters.html">
+         ray.rllib.evaluation.rollout_worker.RolloutWorker.sync_filters
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.find_free_port.html">
+         ray.rllib.evaluation.rollout_worker.RolloutWorker.find_free_port
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.creation_args.html">
+         ray.rllib.evaluation.rollout_worker.RolloutWorker.creation_args
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.assert_healthy.html">
+         ray.rllib.evaluation.rollout_worker.RolloutWorker.assert_healthy
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.html">
+         ray.rllib.evaluation.worker_set.WorkerSet
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.stop.html">
+         ray.rllib.evaluation.worker_set.WorkerSet.stop
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.reset.html">
+         ray.rllib.evaluation.worker_set.WorkerSet.reset
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.add_workers.html">
+         ray.rllib.evaluation.worker_set.WorkerSet.add_workers
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.foreach_worker.html">
+         ray.rllib.evaluation.worker_set.WorkerSet.foreach_worker
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.foreach_worker_with_id.html">
+         ray.rllib.evaluation.worker_set.WorkerSet.foreach_worker_with_id
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.foreach_worker_async.html">
+         ray.rllib.evaluation.worker_set.WorkerSet.foreach_worker_async
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.fetch_ready_async_reqs.html">
+         ray.rllib.evaluation.worker_set.WorkerSet.fetch_ready_async_reqs
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.num_in_flight_async_reqs.html">
+         ray.rllib.evaluation.worker_set.WorkerSet.num_in_flight_async_reqs
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.local_worker.html">
+         ray.rllib.evaluation.worker_set.WorkerSet.local_worker
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.remote_workers.html">
+         ray.rllib.evaluation.worker_set.WorkerSet.remote_workers
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.num_healthy_remote_workers.html">
+         ray.rllib.evaluation.worker_set.WorkerSet.num_healthy_remote_workers
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.num_healthy_workers.html">
+         ray.rllib.evaluation.worker_set.WorkerSet.num_healthy_workers
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.num_remote_worker_restarts.html">
+         ray.rllib.evaluation.worker_set.WorkerSet.num_remote_worker_restarts
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.probe_unhealthy_workers.html">
+         ray.rllib.evaluation.worker_set.WorkerSet.probe_unhealthy_workers
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.add_policy.html">
+         ray.rllib.evaluation.worker_set.WorkerSet.add_policy
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.foreach_env.html">
+         ray.rllib.evaluation.worker_set.WorkerSet.foreach_env
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.foreach_env_with_context.html">
+         ray.rllib.evaluation.worker_set.WorkerSet.foreach_env_with_context
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.foreach_policy.html">
+         ray.rllib.evaluation.worker_set.WorkerSet.foreach_policy
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.foreach_policy_to_train.html">
+         ray.rllib.evaluation.worker_set.WorkerSet.foreach_policy_to_train
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.sync_weights.html">
+         ray.rllib.evaluation.worker_set.WorkerSet.sync_weights
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.offline.input_reader.InputReader.html">
+         ray.rllib.offline.input_reader.InputReader
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.offline.input_reader.InputReader.next.html">
+         ray.rllib.offline.input_reader.InputReader.next
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.sampler.SamplerInput.html">
+         ray.rllib.evaluation.sampler.SamplerInput
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.sampler.SamplerInput.get_data.html">
+         ray.rllib.evaluation.sampler.SamplerInput.get_data
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.sampler.SamplerInput.get_extra_batches.html">
+         ray.rllib.evaluation.sampler.SamplerInput.get_extra_batches
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.sampler.SamplerInput.get_metrics.html">
+         ray.rllib.evaluation.sampler.SamplerInput.get_metrics
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.sampler.SyncSampler.html">
+         ray.rllib.evaluation.sampler.SyncSampler
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.evaluation.sampler.AsyncSampler.html">
+         ray.rllib.evaluation.sampler.AsyncSampler
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.offline.json_reader.JsonReader.html">
+         ray.rllib.offline.json_reader.JsonReader
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.offline.json_reader.JsonReader.read_all_files.html">
+         ray.rllib.offline.json_reader.JsonReader.read_all_files
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.offline.mixed_input.MixedInput.html">
+         ray.rllib.offline.mixed_input.MixedInput
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.offline.d4rl_reader.D4RLReader.html">
+         ray.rllib.offline.d4rl_reader.D4RLReader
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.offline.io_context.IOContext.html">
+         ray.rllib.offline.io_context.IOContext
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.offline.io_context.IOContext.default_sampler_input.html">
+         ray.rllib.offline.io_context.IOContext.default_sampler_input
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.policy.policy_map.PolicyMap.html">
+         ray.rllib.policy.policy_map.PolicyMap
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.policy.policy_map.PolicyMap.items.html">
+         ray.rllib.policy.policy_map.PolicyMap.items
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.policy.policy_map.PolicyMap.keys.html">
+         ray.rllib.policy.policy_map.PolicyMap.keys
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.policy.policy_map.PolicyMap.values.html">
+         ray.rllib.policy.policy_map.PolicyMap.values
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.policy.sample_batch.SampleBatch.html">
+         ray.rllib.policy.sample_batch.SampleBatch
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.policy.sample_batch.SampleBatch.set_get_interceptor.html">
+         ray.rllib.policy.sample_batch.SampleBatch.set_get_interceptor
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.policy.sample_batch.SampleBatch.is_training.html">
+         ray.rllib.policy.sample_batch.SampleBatch.is_training
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.policy.sample_batch.SampleBatch.set_training.html">
+         ray.rllib.policy.sample_batch.SampleBatch.set_training
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.policy.sample_batch.SampleBatch.as_multi_agent.html">
+         ray.rllib.policy.sample_batch.SampleBatch.as_multi_agent
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.policy.sample_batch.SampleBatch.get.html">
+         ray.rllib.policy.sample_batch.SampleBatch.get
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.policy.sample_batch.SampleBatch.to_device.html">
+         ray.rllib.policy.sample_batch.SampleBatch.to_device
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.policy.sample_batch.SampleBatch.right_zero_pad.html">
+         ray.rllib.policy.sample_batch.SampleBatch.right_zero_pad
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.policy.sample_batch.SampleBatch.slice.html">
+         ray.rllib.policy.sample_batch.SampleBatch.slice
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.policy.sample_batch.SampleBatch.split_by_episode.html">
+         ray.rllib.policy.sample_batch.SampleBatch.split_by_episode
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.policy.sample_batch.SampleBatch.shuffle.html">
+         ray.rllib.policy.sample_batch.SampleBatch.shuffle
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.policy.sample_batch.SampleBatch.columns.html">
+         ray.rllib.policy.sample_batch.SampleBatch.columns
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.policy.sample_batch.SampleBatch.rows.html">
+         ray.rllib.policy.sample_batch.SampleBatch.rows
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.policy.sample_batch.SampleBatch.copy.html">
+         ray.rllib.policy.sample_batch.SampleBatch.copy
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.policy.sample_batch.SampleBatch.is_single_trajectory.html">
+         ray.rllib.policy.sample_batch.SampleBatch.is_single_trajectory
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.policy.sample_batch.SampleBatch.is_terminated_or_truncated.html">
+         ray.rllib.policy.sample_batch.SampleBatch.is_terminated_or_truncated
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.policy.sample_batch.SampleBatch.env_steps.html">
+         ray.rllib.policy.sample_batch.SampleBatch.env_steps
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.policy.sample_batch.SampleBatch.agent_steps.html">
+         ray.rllib.policy.sample_batch.SampleBatch.agent_steps
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.policy.sample_batch.MultiAgentBatch.html">
+         ray.rllib.policy.sample_batch.MultiAgentBatch
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.policy.sample_batch.MultiAgentBatch.env_steps.html">
+         ray.rllib.policy.sample_batch.MultiAgentBatch.env_steps
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.rllib.policy.sample_batch.MultiAgentBatch.agent_steps.html">
+         ray.rllib.policy.sample_batch.MultiAgentBatch.agent_steps
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="replay-buffers.html">
+       Replay Buffer API
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="utils.html">
+       RLlib Utilities
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="external-app.html">
+       External Application API
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Frllib/package_ref/evaluation.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/rllib/package_ref/evaluation.rst"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../_sources/rllib/package_ref/evaluation.rst.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.rst</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="evaluation.html#rolloutworker-api">
+   RolloutWorker API
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="evaluation.html#constructor">
+     Constructor
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="evaluation.html#multi-agent">
+     Multi agent
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="evaluation.html#setter-and-getter-methods">
+     Setter and getter methods
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="evaluation.html#threading">
+     Threading
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="evaluation.html#sampling-api">
+     Sampling API
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="evaluation.html#training-api">
+     Training API
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="evaluation.html#environment-api">
+     Environment API
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="evaluation.html#miscellaneous">
+     Miscellaneous
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="evaluation.html#workerset-api">
+   WorkerSet API
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="evaluation.html#id1">
+     Constructor
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="evaluation.html#worker-orchestration">
+     Worker Orchestration
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="evaluation.html#pass-through-methods">
+     Pass-through methods
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="evaluation.html#sampler-api">
+   Sampler API
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="evaluation.html#input-reader-api">
+     Input Reader API
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="evaluation.html#input-sampler-api">
+     Input Sampler API
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="evaluation.html#synchronous-sampler-api">
+     Synchronous Sampler API
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="evaluation.html#asynchronous-sampler-api">
+     Asynchronous Sampler API
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="evaluation.html#offline-sampler-api">
+     Offline Sampler API
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="evaluation.html#json-reader-api">
+       JSON reader API
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="evaluation.html#mixed-input-reader">
+       Mixed input reader
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="evaluation.html#d4rl-reader">
+       D4RL reader
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="evaluation.html#iocontext">
+     IOContext
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="evaluation.html#policy-map-api">
+   Policy Map API
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="evaluation.html#sample-batch-api">
+   Sample batch API
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="evaluation.html#multiagent-batch-api">
+   MultiAgent batch API
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Sampling the Environment or offline data</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="evaluation.html#rolloutworker-api">
+   RolloutWorker API
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="evaluation.html#constructor">
+     Constructor
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="evaluation.html#multi-agent">
+     Multi agent
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="evaluation.html#setter-and-getter-methods">
+     Setter and getter methods
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="evaluation.html#threading">
+     Threading
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="evaluation.html#sampling-api">
+     Sampling API
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="evaluation.html#training-api">
+     Training API
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="evaluation.html#environment-api">
+     Environment API
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="evaluation.html#miscellaneous">
+     Miscellaneous
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="evaluation.html#workerset-api">
+   WorkerSet API
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="evaluation.html#id1">
+     Constructor
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="evaluation.html#worker-orchestration">
+     Worker Orchestration
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="evaluation.html#pass-through-methods">
+     Pass-through methods
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="evaluation.html#sampler-api">
+   Sampler API
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="evaluation.html#input-reader-api">
+     Input Reader API
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="evaluation.html#input-sampler-api">
+     Input Sampler API
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="evaluation.html#synchronous-sampler-api">
+     Synchronous Sampler API
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="evaluation.html#asynchronous-sampler-api">
+     Asynchronous Sampler API
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="evaluation.html#offline-sampler-api">
+     Offline Sampler API
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="evaluation.html#json-reader-api">
+       JSON reader API
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="evaluation.html#mixed-input-reader">
+       Mixed input reader
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="evaluation.html#d4rl-reader">
+       D4RL reader
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="evaluation.html#iocontext">
+     IOContext
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="evaluation.html#policy-map-api">
+   Policy Map API
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="evaluation.html#sample-batch-api">
+   Sample batch API
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="evaluation.html#multiagent-batch-api">
+   MultiAgent batch API
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section id="sampling-the-environment-or-offline-data">
+<span id="evaluation-reference-docs"></span><h1>Sampling the Environment or offline data<a class="headerlink" href="evaluation.html#sampling-the-environment-or-offline-data" title="Permalink to this headline">#</a></h1>
+<p>Data ingest via either environment rollouts or other data-generating methods
+(e.g. reading from offline files) is done in RLlib by <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.html#ray.rllib.evaluation.rollout_worker.RolloutWorker" title="ray.rllib.evaluation.rollout_worker.RolloutWorker"><code class="xref py py-class docutils literal notranslate"><span class="pre">RolloutWorker</span></code></a> instances,
+which sit inside a <a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.html#ray.rllib.evaluation.worker_set.WorkerSet" title="ray.rllib.evaluation.worker_set.WorkerSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">WorkerSet</span></code></a>
+(together with other parallel <code class="docutils literal notranslate"><span class="pre">RolloutWorkers</span></code>) in the RLlib <a class="reference internal" href="doc/ray.rllib.algorithms.algorithm.Algorithm.html#ray.rllib.algorithms.algorithm.Algorithm" title="ray.rllib.algorithms.algorithm.Algorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">Algorithm</span></code></a>
+(under the <code class="docutils literal notranslate"><span class="pre">self.workers</span></code> property):</p>
+<figure class="align-left" id="id2">
+<a class="reference internal image-reference" href="../../_images/rollout_worker_class_overview.svg"><img alt="../../_images/rollout_worker_class_overview.svg" src="../../_images/rollout_worker_class_overview.svg" width="600" /></a>
+<figcaption>
+<p><span class="caption-text"><strong>A typical RLlib WorkerSet setup inside an RLlib Algorithm:</strong> Each <a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.html#ray.rllib.evaluation.worker_set.WorkerSet" title="ray.rllib.evaluation.worker_set.WorkerSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">WorkerSet</span></code></a> contains
+exactly one local <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.html#ray.rllib.evaluation.rollout_worker.RolloutWorker" title="ray.rllib.evaluation.rollout_worker.RolloutWorker"><code class="xref py py-class docutils literal notranslate"><span class="pre">RolloutWorker</span></code></a> object and N ray remote
+<a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.html#ray.rllib.evaluation.rollout_worker.RolloutWorker" title="ray.rllib.evaluation.rollout_worker.RolloutWorker"><code class="xref py py-class docutils literal notranslate"><span class="pre">RolloutWorker</span></code></a> (ray actors).
+The workers contain a policy map (with one or more policies), and - in case a simulator
+(env) is available - a vectorized <a class="reference internal" href="env/base_env.html#ray.rllib.env.base_env.BaseEnv" title="ray.rllib.env.base_env.BaseEnv"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseEnv</span></code></a>
+(containing M sub-environments) and a <a class="reference internal" href="doc/ray.rllib.evaluation.sampler.SamplerInput.html#ray.rllib.evaluation.sampler.SamplerInput" title="ray.rllib.evaluation.sampler.SamplerInput"><code class="xref py py-class docutils literal notranslate"><span class="pre">SamplerInput</span></code></a> (either synchronous or asynchronous) which controls
+the environment data collection loop.
+In the online case (i.e. environment is available) as well as the offline case (i.e. no environment),
+<a class="reference internal" href="doc/ray.rllib.algorithms.algorithm.Algorithm.html#ray.rllib.algorithms.algorithm.Algorithm" title="ray.rllib.algorithms.algorithm.Algorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">Algorithm</span></code></a> uses the <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.sample.html#ray.rllib.evaluation.rollout_worker.RolloutWorker.sample" title="ray.rllib.evaluation.rollout_worker.RolloutWorker.sample"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sample()</span></code></a> method to
+get <a class="reference internal" href="doc/ray.rllib.policy.sample_batch.SampleBatch.html#ray.rllib.policy.sample_batch.SampleBatch" title="ray.rllib.policy.sample_batch.SampleBatch"><code class="xref py py-class docutils literal notranslate"><span class="pre">SampleBatch</span></code></a> objects for training.</span><a class="headerlink" href="evaluation.html#id2" title="Permalink to this image">#</a></p>
+</figcaption>
+</figure>
+<section id="rolloutworker-api">
+<span id="rolloutworker-reference-docs"></span><h2>RolloutWorker API<a class="headerlink" href="evaluation.html#rolloutworker-api" title="Permalink to this headline">#</a></h2>
+<section id="constructor">
+<h3>Constructor<a class="headerlink" href="evaluation.html#constructor" title="Permalink to this headline">#</a></h3>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.html#ray.rllib.evaluation.rollout_worker.RolloutWorker" title="ray.rllib.evaluation.rollout_worker.RolloutWorker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RolloutWorker</span></code></a>(*, env_creator, ...[, ...])</p></td>
+<td><p>Common experience collection class.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="multi-agent">
+<h3>Multi agent<a class="headerlink" href="evaluation.html#multi-agent" title="Permalink to this headline">#</a></h3>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.add_policy.html#ray.rllib.evaluation.rollout_worker.RolloutWorker.add_policy" title="ray.rllib.evaluation.rollout_worker.RolloutWorker.add_policy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_policy</span></code></a>(policy_id[, policy_cls, policy, ...])</p></td>
+<td><p>Adds a new policy to this RolloutWorker.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.remove_policy.html#ray.rllib.evaluation.rollout_worker.RolloutWorker.remove_policy" title="ray.rllib.evaluation.rollout_worker.RolloutWorker.remove_policy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_policy</span></code></a>(*[, policy_id, ...])</p></td>
+<td><p>Removes a policy from this RolloutWorker.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.get_policy.html#ray.rllib.evaluation.rollout_worker.RolloutWorker.get_policy" title="ray.rllib.evaluation.rollout_worker.RolloutWorker.get_policy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_policy</span></code></a>([policy_id])</p></td>
+<td><p>Return policy for the specified id, or None.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.set_is_policy_to_train.html#ray.rllib.evaluation.rollout_worker.RolloutWorker.set_is_policy_to_train" title="ray.rllib.evaluation.rollout_worker.RolloutWorker.set_is_policy_to_train"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_is_policy_to_train</span></code></a>(is_policy_to_train)</p></td>
+<td><p>Sets <code class="xref py py-obj docutils literal notranslate"><span class="pre">self.is_policy_to_train()</span></code> to a new callable.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.set_policy_mapping_fn.html#ray.rllib.evaluation.rollout_worker.RolloutWorker.set_policy_mapping_fn" title="ray.rllib.evaluation.rollout_worker.RolloutWorker.set_policy_mapping_fn"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_policy_mapping_fn</span></code></a>([policy_mapping_fn])</p></td>
+<td><p>Sets <code class="xref py py-obj docutils literal notranslate"><span class="pre">self.policy_mapping_fn</span></code> to a new callable (if provided).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.for_policy.html#ray.rllib.evaluation.rollout_worker.RolloutWorker.for_policy" title="ray.rllib.evaluation.rollout_worker.RolloutWorker.for_policy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">for_policy</span></code></a>(func[, policy_id])</p></td>
+<td><p>Calls the given function with the specified policy as first arg.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.foreach_policy.html#ray.rllib.evaluation.rollout_worker.RolloutWorker.foreach_policy" title="ray.rllib.evaluation.rollout_worker.RolloutWorker.foreach_policy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">foreach_policy</span></code></a>(func, **kwargs)</p></td>
+<td><p>Calls the given function with each (policy, policy_id) tuple.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.foreach_policy_to_train.html#ray.rllib.evaluation.rollout_worker.RolloutWorker.foreach_policy_to_train" title="ray.rllib.evaluation.rollout_worker.RolloutWorker.foreach_policy_to_train"><code class="xref py py-obj docutils literal notranslate"><span class="pre">foreach_policy_to_train</span></code></a>(func, **kwargs)</p></td>
+<td><p>Calls the given function with each (policy, policy_id) tuple.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="setter-and-getter-methods">
+<h3>Setter and getter methods<a class="headerlink" href="evaluation.html#setter-and-getter-methods" title="Permalink to this headline">#</a></h3>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.get_filters.html#ray.rllib.evaluation.rollout_worker.RolloutWorker.get_filters" title="ray.rllib.evaluation.rollout_worker.RolloutWorker.get_filters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_filters</span></code></a>([flush_after])</p></td>
+<td><p>Returns a snapshot of filters.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.get_global_vars.html#ray.rllib.evaluation.rollout_worker.RolloutWorker.get_global_vars" title="ray.rllib.evaluation.rollout_worker.RolloutWorker.get_global_vars"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_global_vars</span></code></a>()</p></td>
+<td><p>Returns the current <code class="xref py py-obj docutils literal notranslate"><span class="pre">self.global_vars</span></code> dict of this RolloutWorker.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.set_global_vars.html#ray.rllib.evaluation.rollout_worker.RolloutWorker.set_global_vars" title="ray.rllib.evaluation.rollout_worker.RolloutWorker.set_global_vars"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_global_vars</span></code></a>(global_vars[, policy_ids])</p></td>
+<td><p>Updates this worker's and all its policies' global vars.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.get_host.html#ray.rllib.evaluation.rollout_worker.RolloutWorker.get_host" title="ray.rllib.evaluation.rollout_worker.RolloutWorker.get_host"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_host</span></code></a>()</p></td>
+<td><p>Returns the hostname of the process running this evaluator.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.get_metrics.html#ray.rllib.evaluation.rollout_worker.RolloutWorker.get_metrics" title="ray.rllib.evaluation.rollout_worker.RolloutWorker.get_metrics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_metrics</span></code></a>()</p></td>
+<td><p>Returns the thus-far collected metrics from this worker's rollouts.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.get_node_ip.html#ray.rllib.evaluation.rollout_worker.RolloutWorker.get_node_ip" title="ray.rllib.evaluation.rollout_worker.RolloutWorker.get_node_ip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_node_ip</span></code></a>()</p></td>
+<td><p>Returns the IP address of the node that this worker runs on.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.get_weights.html#ray.rllib.evaluation.rollout_worker.RolloutWorker.get_weights" title="ray.rllib.evaluation.rollout_worker.RolloutWorker.get_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_weights</span></code></a>([policies])</p></td>
+<td><p>Returns each policies' model weights of this worker.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.set_weights.html#ray.rllib.evaluation.rollout_worker.RolloutWorker.set_weights" title="ray.rllib.evaluation.rollout_worker.RolloutWorker.set_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_weights</span></code></a>(weights[, global_vars, ...])</p></td>
+<td><p>Sets each policies' model weights of this worker.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.get_state.html#ray.rllib.evaluation.rollout_worker.RolloutWorker.get_state" title="ray.rllib.evaluation.rollout_worker.RolloutWorker.get_state"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_state</span></code></a>()</p></td>
+<td><p>Returns this EnvRunner's (possibly serialized) current state as a dict.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.set_state.html#ray.rllib.evaluation.rollout_worker.RolloutWorker.set_state" title="ray.rllib.evaluation.rollout_worker.RolloutWorker.set_state"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_state</span></code></a>(state)</p></td>
+<td><p>Restores this EnvRunner's state from the given state dict.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="threading">
+<h3>Threading<a class="headerlink" href="evaluation.html#threading" title="Permalink to this headline">#</a></h3>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.lock.html#ray.rllib.evaluation.rollout_worker.RolloutWorker.lock" title="ray.rllib.evaluation.rollout_worker.RolloutWorker.lock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lock</span></code></a>()</p></td>
+<td><p>Locks this RolloutWorker via its own threading.Lock.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.unlock.html#ray.rllib.evaluation.rollout_worker.RolloutWorker.unlock" title="ray.rllib.evaluation.rollout_worker.RolloutWorker.unlock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unlock</span></code></a>()</p></td>
+<td><p>Unlocks this RolloutWorker via its own threading.Lock.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="sampling-api">
+<h3>Sampling API<a class="headerlink" href="evaluation.html#sampling-api" title="Permalink to this headline">#</a></h3>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.sample.html#ray.rllib.evaluation.rollout_worker.RolloutWorker.sample" title="ray.rllib.evaluation.rollout_worker.RolloutWorker.sample"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sample</span></code></a>(**kwargs)</p></td>
+<td><p>Returns a batch of experience sampled from this worker.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.sample_with_count.html#ray.rllib.evaluation.rollout_worker.RolloutWorker.sample_with_count" title="ray.rllib.evaluation.rollout_worker.RolloutWorker.sample_with_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sample_with_count</span></code></a>()</p></td>
+<td><p>Same as sample() but returns the count as a separate value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.sample_and_learn.html#ray.rllib.evaluation.rollout_worker.RolloutWorker.sample_and_learn" title="ray.rllib.evaluation.rollout_worker.RolloutWorker.sample_and_learn"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sample_and_learn</span></code></a>(expected_batch_size, ...)</p></td>
+<td><p>Sample and batch and learn on it.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="training-api">
+<h3>Training API<a class="headerlink" href="evaluation.html#training-api" title="Permalink to this headline">#</a></h3>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.learn_on_batch.html#ray.rllib.evaluation.rollout_worker.RolloutWorker.learn_on_batch" title="ray.rllib.evaluation.rollout_worker.RolloutWorker.learn_on_batch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">learn_on_batch</span></code></a>(samples)</p></td>
+<td><p>Update policies based on the given batch.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.setup_torch_data_parallel.html#ray.rllib.evaluation.rollout_worker.RolloutWorker.setup_torch_data_parallel" title="ray.rllib.evaluation.rollout_worker.RolloutWorker.setup_torch_data_parallel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_torch_data_parallel</span></code></a>(url, world_rank, ...)</p></td>
+<td><p>Join a torch process group for distributed SGD.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.compute_gradients.html#ray.rllib.evaluation.rollout_worker.RolloutWorker.compute_gradients" title="ray.rllib.evaluation.rollout_worker.RolloutWorker.compute_gradients"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_gradients</span></code></a>(samples[, single_agent])</p></td>
+<td><p>Returns a gradient computed w.r.t the specified samples.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.apply_gradients.html#ray.rllib.evaluation.rollout_worker.RolloutWorker.apply_gradients" title="ray.rllib.evaluation.rollout_worker.RolloutWorker.apply_gradients"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_gradients</span></code></a>(grads)</p></td>
+<td><p>Applies the given gradients to this worker's models.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="environment-api">
+<h3>Environment API<a class="headerlink" href="evaluation.html#environment-api" title="Permalink to this headline">#</a></h3>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.foreach_env.html#ray.rllib.evaluation.rollout_worker.RolloutWorker.foreach_env" title="ray.rllib.evaluation.rollout_worker.RolloutWorker.foreach_env"><code class="xref py py-obj docutils literal notranslate"><span class="pre">foreach_env</span></code></a>(func)</p></td>
+<td><p>Calls the given function with each sub-environment as arg.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.foreach_env_with_context.html#ray.rllib.evaluation.rollout_worker.RolloutWorker.foreach_env_with_context" title="ray.rllib.evaluation.rollout_worker.RolloutWorker.foreach_env_with_context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">foreach_env_with_context</span></code></a>(func)</p></td>
+<td><p>Calls given function with each sub-env plus env_ctx as args.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="miscellaneous">
+<h3>Miscellaneous<a class="headerlink" href="evaluation.html#miscellaneous" title="Permalink to this headline">#</a></h3>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.stop.html#ray.rllib.evaluation.rollout_worker.RolloutWorker.stop" title="ray.rllib.evaluation.rollout_worker.RolloutWorker.stop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stop</span></code></a>()</p></td>
+<td><p>Releases all resources used by this RolloutWorker.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.apply.html#ray.rllib.evaluation.rollout_worker.RolloutWorker.apply" title="ray.rllib.evaluation.rollout_worker.RolloutWorker.apply"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply</span></code></a>(func, *args, **kwargs)</p></td>
+<td><p>Calls the given function with this rollout worker instance.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.sync_filters.html#ray.rllib.evaluation.rollout_worker.RolloutWorker.sync_filters" title="ray.rllib.evaluation.rollout_worker.RolloutWorker.sync_filters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sync_filters</span></code></a>(new_filters)</p></td>
+<td><p>Changes self's filter to given and rebases any accumulated delta.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.find_free_port.html#ray.rllib.evaluation.rollout_worker.RolloutWorker.find_free_port" title="ray.rllib.evaluation.rollout_worker.RolloutWorker.find_free_port"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_free_port</span></code></a>()</p></td>
+<td><p>Finds a free port on the node that this worker runs on.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.creation_args.html#ray.rllib.evaluation.rollout_worker.RolloutWorker.creation_args" title="ray.rllib.evaluation.rollout_worker.RolloutWorker.creation_args"><code class="xref py py-obj docutils literal notranslate"><span class="pre">creation_args</span></code></a>()</p></td>
+<td><p>Returns the kwargs dict used to create this worker.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.assert_healthy.html#ray.rllib.evaluation.rollout_worker.RolloutWorker.assert_healthy" title="ray.rllib.evaluation.rollout_worker.RolloutWorker.assert_healthy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assert_healthy</span></code></a>()</p></td>
+<td><p>Checks that self.__init__() has been completed properly.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="workerset-api">
+<span id="workerset-reference-docs"></span><h2>WorkerSet API<a class="headerlink" href="evaluation.html#workerset-api" title="Permalink to this headline">#</a></h2>
+<section id="id1">
+<h3>Constructor<a class="headerlink" href="evaluation.html#id1" title="Permalink to this headline">#</a></h3>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.html#ray.rllib.evaluation.worker_set.WorkerSet" title="ray.rllib.evaluation.worker_set.WorkerSet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WorkerSet</span></code></a>(*[, env_creator, validate_env, ...])</p></td>
+<td><p>Set of RolloutWorkers with n &#64;ray.remote workers and zero or one local worker.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.stop.html#ray.rllib.evaluation.worker_set.WorkerSet.stop" title="ray.rllib.evaluation.worker_set.WorkerSet.stop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WorkerSet.stop</span></code></a>()</p></td>
+<td><p>Calls <code class="xref py py-obj docutils literal notranslate"><span class="pre">stop</span></code> on all rollout workers (including the local one).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.reset.html#ray.rllib.evaluation.worker_set.WorkerSet.reset" title="ray.rllib.evaluation.worker_set.WorkerSet.reset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WorkerSet.reset</span></code></a>(new_remote_workers)</p></td>
+<td><p>Hard overrides the remote workers in this set with the given one.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="worker-orchestration">
+<h3>Worker Orchestration<a class="headerlink" href="evaluation.html#worker-orchestration" title="Permalink to this headline">#</a></h3>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.add_workers.html#ray.rllib.evaluation.worker_set.WorkerSet.add_workers" title="ray.rllib.evaluation.worker_set.WorkerSet.add_workers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_workers</span></code></a>(num_workers[, validate])</p></td>
+<td><p>Creates and adds a number of remote workers to this worker set.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.foreach_worker.html#ray.rllib.evaluation.worker_set.WorkerSet.foreach_worker" title="ray.rllib.evaluation.worker_set.WorkerSet.foreach_worker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">foreach_worker</span></code></a>(func, *[, local_worker, ...])</p></td>
+<td><p>Calls the given function with each worker instance as the argument.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.foreach_worker_with_id.html#ray.rllib.evaluation.worker_set.WorkerSet.foreach_worker_with_id" title="ray.rllib.evaluation.worker_set.WorkerSet.foreach_worker_with_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">foreach_worker_with_id</span></code></a>(func, *[, ...])</p></td>
+<td><p>Similar to foreach_worker(), but calls the function with id of the worker too.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.foreach_worker_async.html#ray.rllib.evaluation.worker_set.WorkerSet.foreach_worker_async" title="ray.rllib.evaluation.worker_set.WorkerSet.foreach_worker_async"><code class="xref py py-obj docutils literal notranslate"><span class="pre">foreach_worker_async</span></code></a>(func, *[, ...])</p></td>
+<td><p>Calls the given function asynchronously with each worker as the argument.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.fetch_ready_async_reqs.html#ray.rllib.evaluation.worker_set.WorkerSet.fetch_ready_async_reqs" title="ray.rllib.evaluation.worker_set.WorkerSet.fetch_ready_async_reqs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fetch_ready_async_reqs</span></code></a>(*[, timeout_seconds, ...])</p></td>
+<td><p>Get esults from outstanding asynchronous requests that are ready.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.num_in_flight_async_reqs.html#ray.rllib.evaluation.worker_set.WorkerSet.num_in_flight_async_reqs" title="ray.rllib.evaluation.worker_set.WorkerSet.num_in_flight_async_reqs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_in_flight_async_reqs</span></code></a>()</p></td>
+<td><p>Returns the number of in-flight async requests.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.local_worker.html#ray.rllib.evaluation.worker_set.WorkerSet.local_worker" title="ray.rllib.evaluation.worker_set.WorkerSet.local_worker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">local_worker</span></code></a>()</p></td>
+<td><p>Returns the local rollout worker.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.remote_workers.html#ray.rllib.evaluation.worker_set.WorkerSet.remote_workers" title="ray.rllib.evaluation.worker_set.WorkerSet.remote_workers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remote_workers</span></code></a>(**kwargs)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.num_healthy_remote_workers.html#ray.rllib.evaluation.worker_set.WorkerSet.num_healthy_remote_workers" title="ray.rllib.evaluation.worker_set.WorkerSet.num_healthy_remote_workers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_healthy_remote_workers</span></code></a>()</p></td>
+<td><p>Returns the number of healthy workers, including local and remote workers.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.num_healthy_workers.html#ray.rllib.evaluation.worker_set.WorkerSet.num_healthy_workers" title="ray.rllib.evaluation.worker_set.WorkerSet.num_healthy_workers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_healthy_workers</span></code></a>()</p></td>
+<td><p>Returns the number of healthy workers, including local and remote workers.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.num_remote_worker_restarts.html#ray.rllib.evaluation.worker_set.WorkerSet.num_remote_worker_restarts" title="ray.rllib.evaluation.worker_set.WorkerSet.num_remote_worker_restarts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_remote_worker_restarts</span></code></a>()</p></td>
+<td><p>Total number of times managed remote workers get restarted.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.probe_unhealthy_workers.html#ray.rllib.evaluation.worker_set.WorkerSet.probe_unhealthy_workers" title="ray.rllib.evaluation.worker_set.WorkerSet.probe_unhealthy_workers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">probe_unhealthy_workers</span></code></a>()</p></td>
+<td><p>Checks the unhealth workers, and try restoring their states.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="pass-through-methods">
+<h3>Pass-through methods<a class="headerlink" href="evaluation.html#pass-through-methods" title="Permalink to this headline">#</a></h3>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.add_policy.html#ray.rllib.evaluation.worker_set.WorkerSet.add_policy" title="ray.rllib.evaluation.worker_set.WorkerSet.add_policy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_policy</span></code></a>(policy_id[, policy_cls, policy, ...])</p></td>
+<td><p>Adds a policy to this WorkerSet's workers or a specific list of workers.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.foreach_env.html#ray.rllib.evaluation.worker_set.WorkerSet.foreach_env" title="ray.rllib.evaluation.worker_set.WorkerSet.foreach_env"><code class="xref py py-obj docutils literal notranslate"><span class="pre">foreach_env</span></code></a>(func)</p></td>
+<td><p>Calls <code class="xref py py-obj docutils literal notranslate"><span class="pre">func</span></code> with all workers' sub-environments as args.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.foreach_env_with_context.html#ray.rllib.evaluation.worker_set.WorkerSet.foreach_env_with_context" title="ray.rllib.evaluation.worker_set.WorkerSet.foreach_env_with_context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">foreach_env_with_context</span></code></a>(func)</p></td>
+<td><p>Calls <code class="xref py py-obj docutils literal notranslate"><span class="pre">func</span></code> with all workers' sub-environments and env_ctx as args.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.foreach_policy.html#ray.rllib.evaluation.worker_set.WorkerSet.foreach_policy" title="ray.rllib.evaluation.worker_set.WorkerSet.foreach_policy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">foreach_policy</span></code></a>(func)</p></td>
+<td><p>Calls <code class="xref py py-obj docutils literal notranslate"><span class="pre">func</span></code> with each worker's (policy, PolicyID) tuple.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.foreach_policy_to_train.html#ray.rllib.evaluation.worker_set.WorkerSet.foreach_policy_to_train" title="ray.rllib.evaluation.worker_set.WorkerSet.foreach_policy_to_train"><code class="xref py py-obj docutils literal notranslate"><span class="pre">foreach_policy_to_train</span></code></a>(func)</p></td>
+<td><p>Apply <code class="xref py py-obj docutils literal notranslate"><span class="pre">func</span></code> to all workers' Policies iff in <code class="xref py py-obj docutils literal notranslate"><span class="pre">policies_to_train</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.worker_set.WorkerSet.sync_weights.html#ray.rllib.evaluation.worker_set.WorkerSet.sync_weights" title="ray.rllib.evaluation.worker_set.WorkerSet.sync_weights"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sync_weights</span></code></a>([policies, ...])</p></td>
+<td><p>Syncs model weights from the given weight source to all remote workers.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="sampler-api">
+<h2>Sampler API<a class="headerlink" href="evaluation.html#sampler-api" title="Permalink to this headline">#</a></h2>
+<p><a class="reference internal" href="doc/ray.rllib.offline.input_reader.InputReader.html#ray.rllib.offline.input_reader.InputReader" title="ray.rllib.offline.input_reader.InputReader"><code class="xref py py-class docutils literal notranslate"><span class="pre">InputReader</span></code></a> instances are used to collect and return experiences from the envs.
+For more details on <code class="xref py py-obj docutils literal notranslate"><span class="pre">InputReader</span></code> used for offline RL (e.g. reading files of
+pre-recorded data), see the <a class="reference internal" href="evaluation.html#offline-reference-docs"><span class="std std-ref">offline RL API reference here</span></a>.</p>
+<section id="input-reader-api">
+<h3>Input Reader API<a class="headerlink" href="evaluation.html#input-reader-api" title="Permalink to this headline">#</a></h3>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.offline.input_reader.InputReader.html#ray.rllib.offline.input_reader.InputReader" title="ray.rllib.offline.input_reader.InputReader"><code class="xref py py-obj docutils literal notranslate"><span class="pre">InputReader</span></code></a>()</p></td>
+<td><p>API for collecting and returning experiences during policy evaluation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.offline.input_reader.InputReader.next.html#ray.rllib.offline.input_reader.InputReader.next" title="ray.rllib.offline.input_reader.InputReader.next"><code class="xref py py-obj docutils literal notranslate"><span class="pre">InputReader.next</span></code></a>()</p></td>
+<td><p>Returns the next batch of read experiences.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="input-sampler-api">
+<h3>Input Sampler API<a class="headerlink" href="evaluation.html#input-sampler-api" title="Permalink to this headline">#</a></h3>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.sampler.SamplerInput.html#ray.rllib.evaluation.sampler.SamplerInput" title="ray.rllib.evaluation.sampler.SamplerInput"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SamplerInput</span></code></a>()</p></td>
+<td><p>Reads input experiences from an existing sampler.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.sampler.SamplerInput.get_data.html#ray.rllib.evaluation.sampler.SamplerInput.get_data" title="ray.rllib.evaluation.sampler.SamplerInput.get_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SamplerInput.get_data</span></code></a>()</p></td>
+<td><p>Called by <code class="xref py py-obj docutils literal notranslate"><span class="pre">self.next()</span></code> to return the next batch of data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.sampler.SamplerInput.get_extra_batches.html#ray.rllib.evaluation.sampler.SamplerInput.get_extra_batches" title="ray.rllib.evaluation.sampler.SamplerInput.get_extra_batches"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SamplerInput.get_extra_batches</span></code></a>()</p></td>
+<td><p>Returns list of extra batches since the last call to this method.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.sampler.SamplerInput.get_metrics.html#ray.rllib.evaluation.sampler.SamplerInput.get_metrics" title="ray.rllib.evaluation.sampler.SamplerInput.get_metrics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SamplerInput.get_metrics</span></code></a>()</p></td>
+<td><p>Returns list of episode metrics since the last call to this method.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="synchronous-sampler-api">
+<h3>Synchronous Sampler API<a class="headerlink" href="evaluation.html#synchronous-sampler-api" title="Permalink to this headline">#</a></h3>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.sampler.SyncSampler.html#ray.rllib.evaluation.sampler.SyncSampler" title="ray.rllib.evaluation.sampler.SyncSampler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SyncSampler</span></code></a>(*, worker, env, clip_rewards, ...)</p></td>
+<td><p>Sync SamplerInput that collects experiences when <code class="xref py py-obj docutils literal notranslate"><span class="pre">get_data()</span></code> is called.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="asynchronous-sampler-api">
+<h3>Asynchronous Sampler API<a class="headerlink" href="evaluation.html#asynchronous-sampler-api" title="Permalink to this headline">#</a></h3>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.evaluation.sampler.AsyncSampler.html#ray.rllib.evaluation.sampler.AsyncSampler" title="ray.rllib.evaluation.sampler.AsyncSampler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AsyncSampler</span></code></a>(*, worker, env, clip_rewards, ...)</p></td>
+<td><p>Async SamplerInput that collects experiences in thread and queues them.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="offline-sampler-api">
+<span id="offline-reference-docs"></span><h3>Offline Sampler API<a class="headerlink" href="evaluation.html#offline-sampler-api" title="Permalink to this headline">#</a></h3>
+<p>The InputReader API is used by an individual <a class="reference internal" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.html#ray.rllib.evaluation.rollout_worker.RolloutWorker" title="ray.rllib.evaluation.rollout_worker.RolloutWorker"><code class="xref py py-class docutils literal notranslate"><span class="pre">RolloutWorker</span></code></a>
+to produce batches of experiences either from an simulator or from an
+offline source (e.g. a file).</p>
+<p>Here are some example extentions of the InputReader API:</p>
+<section id="json-reader-api">
+<h4>JSON reader API<a class="headerlink" href="evaluation.html#json-reader-api" title="Permalink to this headline">#</a></h4>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.offline.json_reader.JsonReader.html#ray.rllib.offline.json_reader.JsonReader" title="ray.rllib.offline.json_reader.JsonReader"><code class="xref py py-obj docutils literal notranslate"><span class="pre">JsonReader</span></code></a>(inputs[, ioctx])</p></td>
+<td><p>Reader object that loads experiences from JSON file chunks.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.offline.json_reader.JsonReader.read_all_files.html#ray.rllib.offline.json_reader.JsonReader.read_all_files" title="ray.rllib.offline.json_reader.JsonReader.read_all_files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">JsonReader.read_all_files</span></code></a>()</p></td>
+<td><p>Reads through all files and yields one SampleBatchType per line.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="mixed-input-reader">
+<h4>Mixed input reader<a class="headerlink" href="evaluation.html#mixed-input-reader" title="Permalink to this headline">#</a></h4>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.offline.mixed_input.MixedInput.html#ray.rllib.offline.mixed_input.MixedInput" title="ray.rllib.offline.mixed_input.MixedInput"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MixedInput</span></code></a>(dist, ioctx)</p></td>
+<td><p>Mixes input from a number of other input sources.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="d4rl-reader">
+<h4>D4RL reader<a class="headerlink" href="evaluation.html#d4rl-reader" title="Permalink to this headline">#</a></h4>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.offline.d4rl_reader.D4RLReader.html#ray.rllib.offline.d4rl_reader.D4RLReader" title="ray.rllib.offline.d4rl_reader.D4RLReader"><code class="xref py py-obj docutils literal notranslate"><span class="pre">D4RLReader</span></code></a>(inputs[, ioctx])</p></td>
+<td><p>Reader object that loads the dataset from the D4RL dataset.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="iocontext">
+<h3>IOContext<a class="headerlink" href="evaluation.html#iocontext" title="Permalink to this headline">#</a></h3>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.offline.io_context.IOContext.html#ray.rllib.offline.io_context.IOContext" title="ray.rllib.offline.io_context.IOContext"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IOContext</span></code></a>([log_dir, config, worker_index, ...])</p></td>
+<td><p>Class containing attributes to pass to input/output class constructors.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.offline.io_context.IOContext.default_sampler_input.html#ray.rllib.offline.io_context.IOContext.default_sampler_input" title="ray.rllib.offline.io_context.IOContext.default_sampler_input"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IOContext.default_sampler_input</span></code></a>()</p></td>
+<td><p>Returns the RolloutWorker's SamplerInput object, if any.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="policy-map-api">
+<h2>Policy Map API<a class="headerlink" href="evaluation.html#policy-map-api" title="Permalink to this headline">#</a></h2>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.policy.policy_map.PolicyMap.html#ray.rllib.policy.policy_map.PolicyMap" title="ray.rllib.policy.policy_map.PolicyMap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PolicyMap</span></code></a>(*[, capacity, ...])</p></td>
+<td><p>Maps policy IDs to Policy objects.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.policy.policy_map.PolicyMap.items.html#ray.rllib.policy.policy_map.PolicyMap.items" title="ray.rllib.policy.policy_map.PolicyMap.items"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PolicyMap.items</span></code></a>()</p></td>
+<td><p>Iterates over all policies, even the stashed ones.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.policy.policy_map.PolicyMap.keys.html#ray.rllib.policy.policy_map.PolicyMap.keys" title="ray.rllib.policy.policy_map.PolicyMap.keys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PolicyMap.keys</span></code></a>()</p></td>
+<td><p>Returns all valid keys, even the stashed ones.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.policy.policy_map.PolicyMap.values.html#ray.rllib.policy.policy_map.PolicyMap.values" title="ray.rllib.policy.policy_map.PolicyMap.values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PolicyMap.values</span></code></a>()</p></td>
+<td><p>Returns all valid values, even the stashed ones.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="sample-batch-api">
+<h2>Sample batch API<a class="headerlink" href="evaluation.html#sample-batch-api" title="Permalink to this headline">#</a></h2>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.policy.sample_batch.SampleBatch.html#ray.rllib.policy.sample_batch.SampleBatch" title="ray.rllib.policy.sample_batch.SampleBatch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SampleBatch</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Wrapper around a dictionary with string keys and array-like values.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.policy.sample_batch.SampleBatch.set_get_interceptor.html#ray.rllib.policy.sample_batch.SampleBatch.set_get_interceptor" title="ray.rllib.policy.sample_batch.SampleBatch.set_get_interceptor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SampleBatch.set_get_interceptor</span></code></a>(fn)</p></td>
+<td><p>Sets a function to be called on every getitem.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.policy.sample_batch.SampleBatch.is_training.html#ray.rllib.policy.sample_batch.SampleBatch.is_training" title="ray.rllib.policy.sample_batch.SampleBatch.is_training"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SampleBatch.is_training</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.policy.sample_batch.SampleBatch.set_training.html#ray.rllib.policy.sample_batch.SampleBatch.set_training" title="ray.rllib.policy.sample_batch.SampleBatch.set_training"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SampleBatch.set_training</span></code></a>([training])</p></td>
+<td><p>Sets the <code class="xref py py-obj docutils literal notranslate"><span class="pre">is_training</span></code> flag for this SampleBatch.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.policy.sample_batch.SampleBatch.as_multi_agent.html#ray.rllib.policy.sample_batch.SampleBatch.as_multi_agent" title="ray.rllib.policy.sample_batch.SampleBatch.as_multi_agent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SampleBatch.as_multi_agent</span></code></a>()</p></td>
+<td><p>Returns the respective MultiAgentBatch using DEFAULT_POLICY_ID.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.policy.sample_batch.SampleBatch.get.html#ray.rllib.policy.sample_batch.SampleBatch.get" title="ray.rllib.policy.sample_batch.SampleBatch.get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SampleBatch.get</span></code></a>(key[, default])</p></td>
+<td><p>Returns one column (by key) from the data or a default value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.policy.sample_batch.SampleBatch.to_device.html#ray.rllib.policy.sample_batch.SampleBatch.to_device" title="ray.rllib.policy.sample_batch.SampleBatch.to_device"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SampleBatch.to_device</span></code></a>(device[, framework])</p></td>
+<td><p>TODO: transfer batch to given device as framework tensor.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.policy.sample_batch.SampleBatch.right_zero_pad.html#ray.rllib.policy.sample_batch.SampleBatch.right_zero_pad" title="ray.rllib.policy.sample_batch.SampleBatch.right_zero_pad"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SampleBatch.right_zero_pad</span></code></a>(max_seq_len[, ...])</p></td>
+<td><p>Right (adding zeros at end) zero-pads this SampleBatch in-place.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.policy.sample_batch.SampleBatch.slice.html#ray.rllib.policy.sample_batch.SampleBatch.slice" title="ray.rllib.policy.sample_batch.SampleBatch.slice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SampleBatch.slice</span></code></a>(start, end[, state_start, ...])</p></td>
+<td><p>Returns a slice of the row data of this batch (w/o copying).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.policy.sample_batch.SampleBatch.split_by_episode.html#ray.rllib.policy.sample_batch.SampleBatch.split_by_episode" title="ray.rllib.policy.sample_batch.SampleBatch.split_by_episode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SampleBatch.split_by_episode</span></code></a>([key])</p></td>
+<td><p>Splits by <code class="xref py py-obj docutils literal notranslate"><span class="pre">eps_id</span></code> column and returns list of new batches.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.policy.sample_batch.SampleBatch.shuffle.html#ray.rllib.policy.sample_batch.SampleBatch.shuffle" title="ray.rllib.policy.sample_batch.SampleBatch.shuffle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SampleBatch.shuffle</span></code></a>()</p></td>
+<td><p>Shuffles the rows of this batch in-place.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.policy.sample_batch.SampleBatch.columns.html#ray.rllib.policy.sample_batch.SampleBatch.columns" title="ray.rllib.policy.sample_batch.SampleBatch.columns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SampleBatch.columns</span></code></a>(keys)</p></td>
+<td><p>Returns a list of the batch-data in the specified columns.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.policy.sample_batch.SampleBatch.rows.html#ray.rllib.policy.sample_batch.SampleBatch.rows" title="ray.rllib.policy.sample_batch.SampleBatch.rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SampleBatch.rows</span></code></a>()</p></td>
+<td><p>Returns an iterator over data rows, i.e. dicts with column values.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.policy.sample_batch.SampleBatch.copy.html#ray.rllib.policy.sample_batch.SampleBatch.copy" title="ray.rllib.policy.sample_batch.SampleBatch.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SampleBatch.copy</span></code></a>([shallow])</p></td>
+<td><p>Creates a deep or shallow copy of this SampleBatch and returns it.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.policy.sample_batch.SampleBatch.is_single_trajectory.html#ray.rllib.policy.sample_batch.SampleBatch.is_single_trajectory" title="ray.rllib.policy.sample_batch.SampleBatch.is_single_trajectory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SampleBatch.is_single_trajectory</span></code></a>()</p></td>
+<td><p>Returns True if this SampleBatch only contains one trajectory.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.policy.sample_batch.SampleBatch.is_terminated_or_truncated.html#ray.rllib.policy.sample_batch.SampleBatch.is_terminated_or_truncated" title="ray.rllib.policy.sample_batch.SampleBatch.is_terminated_or_truncated"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SampleBatch.is_terminated_or_truncated</span></code></a>()</p></td>
+<td><p>Returns True if <code class="xref py py-obj docutils literal notranslate"><span class="pre">self</span></code> is either terminated or truncated at idx -1.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.policy.sample_batch.SampleBatch.env_steps.html#ray.rllib.policy.sample_batch.SampleBatch.env_steps" title="ray.rllib.policy.sample_batch.SampleBatch.env_steps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SampleBatch.env_steps</span></code></a>()</p></td>
+<td><p>Returns the same as len(self) (number of steps in this batch).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.policy.sample_batch.SampleBatch.agent_steps.html#ray.rllib.policy.sample_batch.SampleBatch.agent_steps" title="ray.rllib.policy.sample_batch.SampleBatch.agent_steps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SampleBatch.agent_steps</span></code></a>()</p></td>
+<td><p>Returns the same as len(self) (number of steps in this batch).</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="multiagent-batch-api">
+<h2>MultiAgent batch API<a class="headerlink" href="evaluation.html#multiagent-batch-api" title="Permalink to this headline">#</a></h2>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.policy.sample_batch.MultiAgentBatch.html#ray.rllib.policy.sample_batch.MultiAgentBatch" title="ray.rllib.policy.sample_batch.MultiAgentBatch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MultiAgentBatch</span></code></a>(policy_batches, env_steps)</p></td>
+<td><p>A batch of experiences from multiple agents in the environment.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.rllib.policy.sample_batch.MultiAgentBatch.env_steps.html#ray.rllib.policy.sample_batch.MultiAgentBatch.env_steps" title="ray.rllib.policy.sample_batch.MultiAgentBatch.env_steps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MultiAgentBatch.env_steps</span></code></a>()</p></td>
+<td><p>The number of env steps (there are &gt;= 1 agent steps per env step).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.rllib.policy.sample_batch.MultiAgentBatch.agent_steps.html#ray.rllib.policy.sample_batch.MultiAgentBatch.agent_steps" title="ray.rllib.policy.sample_batch.MultiAgentBatch.agent_steps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MultiAgentBatch.agent_steps</span></code></a>()</p></td>
+<td><p>The number of agent steps (there are &gt;= 1 agent steps per env step).</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="doc/ray.rllib.core.rl_module.marl_module.MultiAgentRLModule.framework.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">ray.rllib.core.rl_module.marl_module.MultiAgentRLModule.framework</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="doc/ray.rllib.evaluation.rollout_worker.RolloutWorker.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">ray.rllib.evaluation.rollout_worker.RolloutWorker</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

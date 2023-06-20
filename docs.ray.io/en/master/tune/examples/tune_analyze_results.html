@@ -1,0 +1,1342 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Analyzing Tune Experiment Results &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/js/versionwarning.js"></script>
+    <script src="../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../_static/js/docsearch.js"></script>
+    <script src="../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../_static/js/top-navigation.js"></script>
+    <script src="../../_static/js/tags.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/tune/examples/tune_analyze_results.html" />
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="A Guide to Population Based Training with Tune" href="pbt_guide.html" />
+    <link rel="prev" title="Getting Data in and out of Tune" href="../tutorials/tune_get_data_in_and_out.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "tune/examples/tune_analyze_results", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".ipynb", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../../tune.html">
+   Ray Tune
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../getting-started.html">
+     Getting Started
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="../tutorials/overview.html">
+     User Guides
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="../tutorials/tune-run.html">
+       Running Basic Experiments
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../tutorials/tune-output.html">
+       Logging and Outputs in Tune
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../tutorials/tune-resources.html">
+       Setting Trial Resources
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../tutorials/tune-search-spaces.html">
+       Using Search Spaces
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../tutorials/tune-stopping.html">
+       How to Define Stopping Criteria for a Ray Tune Experiment
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../tutorials/tune-trial-checkpoints.html">
+       How to Save and Load Trial Checkpoints
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../tutorials/tune-storage.html">
+       How to Configure Storage Options for a Distributed Tune Experiment
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../tutorials/tune-fault-tolerance.html">
+       How to Enable Fault Tolerance in Ray Tune
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../tutorials/tune-metrics.html">
+       Using Callbacks and Metrics
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../tutorials/tune_get_data_in_and_out.html">
+       Getting Data in and out of Tune
+      </a>
+     </li>
+     <li class="toctree-l3 current active">
+      <a class="current reference internal" href="tune_analyze_results.html#">
+       Analyzing Tune Experiment Results
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pbt_guide.html">
+       A Guide to Population Based Training with Tune
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../tutorials/tune-distributed.html">
+       Deploying Tune in the Cloud
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../tutorials/tune-lifecycle.html">
+       Tune Architecture
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../tutorials/tune-scalability.html">
+       Scalability Benchmarks
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="index.html">
+     Ray Tune Examples
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../faq.html">
+     Ray Tune FAQ
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/api.html">
+     Ray Tune API
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Ftune/examples/tune_analyze_results.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/tune/examples/tune_analyze_results.ipynb"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../_sources/tune/examples/tune_analyze_results.ipynb.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.ipynb</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune_analyze_results.html#loading-experiment-results-from-an-directory">
+   Loading experiment results from an directory
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune_analyze_results.html#experiment-level-analysis-working-with-resultgrid">
+   Experiment-level Analysis: Working with
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     ResultGrid
+    </span>
+   </code>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune_analyze_results.html#trial-level-analysis-working-with-an-individual-result">
+   Trial-level Analysis: Working with an individual
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     Result
+    </span>
+   </code>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune_analyze_results.html#plotting-metrics">
+   Plotting metrics
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune_analyze_results.html#accessing-checkpoints-and-loading-for-test-inference">
+   Accessing checkpoints and loading for test inference
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune_analyze_results.html#summary">
+   Summary
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Analyzing Tune Experiment Results</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune_analyze_results.html#loading-experiment-results-from-an-directory">
+   Loading experiment results from an directory
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune_analyze_results.html#experiment-level-analysis-working-with-resultgrid">
+   Experiment-level Analysis: Working with
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     ResultGrid
+    </span>
+   </code>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune_analyze_results.html#trial-level-analysis-working-with-an-individual-result">
+   Trial-level Analysis: Working with an individual
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     Result
+    </span>
+   </code>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune_analyze_results.html#plotting-metrics">
+   Plotting metrics
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune_analyze_results.html#accessing-checkpoints-and-loading-for-test-inference">
+   Accessing checkpoints and loading for test inference
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune_analyze_results.html#summary">
+   Summary
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section class="tex2jax_ignore mathjax_ignore" id="analyzing-tune-experiment-results">
+<h1>Analyzing Tune Experiment Results<a class="headerlink" href="tune_analyze_results.html#analyzing-tune-experiment-results" title="Permalink to this headline">#</a></h1>
+<p>In this guide, we’ll walk through some common workflows of what analysis you might want to perform after running your Tune experiment with <code class="docutils literal notranslate"><span class="pre">tuner.fit()</span></code>.</p>
+<ol class="simple">
+<li><p>Loading Tune experiment results from a directory</p></li>
+<li><p>Basic <em>experiment-level</em> analysis: get a quick overview of how trials performed</p></li>
+<li><p>Basic <em>trial-level</em> analysis: access individual trial hyperparameter configs and last reported metrics</p></li>
+<li><p>Plotting the entire history of reported metrics for a trial</p></li>
+<li><p>Accessing saved checkpoints (assuming that you have enabled checkpointing) and loading into a model for test inference</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result_grid</span><span class="p">:</span> <span class="n">ResultGrid</span> <span class="o">=</span> <span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="n">best_result</span><span class="p">:</span> <span class="n">Result</span> <span class="o">=</span> <span class="n">result_grid</span><span class="o">.</span><span class="n">get_best_result</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The output of <code class="docutils literal notranslate"><span class="pre">tuner.fit()</span></code> is a <a class="reference internal" href="../api/result_grid.html#result-grid-docstring"><span class="std std-ref"><code class="docutils literal notranslate"><span class="pre">ResultGrid</span></code></span></a>, which is a collection of <a class="reference internal" href="../api/result_grid.html#result-docstring"><span class="std std-ref"><code class="docutils literal notranslate"><span class="pre">Result</span></code></span></a> objects. See the linked documentation references for <a class="reference internal" href="../api/result_grid.html#result-grid-docstring"><span class="std std-ref"><code class="docutils literal notranslate"><span class="pre">ResultGrid</span></code></span></a> and <a class="reference internal" href="../api/result_grid.html#result-docstring"><span class="std std-ref"><code class="docutils literal notranslate"><span class="pre">Result</span></code></span></a> for more details on what attributes are available.</p>
+<p>Let’s start by performing a hyperparameter search with the MNIST PyTorch example. The training function is defined <a class="reference internal" href="includes/mnist_pytorch.html"><span class="doc">here</span></a>, and we pass it into a <code class="docutils literal notranslate"><span class="pre">Tuner</span></code> to start running the trials in parallel.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ray</span> <span class="kn">import</span> <span class="n">tune</span><span class="p">,</span> <span class="n">air</span>
+<span class="kn">from</span> <span class="nn">ray.tune.examples.mnist_pytorch</span> <span class="kn">import</span> <span class="n">train_mnist</span>
+<span class="kn">from</span> <span class="nn">ray.tune</span> <span class="kn">import</span> <span class="n">ResultGrid</span>
+
+<span class="n">storage_path</span> <span class="o">=</span> <span class="s2">&quot;/tmp/ray_results&quot;</span>
+<span class="n">exp_name</span> <span class="o">=</span> <span class="s2">&quot;tune_analyzing_results&quot;</span>
+<span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
+    <span class="n">train_mnist</span><span class="p">,</span>
+    <span class="n">param_space</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;lr&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">loguniform</span><span class="p">(</span><span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">),</span>
+        <span class="s2">&quot;momentum&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">grid_search</span><span class="p">([</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.99</span><span class="p">]),</span>
+        <span class="s2">&quot;should_checkpoint&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="n">run_config</span><span class="o">=</span><span class="n">air</span><span class="o">.</span><span class="n">RunConfig</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">exp_name</span><span class="p">,</span>
+        <span class="n">stop</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;training_iteration&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">},</span>
+        <span class="n">checkpoint_config</span><span class="o">=</span><span class="n">air</span><span class="o">.</span><span class="n">CheckpointConfig</span><span class="p">(</span>
+            <span class="n">checkpoint_score_attribute</span><span class="o">=</span><span class="s2">&quot;mean_accuracy&quot;</span><span class="p">,</span>
+            <span class="n">num_to_keep</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">storage_path</span><span class="o">=</span><span class="n">storage_path</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">tune_config</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">TuneConfig</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;max&quot;</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;mean_accuracy&quot;</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="mi">3</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">result_grid</span><span class="p">:</span> <span class="n">ResultGrid</span> <span class="o">=</span> <span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="loading-experiment-results-from-an-directory">
+<h2>Loading experiment results from an directory<a class="headerlink" href="tune_analyze_results.html#loading-experiment-results-from-an-directory" title="Permalink to this headline">#</a></h2>
+<p>Although we have the <code class="docutils literal notranslate"><span class="pre">result_grid</span></code> object in memory because we just ran the Tune experiment above, we might be performing this analysis after our initial training script has exited. We can retrieve the <code class="docutils literal notranslate"><span class="pre">ResultGrid</span></code> from a <a class="reference internal" href="../tutorials/tune-stopping.html#tune-stopping-guide"><span class="std std-ref">restored <code class="docutils literal notranslate"><span class="pre">Tuner</span></code></span></a>, passing in the experiment directory, which should look something like <code class="docutils literal notranslate"><span class="pre">~/ray_results/{exp_name}</span></code>. If you don’t specify an experiment <code class="docutils literal notranslate"><span class="pre">name</span></code> in the <code class="docutils literal notranslate"><span class="pre">RunConfig</span></code>, the experiment name will be auto-generated and can be found in the logs of your experiment.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">experiment_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">storage_path</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">exp_name</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loading results from </span><span class="si">{</span><span class="n">experiment_path</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
+
+<span class="n">restored_tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="n">experiment_path</span><span class="p">,</span> <span class="n">trainable</span><span class="o">=</span><span class="n">train_mnist</span><span class="p">)</span>
+<span class="n">result_grid</span> <span class="o">=</span> <span class="n">restored_tuner</span><span class="o">.</span><span class="n">get_results</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Loading results from /tmp/ray_results/tune_analyzing_results...
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2022-10-17 16:04:54,189	INFO experiment_analysis.py:795 -- No `self.trials`. Drawing logdirs from checkpoint file. This may result in some information that is out of sync, as checkpointing is periodic.
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="experiment-level-analysis-working-with-resultgrid">
+<h2>Experiment-level Analysis: Working with <code class="docutils literal notranslate"><span class="pre">ResultGrid</span></code><a class="headerlink" href="tune_analyze_results.html#experiment-level-analysis-working-with-resultgrid" title="Permalink to this headline">#</a></h2>
+<p>The first thing we might want to check is if there were any erroring trials.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check if there have been errors</span>
+<span class="k">if</span> <span class="n">result_grid</span><span class="o">.</span><span class="n">errors</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;One of the trials failed!&quot;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No errors!&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>No errors!
+</pre></div>
+</div>
+</div>
+</div>
+<p>Note that <code class="docutils literal notranslate"><span class="pre">ResultGrid</span></code> is an iterable, and we can access its length and index into it to access individual <code class="docutils literal notranslate"><span class="pre">Result</span></code> objects.</p>
+<p>We should have <strong>9</strong> results in this example, since we have 3 samples for each of the 3 grid search values.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">num_results</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">result_grid</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of results:&quot;</span><span class="p">,</span> <span class="n">num_results</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Number of results: 9
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Iterate over results</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">result</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">result_grid</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">error</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Trial #</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> had an error:&quot;</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">error</span><span class="p">)</span>
+        <span class="k">continue</span>
+
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Trial #</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> finished successfully with a mean accuracy metric of:&quot;</span><span class="p">,</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;mean_accuracy&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Trial #0 finished successfully with a mean accuracy metric of: 0.96875
+Trial #1 finished successfully with a mean accuracy metric of: 0.925
+Trial #2 finished successfully with a mean accuracy metric of: 0.946875
+Trial #3 finished successfully with a mean accuracy metric of: 0.86875
+Trial #4 finished successfully with a mean accuracy metric of: 0.94375
+Trial #5 finished successfully with a mean accuracy metric of: 0.971875
+Trial #6 finished successfully with a mean accuracy metric of: 0.91875
+Trial #7 finished successfully with a mean accuracy metric of: 0.965625
+Trial #8 finished successfully with a mean accuracy metric of: 0.740625
+</pre></div>
+</div>
+</div>
+</div>
+<p>Above, we printed the <strong>last reported</strong> <code class="docutils literal notranslate"><span class="pre">mean_accuracy</span></code> metric for all trials by looping through the <code class="docutils literal notranslate"><span class="pre">result_grid</span></code>.
+We can access the same metrics for all trials in a pandas DataFrame.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">results_df</span> <span class="o">=</span> <span class="n">result_grid</span><span class="o">.</span><span class="n">get_dataframe</span><span class="p">()</span>
+<span class="n">results_df</span><span class="p">[[</span><span class="s2">&quot;training_iteration&quot;</span><span class="p">,</span> <span class="s2">&quot;mean_accuracy&quot;</span><span class="p">]]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>training_iteration</th>
+      <th>mean_accuracy</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>100</td>
+      <td>0.968750</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>100</td>
+      <td>0.925000</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>100</td>
+      <td>0.946875</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>100</td>
+      <td>0.868750</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>100</td>
+      <td>0.943750</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>100</td>
+      <td>0.971875</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>100</td>
+      <td>0.918750</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>100</td>
+      <td>0.965625</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>100</td>
+      <td>0.740625</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Shortest training time:&quot;</span><span class="p">,</span> <span class="n">results_df</span><span class="p">[</span><span class="s2">&quot;time_total_s&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Longest training time:&quot;</span><span class="p">,</span> <span class="n">results_df</span><span class="p">[</span><span class="s2">&quot;time_total_s&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Shortest training time: 28.826712369918823
+Longest training time: 31.22410249710083
+</pre></div>
+</div>
+</div>
+</div>
+<p>The last reported metrics might not contain the best accuracy each trial achieved. If we want to get maximum accuracy that each trial reported throughout its training, we can do so by using <code class="xref py py-meth docutils literal notranslate"><span class="pre">ResultGrid.get_dataframe</span></code> specifying a metric and mode used to filter each trial’s training history.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">best_result_df</span> <span class="o">=</span> <span class="n">result_grid</span><span class="o">.</span><span class="n">get_dataframe</span><span class="p">(</span>
+    <span class="n">filter_metric</span><span class="o">=</span><span class="s2">&quot;mean_accuracy&quot;</span><span class="p">,</span> <span class="n">filter_mode</span><span class="o">=</span><span class="s2">&quot;max&quot;</span>
+<span class="p">)</span>
+<span class="n">best_result_df</span><span class="p">[[</span><span class="s2">&quot;training_iteration&quot;</span><span class="p">,</span> <span class="s2">&quot;mean_accuracy&quot;</span><span class="p">]]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>training_iteration</th>
+      <th>mean_accuracy</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>81</td>
+      <td>0.978125</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>44</td>
+      <td>0.953125</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>96</td>
+      <td>0.953125</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>94</td>
+      <td>0.925000</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>87</td>
+      <td>0.975000</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>92</td>
+      <td>0.978125</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>77</td>
+      <td>0.959375</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>59</td>
+      <td>0.971875</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>10</td>
+      <td>0.896875</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="trial-level-analysis-working-with-an-individual-result">
+<h2>Trial-level Analysis: Working with an individual <code class="docutils literal notranslate"><span class="pre">Result</span></code><a class="headerlink" href="tune_analyze_results.html#trial-level-analysis-working-with-an-individual-result" title="Permalink to this headline">#</a></h2>
+<p>Let’s take a look at the result that ended with the best <code class="docutils literal notranslate"><span class="pre">mean_accuracy</span></code> metric. By default, <code class="docutils literal notranslate"><span class="pre">get_best_result</span></code> will use the same metric and mode as defined in the <code class="docutils literal notranslate"><span class="pre">TuneConfig</span></code> above. However, it’s also possible to specify a new metric/order in which results should be ranked.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ray.air</span> <span class="kn">import</span> <span class="n">Result</span>
+
+<span class="c1"># Get the result with the maximum test set `mean_accuracy`</span>
+<span class="n">best_result</span><span class="p">:</span> <span class="n">Result</span> <span class="o">=</span> <span class="n">result_grid</span><span class="o">.</span><span class="n">get_best_result</span><span class="p">()</span>
+
+<span class="c1"># Get the result with the minimum `mean_accuracy`</span>
+<span class="n">worst_performing_result</span><span class="p">:</span> <span class="n">Result</span> <span class="o">=</span> <span class="n">result_grid</span><span class="o">.</span><span class="n">get_best_result</span><span class="p">(</span>
+    <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;mean_accuracy&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;min&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We can examine a few of the properties of the best <code class="docutils literal notranslate"><span class="pre">Result</span></code>. See the <a class="reference internal" href="../api/result_grid.html#result-docstring"><span class="std std-ref">API reference</span></a> for a list of all accessible properties.</p>
+<p>First, we can access the best result’s hyperparameter configuration with <code class="docutils literal notranslate"><span class="pre">Result.config</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">best_result</span><span class="o">.</span><span class="n">config</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;lr&#39;: 0.0034759400828981743, &#39;momentum&#39;: 0.99, &#39;should_checkpoint&#39;: True}
+</pre></div>
+</div>
+</div>
+</div>
+<p>Next, we can access the trial’s log directory via <code class="docutils literal notranslate"><span class="pre">Result.log_dir</span></code>. The result <code class="docutils literal notranslate"><span class="pre">log_dir</span></code> gives the trial level directory that contains checkpoints (if you had checkpointing enabled) and logged metrics to load manually or inspect using a tool like Tensorboard (see <code class="docutils literal notranslate"><span class="pre">result.json</span></code>, <code class="docutils literal notranslate"><span class="pre">progress.csv</span></code>).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">best_result</span><span class="o">.</span><span class="n">log_dir</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>PosixPath(&#39;/tmp/ray_results/tune_analyzing_results/train_mnist_daaa1_00005_5_lr=0.0035,momentum=0.9900_2022-10-17_16-03-12&#39;)
+</pre></div>
+</div>
+</div>
+</div>
+<p>You can also directly get the latest checkpoint for a specific trial via <code class="docutils literal notranslate"><span class="pre">Result.checkpoint</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get the last Ray AIR Checkpoint associated with the best-performing trial</span>
+<span class="n">best_result</span><span class="o">.</span><span class="n">checkpoint</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>TorchCheckpoint(local_path=/tmp/ray_results/tune_analyzing_results/train_mnist_daaa1_00005_5_lr=0.0035,momentum=0.9900_2022-10-17_16-03-12/checkpoint_000099)
+</pre></div>
+</div>
+</div>
+</div>
+<p>You can also get the last-reported metrics associated with a specific trial via <code class="docutils literal notranslate"><span class="pre">Result.metrics</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get the last reported set of metrics</span>
+<span class="n">best_result</span><span class="o">.</span><span class="n">metrics</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;mean_accuracy&#39;: 0.971875,
+ &#39;time_this_iter_s&#39;: 0.23050832748413086,
+ &#39;should_checkpoint&#39;: True,
+ &#39;done&#39;: True,
+ &#39;timesteps_total&#39;: None,
+ &#39;episodes_total&#39;: None,
+ &#39;training_iteration&#39;: 100,
+ &#39;trial_id&#39;: &#39;daaa1_00005&#39;,
+ &#39;experiment_id&#39;: &#39;a15f57f8a3f84b1d823c2cf65c37aece&#39;,
+ &#39;date&#39;: &#39;2022-10-17_16-03-45&#39;,
+ &#39;timestamp&#39;: 1666047825,
+ &#39;time_total_s&#39;: 29.587023496627808,
+ &#39;pid&#39;: 3699,
+ &#39;hostname&#39;: &#39;ip-172-31-113-120&#39;,
+ &#39;node_ip&#39;: &#39;172.31.113.120&#39;,
+ &#39;config&#39;: {&#39;lr&#39;: 0.0034759400828981743,
+  &#39;momentum&#39;: 0.99,
+  &#39;should_checkpoint&#39;: True},
+ &#39;time_since_restore&#39;: 29.587023496627808,
+ &#39;timesteps_since_restore&#39;: 0,
+ &#39;iterations_since_restore&#39;: 100,
+ &#39;warmup_time&#39;: 0.003263711929321289,
+ &#39;experiment_tag&#39;: &#39;5_lr=0.0035,momentum=0.9900&#39;}
+</pre></div>
+</div>
+</div>
+</div>
+<p>Access the entire history of reported metrics from a <code class="docutils literal notranslate"><span class="pre">Result</span></code> as a pandas DataFrame:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">result_df</span> <span class="o">=</span> <span class="n">best_result</span><span class="o">.</span><span class="n">metrics_dataframe</span>
+<span class="n">result_df</span><span class="p">[[</span><span class="s2">&quot;training_iteration&quot;</span><span class="p">,</span> <span class="s2">&quot;mean_accuracy&quot;</span><span class="p">,</span> <span class="s2">&quot;time_total_s&quot;</span><span class="p">]]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>training_iteration</th>
+      <th>mean_accuracy</th>
+      <th>time_total_s</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>0.121875</td>
+      <td>1.874643</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>0.340625</td>
+      <td>2.110028</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>0.321875</td>
+      <td>2.332039</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>0.521875</td>
+      <td>2.621943</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>0.684375</td>
+      <td>2.958664</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>95</th>
+      <td>96</td>
+      <td>0.953125</td>
+      <td>28.516581</td>
+    </tr>
+    <tr>
+      <th>96</th>
+      <td>97</td>
+      <td>0.959375</td>
+      <td>28.819717</td>
+    </tr>
+    <tr>
+      <th>97</th>
+      <td>98</td>
+      <td>0.934375</td>
+      <td>29.085851</td>
+    </tr>
+    <tr>
+      <th>98</th>
+      <td>99</td>
+      <td>0.968750</td>
+      <td>29.356515</td>
+    </tr>
+    <tr>
+      <th>99</th>
+      <td>100</td>
+      <td>0.971875</td>
+      <td>29.587023</td>
+    </tr>
+  </tbody>
+</table>
+<p>100 rows × 3 columns</p>
+</div></div></div>
+</div>
+</section>
+<section id="plotting-metrics">
+<h2>Plotting metrics<a class="headerlink" href="tune_analyze_results.html#plotting-metrics" title="Permalink to this headline">#</a></h2>
+<p>We can use the metrics DataFrame to quickly visualize learning curves. First, let’s plot the mean accuracy vs. training iterations for the best result.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">best_result</span><span class="o">.</span><span class="n">metrics_dataframe</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s2">&quot;training_iteration&quot;</span><span class="p">,</span> <span class="s2">&quot;mean_accuracy&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;AxesSubplot: xlabel=&#39;training_iteration&#39;&gt;
+</pre></div>
+</div>
+<img alt="../../_images/tune_analyze_results_29_1.png" src="../../_images/tune_analyze_results_29_1.png" />
+</div>
+</div>
+<p>We can also iterate through the entire set of results and create a combined plot of all trials with the hyperparameters as labels.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ax</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">result_grid</span><span class="p">:</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;lr=</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;lr&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, momentum=</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;momentum&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">metrics_dataframe</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s2">&quot;training_iteration&quot;</span><span class="p">,</span> <span class="s2">&quot;mean_accuracy&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">metrics_dataframe</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s2">&quot;training_iteration&quot;</span><span class="p">,</span> <span class="s2">&quot;mean_accuracy&quot;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Mean Accuracy vs. Training Iteration for All Trials&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Mean Test Accuracy&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Text(0, 0.5, &#39;Mean Test Accuracy&#39;)
+</pre></div>
+</div>
+<img alt="../../_images/tune_analyze_results_31_1.png" src="../../_images/tune_analyze_results_31_1.png" />
+</div>
+</div>
+</section>
+<section id="accessing-checkpoints-and-loading-for-test-inference">
+<h2>Accessing checkpoints and loading for test inference<a class="headerlink" href="tune_analyze_results.html#accessing-checkpoints-and-loading-for-test-inference" title="Permalink to this headline">#</a></h2>
+<p>We noticed earlier that <code class="docutils literal notranslate"><span class="pre">Result</span></code> contains the last checkpoint associated with a trial. Let’s see how we can use this checkpoint to load a model for performing inference on some sample MNIST images.</p>
+<p>If you are running a Tune experiment with Ray AIR Trainers, the checkpoints saved may be framework-specific checkpoints such as <code class="docutils literal notranslate"><span class="pre">TorchCheckpoint</span></code>. Refer to <a class="reference internal" href="../../train/api/api.html#air-trainer-ref"><span class="std std-ref">documentation on framework-specific integrations</span></a> to learn how to load from these types of checkpoints.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ray.train.torch</span> <span class="kn">import</span> <span class="n">TorchCheckpoint</span><span class="p">,</span> <span class="n">TorchPredictor</span>
+<span class="kn">from</span> <span class="nn">ray.tune.examples.mnist_pytorch</span> <span class="kn">import</span> <span class="n">ConvNet</span><span class="p">,</span> <span class="n">get_data_loaders</span>
+
+<span class="n">checkpoint</span><span class="p">:</span> <span class="n">TorchCheckpoint</span> <span class="o">=</span> <span class="n">best_result</span><span class="o">.</span><span class="n">checkpoint</span>
+
+<span class="c1"># Create a Predictor using the best result&#39;s checkpoint</span>
+<span class="n">predictor</span> <span class="o">=</span> <span class="n">TorchPredictor</span><span class="o">.</span><span class="n">from_checkpoint</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">,</span> <span class="n">ConvNet</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Refer to the training loop definition <a class="reference internal" href="includes/mnist_pytorch.html"><span class="doc">here</span></a> to see how we are saving the checkpoint in the first place.</p>
+<p>Next, let’s test our model with a sample data point and print out the predicted class.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">_</span><span class="p">,</span> <span class="n">test_loader</span> <span class="o">=</span> <span class="n">get_data_loaders</span><span class="p">()</span>
+<span class="n">test_img</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">test_loader</span><span class="p">))[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<span class="c1"># Need to reshape to (batch_size, channels, width, height)</span>
+<span class="n">test_img</span> <span class="o">=</span> <span class="n">test_img</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">28</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">test_img</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">28</span><span class="p">,</span> <span class="mi">28</span><span class="p">)))</span>
+
+<span class="n">predicted_class</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test_img</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Predicted Class =&quot;</span><span class="p">,</span> <span class="n">predicted_class</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Predicted Class = 4
+</pre></div>
+</div>
+<img alt="../../_images/tune_analyze_results_35_1.png" src="../../_images/tune_analyze_results_35_1.png" />
+</div>
+</div>
+<p>Consider using <a class="reference internal" href="../../ray-air/predictors.html#air-predictors"><span class="std std-ref">Ray AIR batch prediction</span></a> if you want to use a checkpointed model for large scale inference!</p>
+</section>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="tune_analyze_results.html#summary" title="Permalink to this headline">#</a></h2>
+<p>In this guide, we looked at some common analysis workflows you can perform using the <code class="docutils literal notranslate"><span class="pre">ResultGrid</span></code> output returned by <code class="docutils literal notranslate"><span class="pre">Tuner.fit</span></code>. These included: <strong>loading results from an experiment directory, exploring experiment-level and trial-level results, plotting logged metrics, and accessing trial checkpoints for inference.</strong></p>
+<p>Take a look at <a class="reference internal" href="index.html#tune-experiment-tracking-examples"><span class="std std-ref">Tune’s experiment tracking integrations</span></a> for more analysis tools that you can build into your Tune experiment with a few callbacks!</p>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="../tutorials/tune_get_data_in_and_out.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Getting Data in and out of Tune</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="pbt_guide.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">A Guide to Population Based Training with Tune</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

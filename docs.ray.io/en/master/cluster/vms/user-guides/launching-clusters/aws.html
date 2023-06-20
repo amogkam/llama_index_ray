@@ -1,0 +1,1240 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Launching Ray Clusters on AWS &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/clipboard.min.js"></script>
+    <script src="../../../../_static/copybutton.js"></script>
+    <script src="../../../../_static/js/versionwarning.js"></script>
+    <script src="../../../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../../../_static/js/docsearch.js"></script>
+    <script src="../../../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../../../_static/js/top-navigation.js"></script>
+    <script src="../../../../_static/js/tags.js"></script>
+    <script src="../../../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/cluster/vms/user-guides/launching-clusters/aws.html" />
+    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="Launching Ray Clusters on GCP" href="gcp.html" />
+    <link rel="prev" title="Launching Ray Clusters on AWS, GCP, Azure, On-Prem" href="index.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "cluster/vms/user-guides/launching-clusters/aws", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".md", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../tune.html">
+   Ray Tune
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../../../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../kubernetes/index.html">
+     Deploying on Kubernetes
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="../../index.html">
+     Deploying on VMs
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../getting-started.html">
+       Getting Started
+      </a>
+     </li>
+     <li class="toctree-l3 current active has-children">
+      <a class="reference internal" href="../index.html">
+       User Guides
+      </a>
+      <input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+      <label for="toctree-checkbox-3">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul class="current">
+       <li class="toctree-l4 current active">
+        <a class="reference internal" href="index.html">
+         Launching Ray Clusters on AWS, GCP, Azure, On-Prem
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../large-cluster-best-practices.html">
+         Best practices for deploying large clusters
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../configuring-autoscaling.html">
+         Configuring Autoscaling
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../logging.html">
+         Log Persistence
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../community/index.html">
+         Community Supported Cluster Managers
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../examples/index.html">
+       Examples
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../references/index.html">
+       API References
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../metrics.html">
+     Collecting and monitoring metrics
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../configure-manage-dashboard.html">
+     Configuring and Managing Ray Dashboard
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../running-applications/index.html">
+     Applications Guide
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../faq.html">
+     FAQ
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../package-overview.html">
+     Ray Cluster Management API
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Fcluster/vms/user-guides/launching-clusters/aws.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/cluster/vms/user-guides/launching-clusters/aws.md"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../../../_sources/cluster/vms/user-guides/launching-clusters/aws.md.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.md</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="aws.html#install-ray-cluster-launcher">
+   Install Ray cluster launcher
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="aws.html#install-and-configure-aws-python-sdk-boto3">
+   Install and Configure AWS Python SDK (Boto3)
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="aws.html#start-ray-with-the-ray-cluster-launcher">
+   Start Ray with the Ray cluster launcher
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="aws.html#aws-configurations">
+   AWS Configurations
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="aws.html#using-amazon-efs">
+     Using Amazon EFS
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="aws.html#configuring-iam-role-and-ec2-instance-profile">
+     Configuring IAM Role and EC2 Instance Profile
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="aws.html#accessing-s3">
+     Accessing S3
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="aws.html#monitor-ray-using-amazon-cloudwatch">
+   Monitor Ray using Amazon CloudWatch
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="aws.html#getting-started">
+     Getting started
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="aws.html#create-a-minimal-cluster-config-yaml-named-cloudwatch-basic-yaml-with-the-following-contents">
+       1. Create a minimal cluster config YAML named
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         cloudwatch-basic.yaml
+        </span>
+       </code>
+       with the following contents:
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="aws.html#download-cloudwatch-agent-and-dashboard-config">
+       2. Download CloudWatch Agent and Dashboard config.
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="aws.html#run-ray-up-cloudwatch-basic-yaml-to-start-your-ray-cluster">
+       3. Run
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         ray
+        </span>
+        <span class="pre">
+         up
+        </span>
+        <span class="pre">
+         cloudwatch-basic.yaml
+        </span>
+       </code>
+       to start your Ray Cluster.
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="aws.html#check-out-your-ray-cluster-s-logs-metrics-and-dashboard-in-the-cloudwatch-console">
+       4. Check out your Ray cluster’s logs, metrics, and dashboard in the CloudWatch Console!
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="aws.html#advanced-setup">
+     Advanced Setup
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="aws.html#choose-an-ami-with-the-unified-cloudwatch-agent-pre-installed">
+       1. Choose an AMI with the Unified CloudWatch Agent pre-installed.
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="aws.html#define-your-own-cloudwatch-agent-dashboard-and-alarm-json-config-files">
+       2. Define your own CloudWatch Agent, Dashboard, and Alarm JSON config files.
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="aws.html#reference-your-cloudwatch-json-config-files-in-your-cluster-config-yaml">
+       3. Reference your CloudWatch JSON config files in your cluster config YAML.
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="aws.html#set-your-iam-role-and-ec2-instance-profile">
+       4. Set your IAM Role and EC2 Instance Profile.
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="aws.html#export-ray-system-metrics-to-cloudwatch">
+       5. Export Ray system metrics to CloudWatch.
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="aws.html#update-cloudwatch-agent-dashboard-and-alarm-config-files">
+       6. Update CloudWatch Agent, Dashboard and Alarm config files.
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Launching Ray Clusters on AWS</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="aws.html#install-ray-cluster-launcher">
+   Install Ray cluster launcher
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="aws.html#install-and-configure-aws-python-sdk-boto3">
+   Install and Configure AWS Python SDK (Boto3)
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="aws.html#start-ray-with-the-ray-cluster-launcher">
+   Start Ray with the Ray cluster launcher
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="aws.html#aws-configurations">
+   AWS Configurations
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="aws.html#using-amazon-efs">
+     Using Amazon EFS
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="aws.html#configuring-iam-role-and-ec2-instance-profile">
+     Configuring IAM Role and EC2 Instance Profile
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="aws.html#accessing-s3">
+     Accessing S3
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="aws.html#monitor-ray-using-amazon-cloudwatch">
+   Monitor Ray using Amazon CloudWatch
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="aws.html#getting-started">
+     Getting started
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="aws.html#create-a-minimal-cluster-config-yaml-named-cloudwatch-basic-yaml-with-the-following-contents">
+       1. Create a minimal cluster config YAML named
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         cloudwatch-basic.yaml
+        </span>
+       </code>
+       with the following contents:
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="aws.html#download-cloudwatch-agent-and-dashboard-config">
+       2. Download CloudWatch Agent and Dashboard config.
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="aws.html#run-ray-up-cloudwatch-basic-yaml-to-start-your-ray-cluster">
+       3. Run
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         ray
+        </span>
+        <span class="pre">
+         up
+        </span>
+        <span class="pre">
+         cloudwatch-basic.yaml
+        </span>
+       </code>
+       to start your Ray Cluster.
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="aws.html#check-out-your-ray-cluster-s-logs-metrics-and-dashboard-in-the-cloudwatch-console">
+       4. Check out your Ray cluster’s logs, metrics, and dashboard in the CloudWatch Console!
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="aws.html#advanced-setup">
+     Advanced Setup
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="aws.html#choose-an-ami-with-the-unified-cloudwatch-agent-pre-installed">
+       1. Choose an AMI with the Unified CloudWatch Agent pre-installed.
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="aws.html#define-your-own-cloudwatch-agent-dashboard-and-alarm-json-config-files">
+       2. Define your own CloudWatch Agent, Dashboard, and Alarm JSON config files.
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="aws.html#reference-your-cloudwatch-json-config-files-in-your-cluster-config-yaml">
+       3. Reference your CloudWatch JSON config files in your cluster config YAML.
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="aws.html#set-your-iam-role-and-ec2-instance-profile">
+       4. Set your IAM Role and EC2 Instance Profile.
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="aws.html#export-ray-system-metrics-to-cloudwatch">
+       5. Export Ray system metrics to CloudWatch.
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="aws.html#update-cloudwatch-agent-dashboard-and-alarm-config-files">
+       6. Update CloudWatch Agent, Dashboard and Alarm config files.
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section class="tex2jax_ignore mathjax_ignore" id="launching-ray-clusters-on-aws">
+<h1>Launching Ray Clusters on AWS<a class="headerlink" href="aws.html#launching-ray-clusters-on-aws" title="Permalink to this headline">#</a></h1>
+<p>This guide details the steps needed to start a Ray cluster on AWS.</p>
+<p>To start an AWS Ray cluster, you should use the Ray cluster launcher with the AWS Python SDK.</p>
+<section id="install-ray-cluster-launcher">
+<h2>Install Ray cluster launcher<a class="headerlink" href="aws.html#install-ray-cluster-launcher" title="Permalink to this headline">#</a></h2>
+<p>The Ray cluster launcher is part of the <code class="docutils literal notranslate"><span class="pre">ray</span></code> CLI. Use the CLI to start, stop and attach to a running ray cluster using commands such as  <code class="docutils literal notranslate"><span class="pre">ray</span> <span class="pre">up</span></code>, <code class="docutils literal notranslate"><span class="pre">ray</span> <span class="pre">down</span></code> and <code class="docutils literal notranslate"><span class="pre">ray</span> <span class="pre">attach</span></code>. You can use pip to install the ray CLI with cluster launcher support. Follow <a class="reference internal" href="../../../../ray-more-libs/installation.html#installation"><span class="std std-ref">the Ray installation documentation</span></a> for more detailed instructions.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># install ray</span>
+pip install -U ray<span class="o">[</span>default<span class="o">]</span>
+</pre></div>
+</div>
+</section>
+<section id="install-and-configure-aws-python-sdk-boto3">
+<h2>Install and Configure AWS Python SDK (Boto3)<a class="headerlink" href="aws.html#install-and-configure-aws-python-sdk-boto3" title="Permalink to this headline">#</a></h2>
+<p>Next, install AWS SDK using <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-U</span> <span class="pre">boto3</span></code> and configure your AWS credentials following <a class="reference external" href="https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html">the AWS guide</a>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># install AWS Python SDK (boto3)</span>
+pip install -U boto3
+
+<span class="c1"># setup AWS credentials using environment variables</span>
+<span class="nb">export</span> <span class="nv">AWS_ACCESS_KEY_ID</span><span class="o">=</span>foo
+<span class="nb">export</span> <span class="nv">AWS_SECRET_ACCESS_KEY</span><span class="o">=</span>bar
+<span class="nb">export</span> <span class="nv">AWS_SESSION_TOKEN</span><span class="o">=</span>baz
+
+<span class="c1"># alternatively, you can setup AWS credentials using ~/.aws/credentials file</span>
+<span class="nb">echo</span> <span class="s2">&quot;[default]</span>
+<span class="s2">aws_access_key_id=foo</span>
+<span class="s2">aws_secret_access_key=bar</span>
+<span class="s2">aws_session_token=baz&quot;</span> &gt;&gt; ~/.aws/credentials
+</pre></div>
+</div>
+</section>
+<section id="start-ray-with-the-ray-cluster-launcher">
+<h2>Start Ray with the Ray cluster launcher<a class="headerlink" href="aws.html#start-ray-with-the-ray-cluster-launcher" title="Permalink to this headline">#</a></h2>
+<p>Once Boto3 is configured to manage resources in your AWS account, you should be ready to launch your cluster using the cluster launcher. The provided <a class="reference external" href="https://github.com/ray-project/ray/tree/master/python/ray/autoscaler/aws/example-full.yaml">cluster config file</a> will create a small cluster with an m5.large head node (on-demand) configured to autoscale to up to two m5.large <a class="reference external" href="https://aws.amazon.com/ec2/spot/">spot-instance</a> workers.</p>
+<p>Test that it works by running the following commands from your local machine:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Download the example-full.yaml</span>
+wget https://raw.githubusercontent.com/ray-project/ray/master/python/ray/autoscaler/aws/example-full.yaml
+
+<span class="c1"># Create or update the cluster. When the command finishes, it will print</span>
+<span class="c1"># out the command that can be used to SSH into the cluster head node.</span>
+ray up example-full.yaml
+
+<span class="c1"># Get a remote shell on the head node.</span>
+ray attach example-full.yaml
+
+<span class="c1"># Try running a Ray program.</span>
+python -c <span class="s1">&#39;import ray; ray.init()&#39;</span>
+<span class="nb">exit</span>
+
+<span class="c1"># Tear down the cluster.</span>
+ray down example-full.yaml
+</pre></div>
+</div>
+<p>Congrats, you have started a Ray cluster on AWS!</p>
+<p>If you want to learn more about the Ray cluster launcher, see this blog post for a <a class="reference external" href="https://medium.com/distributed-computing-with-ray/a-step-by-step-guide-to-scaling-your-first-python-application-in-the-cloud-8761fe331ef1">step by step guide</a>.</p>
+</section>
+<section id="aws-configurations">
+<h2>AWS Configurations<a class="headerlink" href="aws.html#aws-configurations" title="Permalink to this headline">#</a></h2>
+<section id="using-amazon-efs">
+<span id="aws-cluster-efs"></span><h3>Using Amazon EFS<a class="headerlink" href="aws.html#using-amazon-efs" title="Permalink to this headline">#</a></h3>
+<p>To utilize Amazon EFS in the Ray cluster, you will need to install some additional utilities and mount the EFS in <code class="docutils literal notranslate"><span class="pre">setup_commands</span></code>. Note that these instructions only work if you are using the Ray cluster launcher on AWS.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Note You need to replace the {{FileSystemId}} with your own EFS ID before using the config.</span><span class="w"></span>
+<span class="c1"># You may also need to modify the SecurityGroupIds for the head and worker nodes in the config file.</span><span class="w"></span>
+
+<span class="nt">setup_commands</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sudo kill -9 `sudo lsof /var/lib/dpkg/lock-frontend | awk &#39;{print $2}&#39; | tail -n 1`;</span><span class="w"></span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">sudo pkill -9 apt-get;</span><span class="w"></span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">sudo pkill -9 dpkg;</span><span class="w"></span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">sudo dpkg --configure -a;</span><span class="w"></span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">sudo apt-get -y install binutils;</span><span class="w"></span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">cd $HOME;</span><span class="w"></span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">git clone https://github.com/aws/efs-utils;</span><span class="w"></span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">cd $HOME/efs-utils;</span><span class="w"></span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">./build-deb.sh;</span><span class="w"></span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">sudo apt-get -y install ./build/amazon-efs-utils*deb;</span><span class="w"></span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">cd $HOME;</span><span class="w"></span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">mkdir efs;</span><span class="w"></span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">sudo mount -t efs {{FileSystemId}}:/ efs;</span><span class="w"></span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">sudo chmod 777 efs;</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="configuring-iam-role-and-ec2-instance-profile">
+<h3>Configuring IAM Role and EC2 Instance Profile<a class="headerlink" href="aws.html#configuring-iam-role-and-ec2-instance-profile" title="Permalink to this headline">#</a></h3>
+<p>By default, Ray nodes in a Ray AWS cluster have full EC2 and S3 permissions (i.e. <code class="docutils literal notranslate"><span class="pre">arn:aws:iam::aws:policy/AmazonEC2FullAccess</span></code> and <code class="docutils literal notranslate"><span class="pre">arn:aws:iam::aws:policy/AmazonS3FullAccess</span></code>). This is a good default for trying out Ray clusters but you may want to change the permissions Ray nodes have for various reasons (e.g. to reduce the permissions for security reasons). You can do so by providing a custom <code class="docutils literal notranslate"><span class="pre">IamInstanceProfile</span></code> to the related <code class="docutils literal notranslate"><span class="pre">node_config</span></code>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">available_node_types</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">ray.worker.default</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">node_config</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">IamInstanceProfile</span><span class="p p-Indicator">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">Arn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">arn:aws:iam::YOUR_AWS_ACCOUNT:YOUR_INSTANCE_PROFILE</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Please refer to this <a class="reference external" href="https://github.com/ray-project/ray/issues/9327">discussion</a> for more details on configuring IAM role and EC2 instance profile.</p>
+</section>
+<section id="accessing-s3">
+<span id="aws-cluster-s3"></span><h3>Accessing S3<a class="headerlink" href="aws.html#accessing-s3" title="Permalink to this headline">#</a></h3>
+<p>In various scenarios, worker nodes may need write access to an S3 bucket, e.g., Ray Tune has an option to write checkpoints to S3 instead of syncing them directly back to the driver.</p>
+<p>If you see errors like “Unable to locate credentials”, make sure that the correct <code class="docutils literal notranslate"><span class="pre">IamInstanceProfile</span></code> is configured for worker nodes in your cluster config file. This may look like:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">available_node_types</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">ray.worker.default</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">node_config</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">IamInstanceProfile</span><span class="p p-Indicator">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">Arn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">arn:aws:iam::YOUR_AWS_ACCOUNT:YOUR_INSTANCE_PROFILE</span><span class="w"></span>
+</pre></div>
+</div>
+<p>You can verify if the set up is correct by SSHing into a worker node and running</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>aws configure list
+</pre></div>
+</div>
+<p>You should see something like</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>      Name                    Value             Type    Location
+      ----                    -----             ----    --------
+   profile                &lt;not set&gt;             None    None
+access_key     ****************XXXX         iam-role
+secret_key     ****************YYYY         iam-role
+    region                &lt;not set&gt;             None    None
+</pre></div>
+</div>
+<p>Please refer to this <a class="reference external" href="https://github.com/ray-project/ray/issues/9327">discussion</a> for more details on accessing S3.</p>
+</section>
+</section>
+<section id="monitor-ray-using-amazon-cloudwatch">
+<h2>Monitor Ray using Amazon CloudWatch<a class="headerlink" href="aws.html#monitor-ray-using-amazon-cloudwatch" title="Permalink to this headline">#</a></h2>
+<p>Amazon CloudWatch is a monitoring and observability service that provides data and actionable insights to monitor your applications, respond to system-wide performance changes, and optimize resource utilization.
+CloudWatch integration with Ray requires an AMI (or Docker image) with the Unified CloudWatch Agent pre-installed.</p>
+<p>AMIs with the Unified CloudWatch Agent pre-installed are provided by the Amazon Ray Team, and are currently available in the us-east-1, us-east-2, us-west-1, and us-west-2 regions.
+Please direct any questions, comments, or issues to the <a class="reference external" href="https://github.com/amzn/amazon-ray/issues/new/choose">Amazon Ray Team</a>.</p>
+<p>The table below lists AMIs with the Unified CloudWatch Agent pre-installed in each region, and you can also find AMIs at <a class="reference external" href="https://github.com/amzn/amazon-ray">amazon-ray README</a>.</p>
+<table class="table" id="id1">
+<caption><span class="caption-text">All available unified CloudWatch agent images</span><a class="headerlink" href="aws.html#id1" title="Permalink to this table">#</a></caption>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p>Base AMI</p></td>
+<td><p>AMI ID</p></td>
+<td><p>Region</p></td>
+<td><p>Unified CloudWatch Agent Version</p></td>
+</tr>
+<tr class="row-even"><td><p>AWS Deep Learning AMI (Ubuntu 18.04, 64-bit)</p></td>
+<td><p>ami-069f2811478f86c20</p></td>
+<td><p>us-east-1</p></td>
+<td><p>v1.247348.0b251302</p></td>
+</tr>
+<tr class="row-odd"><td><p>AWS Deep Learning AMI (Ubuntu 18.04, 64-bit)</p></td>
+<td><p>ami-058cc0932940c2b8b</p></td>
+<td><p>us-east-2</p></td>
+<td><p>v1.247348.0b251302</p></td>
+</tr>
+<tr class="row-even"><td><p>AWS Deep Learning AMI (Ubuntu 18.04, 64-bit)</p></td>
+<td><p>ami-044f95c9ef12883ef</p></td>
+<td><p>us-west-1</p></td>
+<td><p>v1.247348.0b251302</p></td>
+</tr>
+<tr class="row-odd"><td><p>AWS Deep Learning AMI (Ubuntu 18.04, 64-bit)</p></td>
+<td><p>ami-0d88d9cbe28fac870</p></td>
+<td><p>us-west-2</p></td>
+<td><p>v1.247348.0b251302</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Using Amazon CloudWatch will incur charges, please refer to <a class="reference external" href="https://aws.amazon.com/cloudwatch/pricing/">CloudWatch pricing</a> for details.</p>
+</div>
+<section id="getting-started">
+<h3>Getting started<a class="headerlink" href="aws.html#getting-started" title="Permalink to this headline">#</a></h3>
+<section id="create-a-minimal-cluster-config-yaml-named-cloudwatch-basic-yaml-with-the-following-contents">
+<h4>1. Create a minimal cluster config YAML named <code class="docutils literal notranslate"><span class="pre">cloudwatch-basic.yaml</span></code> with the following contents:<a class="headerlink" href="aws.html#create-a-minimal-cluster-config-yaml-named-cloudwatch-basic-yaml-with-the-following-contents" title="Permalink to this headline">#</a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">provider</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aws</span><span class="w"></span>
+<span class="w">    </span><span class="nt">region</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">us-west-2</span><span class="w"></span>
+<span class="w">    </span><span class="nt">availability_zone</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">us-west-2a</span><span class="w"></span>
+<span class="w">    </span><span class="c1"># Start by defining a `cloudwatch` section to enable CloudWatch integration with your Ray cluster.</span><span class="w"></span>
+<span class="w">    </span><span class="nt">cloudwatch</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">agent</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="c1"># Path to Unified CloudWatch Agent config file</span><span class="w"></span>
+<span class="w">            </span><span class="nt">config</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;cloudwatch/example-cloudwatch-agent-config.json&quot;</span><span class="w"></span>
+<span class="w">        </span><span class="nt">dashboard</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="c1"># CloudWatch Dashboard name</span><span class="w"></span>
+<span class="w">            </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;example-dashboard-name&quot;</span><span class="w"></span>
+<span class="w">            </span><span class="c1"># Path to the CloudWatch Dashboard config file</span><span class="w"></span>
+<span class="w">            </span><span class="nt">config</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;cloudwatch/example-cloudwatch-dashboard-config.json&quot;</span><span class="w"></span>
+
+<span class="nt">auth</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">ssh_user</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu</span><span class="w"></span>
+
+<span class="nt">available_node_types</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">ray.head.default</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">node_config</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">InstanceType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">c5a.large</span><span class="w"></span>
+<span class="w">        </span><span class="nt">ImageId</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ami-0d88d9cbe28fac870</span><span class="w">  </span><span class="c1"># Unified CloudWatch agent pre-installed AMI, us-west-2</span><span class="w"></span>
+<span class="w">        </span><span class="nt">resources</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span><span class="w"></span>
+<span class="w">    </span><span class="nt">ray.worker.default</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">node_config</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="nt">InstanceType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">c5a.large</span><span class="w"></span>
+<span class="w">            </span><span class="nt">ImageId</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ami-0d88d9cbe28fac870</span><span class="w">  </span><span class="c1"># Unified CloudWatch agent pre-installed AMI, us-west-2</span><span class="w"></span>
+<span class="w">            </span><span class="nt">IamInstanceProfile</span><span class="p">:</span><span class="w"></span>
+<span class="w">                </span><span class="nt">Name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ray-autoscaler-cloudwatch-v1</span><span class="w"></span>
+<span class="w">        </span><span class="nt">resources</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span><span class="w"></span>
+<span class="w">        </span><span class="nt">min_workers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="download-cloudwatch-agent-and-dashboard-config">
+<h4>2. Download CloudWatch Agent and Dashboard config.<a class="headerlink" href="aws.html#download-cloudwatch-agent-and-dashboard-config" title="Permalink to this headline">#</a></h4>
+<p>First, create a <code class="docutils literal notranslate"><span class="pre">cloudwatch</span></code> directory in the same directory as <code class="docutils literal notranslate"><span class="pre">cloudwatch-basic.yaml</span></code>.
+Then, download the example <a class="reference external" href="https://github.com/ray-project/ray/blob/master/python/ray/autoscaler/aws/cloudwatch/example-cloudwatch-agent-config.json">CloudWatch Agent</a> and <a class="reference external" href="https://github.com/ray-project/ray/blob/master/python/ray/autoscaler/aws/cloudwatch/example-cloudwatch-dashboard-config.json">CloudWatch Dashboard</a> config files to the <code class="docutils literal notranslate"><span class="pre">cloudwatch</span></code> directory.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>mkdir cloudwatch
+<span class="gp">$ </span><span class="nb">cd</span> cloudwatch
+<span class="gp">$ </span>wget https://raw.githubusercontent.com/ray-project/ray/master/python/ray/autoscaler/aws/cloudwatch/example-cloudwatch-agent-config.json
+<span class="gp">$ </span>wget https://raw.githubusercontent.com/ray-project/ray/master/python/ray/autoscaler/aws/cloudwatch/example-cloudwatch-dashboard-config.json
+</pre></div>
+</div>
+</section>
+<section id="run-ray-up-cloudwatch-basic-yaml-to-start-your-ray-cluster">
+<h4>3. Run <code class="docutils literal notranslate"><span class="pre">ray</span> <span class="pre">up</span> <span class="pre">cloudwatch-basic.yaml</span></code> to start your Ray Cluster.<a class="headerlink" href="aws.html#run-ray-up-cloudwatch-basic-yaml-to-start-your-ray-cluster" title="Permalink to this headline">#</a></h4>
+<p>This will launch your Ray cluster in <code class="docutils literal notranslate"><span class="pre">us-west-2</span></code> by default. When launching a cluster for a different region, you’ll need to change your cluster config YAML file’s <code class="docutils literal notranslate"><span class="pre">region</span></code> AND <code class="docutils literal notranslate"><span class="pre">ImageId</span></code>.
+See the “Unified CloudWatch Agent Images” table above for available AMIs by region.</p>
+</section>
+<section id="check-out-your-ray-cluster-s-logs-metrics-and-dashboard-in-the-cloudwatch-console">
+<h4>4. Check out your Ray cluster’s logs, metrics, and dashboard in the <a class="reference external" href="https://console.aws.amazon.com/cloudwatch/">CloudWatch Console</a>!<a class="headerlink" href="aws.html#check-out-your-ray-cluster-s-logs-metrics-and-dashboard-in-the-cloudwatch-console" title="Permalink to this headline">#</a></h4>
+<p>A tail can be acquired on all logs written to a CloudWatch log group by ensuring that you have the <a class="reference external" href="https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html">AWS CLI V2+ installed</a> and then running:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>aws logs tail <span class="nv">$log_group_name</span> --follow
+</pre></div>
+</div>
+</section>
+</section>
+<section id="advanced-setup">
+<h3>Advanced Setup<a class="headerlink" href="aws.html#advanced-setup" title="Permalink to this headline">#</a></h3>
+<p>Refer to <a class="reference external" href="https://github.com/ray-project/ray/blob/master/python/ray/autoscaler/aws/example-cloudwatch.yaml">example-cloudwatch.yaml</a> for a complete example.</p>
+<section id="choose-an-ami-with-the-unified-cloudwatch-agent-pre-installed">
+<h4>1. Choose an AMI with the Unified CloudWatch Agent pre-installed.<a class="headerlink" href="aws.html#choose-an-ami-with-the-unified-cloudwatch-agent-pre-installed" title="Permalink to this headline">#</a></h4>
+<p>Ensure that you’re launching your Ray EC2 cluster in the same region as the AMI,
+then specify the <code class="docutils literal notranslate"><span class="pre">ImageId</span></code> to use with your cluster’s head and worker nodes in your cluster config YAML file.</p>
+<p>The following CLI command returns the latest available Unified CloudWatch Agent Image for <code class="docutils literal notranslate"><span class="pre">us-west-2</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>aws ec2 describe-images --region us-west-2 --filters <span class="s2">&quot;Name=owner-id,Values=160082703681&quot;</span> <span class="s2">&quot;Name=name,Values=*cloudwatch*&quot;</span> --query <span class="s1">&#39;Images[*].[ImageId,CreationDate]&#39;</span> --output text <span class="p">|</span> sort -k2 -r <span class="p">|</span> head -n1
+</pre></div>
+</div>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">available_node_types</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">ray.head.default</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">node_config</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">InstanceType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">c5a.large</span><span class="w"></span>
+<span class="w">        </span><span class="nt">ImageId</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ami-0d88d9cbe28fac870</span><span class="w"></span>
+<span class="w">    </span><span class="nt">ray.worker.default</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">node_config</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">InstanceType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">c5a.large</span><span class="w"></span>
+<span class="w">        </span><span class="nt">ImageId</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ami-0d88d9cbe28fac870</span><span class="w"></span>
+</pre></div>
+</div>
+<p>To build your own AMI with the Unified CloudWatch Agent installed:</p>
+<ol class="arabic simple">
+<li><p>Follow the <a class="reference external" href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/install-CloudWatch-Agent-on-EC2-Instance.html">CloudWatch Agent Installation</a> user guide to install the Unified CloudWatch Agent on an EC2 instance.</p></li>
+<li><p>Follow the <a class="reference external" href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html#creating-an-ami">EC2 AMI Creation</a> user guide to create an AMI from this EC2 instance.</p></li>
+</ol>
+</section>
+<section id="define-your-own-cloudwatch-agent-dashboard-and-alarm-json-config-files">
+<h4>2. Define your own CloudWatch Agent, Dashboard, and Alarm JSON config files.<a class="headerlink" href="aws.html#define-your-own-cloudwatch-agent-dashboard-and-alarm-json-config-files" title="Permalink to this headline">#</a></h4>
+<p>You can start by using the example <a class="reference external" href="https://github.com/ray-project/ray/blob/master/python/ray/autoscaler/aws/cloudwatch/example-cloudwatch-agent-config.json">CloudWatch Agent</a>, <a class="reference external" href="https://github.com/ray-project/ray/blob/master/python/ray/autoscaler/aws/cloudwatch/example-cloudwatch-dashboard-config.json">CloudWatch Dashboard</a> and <a class="reference external" href="https://github.com/ray-project/ray/blob/master/python/ray/autoscaler/aws/cloudwatch/example-cloudwatch-alarm-config.json">CloudWatch Alarm</a> config files.</p>
+<p>These example config files include the following features:</p>
+<p><strong>Logs and Metrics</strong>:  Logs written to <code class="docutils literal notranslate"><span class="pre">/tmp/ray/session_*/logs/**.out</span></code> will be available in the <code class="docutils literal notranslate"><span class="pre">{cluster_name}-ray_logs_out</span></code> log group,
+and logs written to <code class="docutils literal notranslate"><span class="pre">/tmp/ray/session_*/logs/**.err</span></code> will be available in the <code class="docutils literal notranslate"><span class="pre">{cluster_name}-ray_logs_err</span></code> log group.
+Log streams are named after the EC2 instance ID that emitted their logs.
+Extended EC2 metrics including CPU/Disk/Memory usage and process statistics can be found in the <code class="docutils literal notranslate"><span class="pre">{cluster_name}-ray-CWAgent</span></code> metric namespace.</p>
+<p><strong>Dashboard</strong>: You will have a cluster-level dashboard showing total cluster CPUs and available object store memory.
+Process counts, disk usage, memory usage, and CPU utilization will be displayed as both cluster-level sums and single-node maximums/averages.</p>
+<p><strong>Alarms</strong>: Node-level alarms tracking prolonged high memory, disk, and CPU usage are configured. Alarm actions are NOT set,
+and must be manually provided in your alarm config file.</p>
+<p>For more advanced options, see the <a class="reference external" href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-Agent-Configuration-File-Details.html">Agent</a>, <a class="reference external" href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/CloudWatch-Dashboard-Body-Structure.html">Dashboard</a> and <a class="reference external" href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_PutMetricAlarm.html">Alarm</a> config user guides.</p>
+<p>CloudWatch Agent, Dashboard, and Alarm JSON config files support the following variables:</p>
+<p><code class="docutils literal notranslate"><span class="pre">{instance_id}</span></code>: Replaced with each EC2 instance ID in your Ray cluster.</p>
+<p><code class="docutils literal notranslate"><span class="pre">{region}</span></code>: Replaced with your Ray cluster’s region.</p>
+<p><code class="docutils literal notranslate"><span class="pre">{cluster_name}</span></code>: Replaced with your Ray cluster name.</p>
+<p>See CloudWatch Agent <a class="reference external" href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-Agent-Configuration-File-Details.html">Configuration File Details</a> for additional variables supported natively by the Unified CloudWatch Agent.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Remember to replace the <code class="docutils literal notranslate"><span class="pre">AlarmActions</span></code> placeholder in your CloudWatch Alarm config file!</p>
+</div>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;AlarmActions&quot;</span><span class="p">:[</span><span class="w"></span>
+<span class="w">    </span><span class="s2">&quot;TODO: Add alarm actions! See https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html&quot;</span><span class="w"></span>
+<span class="w"> </span><span class="p">]</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="reference-your-cloudwatch-json-config-files-in-your-cluster-config-yaml">
+<h4>3. Reference your CloudWatch JSON config files in your cluster config YAML.<a class="headerlink" href="aws.html#reference-your-cloudwatch-json-config-files-in-your-cluster-config-yaml" title="Permalink to this headline">#</a></h4>
+<p>Specify the file path to your CloudWatch JSON config files relative to the working directory that you will run <code class="docutils literal notranslate"><span class="pre">ray</span> <span class="pre">up</span></code> from:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">provider</span><span class="p">:</span><span class="w"></span>
+<span class="w">   </span><span class="nt">cloudwatch</span><span class="p">:</span><span class="w"></span>
+<span class="w">       </span><span class="nt">agent</span><span class="p">:</span><span class="w"></span>
+<span class="w">           </span><span class="nt">config</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;cloudwatch/example-cloudwatch-agent-config.json&quot;</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="set-your-iam-role-and-ec2-instance-profile">
+<h4>4. Set your IAM Role and EC2 Instance Profile.<a class="headerlink" href="aws.html#set-your-iam-role-and-ec2-instance-profile" title="Permalink to this headline">#</a></h4>
+<p>By default the <code class="docutils literal notranslate"><span class="pre">ray-autoscaler-cloudwatch-v1</span></code> IAM role and EC2 instance profile is created at Ray cluster launch time.
+This role contains all additional permissions required to integrate CloudWatch with Ray, namely the <code class="docutils literal notranslate"><span class="pre">CloudWatchAgentAdminPolicy</span></code>, <code class="docutils literal notranslate"><span class="pre">AmazonSSMManagedInstanceCore</span></code>, <code class="docutils literal notranslate"><span class="pre">ssm:SendCommand</span></code>, <code class="docutils literal notranslate"><span class="pre">ssm:ListCommandInvocations</span></code>, and <code class="docutils literal notranslate"><span class="pre">iam:PassRole</span></code> managed policies.</p>
+<p>Ensure that all worker nodes are configured to use the <code class="docutils literal notranslate"><span class="pre">ray-autoscaler-cloudwatch-v1</span></code> EC2 instance profile in your cluster config YAML:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">ray.worker.default</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">node_config</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">InstanceType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">c5a.large</span><span class="w"></span>
+<span class="w">        </span><span class="nt">IamInstanceProfile</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="nt">Name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ray-autoscaler-cloudwatch-v1</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="export-ray-system-metrics-to-cloudwatch">
+<h4>5. Export Ray system metrics to CloudWatch.<a class="headerlink" href="aws.html#export-ray-system-metrics-to-cloudwatch" title="Permalink to this headline">#</a></h4>
+<p>To export Ray’s Prometheus system metrics to CloudWatch, first ensure that your cluster has the
+Ray Dashboard installed, then uncomment the <code class="docutils literal notranslate"><span class="pre">head_setup_commands</span></code> section in <a class="reference external" href="https://github.com/ray-project/ray/blob/master/python/ray/autoscaler/aws/example-cloudwatch.yaml">example-cloudwatch.yaml file</a> file.
+You can find Ray Prometheus metrics in the <code class="docutils literal notranslate"><span class="pre">{cluster_name}-ray-prometheus</span></code> metric namespace.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="w">  </span><span class="nt">head_setup_commands</span><span class="p">:</span><span class="w"></span>
+<span class="c1"># Make `ray_prometheus_waiter.sh` executable.</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">&gt;-</span><span class="w"></span>
+<span class="w">  </span><span class="no">RAY_INSTALL_DIR=`pip show ray | grep -Po &quot;(?&lt;=Location:).*&quot;`</span><span class="w"></span>
+<span class="w">  </span><span class="no">&amp;&amp; sudo chmod +x $RAY_INSTALL_DIR/ray/autoscaler/aws/cloudwatch/ray_prometheus_waiter.sh</span><span class="w"></span>
+<span class="c1"># Copy `prometheus.yml` to Unified CloudWatch Agent folder</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">&gt;-</span><span class="w"></span>
+<span class="w">  </span><span class="no">RAY_INSTALL_DIR=`pip show ray | grep -Po &quot;(?&lt;=Location:).*&quot;`</span><span class="w"></span>
+<span class="w">  </span><span class="no">&amp;&amp; sudo cp -f $RAY_INSTALL_DIR/ray/autoscaler/aws/cloudwatch/prometheus.yml /opt/aws/amazon-cloudwatch-agent/etc</span><span class="w"></span>
+<span class="c1"># First get current cluster name, then let the Unified CloudWatch Agent restart and use `AmazonCloudWatch-ray_agent_config_{cluster_name}` parameter at SSM Parameter Store.</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">&gt;-</span><span class="w"></span>
+<span class="w">  </span><span class="no">nohup sudo sh -c &quot;`pip show ray | grep -Po &quot;(?&lt;=Location:).*&quot;`/ray/autoscaler/aws/cloudwatch/ray_prometheus_waiter.sh</span><span class="w"></span>
+<span class="w">  </span><span class="no">`cat ~/ray_bootstrap_config.yaml | jq &#39;.cluster_name&#39;`</span><span class="w"></span>
+<span class="w">  </span><span class="no">&gt;&gt; &#39;/opt/aws/amazon-cloudwatch-agent/logs/ray_prometheus_waiter.out&#39; 2&gt;&gt; &#39;/opt/aws/amazon-cloudwatch-agent/logs/ray_prometheus_waiter.err&#39;&quot; &amp;</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="update-cloudwatch-agent-dashboard-and-alarm-config-files">
+<h4>6. Update CloudWatch Agent, Dashboard and Alarm config files.<a class="headerlink" href="aws.html#update-cloudwatch-agent-dashboard-and-alarm-config-files" title="Permalink to this headline">#</a></h4>
+<p>You can apply changes to the CloudWatch Logs, Metrics, Dashboard, and Alarms for your cluster by simply modifying the CloudWatch config files referenced by your Ray cluster config YAML and re-running <code class="docutils literal notranslate"><span class="pre">ray</span> <span class="pre">up</span> <span class="pre">example-cloudwatch.yaml</span></code>.
+The Unified CloudWatch Agent will be automatically restarted on all cluster nodes, and your config changes will be applied.</p>
+</section>
+</section>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="index.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Launching Ray Clusters on AWS, GCP, Azure, On-Prem</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="gcp.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Launching Ray Clusters on GCP</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

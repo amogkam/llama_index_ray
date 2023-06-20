@@ -1,0 +1,1582 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Using Predictors for Inference &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/js/versionwarning.js"></script>
+    <script src="../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../_static/js/docsearch.js"></script>
+    <script src="../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../_static/js/termynal.js"></script>
+    <script defer="defer" src="../_static/js/custom.js"></script>
+    <script defer="defer" src="../_static/js/top-navigation.js"></script>
+    <script src="../_static/js/tags.js"></script>
+    <script src="../_static/tabs.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../_static/design-tabs.js"></script>
+    <script async="async" src="../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/ray-air/predictors.html" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Computer Vision" href="computer-vision.html" />
+    <link rel="prev" title="Configuring Hyperparameter Tuning" href="tuner.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "ray-air/predictors", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".rst", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="user-guides.html">
+     User Guides
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="preprocessors.html">
+       Using Preprocessors
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="trainers.html">
+       Using Trainers
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="check-ingest.html">
+       Configuring Training Datasets
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tuner.html">
+       Configuring Hyperparameter Tuning
+      </a>
+     </li>
+     <li class="toctree-l3 current active">
+      <a class="current reference internal" href="predictors.html#">
+       Using Predictors for Inference
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="computer-vision.html">
+       Computer Vision
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="examples/serving_guide.html">
+       Deploying Predictors with Serve
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="deployment.html">
+       How to Deploy AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="experimental-features.html">
+       Experimental features in Ray AIR
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="examples/index.html">
+     Examples
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="api/api.html">
+     Ray AIR API
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="benchmarks.html">
+     Benchmarks
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../tune.html">
+   Ray Tune
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Fray-air/predictors.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/ray-air/predictors.rst"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../_sources/ray-air/predictors.rst.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.rst</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="predictors.html#what-are-predictors">
+   What are predictors?
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="predictors.html#batch-prediction">
+   Batch Prediction
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="predictors.html#configuring-batch-prediction">
+   Configuring Batch Prediction
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="predictors.html#batch-inference-examples">
+   Batch Inference Examples
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="predictors.html#tabular">
+     Tabular
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="predictors.html#image">
+     Image
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="predictors.html#text">
+     Text
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="predictors.html#developer-guide-implementing-your-own-predictor">
+   Developer Guide: Implementing your own Predictor
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="predictors.html#examples">
+     Examples
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="predictors.html#before-you-begin">
+       Before you begin
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="predictors.html#create-a-model">
+       Create a model
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="predictors.html#implement-init">
+       Implement
+       <code class="xref py py-obj docutils literal notranslate">
+        <span class="pre">
+         __init__
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="predictors.html#implement-from-checkpoint">
+       Implement
+       <code class="xref py py-obj docutils literal notranslate">
+        <span class="pre">
+         from_checkpoint
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="predictors.html#implement-predict-numpy-or-predict-pandas">
+       Implement
+       <code class="xref py py-obj docutils literal notranslate">
+        <span class="pre">
+         _predict_numpy
+        </span>
+       </code>
+       or
+       <code class="xref py py-obj docutils literal notranslate">
+        <span class="pre">
+         _predict_pandas
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="predictors.html#perform-inference">
+       Perform inference
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="predictors.html#lazy-pipelined-prediction-experimental">
+   Lazy/Pipelined Prediction (experimental)
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="predictors.html#online-inference">
+   Online Inference
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Using Predictors for Inference</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="predictors.html#what-are-predictors">
+   What are predictors?
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="predictors.html#batch-prediction">
+   Batch Prediction
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="predictors.html#configuring-batch-prediction">
+   Configuring Batch Prediction
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="predictors.html#batch-inference-examples">
+   Batch Inference Examples
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="predictors.html#tabular">
+     Tabular
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="predictors.html#image">
+     Image
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="predictors.html#text">
+     Text
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="predictors.html#developer-guide-implementing-your-own-predictor">
+   Developer Guide: Implementing your own Predictor
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="predictors.html#examples">
+     Examples
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="predictors.html#before-you-begin">
+       Before you begin
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="predictors.html#create-a-model">
+       Create a model
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="predictors.html#implement-init">
+       Implement
+       <code class="xref py py-obj docutils literal notranslate">
+        <span class="pre">
+         __init__
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="predictors.html#implement-from-checkpoint">
+       Implement
+       <code class="xref py py-obj docutils literal notranslate">
+        <span class="pre">
+         from_checkpoint
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="predictors.html#implement-predict-numpy-or-predict-pandas">
+       Implement
+       <code class="xref py py-obj docutils literal notranslate">
+        <span class="pre">
+         _predict_numpy
+        </span>
+       </code>
+       or
+       <code class="xref py py-obj docutils literal notranslate">
+        <span class="pre">
+         _predict_pandas
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="predictors.html#perform-inference">
+       Perform inference
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="predictors.html#lazy-pipelined-prediction-experimental">
+   Lazy/Pipelined Prediction (experimental)
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="predictors.html#online-inference">
+   Online Inference
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section id="using-predictors-for-inference">
+<span id="air-predictors"></span><h1>Using Predictors for Inference<a class="headerlink" href="predictors.html#using-predictors-for-inference" title="Permalink to this headline">#</a></h1>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Refer to the blog on <a class="reference external" href="https://www.anyscale.com/blog/model-batch-inference-in-ray-actors-actorpool-and-datasets">Model Batch Inference in Ray</a>
+for an overview of batch inference strategies in Ray and additional examples.</p>
+</div>
+<img alt="../_images/predictors.png" src="../_images/predictors.png" />
+<p>After you train a model, you will often want to use the model to do inference and prediction.
+To do so, you can use a Ray AIR Predictor. In this guide, we’ll cover how to use the Predictor
+on different types of data.</p>
+<section id="what-are-predictors">
+<h2>What are predictors?<a class="headerlink" href="predictors.html#what-are-predictors" title="Permalink to this headline">#</a></h2>
+<p>Ray AIR Predictors are a class that loads models from <code class="xref py py-obj docutils literal notranslate"><span class="pre">Checkpoint</span></code> to perform inference.</p>
+<p>Predictors are used by <code class="xref py py-obj docutils literal notranslate"><span class="pre">BatchPredictor</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">PredictorDeployment</span></code> to do large-scale scoring or online inference.</p>
+<p>Let’s walk through a basic usage of the Predictor. In the below example, we create <code class="xref py py-obj docutils literal notranslate"><span class="pre">Checkpoint</span></code> object from a model definition.
+Checkpoints can be generated from a variety of different ways – see the <a class="reference internal" href="key-concepts.html#air-checkpoints-doc"><span class="std std-ref">Checkpoints</span></a> user guide for more details.</p>
+<p>The checkpoint then is used to create a framework specific Predictor (in our example, a <code class="xref py py-obj docutils literal notranslate"><span class="pre">TensorflowPredictor</span></code>), which then can be used for inference:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+<span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">from</span> <span class="nn">ray.train.batch_predictor</span> <span class="kn">import</span> <span class="n">BatchPredictor</span>
+<span class="kn">from</span> <span class="nn">ray.train.tensorflow</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">TensorflowCheckpoint</span><span class="p">,</span>
+    <span class="n">TensorflowPredictor</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">build_model</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">Model</span><span class="p">:</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">InputLayer</span><span class="p">(</span><span class="n">input_shape</span><span class="o">=</span><span class="p">()),</span>
+            <span class="c1"># Add feature dimension, expanding (batch_size,) to (batch_size, 1).</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Flatten</span><span class="p">(),</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">model</span>
+
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">build_model</span><span class="p">()</span>
+<span class="n">checkpoint</span> <span class="o">=</span> <span class="n">TensorflowCheckpoint</span><span class="o">.</span><span class="n">from_model</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<span class="n">predictor</span> <span class="o">=</span> <span class="n">TensorflowPredictor</span><span class="o">.</span><span class="n">from_checkpoint</span><span class="p">(</span>
+    <span class="n">checkpoint</span><span class="p">,</span> <span class="n">model_definition</span><span class="o">=</span><span class="n">build_model</span>
+<span class="p">)</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span>
+<span class="n">predictions</span> <span class="o">=</span> <span class="n">predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">predictions</span><span class="p">)</span>
+<span class="c1"># [[-1.6930283]</span>
+<span class="c1">#  [-3.3860567]</span>
+<span class="c1">#  [-5.079085 ]</span>
+<span class="c1">#  [-6.7721133]]</span>
+</pre></div>
+</div>
+<p>Predictors expose a <code class="docutils literal notranslate"><span class="pre">predict</span></code> method that accepts an input batch of type <code class="docutils literal notranslate"><span class="pre">DataBatchType</span></code> (which is a typing union of different standard Python ecosystem data types, such as Pandas Dataframe or Numpy Array) and outputs predictions of the same type as the input batch.</p>
+<p><strong>Life of a prediction:</strong> Underneath the hood, when the <code class="docutils literal notranslate"><span class="pre">Predictor.predict</span></code> method is called the following occurs:</p>
+<ul class="simple">
+<li><p>The input batch is converted into a Pandas DataFrame. Tensor input (like a <code class="docutils literal notranslate"><span class="pre">np.ndarray</span></code>) will be converted into a single-column Pandas Dataframe.</p></li>
+<li><p>If there is a <a class="reference internal" href="api/preprocessor.html#air-preprocessor-ref"><span class="std std-ref">Preprocessor</span></a> saved in the provided <a class="reference internal" href="api/checkpoint.html#air-checkpoint-ref"><span class="std std-ref">Checkpoint</span></a>, the preprocessor will be used to transform the DataFrame.</p></li>
+<li><p>The transformed DataFrame will be passed to the model for inference.</p></li>
+<li><p>The predictions will be outputted by <code class="docutils literal notranslate"><span class="pre">predict</span></code> in the same type as the original input.</p></li>
+</ul>
+</section>
+<section id="batch-prediction">
+<span id="id1"></span><h2>Batch Prediction<a class="headerlink" href="predictors.html#batch-prediction" title="Permalink to this headline">#</a></h2>
+<p>Ray AIR provides a <code class="docutils literal notranslate"><span class="pre">BatchPredictor</span></code> utility for large-scale batch inference.</p>
+<p>The BatchPredictor takes in a checkpoint and a predictor class and executes
+large-scale batch prediction on a given dataset in a parallel/distributed fashion when calling <code class="docutils literal notranslate"><span class="pre">predict()</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">predict()</span></code> will load the entire given dataset into memory, which may be a problem if your dataset
+size is larger than your available cluster memory. See the <a class="reference internal" href="predictors.html#pipelined-prediction"><span class="std std-ref">Lazy/Pipelined Prediction (experimental)</span></a> section for a workaround.</p>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">ray.train.batch_predictor</span> <span class="kn">import</span> <span class="n">BatchPredictor</span>
+
+<span class="n">batch_predictor</span> <span class="o">=</span> <span class="n">BatchPredictor</span><span class="p">(</span>
+    <span class="n">checkpoint</span><span class="p">,</span> <span class="n">TensorflowPredictor</span><span class="p">,</span> <span class="n">model_definition</span><span class="o">=</span><span class="n">build_model</span>
+<span class="p">)</span>
+<span class="c1"># Create a dummy dataset.</span>
+<span class="n">ds</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">from_pandas</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;feature_1&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]}))</span>
+
+<span class="c1"># Use `feature_columns` to specify the input columns to your model.</span>
+<span class="n">predictions</span> <span class="o">=</span> <span class="n">batch_predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">feature_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;feature_1&quot;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">predictions</span><span class="o">.</span><span class="n">show</span><span class="p">())</span>
+<span class="c1"># {&#39;predictions&#39;: array([-1.2789773], dtype=float32)}</span>
+<span class="c1"># {&#39;predictions&#39;: array([-2.5579545], dtype=float32)}</span>
+<span class="c1"># {&#39;predictions&#39;: array([-3.8369317], dtype=float32)}</span>
+</pre></div>
+</div>
+<p>Additionally, you can compute metrics from the predictions. Do this by:</p>
+<ol class="arabic simple">
+<li><p>specifying a function for computing metrics</p></li>
+<li><p>using <code class="xref py py-obj docutils literal notranslate"><span class="pre">keep_columns</span></code> to keep the label column in the returned dataset</p></li>
+<li><p>using <code class="xref py py-obj docutils literal notranslate"><span class="pre">map_batches</span></code> to compute metrics on a batch-by-batch basis</p></li>
+<li><p>Aggregate batch metrics via <code class="xref py py-obj docutils literal notranslate"><span class="pre">mean()</span></code></p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">calculate_accuracy</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;correct&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;predictions&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]})</span>
+
+
+<span class="n">predictions</span> <span class="o">=</span> <span class="n">batch_predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">,</span> <span class="n">feature_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;feature_1&quot;</span><span class="p">],</span> <span class="n">keep_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">predictions</span><span class="o">.</span><span class="n">show</span><span class="p">())</span>
+<span class="c1"># {&#39;predictions&#39;: array([-1.2789773], dtype=float32), &#39;label&#39;: 0}</span>
+<span class="c1"># {&#39;predictions&#39;: array([-2.5579545], dtype=float32), &#39;label&#39;: 1}</span>
+<span class="c1"># {&#39;predictions&#39;: array([-3.8369317], dtype=float32), &#39;label&#39;: 0}</span>
+
+<span class="n">correct</span> <span class="o">=</span> <span class="n">predictions</span><span class="o">.</span><span class="n">map_batches</span><span class="p">(</span><span class="n">calculate_accuracy</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Final accuracy: &quot;</span><span class="p">,</span> <span class="n">correct</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">on</span><span class="o">=</span><span class="s2">&quot;correct&quot;</span><span class="p">))</span>
+<span class="c1"># Final accuracy:  0.5</span>
+</pre></div>
+</div>
+</section>
+<section id="configuring-batch-prediction">
+<h2>Configuring Batch Prediction<a class="headerlink" href="predictors.html#configuring-batch-prediction" title="Permalink to this headline">#</a></h2>
+<p>To configure the computation resources for your <code class="xref py py-obj docutils literal notranslate"><span class="pre">BatchPredictor</span></code>, you have to set the following parameters in <code class="xref py py-obj docutils literal notranslate"><span class="pre">predict()</span></code>:</p>
+<ul class="simple">
+<li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">min_scoring_workers</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">max_scoring_workers</span></code></p>
+<ul>
+<li><p>The BatchPredictor will internally create an actor pool to autoscale the number of workers from [min, max] to execute your transforms.</p></li>
+<li><p>If not set, the auto-scaling range will be set to [1, inf) by default.</p></li>
+</ul>
+</li>
+<li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_gpus_per_worker</span></code>:</p>
+<ul>
+<li><p>If you want to use GPU for batch prediction, please set this parameter explicitly.</p></li>
+<li><p>If not specified, the BatchPredictor will perform inference on CPUs by default.</p></li>
+</ul>
+</li>
+<li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_cpus_per_worker</span></code>:</p>
+<ul>
+<li><p>Set the number of CPUs for a worker.</p></li>
+</ul>
+</li>
+<li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">separate_gpu_stage</span></code>:</p>
+<ul>
+<li><p>If using GPUs, whether to use separate stages for GPU inference and data preprocessing.</p></li>
+<li><p>Enabled by default to avoid excessive preprocessing workload on GPU workers. You may disable it if your preprocessor is very lightweight.</p></li>
+</ul>
+</li>
+</ul>
+<p>Here are some examples:</p>
+<p><strong>1. Use multiple CPUs for Batch Prediction:</strong></p>
+<ul class="simple">
+<li><p>If <code class="xref py py-obj docutils literal notranslate"><span class="pre">num_gpus_per_worker</span></code> not specified, use CPUs for batch prediction by default.</p></li>
+<li><p>Two workers with 3 CPUs each.</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">predictions</span> <span class="o">=</span> <span class="n">batch_predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">,</span>
+    <span class="n">feature_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;feature_1&quot;</span><span class="p">],</span>
+    <span class="n">min_scoring_workers</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">max_scoring_workers</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">num_cpus_per_worker</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>2. Use multiple GPUs for Batch prediction:</strong></p>
+<ul class="simple">
+<li><p>Two workers, each with 1 GPU and 1 CPU (by default).</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">predictions</span> <span class="o">=</span> <span class="n">batch_predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">,</span>
+    <span class="n">feature_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;feature_1&quot;</span><span class="p">],</span>
+    <span class="n">min_scoring_workers</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">max_scoring_workers</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">num_gpus_per_worker</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>3. Configure Auto-scaling:</strong></p>
+<ul class="simple">
+<li><p>Scale from 1 to 4 workers, depending on your dataset size and cluster resources.</p></li>
+<li><p>If no min/max values are provided, <code class="xref py py-obj docutils literal notranslate"><span class="pre">BatchPredictor</span></code> will scale from 1 to inf workers by default.</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">predictions</span> <span class="o">=</span> <span class="n">batch_predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">,</span>
+    <span class="n">feature_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;feature_1&quot;</span><span class="p">],</span>
+    <span class="n">min_scoring_workers</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">max_scoring_workers</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="n">num_cpus_per_worker</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="batch-inference-examples">
+<h2>Batch Inference Examples<a class="headerlink" href="predictors.html#batch-inference-examples" title="Permalink to this headline">#</a></h2>
+<p>Below, we provide examples of using common frameworks to do batch inference for different data types:</p>
+<section id="tabular">
+<h3>Tabular<a class="headerlink" href="predictors.html#tabular" title="Permalink to this headline">#</a></h3>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
+</input><label class="sd-tab-label" for="sd-tab-item-0">
+XGBoost</label><div class="sd-tab-content docutils">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">from</span> <span class="nn">ray.data.preprocessors</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
+<span class="kn">from</span> <span class="nn">ray.train.batch_predictor</span> <span class="kn">import</span> <span class="n">BatchPredictor</span>
+<span class="kn">from</span> <span class="nn">ray.train.xgboost</span> <span class="kn">import</span> <span class="n">XGBoostTrainer</span><span class="p">,</span> <span class="n">XGBoostPredictor</span>
+<span class="kn">from</span> <span class="nn">ray.air.config</span> <span class="kn">import</span> <span class="n">ScalingConfig</span>
+
+<span class="c1"># Split data into train and validation.</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;s3://anonymous@air-example-data/breast_cancer.csv&quot;</span><span class="p">)</span>
+<span class="n">train_dataset</span><span class="p">,</span> <span class="n">valid_dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">train_test_split</span><span class="p">(</span><span class="n">test_size</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="n">test_dataset</span> <span class="o">=</span> <span class="n">valid_dataset</span><span class="o">.</span><span class="n">drop_columns</span><span class="p">([</span><span class="s2">&quot;target&quot;</span><span class="p">])</span>
+
+<span class="n">columns_to_scale</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;mean radius&quot;</span><span class="p">,</span> <span class="s2">&quot;mean texture&quot;</span><span class="p">]</span>
+<span class="n">preprocessor</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">columns_to_scale</span><span class="p">)</span>
+
+<span class="n">trainer</span> <span class="o">=</span> <span class="n">XGBoostTrainer</span><span class="p">(</span>
+    <span class="n">label_column</span><span class="o">=</span><span class="s2">&quot;target&quot;</span><span class="p">,</span>
+    <span class="n">num_boost_round</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+    <span class="n">scaling_config</span><span class="o">=</span><span class="n">ScalingConfig</span><span class="p">(</span><span class="n">num_workers</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
+    <span class="n">params</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;objective&quot;</span><span class="p">:</span> <span class="s2">&quot;binary:logistic&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;eval_metric&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;logloss&quot;</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">],</span>
+    <span class="p">},</span>
+    <span class="n">datasets</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;train&quot;</span><span class="p">:</span> <span class="n">train_dataset</span><span class="p">},</span>
+    <span class="n">preprocessor</span><span class="o">=</span><span class="n">preprocessor</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+
+<span class="c1"># You can also create a checkpoint from a trained model using</span>
+<span class="c1"># `XGBoostCheckpoint.from_model`.</span>
+
+<span class="c1"># import xgboost as xgb</span>
+<span class="c1"># from ray.train.xgboost import XGBoostCheckpoint</span>
+<span class="c1"># model = xgb.Booster()</span>
+<span class="c1"># model.load_model(...)</span>
+<span class="c1"># checkpoint = XGBoostCheckpoint.from_model(model, path=&quot;.&quot;)</span>
+<span class="n">checkpoint</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">checkpoint</span>
+
+<span class="n">batch_predictor</span> <span class="o">=</span> <span class="n">BatchPredictor</span><span class="o">.</span><span class="n">from_checkpoint</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">,</span> <span class="n">XGBoostPredictor</span><span class="p">)</span>
+
+<span class="n">predicted_probabilities</span> <span class="o">=</span> <span class="n">batch_predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">)</span>
+<span class="c1"># Call show on the output probabilities to trigger execution.</span>
+<span class="n">predicted_probabilities</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
+</input><label class="sd-tab-label" for="sd-tab-item-1">
+Pytorch</label><div class="sd-tab-content docutils">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+
+<span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">from</span> <span class="nn">ray.data.preprocessors</span> <span class="kn">import</span> <span class="n">Concatenator</span>
+<span class="kn">from</span> <span class="nn">ray.train.torch</span> <span class="kn">import</span> <span class="n">TorchCheckpoint</span><span class="p">,</span> <span class="n">TorchPredictor</span>
+<span class="kn">from</span> <span class="nn">ray.train.batch_predictor</span> <span class="kn">import</span> <span class="n">BatchPredictor</span>
+
+
+<span class="k">def</span> <span class="nf">create_model</span><span class="p">(</span><span class="n">input_features</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">in_features</span><span class="o">=</span><span class="n">input_features</span><span class="p">,</span> <span class="n">out_features</span><span class="o">=</span><span class="mi">16</span><span class="p">),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">Sigmoid</span><span class="p">(),</span>
+    <span class="p">)</span>
+
+
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;s3://anonymous@air-example-data/breast_cancer.csv&quot;</span><span class="p">)</span>
+
+<span class="c1"># All columns are features except the target column.</span>
+<span class="n">num_features</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">schema</span><span class="p">()</span><span class="o">.</span><span class="n">names</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+
+<span class="c1"># Specify a preprocessor to concatenate all feature columns.</span>
+<span class="n">prep</span> <span class="o">=</span> <span class="n">Concatenator</span><span class="p">(</span>
+    <span class="n">output_column_name</span><span class="o">=</span><span class="s2">&quot;concat_features&quot;</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;target&quot;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span>
+<span class="p">)</span>
+
+<span class="n">checkpoint</span> <span class="o">=</span> <span class="n">TorchCheckpoint</span><span class="o">.</span><span class="n">from_model</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">create_model</span><span class="p">(</span><span class="n">num_features</span><span class="p">),</span> <span class="n">preprocessor</span><span class="o">=</span><span class="n">prep</span>
+<span class="p">)</span>
+<span class="c1"># You can also fetch a checkpoint from a Trainer</span>
+<span class="c1"># checkpoint = best_result.checkpoint</span>
+
+<span class="n">batch_predictor</span> <span class="o">=</span> <span class="n">BatchPredictor</span><span class="o">.</span><span class="n">from_checkpoint</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">,</span> <span class="n">TorchPredictor</span><span class="p">)</span>
+
+<span class="c1"># Predict on the features.</span>
+<span class="n">predicted_probabilities</span> <span class="o">=</span> <span class="n">batch_predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span>
+    <span class="n">dataset</span><span class="p">,</span> <span class="n">feature_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;concat_features&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+<span class="c1"># Call show on the output probabilities to trigger execution.</span>
+<span class="n">predicted_probabilities</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="c1"># {&#39;predictions&#39;: array([1.], dtype=float32)}</span>
+<span class="c1"># {&#39;predictions&#39;: array([0.], dtype=float32)}</span>
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-2" name="sd-tab-set-0" type="radio">
+</input><label class="sd-tab-label" for="sd-tab-item-2">
+Tensorflow</label><div class="sd-tab-content docutils">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">from</span> <span class="nn">ray.data.preprocessors</span> <span class="kn">import</span> <span class="n">Concatenator</span>
+<span class="kn">from</span> <span class="nn">ray.train.tensorflow</span> <span class="kn">import</span> <span class="n">TensorflowCheckpoint</span><span class="p">,</span> <span class="n">TensorflowPredictor</span>
+<span class="kn">from</span> <span class="nn">ray.train.batch_predictor</span> <span class="kn">import</span> <span class="n">BatchPredictor</span>
+
+
+<span class="k">def</span> <span class="nf">create_model</span><span class="p">(</span><span class="n">input_features</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">tensorflow</span> <span class="kn">import</span> <span class="n">keras</span>  <span class="c1"># this is needed for tf&lt;2.9</span>
+    <span class="kn">from</span> <span class="nn">tensorflow.keras</span> <span class="kn">import</span> <span class="n">layers</span>
+
+    <span class="k">return</span> <span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">keras</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">input_features</span><span class="p">,)),</span>
+            <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">),</span>
+            <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">),</span>
+            <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;sigmoid&quot;</span><span class="p">),</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+
+
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;s3://anonymous@air-example-data/breast_cancer.csv&quot;</span><span class="p">)</span>
+
+<span class="c1"># All columns are features except the target column.</span>
+<span class="n">num_features</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">schema</span><span class="p">()</span><span class="o">.</span><span class="n">names</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+
+<span class="c1"># Specify a preprocessor to concatenate all feature columns.</span>
+<span class="n">prep</span> <span class="o">=</span> <span class="n">Concatenator</span><span class="p">(</span>
+    <span class="n">output_column_name</span><span class="o">=</span><span class="s2">&quot;concat_features&quot;</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;target&quot;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span>
+<span class="p">)</span>
+
+<span class="n">checkpoint</span> <span class="o">=</span> <span class="n">TensorflowCheckpoint</span><span class="o">.</span><span class="n">from_model</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">create_model</span><span class="p">(</span><span class="n">num_features</span><span class="p">),</span> <span class="n">preprocessor</span><span class="o">=</span><span class="n">prep</span>
+<span class="p">)</span>
+<span class="c1"># You can also fetch a checkpoint from a Trainer</span>
+<span class="c1"># checkpoint = trainer.fit().checkpoint</span>
+
+<span class="n">batch_predictor</span> <span class="o">=</span> <span class="n">BatchPredictor</span><span class="o">.</span><span class="n">from_checkpoint</span><span class="p">(</span>
+    <span class="n">checkpoint</span><span class="p">,</span> <span class="n">TensorflowPredictor</span><span class="p">,</span> <span class="n">model_definition</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">create_model</span><span class="p">(</span><span class="n">num_features</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">predicted_probabilities</span> <span class="o">=</span> <span class="n">batch_predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span>
+    <span class="n">dataset</span><span class="p">,</span> <span class="n">feature_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;concat_features&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+<span class="c1"># Call show on the output probabilities to trigger execution.</span>
+<span class="n">predicted_probabilities</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="c1"># {&#39;predictions&#39;: array([1.], dtype=float32)}</span>
+<span class="c1"># {&#39;predictions&#39;: array([0.], dtype=float32)}</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="image">
+<h3>Image<a class="headerlink" href="predictors.html#image" title="Permalink to this headline">#</a></h3>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-3" name="sd-tab-set-1" type="radio">
+</input><label class="sd-tab-label" for="sd-tab-item-3">
+Pytorch</label><div class="sd-tab-content docutils">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">torchvision</span> <span class="kn">import</span> <span class="n">transforms</span>
+<span class="kn">from</span> <span class="nn">torchvision.models</span> <span class="kn">import</span> <span class="n">resnet18</span>
+
+<span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">from</span> <span class="nn">ray.train.torch</span> <span class="kn">import</span> <span class="n">TorchCheckpoint</span><span class="p">,</span> <span class="n">TorchPredictor</span>
+<span class="kn">from</span> <span class="nn">ray.train.batch_predictor</span> <span class="kn">import</span> <span class="n">BatchPredictor</span>
+<span class="kn">from</span> <span class="nn">ray.data.preprocessors</span> <span class="kn">import</span> <span class="n">TorchVisionPreprocessor</span>
+
+
+<span class="n">data_url</span> <span class="o">=</span> <span class="s2">&quot;s3://anonymous@air-example-data-2/1G-image-data-synthetic-raw&quot;</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Running GPU batch prediction with 1GB data from </span><span class="si">{</span><span class="n">data_url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">read_images</span><span class="p">(</span><span class="n">data_url</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">))</span><span class="o">.</span><span class="n">limit</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">resnet18</span><span class="p">(</span><span class="n">pretrained</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">transform</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
+        <span class="n">transforms</span><span class="o">.</span><span class="n">CenterCrop</span><span class="p">(</span><span class="mi">224</span><span class="p">),</span>
+        <span class="n">transforms</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="p">[</span><span class="mf">0.485</span><span class="p">,</span> <span class="mf">0.456</span><span class="p">,</span> <span class="mf">0.406</span><span class="p">],</span> <span class="n">std</span><span class="o">=</span><span class="p">[</span><span class="mf">0.229</span><span class="p">,</span> <span class="mf">0.224</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">]),</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+<span class="n">preprocessor</span> <span class="o">=</span> <span class="n">TorchVisionPreprocessor</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;image&quot;</span><span class="p">],</span> <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">)</span>
+
+<span class="n">ckpt</span> <span class="o">=</span> <span class="n">TorchCheckpoint</span><span class="o">.</span><span class="n">from_model</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">preprocessor</span><span class="o">=</span><span class="n">preprocessor</span><span class="p">)</span>
+
+<span class="n">predictor</span> <span class="o">=</span> <span class="n">BatchPredictor</span><span class="o">.</span><span class="n">from_checkpoint</span><span class="p">(</span><span class="n">ckpt</span><span class="p">,</span> <span class="n">TorchPredictor</span><span class="p">)</span>
+<span class="n">predictions</span> <span class="o">=</span> <span class="n">predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">num_gpus_per_worker</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="c1"># Call show on the output probabilities to trigger execution</span>
+<span class="n">predictions</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-4" name="sd-tab-set-1" type="radio">
+</input><label class="sd-tab-label" for="sd-tab-item-4">
+Tensorflow</label><div class="sd-tab-content docutils">
+<p>Coming soon!</p>
+</div>
+</div>
+</section>
+<section id="text">
+<h3>Text<a class="headerlink" href="predictors.html#text" title="Permalink to this headline">#</a></h3>
+<p>Coming soon!</p>
+</section>
+</section>
+<section id="developer-guide-implementing-your-own-predictor">
+<h2>Developer Guide: Implementing your own Predictor<a class="headerlink" href="predictors.html#developer-guide-implementing-your-own-predictor" title="Permalink to this headline">#</a></h2>
+<p>If you’re using an unsupported framework, or if built-in predictors are too inflexible,
+you may need to implement a custom predictor.</p>
+<p>To implement a custom <a class="reference internal" href="api/doc/ray.train.predictor.Predictor.html#ray.train.predictor.Predictor" title="ray.train.predictor.Predictor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Predictor</span></code></a>,
+subclass <a class="reference internal" href="api/doc/ray.train.predictor.Predictor.html#ray.train.predictor.Predictor" title="ray.train.predictor.Predictor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Predictor</span></code></a> and implement:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="api/doc/ray.train.predictor.Predictor.__init__.html#ray.train.predictor.Predictor.__init__" title="ray.train.predictor.Predictor.__init__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__init__()</span></code></a></p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">_predict_numpy()</span></code> or <code class="xref py py-meth docutils literal notranslate"><span class="pre">_predict_pandas()</span></code></p></li>
+<li><p><a class="reference internal" href="api/doc/ray.train.predictor.Predictor.from_checkpoint.html#ray.train.predictor.Predictor.from_checkpoint" title="ray.train.predictor.Predictor.from_checkpoint"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_checkpoint()</span></code></a></p></li>
+</ul>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>You don’t need to implement both
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">_predict_numpy()</span></code> and
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">_predict_pandas()</span></code>. Pick the method that’s
+easiest to implement. If both are implemented, override
+<a class="reference internal" href="api/doc/ray.train.predictor.Predictor.preferred_batch_format.html#ray.train.predictor.Predictor.preferred_batch_format" title="ray.train.predictor.Predictor.preferred_batch_format"><code class="xref py py-meth docutils literal notranslate"><span class="pre">preferred_batch_format()</span></code></a> to specify which format
+is more performant. This allows upstream producers to choose the best format.</p>
+</div>
+<section id="examples">
+<h3>Examples<a class="headerlink" href="predictors.html#examples" title="Permalink to this headline">#</a></h3>
+<p>We’ll walk through how to implement a predictor for two frameworks:</p>
+<ul class="simple">
+<li><p>MXNet – a deep learning framework like Torch.</p></li>
+<li><p>statsmodel – a Python library that provides regression and linear models.</p></li>
+</ul>
+<p>For more examples, read the source code of built-in predictors like
+<a class="reference internal" href="api/doc/ray.train.torch.TorchPredictor.html#ray.train.torch.TorchPredictor" title="ray.train.torch.TorchPredictor"><code class="xref py py-class docutils literal notranslate"><span class="pre">TorchPredictor</span></code></a>,
+<a class="reference internal" href="api/doc/ray.train.xgboost.XGBoostPredictor.html#ray.train.xgboost.XGBoostPredictor" title="ray.train.xgboost.XGBoostPredictor"><code class="xref py py-class docutils literal notranslate"><span class="pre">XGBoostPredictor</span></code></a>, and
+<a class="reference internal" href="api/doc/ray.train.sklearn.SklearnPredictor.html#ray.train.sklearn.SklearnPredictor" title="ray.train.sklearn.SklearnPredictor"><code class="xref py py-class docutils literal notranslate"><span class="pre">SklearnPredictor</span></code></a>.</p>
+<section id="before-you-begin">
+<h4>Before you begin<a class="headerlink" href="predictors.html#before-you-begin" title="Permalink to this headline">#</a></h4>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" role="tablist"><button aria-controls="panel-0-TVhOZXQ=" aria-selected="true" class="sphinx-tabs-tab group-tab" id="tab-0-TVhOZXQ=" name="TVhOZXQ=" role="tab" tabindex="0">MXNet</button><button aria-controls="panel-0-c3RhdHNtb2RlbA==" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-0-c3RhdHNtb2RlbA==" name="c3RhdHNtb2RlbA==" role="tab" tabindex="-1">statsmodel</button></div><div aria-labelledby="tab-0-TVhOZXQ=" class="sphinx-tabs-panel group-tab" id="panel-0-TVhOZXQ=" name="TVhOZXQ=" role="tabpanel" tabindex="0"><p>First, install MXNet and Ray AIR.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pip install mxnet &#39;ray[air]&#39;</span>
+</pre></div>
+</div>
+<p>Then, import the objects required for this example.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">mxnet</span> <span class="k">as</span> <span class="nn">mx</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">mxnet</span> <span class="kn">import</span> <span class="n">gluon</span>
+
+<span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">from</span> <span class="nn">ray.air</span> <span class="kn">import</span> <span class="n">Checkpoint</span>
+<span class="kn">from</span> <span class="nn">ray.data.preprocessor</span> <span class="kn">import</span> <span class="n">Preprocessor</span>
+<span class="kn">from</span> <span class="nn">ray.data.preprocessors</span> <span class="kn">import</span> <span class="n">BatchMapper</span>
+<span class="kn">from</span> <span class="nn">ray.train.batch_predictor</span> <span class="kn">import</span> <span class="n">BatchPredictor</span>
+<span class="kn">from</span> <span class="nn">ray.train.predictor</span> <span class="kn">import</span> <span class="n">Predictor</span>
+</pre></div>
+</div>
+<p>Finally, create a stub for the <code class="xref py py-obj docutils literal notranslate"><span class="pre">MXNetPredictor</span></code> class.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MXNetPredictor</span><span class="p">(</span><span class="n">Predictor</span><span class="p">):</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-0-c3RhdHNtb2RlbA==" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-0-c3RhdHNtb2RlbA==" name="c3RhdHNtb2RlbA==" role="tabpanel" tabindex="0"><p>First, install statsmodel and Ray AIR.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pip install statsmodel &#39;ray[air]&#39;</span>
+</pre></div>
+</div>
+<p>Then, import the objects required for this example.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>  <span class="c1"># noqa: F401</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">statsmodels.api</span> <span class="k">as</span> <span class="nn">sm</span>
+<span class="kn">import</span> <span class="nn">statsmodels.formula.api</span> <span class="k">as</span> <span class="nn">smf</span>
+<span class="kn">from</span> <span class="nn">statsmodels.base.model</span> <span class="kn">import</span> <span class="n">Results</span>
+<span class="kn">from</span> <span class="nn">statsmodels.regression.linear_model</span> <span class="kn">import</span> <span class="n">OLSResults</span>
+
+<span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">from</span> <span class="nn">ray.air</span> <span class="kn">import</span> <span class="n">Checkpoint</span>
+<span class="kn">from</span> <span class="nn">ray.data.preprocessor</span> <span class="kn">import</span> <span class="n">Preprocessor</span>
+<span class="kn">from</span> <span class="nn">ray.train.batch_predictor</span> <span class="kn">import</span> <span class="n">BatchPredictor</span>
+<span class="kn">from</span> <span class="nn">ray.train.predictor</span> <span class="kn">import</span> <span class="n">Predictor</span>
+</pre></div>
+</div>
+<p>Finally, create a stub the <code class="xref py py-obj docutils literal notranslate"><span class="pre">StatsmodelPredictor</span></code> class.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">StatsmodelPredictor</span><span class="p">(</span><span class="n">Predictor</span><span class="p">):</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+</div></div>
+</section>
+<section id="create-a-model">
+<h4>Create a model<a class="headerlink" href="predictors.html#create-a-model" title="Permalink to this headline">#</a></h4>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" role="tablist"><button aria-controls="panel-1-TVhOZXQ=" aria-selected="true" class="sphinx-tabs-tab group-tab" id="tab-1-TVhOZXQ=" name="TVhOZXQ=" role="tab" tabindex="0">MXNet</button><button aria-controls="panel-1-c3RhdHNtb2RlbA==" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-1-c3RhdHNtb2RlbA==" name="c3RhdHNtb2RlbA==" role="tab" tabindex="-1">statsmodel</button></div><div aria-labelledby="tab-1-TVhOZXQ=" class="sphinx-tabs-panel group-tab" id="panel-1-TVhOZXQ=" name="TVhOZXQ=" role="tabpanel" tabindex="0"><p>You’ll need to pass a model to the <code class="docutils literal notranslate"><span class="pre">MXNetPredictor</span></code> constructor.</p>
+<p>To create the model, load a pre-trained computer vision model from the MXNet
+model zoo.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">net</span> <span class="o">=</span> <span class="n">gluon</span><span class="o">.</span><span class="n">model_zoo</span><span class="o">.</span><span class="n">vision</span><span class="o">.</span><span class="n">resnet50_v1</span><span class="p">(</span><span class="n">pretrained</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-1-c3RhdHNtb2RlbA==" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-1-c3RhdHNtb2RlbA==" name="c3RhdHNtb2RlbA==" role="tabpanel" tabindex="0"><p>You’ll need to pass a model to the <code class="docutils literal notranslate"><span class="pre">StatsmodelPredictor</span></code> constructor.</p>
+<p>To create the model, fit a linear model on the
+<a class="reference external" href="https://vincentarelbundock.github.io/Rdatasets/doc/HistData/Guerry.html">Guerry dataset</a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">get_rdataset</span><span class="p">(</span><span class="s2">&quot;Guerry&quot;</span><span class="p">,</span> <span class="s2">&quot;HistData&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">data</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">smf</span><span class="o">.</span><span class="n">ols</span><span class="p">(</span><span class="s2">&quot;Lottery ~ Literacy + np.log(Pop1831)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+</div></div>
+</section>
+<section id="implement-init">
+<h4>Implement <code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code><a class="headerlink" href="predictors.html#implement-init" title="Permalink to this headline">#</a></h4>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" role="tablist"><button aria-controls="panel-2-TVhOZXQ=" aria-selected="true" class="sphinx-tabs-tab group-tab" id="tab-2-TVhOZXQ=" name="TVhOZXQ=" role="tab" tabindex="0">MXNet</button><button aria-controls="panel-2-c3RhdHNtb2RlbA==" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-2-c3RhdHNtb2RlbA==" name="c3RhdHNtb2RlbA==" role="tab" tabindex="-1">statsmodel</button></div><div aria-labelledby="tab-2-TVhOZXQ=" class="sphinx-tabs-panel group-tab" id="panel-2-TVhOZXQ=" name="TVhOZXQ=" role="tabpanel" tabindex="0"><p>Use the constructor to set instance attributes required for prediction. In
+the code snippet below, we assign the model to an attribute named <code class="docutils literal notranslate"><span class="pre">net</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">net</span><span class="p">:</span> <span class="n">gluon</span><span class="o">.</span><span class="n">Block</span><span class="p">,</span>
+    <span class="n">preprocessor</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Preprocessor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">net</span> <span class="o">=</span> <span class="n">net</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">preprocessor</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>You must call the base class’ constructor; otherwise,
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">Predictor.predict</span></code> raises a
+<code class="docutils literal notranslate"><span class="pre">NotImplementedError</span></code>.</p>
+</div>
+</div><div aria-labelledby="tab-2-c3RhdHNtb2RlbA==" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-2-c3RhdHNtb2RlbA==" name="c3RhdHNtb2RlbA==" role="tabpanel" tabindex="0"><p>Use the constructor to set instance attributes required for prediction. In
+the code snippet below, we assign the fitted model to an attribute named
+<code class="docutils literal notranslate"><span class="pre">results</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">:</span> <span class="n">Results</span><span class="p">,</span> <span class="n">preprocessor</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Preprocessor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="n">results</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">preprocessor</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>You must call the base class’ constructor; otherwise,
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">Predictor.predict</span></code> raises a
+<code class="docutils literal notranslate"><span class="pre">NotImplementedError</span></code>.</p>
+</div>
+</div></div>
+</section>
+<section id="implement-from-checkpoint">
+<h4>Implement <code class="xref py py-obj docutils literal notranslate"><span class="pre">from_checkpoint</span></code><a class="headerlink" href="predictors.html#implement-from-checkpoint" title="Permalink to this headline">#</a></h4>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" role="tablist"><button aria-controls="panel-3-TVhOZXQ=" aria-selected="true" class="sphinx-tabs-tab group-tab" id="tab-3-TVhOZXQ=" name="TVhOZXQ=" role="tab" tabindex="0">MXNet</button><button aria-controls="panel-3-c3RhdHNtb2RlbA==" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-3-c3RhdHNtb2RlbA==" name="c3RhdHNtb2RlbA==" role="tab" tabindex="-1">statsmodel</button></div><div aria-labelledby="tab-3-TVhOZXQ=" class="sphinx-tabs-panel group-tab" id="panel-3-TVhOZXQ=" name="TVhOZXQ=" role="tabpanel" tabindex="0"><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_checkpoint()</span></code> creates a
+<a class="reference internal" href="api/doc/ray.train.predictor.Predictor.html#ray.train.predictor.Predictor" title="ray.train.predictor.Predictor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Predictor</span></code></a> from a
+<a class="reference internal" href="api/doc/ray.air.checkpoint.Checkpoint.html#ray.air.checkpoint.Checkpoint" title="ray.air.checkpoint.Checkpoint"><code class="xref py py-class docutils literal notranslate"><span class="pre">Checkpoint</span></code></a>.</p>
+<p>Before implementing <code class="xref py py-meth docutils literal notranslate"><span class="pre">from_checkpoint()</span></code>,
+save the model parameters to a directory, and create a
+<a class="reference internal" href="api/doc/ray.air.checkpoint.Checkpoint.html#ray.air.checkpoint.Checkpoint" title="ray.air.checkpoint.Checkpoint"><code class="xref py py-class docutils literal notranslate"><span class="pre">Checkpoint</span></code></a> from that directory.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="s2">&quot;checkpoint&quot;</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">net</span><span class="o">.</span><span class="n">save_parameters</span><span class="p">(</span><span class="s2">&quot;checkpoint/net.params&quot;</span><span class="p">)</span>
+<span class="n">checkpoint</span> <span class="o">=</span> <span class="n">Checkpoint</span><span class="o">.</span><span class="n">from_directory</span><span class="p">(</span><span class="s2">&quot;checkpoint&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Then, implement <code class="xref py py-meth docutils literal notranslate"><span class="pre">from_checkpoint()</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@classmethod</span>
+<span class="k">def</span> <span class="nf">from_checkpoint</span><span class="p">(</span>
+    <span class="bp">cls</span><span class="p">,</span>
+    <span class="n">checkpoint</span><span class="p">:</span> <span class="n">Checkpoint</span><span class="p">,</span>
+    <span class="n">net</span><span class="p">:</span> <span class="n">gluon</span><span class="o">.</span><span class="n">Block</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Predictor</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">checkpoint</span><span class="o">.</span><span class="n">as_directory</span><span class="p">()</span> <span class="k">as</span> <span class="n">directory</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s2">&quot;net.params&quot;</span><span class="p">)</span>
+        <span class="n">net</span><span class="o">.</span><span class="n">load_parameters</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="n">preprocessor</span><span class="o">=</span><span class="n">checkpoint</span><span class="o">.</span><span class="n">get_preprocessor</span><span class="p">())</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-3-c3RhdHNtb2RlbA==" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-3-c3RhdHNtb2RlbA==" name="c3RhdHNtb2RlbA==" role="tabpanel" tabindex="0"><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_checkpoint()</span></code> creates a
+<a class="reference internal" href="api/doc/ray.train.predictor.Predictor.html#ray.train.predictor.Predictor" title="ray.train.predictor.Predictor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Predictor</span></code></a> from a
+<a class="reference internal" href="api/doc/ray.air.checkpoint.Checkpoint.html#ray.air.checkpoint.Checkpoint" title="ray.air.checkpoint.Checkpoint"><code class="xref py py-class docutils literal notranslate"><span class="pre">Checkpoint</span></code></a>.</p>
+<p>Before implementing <code class="xref py py-meth docutils literal notranslate"><span class="pre">from_checkpoint()</span></code>,
+save the fitten model to a directory, and create a
+<a class="reference internal" href="api/doc/ray.air.checkpoint.Checkpoint.html#ray.air.checkpoint.Checkpoint" title="ray.air.checkpoint.Checkpoint"><code class="xref py py-class docutils literal notranslate"><span class="pre">Checkpoint</span></code></a> from that directory.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="s2">&quot;checkpoint&quot;</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">results</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;checkpoint/guerry.pickle&quot;</span><span class="p">)</span>
+<span class="n">checkpoint</span> <span class="o">=</span> <span class="n">Checkpoint</span><span class="o">.</span><span class="n">from_directory</span><span class="p">(</span><span class="s2">&quot;checkpoint&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Then, implement <code class="xref py py-meth docutils literal notranslate"><span class="pre">from_checkpoint()</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@classmethod</span>
+<span class="k">def</span> <span class="nf">from_checkpoint</span><span class="p">(</span>
+    <span class="bp">cls</span><span class="p">,</span>
+    <span class="n">checkpoint</span><span class="p">:</span> <span class="n">Checkpoint</span><span class="p">,</span>
+    <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Predictor</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">checkpoint</span><span class="o">.</span><span class="n">as_directory</span><span class="p">()</span> <span class="k">as</span> <span class="n">directory</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">OLSResults</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">checkpoint</span><span class="o">.</span><span class="n">get_preprocessor</span><span class="p">())</span>
+</pre></div>
+</div>
+</div></div>
+</section>
+<section id="implement-predict-numpy-or-predict-pandas">
+<h4>Implement <code class="xref py py-obj docutils literal notranslate"><span class="pre">_predict_numpy</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">_predict_pandas</span></code><a class="headerlink" href="predictors.html#implement-predict-numpy-or-predict-pandas" title="Permalink to this headline">#</a></h4>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" role="tablist"><button aria-controls="panel-4-TVhOZXQ=" aria-selected="true" class="sphinx-tabs-tab group-tab" id="tab-4-TVhOZXQ=" name="TVhOZXQ=" role="tab" tabindex="0">MXNet</button><button aria-controls="panel-4-c3RhdHNtb2RlbA==" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-4-c3RhdHNtb2RlbA==" name="c3RhdHNtb2RlbA==" role="tab" tabindex="-1">statsmodel</button></div><div aria-labelledby="tab-4-TVhOZXQ=" class="sphinx-tabs-panel group-tab" id="panel-4-TVhOZXQ=" name="TVhOZXQ=" role="tabpanel" tabindex="0"><p>Because MXNet models accept tensors as input, you should implement
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">_predict_numpy()</span></code>.</p>
+<p><code class="xref py py-meth docutils literal notranslate"><span class="pre">_predict_numpy()</span></code> performs inference on a
+batch of NumPy data. It accepts a <code class="docutils literal notranslate"><span class="pre">np.ndarray</span></code> or <code class="docutils literal notranslate"><span class="pre">dict[str,</span> <span class="pre">np.ndarray]</span></code> as
+input and returns a <code class="docutils literal notranslate"><span class="pre">np.ndarray</span></code> or <code class="docutils literal notranslate"><span class="pre">dict[str,</span> <span class="pre">np.ndarray]</span></code> as output.</p>
+<p>The input type is determined by the type of <a class="reference internal" href="../data/api/doc/ray.data.Dataset.html#ray.data.Dataset" title="ray.data.Dataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> passed to
+<a class="reference internal" href="api/doc/ray.train.batch_predictor.BatchPredictor.predict.html#ray.train.batch_predictor.BatchPredictor.predict" title="ray.train.batch_predictor.BatchPredictor.predict"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BatchPredictor.predict</span></code></a>.
+If your dataset has columns, the input is a <code class="docutils literal notranslate"><span class="pre">dict</span></code>; otherwise, the input is a
+<code class="docutils literal notranslate"><span class="pre">np.ndarray</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">_predict_numpy</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]],</span>
+    <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="c1"># If `data` looks like `{&quot;features&quot;: array([...])}`, unwrap the `dict` and pass</span>
+    <span class="c1"># the array directly to the model.</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+
+    <span class="n">inputs</span> <span class="o">=</span> <span class="n">mx</span><span class="o">.</span><span class="n">nd</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">net</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span><span class="o">.</span><span class="n">asnumpy</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;predictions&quot;</span><span class="p">:</span> <span class="n">outputs</span><span class="p">}</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-4-c3RhdHNtb2RlbA==" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-4-c3RhdHNtb2RlbA==" name="c3RhdHNtb2RlbA==" role="tabpanel" tabindex="0"><p>Because your OLS model accepts dataframes as input, you should implement
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">_predict_pandas()</span></code>.</p>
+<p><code class="xref py py-meth docutils literal notranslate"><span class="pre">_predict_pandas()</span></code> performs inference on a
+batch of pandas data. It accepts a <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> as input and return a
+<code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> as output.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">_predict_pandas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="n">predictions</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">predictions</span><span class="o">.</span><span class="n">to_frame</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;predictions&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div></div>
+</section>
+<section id="perform-inference">
+<h4>Perform inference<a class="headerlink" href="predictors.html#perform-inference" title="Permalink to this headline">#</a></h4>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" role="tablist"><button aria-controls="panel-5-TVhOZXQ=" aria-selected="true" class="sphinx-tabs-tab group-tab" id="tab-5-TVhOZXQ=" name="TVhOZXQ=" role="tab" tabindex="0">MXNet</button><button aria-controls="panel-5-c3RhdHNtb2RlbA==" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-5-c3RhdHNtb2RlbA==" name="c3RhdHNtb2RlbA==" role="tab" tabindex="-1">statsmodel</button></div><div aria-labelledby="tab-5-TVhOZXQ=" class="sphinx-tabs-panel group-tab" id="panel-5-TVhOZXQ=" name="TVhOZXQ=" role="tabpanel" tabindex="0"><p>To perform inference with the completed <code class="docutils literal notranslate"><span class="pre">MXNetPredictor</span></code>:</p>
+<ol class="arabic simple">
+<li><p>Create a <a class="reference internal" href="api/doc/ray.data.preprocessor.Preprocessor.html#ray.data.preprocessor.Preprocessor" title="ray.data.preprocessor.Preprocessor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Preprocessor</span></code></a> and set it in the
+<a class="reference internal" href="api/doc/ray.air.checkpoint.Checkpoint.html#ray.air.checkpoint.Checkpoint" title="ray.air.checkpoint.Checkpoint"><code class="xref py py-class docutils literal notranslate"><span class="pre">Checkpoint</span></code></a>.
+You can also use any of the out-of-the-box preprocessors instead of implementing your own: <a class="reference internal" href="api/preprocessor.html#air-preprocessor-ref"><span class="std std-ref">Preprocessor</span></a>.</p></li>
+<li><p>Create a <a class="reference internal" href="api/doc/ray.train.batch_predictor.BatchPredictor.html#ray.train.batch_predictor.BatchPredictor" title="ray.train.batch_predictor.BatchPredictor"><code class="xref py py-class docutils literal notranslate"><span class="pre">BatchPredictor</span></code></a> from your
+checkpoint.</p></li>
+<li><p>Read sample images into a <a class="reference internal" href="../data/api/doc/ray.data.Dataset.html#ray.data.Dataset" title="ray.data.Dataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p></li>
+<li><p>Call <a class="reference internal" href="api/doc/ray.train.batch_predictor.BatchPredictor.predict.html#ray.train.batch_predictor.BatchPredictor.predict" title="ray.train.batch_predictor.BatchPredictor.predict"><code class="xref py py-class docutils literal notranslate"><span class="pre">predict</span></code></a> to classify
+the images in the dataset.</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># These images aren&#39;t normalized. In practice, normalize images before inference.</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">read_images</span><span class="p">(</span>
+    <span class="s2">&quot;s3://anonymous@air-example-data-2/imagenet-sample-images&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">)</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span><span class="n">batch</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="c1"># (B, H, W, C) -&gt; (B, C, H, W)</span>
+    <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;image&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;image&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">batch</span>
+
+
+<span class="c1"># Create the preprocessor and set it in the checkpoint.</span>
+<span class="c1"># This preprocessor will be used to transform the data prior to prediction.</span>
+<span class="n">preprocessor</span> <span class="o">=</span> <span class="n">BatchMapper</span><span class="p">(</span><span class="n">preprocess</span><span class="p">,</span> <span class="n">batch_format</span><span class="o">=</span><span class="s2">&quot;numpy&quot;</span><span class="p">)</span>
+<span class="n">checkpoint</span><span class="o">.</span><span class="n">set_preprocessor</span><span class="p">(</span><span class="n">preprocessor</span><span class="o">=</span><span class="n">preprocessor</span><span class="p">)</span>
+
+
+<span class="n">predictor</span> <span class="o">=</span> <span class="n">BatchPredictor</span><span class="o">.</span><span class="n">from_checkpoint</span><span class="p">(</span>
+    <span class="n">checkpoint</span><span class="p">,</span> <span class="n">MXNetPredictor</span><span class="p">,</span> <span class="n">net</span><span class="o">=</span><span class="n">net</span>
+<span class="p">)</span>
+<span class="n">predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-5-c3RhdHNtb2RlbA==" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-5-c3RhdHNtb2RlbA==" name="c3RhdHNtb2RlbA==" role="tabpanel" tabindex="0"><p>To perform inference with the completed <code class="docutils literal notranslate"><span class="pre">StatsmodelPredictor</span></code>:</p>
+<ol class="arabic simple">
+<li><p>Create a <a class="reference internal" href="api/doc/ray.train.batch_predictor.BatchPredictor.html#ray.train.batch_predictor.BatchPredictor" title="ray.train.batch_predictor.BatchPredictor"><code class="xref py py-class docutils literal notranslate"><span class="pre">BatchPredictor</span></code></a> from your
+checkpoint.</p></li>
+<li><p>Read the Guerry dataset into a <a class="reference internal" href="../data/api/doc/ray.data.Dataset.html#ray.data.Dataset" title="ray.data.Dataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p></li>
+<li><p>Call <a class="reference internal" href="api/doc/ray.train.batch_predictor.BatchPredictor.predict.html#ray.train.batch_predictor.BatchPredictor.predict" title="ray.train.batch_predictor.BatchPredictor.predict"><code class="xref py py-class docutils literal notranslate"><span class="pre">predict</span></code></a> to perform
+regression on the samples in the dataset.</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">predictor</span> <span class="o">=</span> <span class="n">BatchPredictor</span><span class="o">.</span><span class="n">from_checkpoint</span><span class="p">(</span>
+    <span class="n">checkpoint</span><span class="p">,</span> <span class="n">StatsmodelPredictor</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;guerry.pickle&quot;</span>
+<span class="p">)</span>
+<span class="c1"># This is the same data we trained our model on. Don&#39;t do this in practice.</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">from_pandas</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="n">predictions</span> <span class="o">=</span> <span class="n">predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+<span class="n">predictions</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div></div>
+</section>
+</section>
+</section>
+<section id="lazy-pipelined-prediction-experimental">
+<span id="pipelined-prediction"></span><h2>Lazy/Pipelined Prediction (experimental)<a class="headerlink" href="predictors.html#lazy-pipelined-prediction-experimental" title="Permalink to this headline">#</a></h2>
+<p>If you have a large dataset but not a lot of available memory, you can use the
+<a class="reference internal" href="api/doc/ray.train.batch_predictor.BatchPredictor.predict_pipelined.html#ray.train.batch_predictor.BatchPredictor.predict_pipelined" title="ray.train.batch_predictor.BatchPredictor.predict_pipelined"><code class="xref py py-meth docutils literal notranslate"><span class="pre">predict_pipelined</span></code></a> method.</p>
+<p>Unlike <code class="xref py py-meth docutils literal notranslate"><span class="pre">predict()</span></code> which will load the entire data into memory, <code class="docutils literal notranslate"><span class="pre">predict_pipelined</span></code> will create a
+<code class="xref py py-class docutils literal notranslate"><span class="pre">DatasetPipeline</span></code> object, which will <em>lazily</em> load the data and perform inference on a smaller batch of data at a time.</p>
+<p>The lazy loading of the data will allow you to operate on datasets much greater than your available memory.
+Execution can be triggered by pulling from the pipeline, as shown in the example below.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">from</span> <span class="nn">ray.air</span> <span class="kn">import</span> <span class="n">Checkpoint</span>
+<span class="kn">from</span> <span class="nn">ray.train.predictor</span> <span class="kn">import</span> <span class="n">Predictor</span>
+<span class="kn">from</span> <span class="nn">ray.train.batch_predictor</span> <span class="kn">import</span> <span class="n">BatchPredictor</span>
+
+<span class="c1"># Create a BatchPredictor that always returns `42` for each input.</span>
+<span class="n">batch_pred</span> <span class="o">=</span> <span class="n">BatchPredictor</span><span class="o">.</span><span class="n">from_pandas_udf</span><span class="p">(</span>
+    <span class="k">lambda</span> <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;a&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">42</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)})</span>
+<span class="p">)</span>
+
+<span class="c1"># Create a dummy dataset.</span>
+<span class="n">ds</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">range_tensor</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="n">parallelism</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="c1"># Setup a prediction pipeline.</span>
+<span class="n">pipeline</span> <span class="o">=</span> <span class="n">batch_pred</span><span class="o">.</span><span class="n">predict_pipelined</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">blocks_per_window</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">iter_batches</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Pipeline result&quot;</span><span class="p">,</span> <span class="n">batch</span><span class="p">)</span>
+    <span class="c1"># 0    42</span>
+    <span class="c1"># 1    42</span>
+    <span class="c1"># ...</span>
+</pre></div>
+</div>
+</section>
+<section id="online-inference">
+<h2>Online Inference<a class="headerlink" href="predictors.html#online-inference" title="Permalink to this headline">#</a></h2>
+<p>Check out the <a class="reference internal" href="examples/serving_guide.html#air-serving-guide"><span class="std std-ref">Deploying Predictors with Serve</span></a> for details on how to perform online inference with AIR.</p>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="tuner.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Configuring Hyperparameter Tuning</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="computer-vision.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Computer Vision</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

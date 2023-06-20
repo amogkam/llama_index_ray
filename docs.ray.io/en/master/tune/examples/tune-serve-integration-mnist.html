@@ -1,0 +1,1514 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Model selection and serving with Ray Tune and Ray Serve &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/js/versionwarning.js"></script>
+    <script src="../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../_static/js/docsearch.js"></script>
+    <script src="../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../_static/js/top-navigation.js"></script>
+    <script src="../../_static/js/tags.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/tune/examples/tune-serve-integration-mnist.html" />
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Using RLlib with Tune" href="pbt_ppo_example.html" />
+    <link rel="prev" title="Using MXNet with Tune" href="mxnet_example.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "tune/examples/tune-serve-integration-mnist", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".ipynb", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../../tune.html">
+   Ray Tune
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../getting-started.html">
+     Getting Started
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../tutorials/overview.html">
+     User Guides
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="index.html">
+     Ray Tune Examples
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3 current active has-children">
+      <a class="reference internal" href="ml-frameworks.html">
+       Examples using Ray Tune with ML Frameworks
+      </a>
+      <input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+      <label for="toctree-checkbox-3">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul class="current">
+       <li class="toctree-l4">
+        <a class="reference internal" href="tune-sklearn.html">
+         Scikit-Learn Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="tune_mnist_keras.html">
+         Keras Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="tune-pytorch-cifar.html">
+         PyTorch Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="tune-pytorch-lightning.html">
+         PyTorch Lightning Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="mxnet_example.html">
+         MXNet Example
+        </a>
+       </li>
+       <li class="toctree-l4 current active">
+        <a class="current reference internal" href="tune-serve-integration-mnist.html#">
+         Ray Serve Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="pbt_ppo_example.html">
+         Ray RLlib Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="tune-xgboost.html">
+         XGBoost Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="lightgbm_example.html">
+         LightGBM Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="horovod_simple.html">
+         Horovod Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="pbt_transformers.html">
+         Hugging Face Transformers Example
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="experiment-tracking.html">
+       Tune Experiment Tracking Examples
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="hpo-frameworks.html">
+       Tune Hyperparameter Optimization Framework Examples
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="other-examples.html">
+       Other Examples
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="exercises.html">
+       Exercises
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../faq.html">
+     Ray Tune FAQ
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/api.html">
+     Ray Tune API
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Ftune/examples/tune-serve-integration-mnist.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/tune/examples/tune-serve-integration-mnist.ipynb"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../_sources/tune/examples/tune-serve-integration-mnist.ipynb.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.ipynb</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-serve-integration-mnist.html#roadmap-and-desired-functionality">
+   Roadmap and desired functionality
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-serve-integration-mnist.html#imports">
+   Imports
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-serve-integration-mnist.html#data-interface">
+   Data interface
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-serve-integration-mnist.html#pytorch-neural-network-classifier">
+   PyTorch neural network classifier
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-serve-integration-mnist.html#tune-trainable-for-model-selection">
+   Tune trainable for model selection
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-serve-integration-mnist.html#configuring-the-search-space-and-starting-ray-tune">
+   Configuring the search space and starting Ray Tune
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-serve-integration-mnist.html#serving-tuned-models-with-ray-serve">
+   Serving tuned models with Ray Serve
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-serve-integration-mnist.html#putting-everything-together">
+   Putting everything together
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Model selection and serving with Ray Tune and Ray Serve</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-serve-integration-mnist.html#roadmap-and-desired-functionality">
+   Roadmap and desired functionality
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-serve-integration-mnist.html#imports">
+   Imports
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-serve-integration-mnist.html#data-interface">
+   Data interface
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-serve-integration-mnist.html#pytorch-neural-network-classifier">
+   PyTorch neural network classifier
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-serve-integration-mnist.html#tune-trainable-for-model-selection">
+   Tune trainable for model selection
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-serve-integration-mnist.html#configuring-the-search-space-and-starting-ray-tune">
+   Configuring the search space and starting Ray Tune
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-serve-integration-mnist.html#serving-tuned-models-with-ray-serve">
+   Serving tuned models with Ray Serve
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-serve-integration-mnist.html#putting-everything-together">
+   Putting everything together
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section class="tex2jax_ignore mathjax_ignore" id="model-selection-and-serving-with-ray-tune-and-ray-serve">
+<h1>Model selection and serving with Ray Tune and Ray Serve<a class="headerlink" href="tune-serve-integration-mnist.html#model-selection-and-serving-with-ray-tune-and-ray-serve" title="Permalink to this headline">#</a></h1>
+<img alt="../../_images/serve.svg" class="align-center" src="../../_images/serve.svg" /><div class="contents local topic" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="tune-serve-integration-mnist.html#roadmap-and-desired-functionality" id="id1">Roadmap and desired functionality</a></p></li>
+<li><p><a class="reference internal" href="tune-serve-integration-mnist.html#imports" id="id2">Imports</a></p></li>
+<li><p><a class="reference internal" href="tune-serve-integration-mnist.html#data-interface" id="id3">Data interface</a></p></li>
+<li><p><a class="reference internal" href="tune-serve-integration-mnist.html#pytorch-neural-network-classifier" id="id4">PyTorch neural network classifier</a></p></li>
+<li><p><a class="reference internal" href="tune-serve-integration-mnist.html#tune-trainable-for-model-selection" id="id5">Tune trainable for model selection</a></p></li>
+<li><p><a class="reference internal" href="tune-serve-integration-mnist.html#configuring-the-search-space-and-starting-ray-tune" id="id6">Configuring the search space and starting Ray Tune</a></p></li>
+<li><p><a class="reference internal" href="tune-serve-integration-mnist.html#serving-tuned-models-with-ray-serve" id="id7">Serving tuned models with Ray Serve</a></p></li>
+<li><p><a class="reference internal" href="tune-serve-integration-mnist.html#putting-everything-together" id="id8">Putting everything together</a></p></li>
+</ul>
+</div>
+<p>This tutorial will show you an end-to-end example how to train a
+model using Ray Tune on incrementally arriving data and deploy
+the model using Ray Serve.</p>
+<p>A machine learning workflow can be quite simple: You decide on
+the objective you’re trying to solve, collect and annotate the
+data, and build a model to hopefully solve your problem. But
+usually the work is not over yet. First, you would likely continue
+to do some hyperparameter optimization to obtain the best possible
+model (called <em>model selection</em>). Second, your trained model
+somehow has to be moved to production - in other words, users
+or services should be enabled to use your model to actually make
+predictions. This part is called <em>model serving</em>.</p>
+<p>Fortunately, Ray includes two libraries that help you with these
+two steps: Ray Tune and Ray Serve. And even more, they compliment
+each other nicely. Most notably, both are able to scale up your
+workloads easily - so both your model training and serving benefit
+from additional resources and can adapt to your environment. If you
+need to train on more data or have more hyperparameters to tune,
+Ray Tune can leverage your whole cluster for training. If you have
+many users doing inference on your served models, Ray Serve can
+automatically distribute the inference to multiple nodes.</p>
+<p>This tutorial will show you an end-to-end example how to train a MNIST
+image classifier on incrementally arriving data and automatically
+serve an updated model on a HTTP endpoint.</p>
+<p>By the end of this tutorial you will be able to</p>
+<ol class="simple">
+<li><p>Do hyperparameter optimization on a simple MNIST classifier</p></li>
+<li><p>Continue to train this classifier from an existing model with
+newly arriving data</p></li>
+<li><p>Automatically create and serve data deployments with Ray Serve</p></li>
+</ol>
+<section id="roadmap-and-desired-functionality">
+<h2>Roadmap and desired functionality<a class="headerlink" href="tune-serve-integration-mnist.html#roadmap-and-desired-functionality" title="Permalink to this headline">#</a></h2>
+<p>The general idea of this example is that we simulate newly arriving
+data each day. So at day 0 we might have some initial data available
+already, but at each day, new data arrives.</p>
+<p>Our approach here is that we offer two ways to train: From scratch and
+from an existing model. Maybe you would like to train and select models
+from scratch each week with all data available until then, e.g. each
+Sunday, like this:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Train with all data available at day 0</span>
+python tune-serve-integration-mnist.py --from_scratch --day <span class="m">0</span>
+</pre></div>
+</div>
+<p>During the other days you might want to improve your model, but
+not train everything from scratch, saving some cluster resources.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Train with data arriving between day 0 and day 1</span>
+python tune-serve-integration-mnist.py --from_existing --day <span class="m">1</span>
+<span class="c1"># Train with incremental data on the other days, too</span>
+python tune-serve-integration-mnist.py --from_existing --day <span class="m">2</span>
+python tune-serve-integration-mnist.py --from_existing --day <span class="m">3</span>
+python tune-serve-integration-mnist.py --from_existing --day <span class="m">4</span>
+python tune-serve-integration-mnist.py --from_existing --day <span class="m">5</span>
+python tune-serve-integration-mnist.py --from_existing --day <span class="m">6</span>
+<span class="c1"># Retrain from scratch every 7th day:</span>
+python tune-serve-integration-mnist.py --from_scratch --day <span class="m">7</span>
+</pre></div>
+</div>
+<p>This example will support both modes. After each model selection run,
+we will tell Ray Serve to serve an updated model. We also include a
+small utility to query our served model to see if it works as it should.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ python tune-serve-integration-mnist.py --query <span class="m">6</span>
+Querying model with example <span class="c1">#6. Label = 1, Response = 1, Correct = True</span>
+</pre></div>
+</div>
+</section>
+<section id="imports">
+<h2>Imports<a class="headerlink" href="tune-serve-integration-mnist.html#imports" title="Permalink to this headline">#</a></h2>
+<p>Let’s start with our dependencies. Most of these should be familiar
+if you worked with PyTorch before. The most notable import for Ray
+is the <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">ray</span> <span class="pre">import</span> <span class="pre">air,</span> <span class="pre">tune,</span> <span class="pre">serve</span></code> import statement - which
+includes almost all the things we need from the Ray side.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">ceil</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+<span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
+<span class="kn">import</span> <span class="nn">torch.optim</span> <span class="k">as</span> <span class="nn">optim</span>
+<span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">from</span> <span class="nn">ray</span> <span class="kn">import</span> <span class="n">air</span><span class="p">,</span> <span class="n">tune</span><span class="p">,</span> <span class="n">serve</span>
+<span class="kn">from</span> <span class="nn">ray.air</span> <span class="kn">import</span> <span class="n">session</span>
+<span class="kn">from</span> <span class="nn">ray.air.checkpoint</span> <span class="kn">import</span> <span class="n">Checkpoint</span>
+<span class="kn">from</span> <span class="nn">ray.serve.exceptions</span> <span class="kn">import</span> <span class="n">RayServeException</span>
+<span class="kn">from</span> <span class="nn">ray.tune</span> <span class="kn">import</span> <span class="n">CLIReporter</span>
+<span class="kn">from</span> <span class="nn">ray.tune.schedulers</span> <span class="kn">import</span> <span class="n">ASHAScheduler</span>
+
+<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">random_split</span><span class="p">,</span> <span class="n">Subset</span>
+<span class="kn">from</span> <span class="nn">torchvision.datasets</span> <span class="kn">import</span> <span class="n">MNIST</span>
+<span class="kn">from</span> <span class="nn">torchvision.transforms</span> <span class="kn">import</span> <span class="n">transforms</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="data-interface">
+<h2>Data interface<a class="headerlink" href="tune-serve-integration-mnist.html#data-interface" title="Permalink to this headline">#</a></h2>
+<p>Let’s start with a simulated data interface. This class acts as the
+interface between your training code and your database. We simulate
+that new data arrives each day with a <code class="docutils literal notranslate"><span class="pre">day</span></code> parameter. So, calling
+<code class="docutils literal notranslate"><span class="pre">get_data(day=3)</span></code> would return all data we received until day 3.
+We also implement an incremental data method, so calling
+<code class="docutils literal notranslate"><span class="pre">get_incremental_data(day=3)</span></code> would return all data collected
+between day 2 and day 3.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MNISTDataInterface</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Data interface. Simulates that new data arrives every day.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_dir</span><span class="p">,</span> <span class="n">max_days</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">=</span> <span class="n">data_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_days</span> <span class="o">=</span> <span class="n">max_days</span>
+
+        <span class="n">transform</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Normalize</span><span class="p">((</span><span class="mf">0.1307</span><span class="p">,),</span> <span class="p">(</span><span class="mf">0.3081</span><span class="p">,))]</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">MNIST</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">download</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">transform</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_day_slice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">day</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">)</span>
+        <span class="c1"># Start with 30% of the data, get more data each day</span>
+        <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">ceil</span><span class="p">(</span><span class="n">n</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.3</span> <span class="o">+</span> <span class="mf">0.7</span> <span class="o">*</span> <span class="n">day</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_days</span><span class="p">)))</span>
+
+    <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get complete normalized train and validation data to date.&quot;&quot;&quot;</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_day_slice</span><span class="p">(</span><span class="n">day</span><span class="p">)</span>
+
+        <span class="n">available_data</span> <span class="o">=</span> <span class="n">Subset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">end</span><span class="p">)))</span>
+        <span class="n">train_n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.8</span> <span class="o">*</span> <span class="n">end</span><span class="p">)</span>  <span class="c1"># 80% train data, 20% validation data</span>
+
+        <span class="k">return</span> <span class="n">random_split</span><span class="p">(</span><span class="n">available_data</span><span class="p">,</span> <span class="p">[</span><span class="n">train_n</span><span class="p">,</span> <span class="n">end</span> <span class="o">-</span> <span class="n">train_n</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">get_incremental_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get next normalized train and validation data day slice.&quot;&quot;&quot;</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_day_slice</span><span class="p">(</span><span class="n">day</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_day_slice</span><span class="p">(</span><span class="n">day</span><span class="p">)</span>
+
+        <span class="n">available_data</span> <span class="o">=</span> <span class="n">Subset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)))</span>
+        <span class="n">train_n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.8</span> <span class="o">*</span> <span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span>  <span class="c1"># 80% train data, 20% validation data</span>
+
+        <span class="k">return</span> <span class="n">random_split</span><span class="p">(</span><span class="n">available_data</span><span class="p">,</span> <span class="p">[</span><span class="n">train_n</span><span class="p">,</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span> <span class="o">-</span> <span class="n">train_n</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="pytorch-neural-network-classifier">
+<h2>PyTorch neural network classifier<a class="headerlink" href="tune-serve-integration-mnist.html#pytorch-neural-network-classifier" title="Permalink to this headline">#</a></h2>
+<p>Next, we will introduce our PyTorch neural network model and the
+train and test function. These are adapted directly from
+our <a class="reference internal" href="includes/mnist_pytorch.html"><span class="doc">PyTorch MNIST example</span></a>.
+We only introduced an additional neural network layer with a configurable
+layer size. This is not strictly needed for learning good performance on
+MNIST, but it is useful to demonstrate scenarios where your hyperparameter
+search space affects the model complexity.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ConvNet</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer_size</span><span class="o">=</span><span class="mi">192</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ConvNet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layer_size</span> <span class="o">=</span> <span class="n">layer_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conv1</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fc</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">192</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layer_size</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">max_pool2d</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv1</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">192</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fc</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">log_softmax</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">train_loader</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="n">device</span> <span class="ow">or</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">batch_idx</span><span class="p">,</span> <span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">train_loader</span><span class="p">):</span>
+        <span class="n">data</span><span class="p">,</span> <span class="n">target</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">),</span> <span class="n">target</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">nll_loss</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+        <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+        <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">data_loader</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="n">device</span> <span class="ow">or</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+    <span class="n">correct</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">batch_idx</span><span class="p">,</span> <span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data_loader</span><span class="p">):</span>
+            <span class="n">data</span><span class="p">,</span> <span class="n">target</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">),</span> <span class="n">target</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+            <span class="n">outputs</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">predicted</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">outputs</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">total</span> <span class="o">+=</span> <span class="n">target</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">correct</span> <span class="o">+=</span> <span class="p">(</span><span class="n">predicted</span> <span class="o">==</span> <span class="n">target</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">correct</span> <span class="o">/</span> <span class="n">total</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="tune-trainable-for-model-selection">
+<h2>Tune trainable for model selection<a class="headerlink" href="tune-serve-integration-mnist.html#tune-trainable-for-model-selection" title="Permalink to this headline">#</a></h2>
+<p>We’ll now define our Tune trainable function. This function takes
+a <code class="docutils literal notranslate"><span class="pre">config</span></code> parameter containing the hyperparameters we should train
+the model on, and will start a full training run. This means it
+will take care of creating the model and optimizer and repeatedly
+call the <code class="docutils literal notranslate"><span class="pre">train</span></code> function to train the model. Also, this function
+will report the training progress back to Tune.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">train_mnist</span><span class="p">(</span>
+    <span class="n">config</span><span class="p">,</span>
+    <span class="n">start_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">num_epochs</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">use_gpus</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">data_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">day</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="c1"># Create model</span>
+    <span class="n">use_cuda</span> <span class="o">=</span> <span class="n">use_gpus</span> <span class="ow">and</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span> <span class="k">if</span> <span class="n">use_cuda</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">ConvNet</span><span class="p">(</span><span class="n">layer_size</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;layer_size&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+
+    <span class="c1"># Create optimizer</span>
+    <span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;lr&quot;</span><span class="p">],</span> <span class="n">momentum</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;momentum&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Load checkpoint, or load start model if no checkpoint has been</span>
+    <span class="c1"># passed and a start model is specified</span>
+    
+    <span class="n">model_state</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">optimizer_state</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">start_model</span><span class="p">:</span>  <span class="c1"># load start model if provided</span>
+        <span class="n">model_state</span><span class="p">,</span> <span class="n">optimizer_state</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">load_dir</span><span class="p">,</span> <span class="s2">&quot;checkpoint.pt&quot;</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">session</span><span class="o">.</span><span class="n">get_checkpoint</span><span class="p">():</span>  <span class="c1"># load from previous checkpoint</span>
+        <span class="k">with</span> <span class="n">session</span><span class="o">.</span><span class="n">get_checkpoint</span><span class="p">()</span><span class="o">.</span><span class="n">as_directory</span><span class="p">()</span> <span class="k">as</span> <span class="n">loaded_checkpoint_dir</span><span class="p">:</span>
+            <span class="n">model_state</span><span class="p">,</span> <span class="n">optimizer_state</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">loaded_checkpoint_dir</span><span class="p">,</span> <span class="s2">&quot;checkpoint.pt&quot;</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">model_state</span><span class="p">:</span> 
+        <span class="n">model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">model_state</span><span class="p">)</span>
+        <span class="n">optimizer</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">optimizer_state</span><span class="p">)</span>
+
+
+    <span class="c1"># Get full training datasets</span>
+    <span class="n">train_dataset</span><span class="p">,</span> <span class="n">validation_dataset</span> <span class="o">=</span> <span class="n">data_fn</span><span class="p">(</span><span class="n">day</span><span class="o">=</span><span class="n">day</span><span class="p">)</span>
+
+    <span class="n">train_loader</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span>
+        <span class="n">train_dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;batch_size&quot;</span><span class="p">],</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+
+    <span class="n">validation_loader</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span>
+        <span class="n">validation_dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;batch_size&quot;</span><span class="p">],</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_epochs</span><span class="p">):</span>
+        <span class="n">train</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">train_loader</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
+        <span class="n">acc</span> <span class="o">=</span> <span class="n">test</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">validation_loader</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">num_epochs</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="s2">&quot;my_model&quot;</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()),</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;my_model/checkpoint.pt&quot;</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">Checkpoint</span><span class="o">.</span><span class="n">from_directory</span><span class="p">(</span><span class="s2">&quot;my_model&quot;</span><span class="p">)</span>
+            <span class="n">session</span><span class="o">.</span><span class="n">report</span><span class="p">({</span><span class="s2">&quot;mean_accuracy&quot;</span><span class="p">:</span> <span class="n">acc</span><span class="p">,</span> <span class="s2">&quot;done&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span> <span class="n">checkpoint</span><span class="o">=</span><span class="n">checkpoint</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">session</span><span class="o">.</span><span class="n">report</span><span class="p">({</span><span class="s2">&quot;mean_accuracy&quot;</span><span class="p">:</span> <span class="n">acc</span><span class="p">})</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="configuring-the-search-space-and-starting-ray-tune">
+<h2>Configuring the search space and starting Ray Tune<a class="headerlink" href="tune-serve-integration-mnist.html#configuring-the-search-space-and-starting-ray-tune" title="Permalink to this headline">#</a></h2>
+<p>We would like to support two modes of training the model: Training
+a model from scratch, and continuing to train a model from an
+existing one.</p>
+<p>This is our function to train a number of models with different
+hyperparameters from scratch, i.e. from all data that is available
+until the given day. Our search space can thus also contain parameters
+that affect the model complexity (such as the layer size), since it
+does not have to be compatible to an existing model.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">tune_from_scratch</span><span class="p">(</span><span class="n">num_samples</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">num_epochs</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">gpus_per_trial</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="n">data_interface</span> <span class="o">=</span> <span class="n">MNISTDataInterface</span><span class="p">(</span><span class="s2">&quot;~/data&quot;</span><span class="p">,</span> <span class="n">max_days</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">num_examples</span> <span class="o">=</span> <span class="n">data_interface</span><span class="o">.</span><span class="n">_get_day_slice</span><span class="p">(</span><span class="n">day</span><span class="p">)</span>
+
+    <span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">]),</span>
+        <span class="s2">&quot;layer_size&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">192</span><span class="p">]),</span>
+        <span class="s2">&quot;lr&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">loguniform</span><span class="p">(</span><span class="mf">1e-4</span><span class="p">,</span> <span class="mf">1e-1</span><span class="p">),</span>
+        <span class="s2">&quot;momentum&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">),</span>
+    <span class="p">}</span>
+
+    <span class="n">scheduler</span> <span class="o">=</span> <span class="n">ASHAScheduler</span><span class="p">(</span>
+        <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;mean_accuracy&quot;</span><span class="p">,</span>
+        <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;max&quot;</span><span class="p">,</span>
+        <span class="n">max_t</span><span class="o">=</span><span class="n">num_epochs</span><span class="p">,</span>
+        <span class="n">grace_period</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">reduction_factor</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">reporter</span> <span class="o">=</span> <span class="n">CLIReporter</span><span class="p">(</span>
+        <span class="n">parameter_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;layer_size&quot;</span><span class="p">,</span> <span class="s2">&quot;lr&quot;</span><span class="p">,</span> <span class="s2">&quot;momentum&quot;</span><span class="p">,</span> <span class="s2">&quot;batch_size&quot;</span><span class="p">],</span>
+        <span class="n">metric_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mean_accuracy&quot;</span><span class="p">,</span> <span class="s2">&quot;training_iteration&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    
+    <span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
+        <span class="n">tune</span><span class="o">.</span><span class="n">with_resources</span><span class="p">(</span>
+            <span class="n">partial</span><span class="p">(</span>
+                <span class="n">train_mnist</span><span class="p">,</span>
+                <span class="n">start_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">data_fn</span><span class="o">=</span><span class="n">data_interface</span><span class="o">.</span><span class="n">get_data</span><span class="p">,</span>
+                <span class="n">num_epochs</span><span class="o">=</span><span class="n">num_epochs</span><span class="p">,</span>
+                <span class="n">use_gpus</span><span class="o">=</span><span class="kc">True</span> <span class="k">if</span> <span class="n">gpus_per_trial</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">False</span><span class="p">,</span>
+                <span class="n">day</span><span class="o">=</span><span class="n">day</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">resources</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;cpu&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;gpu&quot;</span><span class="p">:</span> <span class="n">gpus_per_trial</span><span class="p">}</span>
+        <span class="p">),</span>
+        <span class="n">tune_config</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">TuneConfig</span><span class="p">(</span>
+            <span class="n">scheduler</span><span class="o">=</span><span class="n">scheduler</span><span class="p">,</span>
+            <span class="n">num_samples</span><span class="o">=</span><span class="n">num_samples</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">run_config</span><span class="o">=</span><span class="n">air</span><span class="o">.</span><span class="n">RunConfig</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;tune_serve_mnist_fromscratch&quot;</span><span class="p">,</span>
+            <span class="n">progress_reporter</span><span class="o">=</span><span class="n">reporter</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">param_space</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+    
+    <span class="n">best_result</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">get_best_result</span><span class="p">(</span><span class="s2">&quot;mean_accuracy&quot;</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">)</span>
+    
+    <span class="n">best_accuracy</span> <span class="o">=</span> <span class="n">best_result</span><span class="o">.</span><span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;mean_accuracy&quot;</span><span class="p">]</span>
+    <span class="n">best_trial_config</span> <span class="o">=</span> <span class="n">best_result</span><span class="o">.</span><span class="n">config</span>
+    <span class="n">best_checkpoint</span> <span class="o">=</span> <span class="n">best_result</span><span class="o">.</span><span class="n">checkpoint</span>
+
+    <span class="k">return</span> <span class="n">best_accuracy</span><span class="p">,</span> <span class="n">best_trial_config</span><span class="p">,</span> <span class="n">best_checkpoint</span><span class="p">,</span> <span class="n">num_examples</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>To continue training from an existing model, we can use this function
+instead. It takes a starting model (a checkpoint) as a parameter and
+the old config.</p>
+<p>Note that this time the search space does <em>not</em> contain the
+layer size parameter. Since we continue to train an existing model,
+we cannot change the layer size mid training, so we just continue
+to use the existing one.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">tune_from_existing</span><span class="p">(</span>
+    <span class="n">start_model</span><span class="p">,</span> <span class="n">start_config</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">num_epochs</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">gpus_per_trial</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="mi">0</span>
+<span class="p">):</span>
+    <span class="n">data_interface</span> <span class="o">=</span> <span class="n">MNISTDataInterface</span><span class="p">(</span><span class="s2">&quot;/tmp/mnist_data&quot;</span><span class="p">,</span> <span class="n">max_days</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">num_examples</span> <span class="o">=</span> <span class="n">data_interface</span><span class="o">.</span><span class="n">_get_day_slice</span><span class="p">(</span><span class="n">day</span><span class="p">)</span> <span class="o">-</span> <span class="n">data_interface</span><span class="o">.</span><span class="n">_get_day_slice</span><span class="p">(</span>
+        <span class="n">day</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="p">)</span>
+
+    <span class="n">config</span> <span class="o">=</span> <span class="n">start_config</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">]),</span>
+            <span class="s2">&quot;lr&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">loguniform</span><span class="p">(</span><span class="mf">1e-4</span><span class="p">,</span> <span class="mf">1e-1</span><span class="p">),</span>
+            <span class="s2">&quot;momentum&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">),</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="n">scheduler</span> <span class="o">=</span> <span class="n">ASHAScheduler</span><span class="p">(</span>
+        <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;mean_accuracy&quot;</span><span class="p">,</span>
+        <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;max&quot;</span><span class="p">,</span>
+        <span class="n">max_t</span><span class="o">=</span><span class="n">num_epochs</span><span class="p">,</span>
+        <span class="n">grace_period</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">reduction_factor</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">reporter</span> <span class="o">=</span> <span class="n">CLIReporter</span><span class="p">(</span>
+        <span class="n">parameter_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;lr&quot;</span><span class="p">,</span> <span class="s2">&quot;momentum&quot;</span><span class="p">,</span> <span class="s2">&quot;batch_size&quot;</span><span class="p">],</span>
+        <span class="n">metric_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mean_accuracy&quot;</span><span class="p">,</span> <span class="s2">&quot;training_iteration&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    
+    
+    <span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
+        <span class="n">tune</span><span class="o">.</span><span class="n">with_resources</span><span class="p">(</span>
+            <span class="n">partial</span><span class="p">(</span>
+                <span class="n">train_mnist</span><span class="p">,</span>
+                <span class="n">start_model</span><span class="o">=</span><span class="n">start_model</span><span class="p">,</span>
+                <span class="n">data_fn</span><span class="o">=</span><span class="n">data_interface</span><span class="o">.</span><span class="n">get_incremental_data</span><span class="p">,</span>
+                <span class="n">num_epochs</span><span class="o">=</span><span class="n">num_epochs</span><span class="p">,</span>
+                <span class="n">use_gpus</span><span class="o">=</span><span class="kc">True</span> <span class="k">if</span> <span class="n">gpus_per_trial</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">False</span><span class="p">,</span>
+                <span class="n">day</span><span class="o">=</span><span class="n">day</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">resources</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;cpu&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;gpu&quot;</span><span class="p">:</span> <span class="n">gpus_per_trial</span><span class="p">}</span>
+        <span class="p">),</span>
+        <span class="n">tune_config</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">TuneConfig</span><span class="p">(</span>
+            <span class="n">scheduler</span><span class="o">=</span><span class="n">scheduler</span><span class="p">,</span>
+            <span class="n">num_samples</span><span class="o">=</span><span class="n">num_samples</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">run_config</span><span class="o">=</span><span class="n">air</span><span class="o">.</span><span class="n">RunConfig</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;tune_serve_mnist_fromexisting&quot;</span><span class="p">,</span>
+            <span class="n">progress_reporter</span><span class="o">=</span><span class="n">reporter</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">param_space</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+
+    <span class="n">best_result</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">get_best_result</span><span class="p">(</span><span class="s2">&quot;mean_accuracy&quot;</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">)</span>
+    
+    <span class="n">best_accuracy</span> <span class="o">=</span> <span class="n">best_result</span><span class="o">.</span><span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;mean_accuracy&quot;</span><span class="p">]</span>
+    <span class="n">best_trial_config</span> <span class="o">=</span> <span class="n">best_result</span><span class="o">.</span><span class="n">config</span>
+    <span class="n">best_checkpoint</span> <span class="o">=</span> <span class="n">best_result</span><span class="o">.</span><span class="n">checkpoint</span>
+
+    <span class="k">return</span> <span class="n">best_accuracy</span><span class="p">,</span> <span class="n">best_trial_config</span><span class="p">,</span> <span class="n">best_checkpoint</span><span class="p">,</span> <span class="n">num_examples</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="serving-tuned-models-with-ray-serve">
+<h2>Serving tuned models with Ray Serve<a class="headerlink" href="tune-serve-integration-mnist.html#serving-tuned-models-with-ray-serve" title="Permalink to this headline">#</a></h2>
+<p>Let’s now turn to the model serving part with Ray Serve. Serve allows
+you to deploy your models as multiple <em>deployments</em>. Broadly speaking,
+a deployment handles incoming requests and replies with a result. For
+instance, our MNIST deployment takes an image as input and outputs the
+digit it recognized from it. This deployment can be exposed over HTTP.</p>
+<p>First, we will define our deployment. This loads our PyTorch
+MNIST model from a checkpoint, takes an image as an input and
+outputs our digit prediction according to our trained model:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@serve</span><span class="o">.</span><span class="n">deployment</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;mnist&quot;</span><span class="p">,</span> <span class="n">route_prefix</span><span class="o">=</span><span class="s2">&quot;/mnist&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">MNISTDeployment</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">checkpoint_dir</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">use_gpu</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_dir</span> <span class="o">=</span> <span class="n">checkpoint_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span> <span class="o">=</span> <span class="n">metrics</span>
+
+        <span class="n">use_cuda</span> <span class="o">=</span> <span class="n">use_gpu</span> <span class="ow">and</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span> <span class="k">if</span> <span class="n">use_cuda</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">ConvNet</span><span class="p">(</span><span class="n">layer_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;layer_size&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
+        <span class="n">model_state</span><span class="p">,</span> <span class="n">optimizer_state</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_dir</span><span class="p">,</span> <span class="s2">&quot;checkpoint.pt&quot;</span><span class="p">),</span> <span class="n">map_location</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span>
+        <span class="p">)</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">model_state</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flask_request</span><span class="p">):</span>
+        <span class="n">images</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">flask_request</span><span class="o">.</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">])</span>
+        <span class="n">images</span> <span class="o">=</span> <span class="n">images</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">images</span><span class="p">)</span>
+        <span class="n">predicted</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">outputs</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="n">predicted</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We would like to have a fixed location where we store the currently
+active model. We call this directory <code class="docutils literal notranslate"><span class="pre">model_dir</span></code>. Every time we
+would like to update our model, we copy the checkpoint of the new
+model to this directory. We then update the deployment to the new version.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">serve_new_model</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="n">checkpoint</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">day</span><span class="p">,</span> <span class="n">use_gpu</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Serving checkpoint: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">))</span>
+
+    <span class="n">checkpoint_path</span> <span class="o">=</span> <span class="n">_move_checkpoint_to_model_dir</span><span class="p">(</span>
+        <span class="n">model_dir</span><span class="p">,</span> <span class="n">checkpoint</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">metrics</span>
+    <span class="p">)</span>
+
+    <span class="n">serve</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">detached</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">MNISTDeployment</span><span class="o">.</span><span class="n">deploy</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">use_gpu</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_move_checkpoint_to_model_dir</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="n">checkpoint</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">metrics</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Move backend checkpoint to a central `model_dir` on the head node.</span>
+<span class="sd">    If you would like to run Serve on multiple nodes, you might want to</span>
+<span class="sd">    move the checkpoint to a shared storage, like Amazon S3, instead.&quot;&quot;&quot;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="mo">0o755</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">checkpoint_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="s2">&quot;checkpoint.pt&quot;</span><span class="p">)</span>
+    <span class="n">meta_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="s2">&quot;meta.json&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">):</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">)</span>
+
+    <span class="n">checkpoint</span><span class="o">.</span><span class="n">to_directory</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">meta_path</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="n">metrics</span><span class="p">),</span> <span class="n">fp</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">checkpoint_path</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Since we would like to continue training from the current existing
+model, we introduce an utility function that fetches the currently
+served checkpoint as well as the hyperparameter config and achieved
+accuracy.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_current_model</span><span class="p">(</span><span class="n">model_dir</span><span class="p">):</span>
+    <span class="n">checkpoint_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="s2">&quot;checkpoint.pt&quot;</span><span class="p">)</span>
+    <span class="n">meta_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="s2">&quot;meta.json&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">meta_path</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">meta_path</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+        <span class="n">meta</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">checkpoint_path</span><span class="p">,</span> <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;config&quot;</span><span class="p">],</span> <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;metrics&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="putting-everything-together">
+<h2>Putting everything together<a class="headerlink" href="tune-serve-integration-mnist.html#putting-everything-together" title="Permalink to this headline">#</a></h2>
+<p>Now we only need to glue this code together. This is the main
+entrypoint of the script, and we will define three methods:</p>
+<ol class="simple">
+<li><p>Train new model from scratch with all data</p></li>
+<li><p>Continue training from existing model with new data only</p></li>
+<li><p>Query the model with test data</p></li>
+</ol>
+<p>Internally, this will just call the <code class="docutils literal notranslate"><span class="pre">tune_from_scratch</span></code> and
+<code class="docutils literal notranslate"><span class="pre">tune_from_existing()</span></code> functions.
+Both training functions will then call <code class="docutils literal notranslate"><span class="pre">serve_new_model()</span></code> to serve
+the newly trained or updated model.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># The query function will send a HTTP request to Serve with some</span>
+<span class="c1"># test data obtained from the MNIST dataset.</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This script offers training a new model from scratch with all</span>
+<span class="sd">    available data, or continuing to train an existing model</span>
+<span class="sd">    with newly available data.</span>
+
+<span class="sd">    For instance, we might get new data every day. Every Sunday, we</span>
+<span class="sd">    would like to train a new model from scratch.</span>
+
+<span class="sd">    Naturally, we would like to use hyperparameter optimization to</span>
+<span class="sd">    find the best model for out data.</span>
+
+<span class="sd">    First, we might train a model with all data available at this day:</span>
+
+<span class="sd">    ```{code-block} bash</span>
+<span class="sd">    python tune-serve-integration-mnist.py --from_scratch --day 0</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    On the coming days, we want to continue to train this model with</span>
+<span class="sd">    newly available data:</span>
+
+<span class="sd">    ```{code-block} bash</span>
+<span class="sd">    python tune-serve-integration-mnist.py --from_existing --day 1</span>
+<span class="sd">    python tune-serve-integration-mnist.py --from_existing --day 2</span>
+<span class="sd">    python tune-serve-integration-mnist.py --from_existing --day 3</span>
+<span class="sd">    python tune-serve-integration-mnist.py --from_existing --day 4</span>
+<span class="sd">    python tune-serve-integration-mnist.py --from_existing --day 5</span>
+<span class="sd">    python tune-serve-integration-mnist.py --from_existing --day 6</span>
+<span class="sd">    # Retrain from scratch every 7th day:</span>
+<span class="sd">    python tune-serve-integration-mnist.py --from_scratch --day 7</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    We can also use this script to query our served model</span>
+<span class="sd">    with some test data:</span>
+
+<span class="sd">    ```{code-block} bash</span>
+<span class="sd">    python tune-serve-integration-mnist.py --query 6</span>
+<span class="sd">    Querying model with example #6. Label = 1, Response = 1, Correct = T</span>
+<span class="sd">    python tune-serve-integration-mnist.py --query 28</span>
+<span class="sd">    Querying model with example #28. Label = 2, Response = 7, Correct = F</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;MNIST Tune/Serve example&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--model_dir&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;~/mnist_tune_serve&quot;</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--from_scratch&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Train and select best model from scratch&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--from_existing&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Train and select best model from existing model&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--day&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Indicate the day to simulate the amount of data available to us&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--query&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Query endpoint with example&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=-</span><span class="mi">1</span>
+    <span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--smoke-test&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Finish quickly for testing&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">smoke_test</span><span class="p">:</span>
+        <span class="n">ray</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">num_cpus</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="s2">&quot;tune-serve-integration&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ray</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">namespace</span><span class="o">=</span><span class="s2">&quot;tune-serve-integration&quot;</span><span class="p">)</span>
+
+    <span class="n">model_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">model_dir</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">query</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">requests</span>
+
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">MNISTDataInterface</span><span class="p">(</span><span class="s2">&quot;/tmp/mnist_data&quot;</span><span class="p">,</span> <span class="n">max_days</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">dataset</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="n">args</span><span class="o">.</span><span class="n">query</span><span class="p">]</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># Query our model</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+            <span class="s2">&quot;http://localhost:8000/mnist&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;images&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()]}</span>
+        <span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">pred</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s2">&quot;result&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">except</span><span class="p">:</span>  <span class="c1"># noqa: E722</span>
+            <span class="n">pred</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s2">&quot;Querying model with example #</span><span class="si">{}</span><span class="s2">. &quot;</span>
+            <span class="s2">&quot;Label = </span><span class="si">{}</span><span class="s2">, Response = </span><span class="si">{}</span><span class="s2">, Correct = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">args</span><span class="o">.</span><span class="n">query</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">pred</span><span class="p">,</span> <span class="n">label</span> <span class="o">==</span> <span class="n">pred</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">gpus_per_trial</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">smoke_test</span> <span class="k">else</span> <span class="mf">0.0</span>
+    <span class="n">serve_gpu</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">gpus_per_trial</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">False</span>
+    <span class="n">num_samples</span> <span class="o">=</span> <span class="mi">8</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">smoke_test</span> <span class="k">else</span> <span class="mi">1</span>
+    <span class="n">num_epochs</span> <span class="o">=</span> <span class="mi">10</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">smoke_test</span> <span class="k">else</span> <span class="mi">1</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">from_scratch</span><span class="p">:</span>  <span class="c1"># train everyday from scratch</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Start training job from scratch on day </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">day</span><span class="p">))</span>
+        <span class="n">acc</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">best_checkpoint</span><span class="p">,</span> <span class="n">num_examples</span> <span class="o">=</span> <span class="n">tune_from_scratch</span><span class="p">(</span>
+            <span class="n">num_samples</span><span class="p">,</span> <span class="n">num_epochs</span><span class="p">,</span> <span class="n">gpus_per_trial</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">day</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s2">&quot;Trained day </span><span class="si">{}</span><span class="s2"> from scratch on </span><span class="si">{}</span><span class="s2"> samples. &quot;</span>
+            <span class="s2">&quot;Best accuracy: </span><span class="si">{:.4f}</span><span class="s2">. Best config: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">args</span><span class="o">.</span><span class="n">day</span><span class="p">,</span> <span class="n">num_examples</span><span class="p">,</span> <span class="n">acc</span><span class="p">,</span> <span class="n">config</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">serve_new_model</span><span class="p">(</span>
+            <span class="n">model_dir</span><span class="p">,</span> <span class="n">best_checkpoint</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">acc</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">day</span><span class="p">,</span> <span class="n">use_gpu</span><span class="o">=</span><span class="n">serve_gpu</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">from_existing</span><span class="p">:</span>
+        <span class="n">old_checkpoint</span><span class="p">,</span> <span class="n">old_config</span><span class="p">,</span> <span class="n">old_acc</span> <span class="o">=</span> <span class="n">get_current_model</span><span class="p">(</span><span class="n">model_dir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">old_checkpoint</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">old_config</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">old_acc</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No existing model found. Train one with --from_scratch &quot;</span> <span class="s2">&quot;first.&quot;</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">acc</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">best_checkpoint</span><span class="p">,</span> <span class="n">num_examples</span> <span class="o">=</span> <span class="n">tune_from_existing</span><span class="p">(</span>
+            <span class="n">old_checkpoint</span><span class="p">,</span>
+            <span class="n">old_config</span><span class="p">,</span>
+            <span class="n">num_samples</span><span class="p">,</span>
+            <span class="n">num_epochs</span><span class="p">,</span>
+            <span class="n">gpus_per_trial</span><span class="p">,</span>
+            <span class="n">day</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">day</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s2">&quot;Trained day </span><span class="si">{}</span><span class="s2"> from existing on </span><span class="si">{}</span><span class="s2"> samples. &quot;</span>
+            <span class="s2">&quot;Best accuracy: </span><span class="si">{:.4f}</span><span class="s2">. Best config: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">args</span><span class="o">.</span><span class="n">day</span><span class="p">,</span> <span class="n">num_examples</span><span class="p">,</span> <span class="n">acc</span><span class="p">,</span> <span class="n">config</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">serve_new_model</span><span class="p">(</span>
+            <span class="n">model_dir</span><span class="p">,</span> <span class="n">best_checkpoint</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">acc</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">day</span><span class="p">,</span> <span class="n">use_gpu</span><span class="o">=</span><span class="n">serve_gpu</span>
+        <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>usage: ipykernel_launcher.py [-h] [--model_dir MODEL_DIR] [--from_scratch]
+                             [--from_existing] [--day DAY] [--query QUERY]
+                             [--smoke-test]
+ipykernel_launcher.py: error: unrecognized arguments: -f /Users/kai/Library/Jupyter/runtime/kernel-9c0f3c7b-64e3-4a09-881d-c6042a0a9a80.json
+</pre></div>
+</div>
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="n">An</span> <span class="n">exception</span> <span class="n">has</span> <span class="n">occurred</span><span class="p">,</span> <span class="n">use</span> <span class="o">%</span><span class="k">tb</span> to see the full traceback.
+
+<span class="ne">SystemExit</span>: 2
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/Users/kai/.pyenv/versions/3.7.7/lib/python3.7/site-packages/IPython/core/interactiveshell.py:3532: UserWarning: To exit: use &#39;exit&#39;, &#39;quit&#39;, or Ctrl-D.
+  warn(&quot;To exit: use &#39;exit&#39;, &#39;quit&#39;, or Ctrl-D.&quot;, stacklevel=1)
+</pre></div>
+</div>
+</div>
+</div>
+<p>That’s it! We now have an end-to-end workflow to train and update a
+model every day with newly arrived data. Every week we might retrain
+the whole model. At every point in time we make sure to serve the
+model that achieved the best validation set accuracy.</p>
+<p>There are some ways we might extend this example. For instance, right
+now we only serve the latest trained model. We could  also choose to
+route only a certain percentage of users to the new model, maybe to
+see if the new model really does it’s job right. These kind of
+deployments are called canary deployments.
+These kind of deployments would also require us to keep more than one
+model in our <code class="docutils literal notranslate"><span class="pre">model_dir</span></code> - which should be quite easy: We could just
+create subdirectories for each training day.</p>
+<p>Still, this example should show you how easy it is to integrate the
+Ray libraries Ray Tune and Ray Serve in your workflow. While both tools
+also work independently of each other, they complement each other
+nicely and support a large number of use cases.</p>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="mxnet_example.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Using MXNet with Tune</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="pbt_ppo_example.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Using RLlib with Tune</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

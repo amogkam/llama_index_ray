@@ -1,0 +1,733 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Debugging for Ray Developers &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/js/versionwarning.js"></script>
+    <script src="../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../_static/js/docsearch.js"></script>
+    <script src="../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../_static/js/termynal.js"></script>
+    <script defer="defer" src="../_static/js/custom.js"></script>
+    <script defer="defer" src="../_static/js/top-navigation.js"></script>
+    <script src="../_static/js/tags.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../_static/design-tabs.js"></script>
+    <script async="async" src="../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/ray-contribute/debugging.html" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Profiling for Ray Developers" href="profiling.html" />
+    <link rel="prev" title="Tips for testing Ray programs" href="../ray-core/examples/testing-tips.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "ray-contribute/debugging", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".rst", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../tune.html">
+   Ray Tune
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="stability.html">
+   Developer Guides
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="getting-involved.html">
+     Getting Involved / Contributing
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="development.html">
+       Building Ray from Source
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="docs.html">
+       Contributing to the Ray Documentation
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="writing-code-snippets.html">
+       How to write code snippets
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="fake-autoscaler.html">
+       Testing Autoscaling Locally
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../ray-core/examples/testing-tips.html">
+       Tips for testing Ray programs
+      </a>
+     </li>
+     <li class="toctree-l3 current active">
+      <a class="current reference internal" href="debugging.html#">
+       Debugging for Ray Developers
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="profiling.html">
+       Profiling for Ray Developers
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../ray-core/configure.html">
+     Configuring Ray
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="whitepaper.html">
+     Architecture Whitepapers
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Fray-contribute/debugging.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/ray-contribute/debugging.rst"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../_sources/ray-contribute/debugging.rst.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.rst</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="debugging.html#starting-processes-in-a-debugger">
+   Starting processes in a debugger
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="debugging.html#backend-logging">
+   Backend logging
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="debugging.html#backend-event-stats">
+   Backend event stats
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="debugging.html#callback-latency-injection">
+   Callback latency injection
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Debugging for Ray Developers</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="debugging.html#starting-processes-in-a-debugger">
+   Starting processes in a debugger
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="debugging.html#backend-logging">
+   Backend logging
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="debugging.html#backend-event-stats">
+   Backend event stats
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="debugging.html#callback-latency-injection">
+   Callback latency injection
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section id="debugging-for-ray-developers">
+<h1>Debugging for Ray Developers<a class="headerlink" href="debugging.html#debugging-for-ray-developers" title="Permalink to this headline">#</a></h1>
+<p>This debugging guide is for contributors to the Ray project.</p>
+<section id="starting-processes-in-a-debugger">
+<h2>Starting processes in a debugger<a class="headerlink" href="debugging.html#starting-processes-in-a-debugger" title="Permalink to this headline">#</a></h2>
+<p>When processes are crashing, it is often useful to start them in a debugger.
+Ray currently allows processes to be started in the following:</p>
+<ul class="simple">
+<li><p>valgrind</p></li>
+<li><p>the valgrind profiler</p></li>
+<li><p>the perftools profiler</p></li>
+<li><p>gdb</p></li>
+<li><p>tmux</p></li>
+</ul>
+<p>To use any of these tools, please make sure that you have them installed on
+your machine first (<code class="docutils literal notranslate"><span class="pre">gdb</span></code> and <code class="docutils literal notranslate"><span class="pre">valgrind</span></code> on MacOS are known to have issues).
+Then, you can launch a subset of ray processes by adding the environment
+variable <code class="docutils literal notranslate"><span class="pre">RAY_{PROCESS_NAME}_{DEBUGGER}=1</span></code>. For instance, if you wanted to
+start the raylet in <code class="docutils literal notranslate"><span class="pre">valgrind</span></code>, then you simply need to set the environment
+variable <code class="docutils literal notranslate"><span class="pre">RAY_RAYLET_VALGRIND=1</span></code>.</p>
+<p>To start a process inside of <code class="docutils literal notranslate"><span class="pre">gdb</span></code>, the process must also be started inside of
+<code class="docutils literal notranslate"><span class="pre">tmux</span></code>. So if you want to start the raylet in <code class="docutils literal notranslate"><span class="pre">gdb</span></code>, you would start your
+Python script with the following:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">RAY_RAYLET_GDB</span><span class="o">=</span><span class="m">1</span> <span class="nv">RAY_RAYLET_TMUX</span><span class="o">=</span><span class="m">1</span> python
+</pre></div>
+</div>
+<p>You can then list the <code class="docutils literal notranslate"><span class="pre">tmux</span></code> sessions with <code class="docutils literal notranslate"><span class="pre">tmux</span> <span class="pre">ls</span></code> and attach to the
+appropriate one.</p>
+<p>You can also get a core dump of the <code class="docutils literal notranslate"><span class="pre">raylet</span></code> process, which is especially
+useful when filing <a class="reference external" href="https://github.com/ray-project/ray/issues">issues</a>. The process to obtain a core dump is OS-specific,
+but usually involves running <code class="docutils literal notranslate"><span class="pre">ulimit</span> <span class="pre">-c</span> <span class="pre">unlimited</span></code> before starting Ray to
+allow core dump files to be written.</p>
+</section>
+<section id="backend-logging">
+<span id="id1"></span><h2>Backend logging<a class="headerlink" href="debugging.html#backend-logging" title="Permalink to this headline">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">raylet</span></code> process logs detailed information about events like task
+execution and object transfers between nodes. To set the logging level at
+runtime, you can set the <code class="docutils literal notranslate"><span class="pre">RAY_BACKEND_LOG_LEVEL</span></code> environment variable before
+starting Ray. For example, you can do:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">RAY_BACKEND_LOG_LEVEL</span><span class="o">=</span>debug
+ray start
+</pre></div>
+</div>
+<p>This will print any <code class="docutils literal notranslate"><span class="pre">RAY_LOG(DEBUG)</span></code> lines in the source code to the
+<code class="docutils literal notranslate"><span class="pre">raylet.err</span></code> file, which you can find in <a class="reference internal" href="../ray-core/configure.html#temp-dir-log-files"><span class="std std-ref">Logging and Debugging</span></a>.
+If it worked, you should see as the first line in <code class="docutils literal notranslate"><span class="pre">raylet.err</span></code>:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>logging.cc:270: Set ray log level from environment variable RAY_BACKEND_LOG_LEVEL to -1
+</pre></div>
+</div>
+<p>(-1 is defined as RayLogLevel::DEBUG in logging.h.)</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;chrono&gt;</span><span class="cp"></span>
+</pre></div>
+</div>
+</section>
+<section id="backend-event-stats">
+<h2>Backend event stats<a class="headerlink" href="debugging.html#backend-event-stats" title="Permalink to this headline">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">raylet</span></code> process also periodically dumps event stats to the <code class="docutils literal notranslate"><span class="pre">debug_state.txt</span></code> log
+file if the <code class="docutils literal notranslate"><span class="pre">RAY_event_stats=1</span></code> environment variable is set. To also enable regular
+printing of the stats to log files, you can additional set <code class="docutils literal notranslate"><span class="pre">RAY_event_stats_print_interval_ms=1000</span></code>.</p>
+<p>Event stats include ASIO event handlers, periodic timers, and RPC handlers. Here is a sample
+of what the event stats look like:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>Event stats:
+Global stats: <span class="m">739128</span> total <span class="o">(</span><span class="m">27</span> active<span class="o">)</span>
+Queueing time: <span class="nv">mean</span> <span class="o">=</span> <span class="m">47</span>.402 ms, <span class="nv">max</span> <span class="o">=</span> <span class="m">1372</span>.219 s, <span class="nv">min</span> <span class="o">=</span> -0.000 s, <span class="nv">total</span> <span class="o">=</span> <span class="m">35035</span>.892 s
+Execution time:  <span class="nv">mean</span> <span class="o">=</span> <span class="m">36</span>.943 us, <span class="nv">total</span> <span class="o">=</span> <span class="m">27</span>.306 s
+Handler stats:
+  ClientConnection.async_read.ReadBufferAsync - <span class="m">241173</span> total <span class="o">(</span><span class="m">19</span> active<span class="o">)</span>, CPU time: <span class="nv">mean</span> <span class="o">=</span> <span class="m">9</span>.999 us, <span class="nv">total</span> <span class="o">=</span> <span class="m">2</span>.411 s
+  ObjectManager.ObjectAdded - <span class="m">61215</span> total <span class="o">(</span><span class="m">0</span> active<span class="o">)</span>, CPU time: <span class="nv">mean</span> <span class="o">=</span> <span class="m">43</span>.953 us, <span class="nv">total</span> <span class="o">=</span> <span class="m">2</span>.691 s
+  CoreWorkerService.grpc_client.AddObjectLocationOwner - <span class="m">61204</span> total <span class="o">(</span><span class="m">0</span> active<span class="o">)</span>, CPU time: <span class="nv">mean</span> <span class="o">=</span> <span class="m">3</span>.860 us, <span class="nv">total</span> <span class="o">=</span> <span class="m">236</span>.231 ms
+  CoreWorkerService.grpc_client.GetObjectLocationsOwner - <span class="m">51333</span> total <span class="o">(</span><span class="m">0</span> active<span class="o">)</span>, CPU time: <span class="nv">mean</span> <span class="o">=</span> <span class="m">25</span>.166 us, <span class="nv">total</span> <span class="o">=</span> <span class="m">1</span>.292 s
+  ObjectManager.ObjectDeleted - <span class="m">43188</span> total <span class="o">(</span><span class="m">0</span> active<span class="o">)</span>, CPU time: <span class="nv">mean</span> <span class="o">=</span> <span class="m">26</span>.017 us, <span class="nv">total</span> <span class="o">=</span> <span class="m">1</span>.124 s
+  CoreWorkerService.grpc_client.RemoveObjectLocationOwner - <span class="m">43177</span> total <span class="o">(</span><span class="m">0</span> active<span class="o">)</span>, CPU time: <span class="nv">mean</span> <span class="o">=</span> <span class="m">2</span>.368 us, <span class="nv">total</span> <span class="o">=</span> <span class="m">102</span>.252 ms
+  NodeManagerService.grpc_server.PinObjectIDs - <span class="m">40000</span> total <span class="o">(</span><span class="m">0</span> active<span class="o">)</span>, CPU time: <span class="nv">mean</span> <span class="o">=</span> <span class="m">194</span>.860 us, <span class="nv">total</span> <span class="o">=</span> <span class="m">7</span>.794 s
+</pre></div>
+</div>
+</section>
+<section id="callback-latency-injection">
+<h2>Callback latency injection<a class="headerlink" href="debugging.html#callback-latency-injection" title="Permalink to this headline">#</a></h2>
+<p>Sometimes, bugs are caused by RPC issues, for example, due to the delay of some requests, the system goes to a deadlock.
+To debug and reproduce this kind of issue, we need to have a way to inject latency for the RPC request. To enable this,
+<code class="docutils literal notranslate"><span class="pre">RAY_testing_asio_delay_us</span></code> is introduced. If you’d like to make the callback of some RPC requests be executed after some time,
+you can do it with this variable. For example:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">RAY_testing_asio_delay_us</span><span class="o">=</span><span class="s2">&quot;NodeManagerService.grpc_client.PrepareBundleResources=2000000:2000000&quot;</span> ray start --head
+</pre></div>
+</div>
+<p>The syntax for this is <code class="docutils literal notranslate"><span class="pre">RAY_testing_asio_delay_us=&quot;method1=min_us:max_us,method2=min_us:max_us&quot;</span></code>. Entries are comma separated.
+There is a special method <code class="docutils literal notranslate"><span class="pre">*</span></code> which means all methods. It has a lower priority compared with other entries.</p>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="../ray-core/examples/testing-tips.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Tips for testing Ray programs</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="profiling.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Profiling for Ray Developers</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

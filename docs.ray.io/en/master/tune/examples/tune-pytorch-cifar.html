@@ -1,0 +1,1569 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>How to use Tune with PyTorch &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/js/versionwarning.js"></script>
+    <script src="../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../_static/js/docsearch.js"></script>
+    <script src="../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../_static/js/top-navigation.js"></script>
+    <script src="../../_static/js/tags.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/tune/examples/tune-pytorch-cifar.html" />
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Using PyTorch Lightning with Tune" href="tune-pytorch-lightning.html" />
+    <link rel="prev" title="Using Keras &amp; TensorFlow with Tune" href="tune_mnist_keras.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "tune/examples/tune-pytorch-cifar", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".ipynb", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../../tune.html">
+   Ray Tune
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../getting-started.html">
+     Getting Started
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../tutorials/overview.html">
+     User Guides
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="index.html">
+     Ray Tune Examples
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3 current active has-children">
+      <a class="reference internal" href="ml-frameworks.html">
+       Examples using Ray Tune with ML Frameworks
+      </a>
+      <input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+      <label for="toctree-checkbox-3">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul class="current">
+       <li class="toctree-l4">
+        <a class="reference internal" href="tune-sklearn.html">
+         Scikit-Learn Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="tune_mnist_keras.html">
+         Keras Example
+        </a>
+       </li>
+       <li class="toctree-l4 current active">
+        <a class="current reference internal" href="tune-pytorch-cifar.html#">
+         PyTorch Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="tune-pytorch-lightning.html">
+         PyTorch Lightning Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="mxnet_example.html">
+         MXNet Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="tune-serve-integration-mnist.html">
+         Ray Serve Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="pbt_ppo_example.html">
+         Ray RLlib Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="tune-xgboost.html">
+         XGBoost Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="lightgbm_example.html">
+         LightGBM Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="horovod_simple.html">
+         Horovod Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="pbt_transformers.html">
+         Hugging Face Transformers Example
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="experiment-tracking.html">
+       Tune Experiment Tracking Examples
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="hpo-frameworks.html">
+       Tune Hyperparameter Optimization Framework Examples
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="other-examples.html">
+       Other Examples
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="exercises.html">
+       Exercises
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../faq.html">
+     Ray Tune FAQ
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/api.html">
+     Ray Tune API
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Ftune/examples/tune-pytorch-cifar.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/tune/examples/tune-pytorch-cifar.ipynb"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../_sources/tune/examples/tune-pytorch-cifar.ipynb.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.ipynb</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-pytorch-cifar.html#setup-imports">
+   Setup / Imports
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-pytorch-cifar.html#data-loaders">
+   Data loaders
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-pytorch-cifar.html#configurable-neural-network">
+   Configurable neural network
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-pytorch-cifar.html#the-train-function">
+   The train function
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-pytorch-cifar.html#test-set-accuracy">
+   Test set accuracy
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-pytorch-cifar.html#configuring-the-search-space">
+   Configuring the search space
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-pytorch-cifar.html#see-more-pytorch-examples">
+   See More PyTorch Examples
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>How to use Tune with PyTorch</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-pytorch-cifar.html#setup-imports">
+   Setup / Imports
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-pytorch-cifar.html#data-loaders">
+   Data loaders
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-pytorch-cifar.html#configurable-neural-network">
+   Configurable neural network
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-pytorch-cifar.html#the-train-function">
+   The train function
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-pytorch-cifar.html#test-set-accuracy">
+   Test set accuracy
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-pytorch-cifar.html#configuring-the-search-space">
+   Configuring the search space
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-pytorch-cifar.html#see-more-pytorch-examples">
+   See More PyTorch Examples
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section class="tex2jax_ignore mathjax_ignore" id="how-to-use-tune-with-pytorch">
+<h1>How to use Tune with PyTorch<a class="headerlink" href="tune-pytorch-cifar.html#how-to-use-tune-with-pytorch" title="Permalink to this headline">#</a></h1>
+<p id="tune-pytorch-cifar-ref">In this walkthrough, we will show you how to integrate Tune into your PyTorch
+training workflow. We will follow <a class="reference external" href="https://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html">this tutorial from the PyTorch documentation</a>
+for training a CIFAR10 image classifier.</p>
+<img alt="../../_images/pytorch_logo.png" class="align-center" src="../../_images/pytorch_logo.png" />
+<p>Hyperparameter tuning can make the difference between an average model and a highly
+accurate one. Often simple things like choosing a different learning rate or changing
+a network layer size can have a dramatic impact on your model performance. Fortunately,
+Tune makes exploring these optimal parameter combinations easy - and works nicely
+together with PyTorch.</p>
+<p>As you will see, we only need to add some slight modifications. In particular, we
+need to</p>
+<ol class="simple">
+<li><p>wrap data loading and training in functions,</p></li>
+<li><p>make some network parameters configurable,</p></li>
+<li><p>add checkpointing (optional),</p></li>
+<li><p>and define the search space for the model tuning</p></li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To run this example, you will need to install the following:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pip install ray torch torchvision
+</pre></div>
+</div>
+</div>
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="tune-pytorch-cifar.html#setup-imports" id="id1">Setup / Imports</a></p></li>
+<li><p><a class="reference internal" href="tune-pytorch-cifar.html#data-loaders" id="id2">Data loaders</a></p></li>
+<li><p><a class="reference internal" href="tune-pytorch-cifar.html#configurable-neural-network" id="id3">Configurable neural network</a></p></li>
+<li><p><a class="reference internal" href="tune-pytorch-cifar.html#the-train-function" id="id4">The train function</a></p></li>
+<li><p><a class="reference internal" href="tune-pytorch-cifar.html#test-set-accuracy" id="id5">Test set accuracy</a></p></li>
+<li><p><a class="reference internal" href="tune-pytorch-cifar.html#configuring-the-search-space" id="id6">Configuring the search space</a></p></li>
+<li><p><a class="reference internal" href="tune-pytorch-cifar.html#see-more-pytorch-examples" id="id7">See More PyTorch Examples</a></p></li>
+</ul>
+</div>
+<section id="setup-imports">
+<h2>Setup / Imports<a class="headerlink" href="tune-pytorch-cifar.html#setup-imports" title="Permalink to this headline">#</a></h2>
+<p>Let’s start with the imports:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+<span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
+<span class="kn">import</span> <span class="nn">torch.optim</span> <span class="k">as</span> <span class="nn">optim</span>
+<span class="kn">from</span> <span class="nn">filelock</span> <span class="kn">import</span> <span class="n">FileLock</span>
+<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">random_split</span>
+<span class="kn">import</span> <span class="nn">torchvision</span>
+<span class="kn">import</span> <span class="nn">torchvision.transforms</span> <span class="k">as</span> <span class="nn">transforms</span>
+<span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">from</span> <span class="nn">ray</span> <span class="kn">import</span> <span class="n">tune</span>
+<span class="kn">from</span> <span class="nn">ray.air</span> <span class="kn">import</span> <span class="n">session</span>
+<span class="kn">from</span> <span class="nn">ray.air.checkpoint</span> <span class="kn">import</span> <span class="n">Checkpoint</span>
+<span class="kn">from</span> <span class="nn">ray.tune.schedulers</span> <span class="kn">import</span> <span class="n">ASHAScheduler</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Most of the imports are needed for building the PyTorch model. Only the last three
+imports are for Ray Tune.</p>
+</section>
+<section id="data-loaders">
+<h2>Data loaders<a class="headerlink" href="tune-pytorch-cifar.html#data-loaders" title="Permalink to this headline">#</a></h2>
+<p>We wrap the data loaders in their own function and pass a global data directory.
+This way we can share a data directory between different trials.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">load_data</span><span class="p">(</span><span class="n">data_dir</span><span class="o">=</span><span class="s2">&quot;./data&quot;</span><span class="p">):</span>
+    <span class="n">transform</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span>
+        <span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
+        <span class="n">transforms</span><span class="o">.</span><span class="n">Normalize</span><span class="p">((</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">))</span>
+    <span class="p">])</span>
+
+    <span class="c1"># We add FileLock here because multiple workers will want to</span>
+    <span class="c1"># download data, and this may cause overwrites since</span>
+    <span class="c1"># DataLoader is not threadsafe.</span>
+    <span class="k">with</span> <span class="n">FileLock</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~/.data.lock&quot;</span><span class="p">)):</span>
+        <span class="n">trainset</span> <span class="o">=</span> <span class="n">torchvision</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">CIFAR10</span><span class="p">(</span>
+            <span class="n">root</span><span class="o">=</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">download</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">)</span>
+
+        <span class="n">testset</span> <span class="o">=</span> <span class="n">torchvision</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">CIFAR10</span><span class="p">(</span>
+            <span class="n">root</span><span class="o">=</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">download</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">trainset</span><span class="p">,</span> <span class="n">testset</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="configurable-neural-network">
+<h2>Configurable neural network<a class="headerlink" href="tune-pytorch-cifar.html#configurable-neural-network" title="Permalink to this headline">#</a></h2>
+<p>We can only tune those parameters that are configurable. In this example, we can specify
+the layer sizes of the fully connected layers:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Net</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">l1</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span> <span class="n">l2</span><span class="o">=</span><span class="mi">84</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Net</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conv1</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pool</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">MaxPool2d</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conv2</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fc1</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">16</span> <span class="o">*</span> <span class="mi">5</span> <span class="o">*</span> <span class="mi">5</span><span class="p">,</span> <span class="n">l1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fc2</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">l1</span><span class="p">,</span> <span class="n">l2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fc3</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">l2</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv1</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv2</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">16</span> <span class="o">*</span> <span class="mi">5</span> <span class="o">*</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fc1</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fc2</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fc3</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="the-train-function">
+<h2>The train function<a class="headerlink" href="tune-pytorch-cifar.html#the-train-function" title="Permalink to this headline">#</a></h2>
+<p>Now it gets interesting, because we introduce some changes to the example <a class="reference external" href="https://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html">from the PyTorch
+documentation</a>.</p>
+<p id="communicating-with-ray-tune">The full code example looks like this:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">train_cifar</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="n">net</span> <span class="o">=</span> <span class="n">Net</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;l1&quot;</span><span class="p">],</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;l2&quot;</span><span class="p">])</span>
+
+    <span class="n">device</span> <span class="o">=</span> <span class="s2">&quot;cpu&quot;</span>
+    <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">():</span>
+        <span class="n">device</span> <span class="o">=</span> <span class="s2">&quot;cuda:0&quot;</span>
+        <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">device_count</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">net</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">DataParallel</span><span class="p">(</span><span class="n">net</span><span class="p">)</span>
+    <span class="n">net</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+
+    <span class="n">criterion</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">CrossEntropyLoss</span><span class="p">()</span>
+    <span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="n">net</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;lr&quot;</span><span class="p">],</span> <span class="n">momentum</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
+
+    <span class="c1"># To restore a checkpoint, use `session.get_checkpoint()`.</span>
+    <span class="n">loaded_checkpoint</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">get_checkpoint</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">loaded_checkpoint</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">loaded_checkpoint</span><span class="o">.</span><span class="n">as_directory</span><span class="p">()</span> <span class="k">as</span> <span class="n">loaded_checkpoint_dir</span><span class="p">:</span>
+           <span class="n">model_state</span><span class="p">,</span> <span class="n">optimizer_state</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">loaded_checkpoint_dir</span><span class="p">,</span> <span class="s2">&quot;checkpoint.pt&quot;</span><span class="p">))</span>
+        <span class="n">net</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">model_state</span><span class="p">)</span>
+        <span class="n">optimizer</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">optimizer_state</span><span class="p">)</span>
+
+    <span class="n">data_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="s2">&quot;./data&quot;</span><span class="p">)</span>
+    <span class="n">trainset</span><span class="p">,</span> <span class="n">testset</span> <span class="o">=</span> <span class="n">load_data</span><span class="p">(</span><span class="n">data_dir</span><span class="p">)</span>
+
+    <span class="n">test_abs</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">trainset</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.8</span><span class="p">)</span>
+    <span class="n">train_subset</span><span class="p">,</span> <span class="n">val_subset</span> <span class="o">=</span> <span class="n">random_split</span><span class="p">(</span>
+        <span class="n">trainset</span><span class="p">,</span> <span class="p">[</span><span class="n">test_abs</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">trainset</span><span class="p">)</span> <span class="o">-</span> <span class="n">test_abs</span><span class="p">])</span>
+
+    <span class="n">trainloader</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span>
+        <span class="n">train_subset</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;batch_size&quot;</span><span class="p">]),</span>
+        <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">num_workers</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+    <span class="n">valloader</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span>
+        <span class="n">val_subset</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;batch_size&quot;</span><span class="p">]),</span>
+        <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">num_workers</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>  <span class="c1"># loop over the dataset multiple times</span>
+        <span class="n">running_loss</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">epoch_steps</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">trainloader</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="c1"># get the inputs; data is a list of [inputs, labels]</span>
+            <span class="n">inputs</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">data</span>
+            <span class="n">inputs</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">),</span> <span class="n">labels</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+
+            <span class="c1"># zero the parameter gradients</span>
+            <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+
+            <span class="c1"># forward + backward + optimize</span>
+            <span class="n">outputs</span> <span class="o">=</span> <span class="n">net</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+            <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+            <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
+            <span class="c1"># print statistics</span>
+            <span class="n">running_loss</span> <span class="o">+=</span> <span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+            <span class="n">epoch_steps</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">2000</span> <span class="o">==</span> <span class="mi">1999</span><span class="p">:</span>  <span class="c1"># print every 2000 mini-batches</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;[</span><span class="si">%d</span><span class="s2">, </span><span class="si">%5d</span><span class="s2">] loss: </span><span class="si">%.3f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">epoch</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                                                <span class="n">running_loss</span> <span class="o">/</span> <span class="n">epoch_steps</span><span class="p">))</span>
+                <span class="n">running_loss</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="c1"># Validation loss</span>
+        <span class="n">val_loss</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">val_steps</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">correct</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">valloader</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+                <span class="n">inputs</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">data</span>
+                <span class="n">inputs</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">),</span> <span class="n">labels</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+
+                <span class="n">outputs</span> <span class="o">=</span> <span class="n">net</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+                <span class="n">_</span><span class="p">,</span> <span class="n">predicted</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">outputs</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">total</span> <span class="o">+=</span> <span class="n">labels</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">correct</span> <span class="o">+=</span> <span class="p">(</span><span class="n">predicted</span> <span class="o">==</span> <span class="n">labels</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+
+                <span class="n">loss</span> <span class="o">=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+                <span class="n">val_loss</span> <span class="o">+=</span> <span class="n">loss</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+                <span class="n">val_steps</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># Here we save a checkpoint. It is automatically registered with</span>
+        <span class="c1"># Ray Tune and can be accessed through `session.get_checkpoint()`</span>
+        <span class="c1"># API in future iterations.</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="s2">&quot;my_model&quot;</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">net</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()),</span> <span class="s2">&quot;my_model/checkpoint.pt&quot;</span><span class="p">)</span>
+        <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">Checkpoint</span><span class="o">.</span><span class="n">from_directory</span><span class="p">(</span><span class="s2">&quot;my_model&quot;</span><span class="p">)</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">report</span><span class="p">({</span><span class="s2">&quot;loss&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">val_loss</span> <span class="o">/</span> <span class="n">val_steps</span><span class="p">),</span> <span class="s2">&quot;accuracy&quot;</span><span class="p">:</span> <span class="n">correct</span> <span class="o">/</span> <span class="n">total</span><span class="p">},</span> <span class="n">checkpoint</span><span class="o">=</span><span class="n">checkpoint</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Finished Training&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>As you can see, most of the code is adapted directly from the example.</p>
+</section>
+<section id="test-set-accuracy">
+<h2>Test set accuracy<a class="headerlink" href="tune-pytorch-cifar.html#test-set-accuracy" title="Permalink to this headline">#</a></h2>
+<p>Commonly the performance of a machine learning model is tested on a hold-out test
+set with data that has not been used for training the model. We also wrap this in a
+function:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_best_model</span><span class="p">(</span><span class="n">best_result</span><span class="p">):</span>
+    <span class="n">best_trained_model</span> <span class="o">=</span> <span class="n">Net</span><span class="p">(</span><span class="n">best_result</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;l1&quot;</span><span class="p">],</span> <span class="n">best_result</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;l2&quot;</span><span class="p">])</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="s2">&quot;cuda:0&quot;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span>
+    <span class="n">best_trained_model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+
+    <span class="n">checkpoint_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">best_result</span><span class="o">.</span><span class="n">checkpoint</span><span class="o">.</span><span class="n">to_directory</span><span class="p">(),</span> <span class="s2">&quot;checkpoint.pt&quot;</span><span class="p">)</span>
+
+    <span class="n">model_state</span><span class="p">,</span> <span class="n">optimizer_state</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">)</span>
+    <span class="n">best_trained_model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">model_state</span><span class="p">)</span>
+
+    <span class="n">trainset</span><span class="p">,</span> <span class="n">testset</span> <span class="o">=</span> <span class="n">load_data</span><span class="p">()</span>
+
+    <span class="n">testloader</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span>
+        <span class="n">testset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="n">correct</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">testloader</span><span class="p">:</span>
+            <span class="n">images</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">data</span>
+            <span class="n">images</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">images</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">),</span> <span class="n">labels</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+            <span class="n">outputs</span> <span class="o">=</span> <span class="n">best_trained_model</span><span class="p">(</span><span class="n">images</span><span class="p">)</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">predicted</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">outputs</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">total</span> <span class="o">+=</span> <span class="n">labels</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">correct</span> <span class="o">+=</span> <span class="p">(</span><span class="n">predicted</span> <span class="o">==</span> <span class="n">labels</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Best trial test set accuracy: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">correct</span> <span class="o">/</span> <span class="n">total</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>As you can see, the function also expects a <code class="docutils literal notranslate"><span class="pre">device</span></code> parameter, so we can do the
+test set validation on a GPU.</p>
+</section>
+<section id="configuring-the-search-space">
+<h2>Configuring the search space<a class="headerlink" href="tune-pytorch-cifar.html#configuring-the-search-space" title="Permalink to this headline">#</a></h2>
+<p>Lastly, we need to define Tune’s search space. Here is an example:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;l1&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">sample_from</span><span class="p">(</span><span class="k">lambda</span> <span class="n">_</span><span class="p">:</span> <span class="mi">2</span><span class="o">**</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">9</span><span class="p">)),</span>
+    <span class="s2">&quot;l2&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">sample_from</span><span class="p">(</span><span class="k">lambda</span> <span class="n">_</span><span class="p">:</span> <span class="mi">2</span><span class="o">**</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">9</span><span class="p">)),</span>
+    <span class="s2">&quot;lr&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">loguniform</span><span class="p">(</span><span class="mf">1e-4</span><span class="p">,</span> <span class="mf">1e-1</span><span class="p">),</span>
+    <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">]),</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">tune.sample_from()</span></code> function makes it possible to define your own sample
+methods to obtain hyperparameters. In this example, the <code class="docutils literal notranslate"><span class="pre">l1</span></code> and <code class="docutils literal notranslate"><span class="pre">l2</span></code> parameters
+should be powers of 2 between 4 and 256, so either 4, 8, 16, 32, 64, 128, or 256.
+The <code class="docutils literal notranslate"><span class="pre">lr</span></code> (learning rate) should be uniformly sampled between 0.0001 and 0.1. Lastly,
+the batch size is a choice between 2, 4, 8, and 16.</p>
+<p>At each trial, Tune will now randomly sample a combination of parameters from these
+search spaces. It will then train a number of models in parallel and find the best
+performing one among these. We also use the <code class="docutils literal notranslate"><span class="pre">ASHAScheduler</span></code> which will terminate bad
+performing trials early.</p>
+<p>You can specify the number of CPUs, which are then available e.g.
+to increase the <code class="docutils literal notranslate"><span class="pre">num_workers</span></code> of the PyTorch <code class="docutils literal notranslate"><span class="pre">DataLoader</span></code> instances. The selected
+number of GPUs are made visible to PyTorch in each trial. Trials do not have access to
+GPUs that haven’t been requested for them - so you don’t have to care about two trials
+using the same set of resources.</p>
+<p>Here we can also specify fractional GPUs, so something like <code class="docutils literal notranslate"><span class="pre">gpus_per_trial=0.5</span></code> is
+completely valid. The trials will then share GPUs among each other.
+You just have to make sure that the models still fit in the GPU memory.</p>
+<p>After training the models, we will find the best performing one and load the trained
+network from the checkpoint file. We then obtain the test set accuracy and report
+everything by printing.</p>
+<p>The full main function looks like this:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">num_samples</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_num_epochs</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">gpus_per_trial</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;l1&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">sample_from</span><span class="p">(</span><span class="k">lambda</span> <span class="n">_</span><span class="p">:</span> <span class="mi">2</span> <span class="o">**</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">9</span><span class="p">)),</span>
+        <span class="s2">&quot;l2&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">sample_from</span><span class="p">(</span><span class="k">lambda</span> <span class="n">_</span><span class="p">:</span> <span class="mi">2</span> <span class="o">**</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">9</span><span class="p">)),</span>
+        <span class="s2">&quot;lr&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">loguniform</span><span class="p">(</span><span class="mf">1e-4</span><span class="p">,</span> <span class="mf">1e-1</span><span class="p">),</span>
+        <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">])</span>
+    <span class="p">}</span>
+    <span class="n">scheduler</span> <span class="o">=</span> <span class="n">ASHAScheduler</span><span class="p">(</span>
+        <span class="n">max_t</span><span class="o">=</span><span class="n">max_num_epochs</span><span class="p">,</span>
+        <span class="n">grace_period</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">reduction_factor</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    
+    <span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
+        <span class="n">tune</span><span class="o">.</span><span class="n">with_resources</span><span class="p">(</span>
+            <span class="n">tune</span><span class="o">.</span><span class="n">with_parameters</span><span class="p">(</span><span class="n">train_cifar</span><span class="p">),</span>
+            <span class="n">resources</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;cpu&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;gpu&quot;</span><span class="p">:</span> <span class="n">gpus_per_trial</span><span class="p">}</span>
+        <span class="p">),</span>
+        <span class="n">tune_config</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">TuneConfig</span><span class="p">(</span>
+            <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;loss&quot;</span><span class="p">,</span>
+            <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;min&quot;</span><span class="p">,</span>
+            <span class="n">scheduler</span><span class="o">=</span><span class="n">scheduler</span><span class="p">,</span>
+            <span class="n">num_samples</span><span class="o">=</span><span class="n">num_samples</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">param_space</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+    
+    <span class="n">best_result</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">get_best_result</span><span class="p">(</span><span class="s2">&quot;loss&quot;</span><span class="p">,</span> <span class="s2">&quot;min&quot;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Best trial config: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">best_result</span><span class="o">.</span><span class="n">config</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Best trial final validation loss: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">best_result</span><span class="o">.</span><span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">]))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Best trial final validation accuracy: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">best_result</span><span class="o">.</span><span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;accuracy&quot;</span><span class="p">]))</span>
+
+    <span class="n">test_best_model</span><span class="p">(</span><span class="n">best_result</span><span class="p">)</span>
+
+<span class="n">main</span><span class="p">(</span><span class="n">num_samples</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">max_num_epochs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">gpus_per_trial</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2022-07-22 16:38:53,384	INFO services.py:1483 -- View the Ray dashboard at <span class=" -Color -Color-Bold -Color-Bold-Green">http://127.0.0.1:8273</span>
+2022-07-22 16:38:56,785	WARNING function_trainable.py:619 -- Function checkpointing is disabled. This may result in unexpected behavior when using checkpointing features or certain schedulers. To enable, set the train function arguments to be `func(config, checkpoint_dir=None)`.
+</pre></div>
+</div>
+<div class="output text_html">== Status ==<br>Current time: 2022-07-22 16:40:13 (running for 00:01:16.43)<br>Memory usage on this node: 10.7/16.0 GiB<br>Using AsyncHyperBand: num_stopped=2
+Bracket: Iter 2.000: -1.421571186053753 | Iter 1.000: -1.7652838359832763<br>Resources requested: 0/16 CPUs, 0/0 GPUs, 0.0/5.63 GiB heap, 0.0/2.0 GiB objects<br>Current best trial: 66098_00000 with loss=1.421571186053753 and parameters={'l1': 128, 'l2': 128, 'lr': 0.00046907397024184945, 'batch_size': 4}<br>Result logdir: /Users/kai/ray_results/train_cifar_2022-07-22_16-38-50<br>Number of trials: 2/2 (2 TERMINATED)<br><table>
+<thead>
+<tr><th>Trial name             </th><th>status    </th><th>loc            </th><th style="text-align: right;">  batch_size</th><th style="text-align: right;">  l1</th><th style="text-align: right;">  l2</th><th style="text-align: right;">         lr</th><th style="text-align: right;">  iter</th><th style="text-align: right;">  total time (s)</th><th style="text-align: right;">   loss</th><th style="text-align: right;">  accuracy</th></tr>
+</thead>
+<tbody>
+<tr><td>train_cifar_66098_00000</td><td>TERMINATED</td><td>127.0.0.1:53065</td><td style="text-align: right;">           4</td><td style="text-align: right;"> 128</td><td style="text-align: right;"> 128</td><td style="text-align: right;">0.000469074</td><td style="text-align: right;">     2</td><td style="text-align: right;">         72.6176</td><td style="text-align: right;">1.42157</td><td style="text-align: right;">    0.4877</td></tr>
+<tr><td>train_cifar_66098_00001</td><td>TERMINATED</td><td>127.0.0.1:53078</td><td style="text-align: right;">           4</td><td style="text-align: right;"> 128</td><td style="text-align: right;">  64</td><td style="text-align: right;">0.00993903 </td><td style="text-align: right;">     1</td><td style="text-align: right;">         64.9721</td><td style="text-align: right;">1.90462</td><td style="text-align: right;">    0.2915</td></tr>
+</tbody>
+</table><br><br></div><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2022-07-22 16:38:57,794	INFO plugin_schema_manager.py:52 -- Loading the default runtime env schemas: [&#39;/Users/kai/coding/ray/python/ray/_private/runtime_env/../../runtime_env/schemas/working_dir_schema.json&#39;, &#39;/Users/kai/coding/ray/python/ray/_private/runtime_env/../../runtime_env/schemas/pip_schema.json&#39;].
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_cifar pid=53065)</span> Downloading https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz to /Users/kai/ray_results/train_cifar_2022-07-22_16-38-50/train_cifar_66098_00000_0_batch_size=4,l1=128,l2=128,lr=0.0005_2022-07-22_16-38-57/data/cifar-10-python.tar.gz
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>  0%|          | 0/170498071 [00:00&lt;?, ?it/s]
+  0%|          | 33792/170498071 [00:00&lt;14:09, 200766.21it/s]
+  0%|          | 197632/170498071 [00:00&lt;04:21, 650251.40it/s]
+  0%|          | 492544/170498071 [00:00&lt;02:02, 1393215.11it/s]
+  1%|          | 1082368/170498071 [00:00&lt;01:00, 2821583.21it/s]
+  1%|          | 1950720/170498071 [00:00&lt;00:36, 4640856.44it/s]
+  2%|▏         | 2835456/170498071 [00:00&lt;00:28, 5924997.25it/s]
+  2%|▏         | 3965952/170498071 [00:00&lt;00:22, 7537390.37it/s]
+  3%|▎         | 5063680/170498071 [00:00&lt;00:19, 8499565.01it/s]
+  4%|▎         | 6128640/170498071 [00:01&lt;00:17, 9134765.49it/s]
+  4%|▍         | 7406592/170498071 [00:01&lt;00:15, 10222961.60it/s]
+  5%|▌         | 8553472/170498071 [00:01&lt;00:15, 10510446.68it/s]
+  6%|▌         | 9700352/170498071 [00:01&lt;00:14, 10735559.18it/s]
+  6%|▋         | 10863616/170498071 [00:01&lt;00:14, 11000864.50it/s]
+  7%|▋         | 11971584/170498071 [00:01&lt;00:14, 10807721.84it/s]
+  8%|▊         | 13059072/170498071 [00:01&lt;00:14, 10666283.43it/s]
+  8%|▊         | 14130176/170498071 [00:01&lt;00:14, 10574609.87it/s]
+  9%|▉         | 15303680/170498071 [00:01&lt;00:14, 10892197.45it/s]
+ 10%|▉         | 16396288/170498071 [00:01&lt;00:14, 10675729.31it/s]
+ 10%|█         | 17548288/170498071 [00:02&lt;00:14, 10904960.72it/s]
+ 11%|█         | 18641920/170498071 [00:02&lt;00:15, 9863782.34it/s] 
+ 12%|█▏        | 20268032/170498071 [00:02&lt;00:12, 11570721.42it/s]
+ 13%|█▎        | 21452800/170498071 [00:02&lt;00:12, 11541443.91it/s]
+ 13%|█▎        | 22742016/170498071 [00:02&lt;00:12, 11907361.68it/s]
+ 14%|█▍        | 23948288/170498071 [00:02&lt;00:12, 11767051.50it/s]
+ 15%|█▍        | 25136128/170498071 [00:02&lt;00:12, 11573913.54it/s]
+ 15%|█▌        | 26362880/170498071 [00:02&lt;00:12, 11761937.08it/s]
+ 16%|█▌        | 27545600/170498071 [00:02&lt;00:12, 11044330.05it/s]
+ 17%|█▋        | 28662784/170498071 [00:03&lt;00:12, 11026608.99it/s]
+ 17%|█▋        | 29819904/170498071 [00:03&lt;00:12, 11138417.94it/s]
+ 18%|█▊        | 30940160/170498071 [00:03&lt;00:12, 11010962.50it/s]
+ 19%|█▉        | 32046080/170498071 [00:03&lt;00:13, 10129993.91it/s]
+ 19%|█▉        | 33074176/170498071 [00:03&lt;00:13, 9943367.80it/s] 
+ 20%|██        | 34259968/170498071 [00:03&lt;00:13, 10448733.26it/s]
+ 21%|██        | 35521536/170498071 [00:03&lt;00:12, 11062770.09it/s]
+ 22%|██▏       | 36799488/170498071 [00:03&lt;00:11, 11524350.69it/s]
+ 22%|██▏       | 37961728/170498071 [00:03&lt;00:11, 11438058.60it/s]
+ 23%|██▎       | 39112704/170498071 [00:04&lt;00:11, 11458573.52it/s]
+ 24%|██▎       | 40263680/170498071 [00:04&lt;00:11, 11424542.73it/s]
+ 24%|██▍       | 41409536/170498071 [00:04&lt;00:11, 11346691.19it/s]
+ 25%|██▌       | 42697728/170498071 [00:04&lt;00:10, 11786332.70it/s]
+ 26%|██▌       | 43879424/170498071 [00:04&lt;00:11, 11446463.24it/s]
+ 26%|██▋       | 45028352/170498071 [00:04&lt;00:11, 10783870.46it/s]
+ 27%|██▋       | 46115840/170498071 [00:04&lt;00:11, 10678464.51it/s]
+ 28%|██▊       | 47190016/170498071 [00:04&lt;00:11, 10442301.65it/s]
+ 28%|██▊       | 48350208/170498071 [00:04&lt;00:11, 10759276.29it/s]
+ 29%|██▉       | 49447936/170498071 [00:04&lt;00:11, 10792782.74it/s]
+ 30%|██▉       | 50731008/170498071 [00:05&lt;00:10, 11385649.79it/s]
+ 31%|███       | 52003840/170498071 [00:05&lt;00:10, 11752264.60it/s]
+ 31%|███       | 53183488/170498071 [00:05&lt;00:10, 11665484.87it/s]
+ 32%|███▏      | 54360064/170498071 [00:05&lt;00:09, 11694832.15it/s]
+ 33%|███▎      | 55531520/170498071 [00:05&lt;00:10, 11476978.86it/s]
+ 33%|███▎      | 56681472/170498071 [00:05&lt;00:10, 11202902.06it/s]
+ 35%|███▍      | 59196416/170498071 [00:05&lt;00:09, 11613442.08it/s]
+ 35%|███▌      | 60392448/170498071 [00:05&lt;00:09, 11697365.01it/s]
+ 36%|███▌      | 61568000/170498071 [00:05&lt;00:09, 11682261.49it/s]
+ 37%|███▋      | 62740480/170498071 [00:06&lt;00:09, 11452394.76it/s]
+ 37%|███▋      | 63889408/170498071 [00:06&lt;00:09, 11380145.84it/s]
+ 38%|███▊      | 65030144/170498071 [00:06&lt;00:09, 10851178.13it/s]
+ 39%|███▉      | 66126848/170498071 [00:06&lt;00:09, 10801561.44it/s]
+ 39%|███▉      | 67224576/170498071 [00:06&lt;00:09, 10829254.00it/s]
+ 40%|████      | 68322304/170498071 [00:06&lt;00:09, 10860535.53it/s]
+ 41%|████      | 69410816/170498071 [00:06&lt;00:09, 10588112.87it/s]
+ 41%|████▏     | 70472704/170498071 [00:06&lt;00:09, 10246538.71it/s]
+ 42%|████▏     | 71500800/170498071 [00:06&lt;00:09, 9998803.68it/s] 
+ 43%|████▎     | 72631296/170498071 [00:07&lt;00:09, 10246250.37it/s]
+ 43%|████▎     | 73746432/170498071 [00:07&lt;00:09, 10505166.41it/s]
+ 44%|████▍     | 74843136/170498071 [00:07&lt;00:09, 10607834.22it/s]
+ 45%|████▍     | 75907072/170498071 [00:07&lt;00:09, 10449028.08it/s]
+ 45%|████▌     | 76954624/170498071 [00:07&lt;00:08, 10432352.97it/s]
+ 46%|████▌     | 78021632/170498071 [00:07&lt;00:08, 10390722.73it/s]
+ 46%|████▋     | 79119360/170498071 [00:07&lt;00:08, 10527472.73it/s]
+ 47%|████▋     | 80173056/170498071 [00:07&lt;00:08, 10185476.35it/s]
+ 48%|████▊     | 81265664/170498071 [00:07&lt;00:08, 10271324.45it/s]
+ 48%|████▊     | 82396160/170498071 [00:07&lt;00:08, 10568711.71it/s]
+ 49%|████▉     | 83456000/170498071 [00:08&lt;00:08, 10544461.91it/s]
+ 50%|████▉     | 84624384/170498071 [00:08&lt;00:07, 10847079.54it/s]
+ 50%|█████     | 85754880/170498071 [00:08&lt;00:07, 10930136.27it/s]
+ 51%|█████     | 86934528/170498071 [00:08&lt;00:07, 11111543.18it/s]
+ 52%|█████▏    | 88179712/170498071 [00:08&lt;00:07, 11438251.85it/s]
+ 52%|█████▏    | 89375744/170498071 [00:08&lt;00:07, 11528186.37it/s]
+ 53%|█████▎    | 90620928/170498071 [00:08&lt;00:06, 11741163.72it/s]
+ 54%|█████▍    | 91833344/170498071 [00:08&lt;00:06, 11844882.32it/s]
+ 55%|█████▍    | 93019136/170498071 [00:08&lt;00:07, 10859729.47it/s]
+ 55%|█████▌    | 94120960/170498071 [00:09&lt;00:07, 10842087.69it/s]
+ 56%|█████▌    | 95216640/170498071 [00:09&lt;00:07, 10396612.64it/s]
+ 56%|█████▋    | 96266240/170498071 [00:09&lt;00:07, 10348003.47it/s]
+ 57%|█████▋    | 97354752/170498071 [00:09&lt;00:06, 10497379.20it/s]
+ 58%|█████▊    | 98550784/170498071 [00:09&lt;00:06, 10859176.06it/s]
+ 59%|█████▊    | 99746816/170498071 [00:09&lt;00:06, 11154133.97it/s]
+ 59%|█████▉    | 101041152/170498071 [00:09&lt;00:05, 11656717.30it/s]
+ 61%|██████    | 103482368/170498071 [00:09&lt;00:05, 11894491.00it/s]
+ 61%|██████▏   | 104776704/170498071 [00:09&lt;00:05, 12198050.59it/s]
+ 62%|██████▏   | 106021888/170498071 [00:10&lt;00:05, 12267825.95it/s]
+ 63%|██████▎   | 107250688/170498071 [00:10&lt;00:05, 12168871.59it/s]
+ 64%|██████▎   | 108469248/170498071 [00:10&lt;00:05, 11595891.87it/s]
+ 64%|██████▍   | 109635584/170498071 [00:10&lt;00:05, 11559630.86it/s]
+ 65%|██████▍   | 110795776/170498071 [00:10&lt;00:05, 11349017.87it/s]
+ 66%|██████▌   | 111943680/170498071 [00:10&lt;00:05, 11386490.70it/s]
+ 66%|██████▋   | 113085440/170498071 [00:10&lt;00:05, 11297820.57it/s]
+ 67%|██████▋   | 114216960/170498071 [00:10&lt;00:05, 11067298.70it/s]
+ 68%|██████▊   | 115325952/170498071 [00:10&lt;00:05, 10487747.55it/s]
+ 68%|██████▊   | 116442112/170498071 [00:11&lt;00:05, 10659499.65it/s]
+ 69%|██████▉   | 117720064/170498071 [00:11&lt;00:04, 11250043.47it/s]
+ 70%|██████▉   | 118981632/170498071 [00:11&lt;00:04, 11635244.90it/s]
+ 70%|███████   | 120151040/170498071 [00:11&lt;00:04, 11648387.01it/s]
+ 71%|███████   | 121357312/170498071 [00:11&lt;00:04, 11768670.42it/s]
+ 72%|███████▏  | 122586112/170498071 [00:11&lt;00:04, 11905710.02it/s]
+ 73%|███████▎  | 123779072/170498071 [00:11&lt;00:03, 11731120.04it/s]
+ 73%|███████▎  | 124954624/170498071 [00:11&lt;00:03, 11738276.15it/s]
+ 74%|███████▍  | 126130176/170498071 [00:11&lt;00:03, 11630197.21it/s]
+ 75%|███████▍  | 127370240/170498071 [00:11&lt;00:03, 11827478.91it/s]
+ 75%|███████▌  | 128631808/170498071 [00:12&lt;00:03, 12036486.08it/s]
+ 76%|███████▌  | 129860608/170498071 [00:12&lt;00:03, 12070353.14it/s]
+ 77%|███████▋  | 131068928/170498071 [00:12&lt;00:03, 11930703.88it/s]
+ 78%|███████▊  | 132262912/170498071 [00:12&lt;00:03, 11640168.06it/s]
+ 78%|███████▊  | 133429248/170498071 [00:12&lt;00:03, 11474541.42it/s]
+ 79%|███████▉  | 134611968/170498071 [00:12&lt;00:03, 11412959.43it/s]
+ 80%|████████  | 137004032/170498071 [00:12&lt;00:02, 11687905.40it/s]
+ 81%|████████  | 138174464/170498071 [00:13&lt;00:05, 5764496.82it/s] 
+ 83%|████████▎ | 141067264/170498071 [00:13&lt;00:03, 9739825.72it/s]
+ 84%|████████▎ | 142558208/170498071 [00:13&lt;00:02, 9526524.50it/s]
+ 84%|████████▍ | 143872000/170498071 [00:13&lt;00:03, 6741235.46it/s]
+ 86%|████████▌ | 146703360/170498071 [00:13&lt;00:02, 10136683.18it/s]
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> 87%|████████▋ | 148267008/170498071 [00:14&lt;00:02, 10106749.67it/s]
+ 88%|████████▊ | 149662720/170498071 [00:14&lt;00:02, 10207494.38it/s]
+ 89%|████████▊ | 150955008/170498071 [00:14&lt;00:01, 10359984.46it/s]
+ 89%|████████▉ | 152185856/170498071 [00:14&lt;00:01, 10695074.47it/s]
+ 90%|████████▉ | 153402368/170498071 [00:14&lt;00:01, 10797069.40it/s]
+ 91%|█████████ | 154587136/170498071 [00:14&lt;00:01, 10637510.80it/s]
+ 91%|█████████▏| 155722752/170498071 [00:14&lt;00:01, 10801079.07it/s]
+ 92%|█████████▏| 156895232/170498071 [00:14&lt;00:01, 11046731.64it/s]
+ 93%|█████████▎| 158041088/170498071 [00:14&lt;00:01, 11153902.38it/s]
+ 93%|█████████▎| 159286272/170498071 [00:15&lt;00:00, 11495953.86it/s]
+ 94%|█████████▍| 160531456/170498071 [00:15&lt;00:00, 11759881.01it/s]
+ 95%|█████████▍| 161809408/170498071 [00:15&lt;00:00, 12040688.94it/s]
+ 96%|█████████▌| 163026944/170498071 [00:15&lt;00:00, 12066384.42it/s]
+ 96%|█████████▋| 164242432/170498071 [00:15&lt;00:00, 12030570.11it/s]
+ 97%|█████████▋| 165451776/170498071 [00:15&lt;00:00, 11715975.80it/s]
+ 98%|█████████▊| 166629376/170498071 [00:15&lt;00:00, 11429772.28it/s]
+ 98%|█████████▊| 167777280/170498071 [00:15&lt;00:00, 11396536.97it/s]
+ 99%|█████████▉| 168921088/170498071 [00:15&lt;00:00, 11335778.16it/s]
+170499072it [00:16, 10634117.63it/s]                               
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_cifar pid=53065)</span> Extracting /Users/kai/ray_results/train_cifar_2022-07-22_16-38-50/train_cifar_66098_00000_0_batch_size=4,l1=128,l2=128,lr=0.0005_2022-07-22_16-38-57/data/cifar-10-python.tar.gz to /Users/kai/ray_results/train_cifar_2022-07-22_16-38-50/train_cifar_66098_00000_0_batch_size=4,l1=128,l2=128,lr=0.0005_2022-07-22_16-38-57/data
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_cifar pid=53065)</span> Files already downloaded and verified
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_cifar pid=53065)</span> /Users/kai/.pyenv/versions/3.7.7/lib/python3.7/site-packages/torch/nn/functional.py:718: UserWarning: Named tensors and all their associated APIs are an experimental feature and subject to change. Please do not use them for anything important until they are released as stable. (Triggered internally at  ../c10/core/TensorImpl.h:1156.)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_cifar pid=53065)</span>   return torch.max_pool2d(input, kernel_size, stride, padding, dilation, ceil_mode)
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_cifar pid=53078)</span> Downloading https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz to /Users/kai/ray_results/train_cifar_2022-07-22_16-38-50/train_cifar_66098_00001_1_batch_size=4,l1=128,l2=64,lr=0.0099_2022-07-22_16-39-01/data/cifar-10-python.tar.gz
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>  0%|          | 0/170498071 [00:00&lt;?, ?it/s]
+  0%|          | 33792/170498071 [00:00&lt;13:49, 205600.99it/s]
+  0%|          | 197632/170498071 [00:00&lt;03:15, 869741.20it/s]
+  0%|          | 443392/170498071 [00:00&lt;02:17, 1233031.00it/s]
+  1%|          | 1868800/170498071 [00:00&lt;00:37, 4499043.51it/s]
+  2%|▏         | 2589696/170498071 [00:00&lt;00:31, 5313052.46it/s]
+  2%|▏         | 3671040/170498071 [00:00&lt;00:23, 6978488.44it/s]
+  3%|▎         | 4703232/170498071 [00:00&lt;00:20, 7988630.70it/s]
+  3%|▎         | 5817344/170498071 [00:01&lt;00:18, 8937646.63it/s]
+  4%|▍         | 6996992/170498071 [00:01&lt;00:16, 9785571.02it/s]
+  5%|▍         | 8225792/170498071 [00:01&lt;00:15, 10363873.64it/s]
+  5%|▌         | 9307136/170498071 [00:01&lt;00:15, 10452563.74it/s]
+  6%|▌         | 10361856/170498071 [00:01&lt;00:15, 10414666.33it/s]
+  7%|▋         | 11469824/170498071 [00:01&lt;00:14, 10611373.09it/s]
+  7%|▋         | 12600320/170498071 [00:01&lt;00:14, 10817759.86it/s]
+  8%|▊         | 13685760/170498071 [00:01&lt;00:14, 10674349.48it/s]
+  9%|▊         | 14779392/170498071 [00:01&lt;00:14, 10735551.44it/s]
+  9%|▉         | 15893504/170498071 [00:01&lt;00:14, 10841588.52it/s]
+ 10%|▉         | 17024000/170498071 [00:02&lt;00:14, 10935080.88it/s]
+ 11%|█         | 18118656/170498071 [00:02&lt;00:14, 10734313.48it/s]
+ 11%|█▏        | 19193856/170498071 [00:02&lt;00:14, 10736033.30it/s]
+ 12%|█▏        | 20284416/170498071 [00:02&lt;00:13, 10784705.38it/s]
+ 13%|█▎        | 22594560/170498071 [00:02&lt;00:13, 11197004.04it/s]
+ 14%|█▍        | 23774208/170498071 [00:02&lt;00:12, 11327905.78it/s]
+ 15%|█▍        | 24953856/170498071 [00:02&lt;00:12, 11441768.69it/s]
+ 15%|█▌        | 26098688/170498071 [00:02&lt;00:12, 11317906.35it/s]
+ 16%|█▌        | 27231232/170498071 [00:02&lt;00:12, 11304969.94it/s]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_cifar pid=53065)</span> [1,  2000] loss: 2.289
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> 17%|█▋        | 28558336/170498071 [00:03&lt;00:11, 11857850.10it/s]
+ 17%|█▋        | 29745152/170498071 [00:03&lt;00:11, 11779914.21it/s]
+ 18%|█▊        | 30923776/170498071 [00:03&lt;00:12, 11470109.27it/s]
+ 19%|█▉        | 32072704/170498071 [00:03&lt;00:12, 10962954.99it/s]
+ 19%|█▉        | 33244160/170498071 [00:03&lt;00:12, 11138489.87it/s]
+ 20%|██        | 34362368/170498071 [00:03&lt;00:12, 11060657.86it/s]
+ 21%|██        | 35488768/170498071 [00:03&lt;00:12, 11075482.88it/s]
+ 22%|██▏       | 36733952/170498071 [00:03&lt;00:11, 11463576.76it/s]
+ 22%|██▏       | 37946368/170498071 [00:03&lt;00:11, 11644667.40it/s]
+ 23%|██▎       | 39207936/170498071 [00:03&lt;00:11, 11771113.78it/s]
+ 24%|██▍       | 40551424/170498071 [00:04&lt;00:10, 12239670.49it/s]
+ 25%|██▍       | 41777152/170498071 [00:04&lt;00:10, 11724623.32it/s]
+ 25%|██▌       | 42959872/170498071 [00:04&lt;00:10, 11728894.89it/s]
+ 26%|██▌       | 44237824/170498071 [00:04&lt;00:10, 11980491.97it/s]
+ 27%|██▋       | 45474816/170498071 [00:04&lt;00:10, 12094090.27it/s]
+ 27%|██▋       | 46687232/170498071 [00:04&lt;00:10, 11965519.76it/s]
+ 28%|██▊       | 47886336/170498071 [00:04&lt;00:12, 10214803.94it/s]
+ 29%|██▉       | 49693696/170498071 [00:04&lt;00:09, 12272562.75it/s]
+ 30%|██▉       | 50979840/170498071 [00:04&lt;00:09, 12216219.96it/s]
+ 31%|███       | 52242432/170498071 [00:05&lt;00:10, 11819987.87it/s]
+ 31%|███▏      | 53508096/170498071 [00:05&lt;00:09, 12050298.93it/s]
+ 32%|███▏      | 54735872/170498071 [00:05&lt;00:09, 12065940.19it/s]
+ 33%|███▎      | 55958528/170498071 [00:05&lt;00:09, 12089312.70it/s]
+ 34%|███▎      | 57274368/170498071 [00:05&lt;00:09, 12399347.53it/s]
+ 34%|███▍      | 58523648/170498071 [00:05&lt;00:09, 12262574.22it/s]
+ 35%|███▌      | 59756544/170498071 [00:05&lt;00:09, 12035557.70it/s]
+ 36%|███▌      | 60998656/170498071 [00:05&lt;00:09, 12133520.71it/s]
+ 37%|███▋      | 62276608/170498071 [00:05&lt;00:08, 12211085.29it/s]
+ 37%|███▋      | 63501312/170498071 [00:06&lt;00:08, 12042366.84it/s]
+ 38%|███▊      | 64708608/170498071 [00:06&lt;00:08, 12023498.31it/s]
+ 39%|███▊      | 65912832/170498071 [00:06&lt;00:08, 11757085.89it/s]
+ 39%|███▉      | 67090432/170498071 [00:06&lt;00:09, 11320601.68it/s]
+ 40%|████      | 68227072/170498071 [00:06&lt;00:09, 11258567.04it/s]
+ 41%|████      | 69355520/170498071 [00:06&lt;00:09, 11082937.77it/s]
+ 41%|████▏     | 70465536/170498071 [00:06&lt;00:09, 10911735.04it/s]
+ 42%|████▏     | 71558144/170498071 [00:06&lt;00:09, 10780589.37it/s]
+ 43%|████▎     | 72680448/170498071 [00:06&lt;00:08, 10893260.16it/s]
+ 43%|████▎     | 73771008/170498071 [00:06&lt;00:08, 10841439.34it/s]
+ 44%|████▍     | 74856448/170498071 [00:07&lt;00:08, 10769785.94it/s]
+ 45%|████▍     | 75940864/170498071 [00:07&lt;00:08, 10763959.14it/s]
+ 45%|████▌     | 77054976/170498071 [00:07&lt;00:08, 10849984.90it/s]
+ 46%|████▌     | 78140416/170498071 [00:07&lt;00:08, 10726097.11it/s]
+ 47%|████▋     | 79315968/170498071 [00:07&lt;00:08, 11026350.29it/s]
+ 47%|████▋     | 80462848/170498071 [00:07&lt;00:08, 11146851.17it/s]
+ 48%|████▊     | 81593344/170498071 [00:07&lt;00:08, 11105620.54it/s]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_cifar pid=53065)</span> [1,  4000] loss: 1.058
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> 49%|████▊     | 82854912/170498071 [00:07&lt;00:07, 11527296.83it/s]
+ 49%|████▉     | 84008960/170498071 [00:07&lt;00:07, 11414359.53it/s]
+ 50%|████▉     | 85151744/170498071 [00:07&lt;00:07, 10991470.33it/s]
+ 51%|█████     | 86254592/170498071 [00:08&lt;00:07, 10779941.74it/s]
+ 51%|█████▏    | 87426048/170498071 [00:08&lt;00:07, 10916081.56it/s]
+ 52%|█████▏    | 88548352/170498071 [00:08&lt;00:07, 11004500.00it/s]
+ 53%|█████▎    | 89670656/170498071 [00:08&lt;00:07, 11052931.99it/s]
+ 53%|█████▎    | 90850304/170498071 [00:08&lt;00:07, 11002613.99it/s]
+ 54%|█████▍    | 92144640/170498071 [00:08&lt;00:06, 11551701.57it/s]
+ 55%|█████▍    | 93357056/170498071 [00:08&lt;00:06, 11700840.36it/s]
+ 55%|█████▌    | 94553088/170498071 [00:08&lt;00:06, 11639934.12it/s]
+ 56%|█████▌    | 95724544/170498071 [00:08&lt;00:06, 11661673.96it/s]
+ 57%|█████▋    | 96891904/170498071 [00:09&lt;00:06, 11214261.52it/s]
+ 57%|█████▋    | 98017280/170498071 [00:09&lt;00:06, 10988710.06it/s]
+ 58%|█████▊    | 99120128/170498071 [00:09&lt;00:06, 10959602.56it/s]
+ 59%|█████▉    | 100218880/170498071 [00:09&lt;00:06, 10938597.56it/s]
+ 59%|█████▉    | 101314560/170498071 [00:09&lt;00:06, 10739220.45it/s]
+ 60%|██████    | 102417408/170498071 [00:09&lt;00:06, 10815208.28it/s]
+ 61%|██████    | 103500800/170498071 [00:09&lt;00:06, 10820566.49it/s]
+ 61%|██████▏   | 104678400/170498071 [00:09&lt;00:05, 11089700.09it/s]
+ 62%|██████▏   | 105907200/170498071 [00:09&lt;00:05, 11414720.98it/s]
+ 64%|██████▎   | 108348416/170498071 [00:10&lt;00:05, 11853907.96it/s]
+ 64%|██████▍   | 109593600/170498071 [00:10&lt;00:05, 12026577.90it/s]
+ 65%|██████▍   | 110797824/170498071 [00:10&lt;00:05, 11649481.70it/s]
+ 66%|██████▌   | 111966208/170498071 [00:10&lt;00:05, 11295371.19it/s]
+ 67%|██████▋   | 114279424/170498071 [00:10&lt;00:05, 11174140.17it/s]
+ 68%|██████▊   | 115491840/170498071 [00:10&lt;00:04, 11428872.46it/s]
+ 68%|██████▊   | 116638720/170498071 [00:10&lt;00:04, 11376576.33it/s]
+ 69%|██████▉   | 117779456/170498071 [00:10&lt;00:04, 11128529.20it/s]
+ 70%|██████▉   | 118894592/170498071 [00:10&lt;00:04, 11105995.24it/s]
+ 70%|███████   | 120046592/170498071 [00:11&lt;00:04, 11194307.10it/s]
+ 71%|███████   | 121291776/170498071 [00:11&lt;00:04, 11529028.42it/s]
+ 72%|███████▏  | 122504192/170498071 [00:11&lt;00:04, 11678012.53it/s]
+ 73%|███████▎  | 123673600/170498071 [00:11&lt;00:04, 11616160.53it/s]
+ 73%|███████▎  | 124896256/170498071 [00:11&lt;00:03, 11792603.53it/s]
+ 74%|███████▍  | 126092288/170498071 [00:11&lt;00:03, 11722249.72it/s]
+ 75%|███████▍  | 127265792/170498071 [00:11&lt;00:03, 11438563.16it/s]
+ 75%|███████▌  | 128411648/170498071 [00:11&lt;00:03, 11383743.46it/s]
+ 76%|███████▌  | 129582080/170498071 [00:11&lt;00:03, 11459099.89it/s]
+ 77%|███████▋  | 130728960/170498071 [00:12&lt;00:03, 11417116.03it/s]
+ 77%|███████▋  | 131924992/170498071 [00:12&lt;00:03, 11562162.11it/s]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_cifar pid=53065)</span> [1,  6000] loss: 0.633
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> 78%|███████▊  | 133082112/170498071 [00:12&lt;00:04, 8762729.97it/s] 
+ 79%|███████▊  | 134251520/170498071 [00:12&lt;00:03, 9459387.31it/s]
+ 79%|███████▉  | 135414784/170498071 [00:12&lt;00:03, 10010405.01it/s]
+ 80%|████████  | 136610816/170498071 [00:12&lt;00:03, 10523298.83it/s]
+ 82%|████████▏ | 138980352/170498071 [00:12&lt;00:02, 11012610.93it/s]
+ 82%|████████▏ | 140198912/170498071 [00:12&lt;00:02, 11337292.82it/s]
+ 83%|████████▎ | 141378560/170498071 [00:13&lt;00:02, 11433312.45it/s]
+ 84%|████████▎ | 142537728/170498071 [00:13&lt;00:02, 11225954.39it/s]
+ 84%|████████▍ | 143672320/170498071 [00:13&lt;00:02, 11106773.35it/s]
+ 85%|████████▍ | 144884736/170498071 [00:13&lt;00:02, 11392243.15it/s]
+ 86%|████████▌ | 146064384/170498071 [00:13&lt;00:02, 11461605.17it/s]
+ 86%|████████▋ | 147276800/170498071 [00:13&lt;00:01, 11644469.12it/s]
+ 87%|████████▋ | 148587520/170498071 [00:13&lt;00:01, 12032938.55it/s]
+ 88%|████████▊ | 149793792/170498071 [00:13&lt;00:01, 11625996.36it/s]
+ 89%|████████▊ | 150961152/170498071 [00:13&lt;00:01, 11353618.86it/s]
+ 89%|████████▉ | 152100864/170498071 [00:13&lt;00:01, 11210110.17it/s]
+ 90%|████████▉ | 153225216/170498071 [00:14&lt;00:01, 10989692.27it/s]
+ 91%|█████████ | 154327040/170498071 [00:14&lt;00:02, 6395856.39it/s] 
+ 92%|█████████▏| 157336576/170498071 [00:14&lt;00:01, 10963246.92it/s]
+ 93%|█████████▎| 158843904/170498071 [00:14&lt;00:01, 10672622.13it/s]
+ 94%|█████████▍| 160198656/170498071 [00:15&lt;00:01, 7535629.34it/s] 
+ 96%|█████████▌| 163070976/170498071 [00:15&lt;00:00, 11093551.80it/s]
+ 97%|█████████▋| 164648960/170498071 [00:15&lt;00:00, 11143733.74it/s]
+ 97%|█████████▋| 166092800/170498071 [00:15&lt;00:00, 11190526.07it/s]
+ 98%|█████████▊| 167443456/170498071 [00:15&lt;00:00, 11480616.98it/s]
+ 99%|█████████▉| 168762368/170498071 [00:15&lt;00:00, 11429373.68it/s]
+170499072it [00:15, 10815137.24it/s]                               
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_cifar pid=53078)</span> Extracting /Users/kai/ray_results/train_cifar_2022-07-22_16-38-50/train_cifar_66098_00001_1_batch_size=4,l1=128,l2=64,lr=0.0099_2022-07-22_16-39-01/data/cifar-10-python.tar.gz to /Users/kai/ray_results/train_cifar_2022-07-22_16-38-50/train_cifar_66098_00001_1_batch_size=4,l1=128,l2=64,lr=0.0099_2022-07-22_16-39-01/data
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_cifar pid=53065)</span> [1,  8000] loss: 0.434
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_cifar pid=53078)</span> Files already downloaded and verified
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_cifar pid=53078)</span> /Users/kai/.pyenv/versions/3.7.7/lib/python3.7/site-packages/torch/nn/functional.py:718: UserWarning: Named tensors and all their associated APIs are an experimental feature and subject to change. Please do not use them for anything important until they are released as stable. (Triggered internally at  ../c10/core/TensorImpl.h:1156.)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_cifar pid=53078)</span>   return torch.max_pool2d(input, kernel_size, stride, padding, dilation, ceil_mode)
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_cifar pid=53065)</span> [1, 10000] loss: 0.325
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_cifar pid=53078)</span> [1,  2000] loss: 2.117
+Result for train_cifar_66098_00000:
+  accuracy: 0.4004
+  date: 2022-07-22_16-39-47
+  done: false
+  experiment_id: 6512b700fdb64a458c3496f36ea1776c
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  loss: 1.625945699906349
+  node_ip: 127.0.0.1
+  pid: 53065
+  should_checkpoint: true
+  time_since_restore: 45.849108934402466
+  time_this_iter_s: 45.849108934402466
+  time_total_s: 45.849108934402466
+  timestamp: 1658504387
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: &#39;66098_00000&#39;
+  warmup_time: 0.003801107406616211
+  
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_cifar pid=53078)</span> [1,  4000] loss: 0.983
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_cifar pid=53065)</span> [2,  2000] loss: 1.582
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_cifar pid=53078)</span> [1,  6000] loss: 0.647
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_cifar pid=53065)</span> [2,  4000] loss: 0.758
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_cifar pid=53078)</span> [1,  8000] loss: 0.489
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_cifar pid=53065)</span> [2,  6000] loss: 0.499
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_cifar pid=53065)</span> [2,  8000] loss: 0.365
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_cifar pid=53078)</span> [1, 10000] loss: 0.388
+Result for train_cifar_66098_00001:
+  accuracy: 0.2915
+  date: 2022-07-22_16-40-09
+  done: true
+  experiment_id: 6410c16837024e5e903317c212a4af63
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  loss: 1.9046219720602036
+  node_ip: 127.0.0.1
+  pid: 53078
+  should_checkpoint: true
+  time_since_restore: 64.97207283973694
+  time_this_iter_s: 64.97207283973694
+  time_total_s: 64.97207283973694
+  timestamp: 1658504409
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: &#39;66098_00001&#39;
+  warmup_time: 0.0027120113372802734
+  
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_cifar pid=53065)</span> [2, 10000] loss: 0.285
+Result for train_cifar_66098_00000:
+  accuracy: 0.4877
+  date: 2022-07-22_16-40-13
+  done: true
+  experiment_id: 6512b700fdb64a458c3496f36ea1776c
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 2
+  loss: 1.421571186053753
+  node_ip: 127.0.0.1
+  pid: 53065
+  should_checkpoint: true
+  time_since_restore: 72.61763620376587
+  time_this_iter_s: 26.768527269363403
+  time_total_s: 72.61763620376587
+  timestamp: 1658504413
+  timesteps_since_restore: 0
+  training_iteration: 2
+  trial_id: &#39;66098_00000&#39;
+  warmup_time: 0.003801107406616211
+  
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2022-07-22 16:40:14,050	INFO tune.py:738 -- Total run time: 77.27 seconds (76.42 seconds for the tuning loop).
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Best trial config: {&#39;l1&#39;: 128, &#39;l2&#39;: 128, &#39;lr&#39;: 0.00046907397024184945, &#39;batch_size&#39;: 4}
+Best trial final validation loss: 1.421571186053753
+Best trial final validation accuracy: 0.4877
+Downloading https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz to ./data/cifar-10-python.tar.gz
+</pre></div>
+</div>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "48688c4943794c738333408a117af6c7", "version_major": 2, "version_minor": 0}
+</script><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Extracting ./data/cifar-10-python.tar.gz to ./data
+Files already downloaded and verified
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/Users/kai/.pyenv/versions/3.7.7/lib/python3.7/site-packages/torch/nn/functional.py:718: UserWarning: Named tensors and all their associated APIs are an experimental feature and subject to change. Please do not use them for anything important until they are released as stable. (Triggered internally at  ../c10/core/TensorImpl.h:1156.)
+  return torch.max_pool2d(input, kernel_size, stride, padding, dilation, ceil_mode)
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Best trial test set accuracy: 0.4939
+</pre></div>
+</div>
+</div>
+</div>
+<p>If you run the code, an example output could look like this:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>  Number of trials: <span class="m">10</span> <span class="o">(</span><span class="m">10</span> TERMINATED<span class="o">)</span>
+  +-------------------------+------------+-------+------+------+-------------+--------------+---------+------------+----------------------+
+  <span class="p">|</span> Trial name              <span class="p">|</span> status     <span class="p">|</span> loc   <span class="p">|</span>   l1 <span class="p">|</span>   l2 <span class="p">|</span>          lr <span class="p">|</span>   batch_size <span class="p">|</span>    loss <span class="p">|</span>   accuracy <span class="p">|</span>   training_iteration <span class="p">|</span>
+  <span class="p">|</span>-------------------------+------------+-------+------+------+-------------+--------------+---------+------------+----------------------<span class="p">|</span>
+  <span class="p">|</span> train_cifar_87d1f_00000 <span class="p">|</span> TERMINATED <span class="p">|</span>       <span class="p">|</span>   <span class="m">64</span> <span class="p">|</span>    <span class="m">4</span> <span class="p">|</span> <span class="m">0</span>.00011629  <span class="p">|</span>            <span class="m">2</span> <span class="p">|</span> <span class="m">1</span>.87273 <span class="p">|</span>     <span class="m">0</span>.244  <span class="p">|</span>                    <span class="m">2</span> <span class="p">|</span>
+  <span class="p">|</span> train_cifar_87d1f_00001 <span class="p">|</span> TERMINATED <span class="p">|</span>       <span class="p">|</span>   <span class="m">32</span> <span class="p">|</span>   <span class="m">64</span> <span class="p">|</span> <span class="m">0</span>.000339763 <span class="p">|</span>            <span class="m">8</span> <span class="p">|</span> <span class="m">1</span>.23603 <span class="p">|</span>     <span class="m">0</span>.567  <span class="p">|</span>                    <span class="m">8</span> <span class="p">|</span>
+<span class="hll">  <span class="p">|</span> train_cifar_87d1f_00002 <span class="p">|</span> TERMINATED <span class="p">|</span>       <span class="p">|</span>    <span class="m">8</span> <span class="p">|</span>   <span class="m">16</span> <span class="p">|</span> <span class="m">0</span>.00276249  <span class="p">|</span>           <span class="m">16</span> <span class="p">|</span> <span class="m">1</span>.1815  <span class="p">|</span>     <span class="m">0</span>.5836 <span class="p">|</span>                   <span class="m">10</span> <span class="p">|</span>
+</span>  <span class="p">|</span> train_cifar_87d1f_00003 <span class="p">|</span> TERMINATED <span class="p">|</span>       <span class="p">|</span>    <span class="m">4</span> <span class="p">|</span>   <span class="m">64</span> <span class="p">|</span> <span class="m">0</span>.000648721 <span class="p">|</span>            <span class="m">4</span> <span class="p">|</span> <span class="m">1</span>.31131 <span class="p">|</span>     <span class="m">0</span>.5224 <span class="p">|</span>                    <span class="m">8</span> <span class="p">|</span>
+  <span class="p">|</span> train_cifar_87d1f_00004 <span class="p">|</span> TERMINATED <span class="p">|</span>       <span class="p">|</span>   <span class="m">32</span> <span class="p">|</span>   <span class="m">16</span> <span class="p">|</span> <span class="m">0</span>.000340753 <span class="p">|</span>            <span class="m">8</span> <span class="p">|</span> <span class="m">1</span>.26454 <span class="p">|</span>     <span class="m">0</span>.5444 <span class="p">|</span>                    <span class="m">8</span> <span class="p">|</span>
+  <span class="p">|</span> train_cifar_87d1f_00005 <span class="p">|</span> TERMINATED <span class="p">|</span>       <span class="p">|</span>    <span class="m">8</span> <span class="p">|</span>    <span class="m">4</span> <span class="p">|</span> <span class="m">0</span>.000699775 <span class="p">|</span>            <span class="m">8</span> <span class="p">|</span> <span class="m">1</span>.99594 <span class="p">|</span>     <span class="m">0</span>.1983 <span class="p">|</span>                    <span class="m">2</span> <span class="p">|</span>
+  <span class="p">|</span> train_cifar_87d1f_00006 <span class="p">|</span> TERMINATED <span class="p">|</span>       <span class="p">|</span>  <span class="m">256</span> <span class="p">|</span>    <span class="m">8</span> <span class="p">|</span> <span class="m">0</span>.0839654   <span class="p">|</span>           <span class="m">16</span> <span class="p">|</span> <span class="m">2</span>.3119  <span class="p">|</span>     <span class="m">0</span>.0993 <span class="p">|</span>                    <span class="m">1</span> <span class="p">|</span>
+  <span class="p">|</span> train_cifar_87d1f_00007 <span class="p">|</span> TERMINATED <span class="p">|</span>       <span class="p">|</span>   <span class="m">16</span> <span class="p">|</span>  <span class="m">128</span> <span class="p">|</span> <span class="m">0</span>.0758154   <span class="p">|</span>           <span class="m">16</span> <span class="p">|</span> <span class="m">2</span>.33575 <span class="p">|</span>     <span class="m">0</span>.1327 <span class="p">|</span>                    <span class="m">1</span> <span class="p">|</span>
+  <span class="p">|</span> train_cifar_87d1f_00008 <span class="p">|</span> TERMINATED <span class="p">|</span>       <span class="p">|</span>   <span class="m">16</span> <span class="p">|</span>    <span class="m">8</span> <span class="p">|</span> <span class="m">0</span>.0763312   <span class="p">|</span>           <span class="m">16</span> <span class="p">|</span> <span class="m">2</span>.31129 <span class="p">|</span>     <span class="m">0</span>.1042 <span class="p">|</span>                    <span class="m">4</span> <span class="p">|</span>
+  <span class="p">|</span> train_cifar_87d1f_00009 <span class="p">|</span> TERMINATED <span class="p">|</span>       <span class="p">|</span>  <span class="m">128</span> <span class="p">|</span>   <span class="m">16</span> <span class="p">|</span> <span class="m">0</span>.000124903 <span class="p">|</span>            <span class="m">4</span> <span class="p">|</span> <span class="m">2</span>.26917 <span class="p">|</span>     <span class="m">0</span>.1945 <span class="p">|</span>                    <span class="m">1</span> <span class="p">|</span>
+  +-------------------------+------------+-------+------+------+-------------+--------------+---------+------------+----------------------+
+
+
+  Best trial config: <span class="o">{</span><span class="s1">&#39;l1&#39;</span>: <span class="m">8</span>, <span class="s1">&#39;l2&#39;</span>: <span class="m">16</span>, <span class="s1">&#39;lr&#39;</span>: <span class="m">0</span>.0027624906698231976, <span class="s1">&#39;batch_size&#39;</span>: <span class="m">16</span>, <span class="s1">&#39;data_dir&#39;</span>: <span class="s1">&#39;...&#39;</span><span class="o">}</span>
+  Best trial final validation loss: <span class="m">1</span>.1815014744281769
+  Best trial final validation accuracy: <span class="m">0</span>.5836
+  Best trial <span class="nb">test</span> <span class="nb">set</span> accuracy: <span class="m">0</span>.5806
+</pre></div>
+</div>
+<p>As you can see, most trials have been stopped early in order to avoid wasting resources.
+The best performing trial achieved a validation accuracy of about 58%, which could
+be confirmed on the test set.</p>
+<p>So that’s it! You can now tune the parameters of your PyTorch models.</p>
+</section>
+<section id="see-more-pytorch-examples">
+<h2>See More PyTorch Examples<a class="headerlink" href="tune-pytorch-cifar.html#see-more-pytorch-examples" title="Permalink to this headline">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="includes/mnist_pytorch.html"><span class="doc">MNIST PyTorch Example</span></a>: Converts the PyTorch MNIST example to use Tune with the function-based API.
+Also shows how to easily convert something relying on argparse to use Tune.</p></li>
+<li><p><a class="reference internal" href="includes/pbt_convnet_function_example.html"><span class="doc">PBT ConvNet Example</span></a>: Example training a ConvNet with checkpointing in function API.</p></li>
+<li><p><a class="reference internal" href="includes/mnist_pytorch_trainable.html"><span class="doc">MNIST PyTorch Trainable Example</span></a>: Converts the PyTorch MNIST example to use Tune with Trainable API.
+Also uses the HyperBandScheduler and checkpoints the model at the end.</p></li>
+</ul>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="tune_mnist_keras.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Using Keras &amp; TensorFlow with Tune</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="tune-pytorch-lightning.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Using PyTorch Lightning with Tune</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

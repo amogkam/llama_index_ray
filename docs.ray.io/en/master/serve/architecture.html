@@ -1,0 +1,811 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Architecture &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/js/versionwarning.js"></script>
+    <script src="../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../_static/js/docsearch.js"></script>
+    <script src="../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../_static/js/termynal.js"></script>
+    <script defer="defer" src="../_static/js/custom.js"></script>
+    <script defer="defer" src="../_static/js/top-navigation.js"></script>
+    <script src="../_static/js/tags.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../_static/design-tabs.js"></script>
+    <script async="async" src="../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/serve/architecture.html" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Examples" href="tutorials/index.html" />
+    <link rel="prev" title="Deploy on VM" href="advanced-guides/deploy-vm.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "serve/architecture", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".md", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../tune.html">
+   Ray Tune
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="index.html">
+   Ray Serve
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="getting_started.html">
+     Getting Started
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="model_composition.html">
+     Deploy a Composition of Models
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="deploy-many-models/index.html">
+     Deploy Many Models
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="http-guide.html">
+     Set Up FastAPI and HTTP
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="production-guide/index.html">
+     Production Guide
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="monitoring.html">
+     Monitor Your Application
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="scaling-and-resource-allocation.html">
+     Set Up Autoscaling and Resource Allocation
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="advanced-guides/index.html">
+     Advanced Guides
+    </a>
+   </li>
+   <li class="toctree-l2 current active">
+    <a class="current reference internal" href="architecture.html#">
+     Architecture
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="tutorials/index.html">
+     Examples
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="api/index.html">
+     Ray Serve API
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Fserve/architecture.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/serve/architecture.md"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../_sources/serve/architecture.md.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.md</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="architecture.html#high-level-view">
+   High-Level View
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="architecture.html#lifetime-of-a-request">
+   Lifetime of a Request
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="architecture.html#fault-tolerance">
+   Fault tolerance
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="architecture.html#ray-serve-autoscaling">
+   Ray Serve Autoscaling
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="architecture.html#ray-serve-api-server">
+   Ray Serve API Server
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="architecture.html#faq">
+   FAQ
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="architecture.html#how-does-serve-ensure-horizontal-scalability-and-availability">
+     How does Serve ensure horizontal scalability and availability?
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="architecture.html#how-do-servehandles-work">
+     How do ServeHandles work?
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="architecture.html#what-happens-to-large-requests">
+     What happens to large requests?
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Architecture</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="architecture.html#high-level-view">
+   High-Level View
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="architecture.html#lifetime-of-a-request">
+   Lifetime of a Request
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="architecture.html#fault-tolerance">
+   Fault tolerance
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="architecture.html#ray-serve-autoscaling">
+   Ray Serve Autoscaling
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="architecture.html#ray-serve-api-server">
+   Ray Serve API Server
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="architecture.html#faq">
+   FAQ
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="architecture.html#how-does-serve-ensure-horizontal-scalability-and-availability">
+     How does Serve ensure horizontal scalability and availability?
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="architecture.html#how-do-servehandles-work">
+     How do ServeHandles work?
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="architecture.html#what-happens-to-large-requests">
+     What happens to large requests?
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section class="tex2jax_ignore mathjax_ignore" id="architecture">
+<span id="serve-architecture"></span><h1>Architecture<a class="headerlink" href="architecture.html#architecture" title="Permalink to this headline">#</a></h1>
+<p>In this section, we explore Serve’s key architectural concepts and components. It will offer insight and overview into:</p>
+<ul class="simple">
+<li><p>the role of each component in Serve and how they work</p></li>
+<li><p>the different types of actors that make up a Serve application</p></li>
+</ul>
+<a class="reference internal image-reference" href="../_images/architecture-2.0.svg"><img alt="../_images/architecture-2.0.svg" class="align-center" src="../_images/architecture-2.0.svg" width="600px" /></a>
+<section id="high-level-view">
+<span id="serve-architecture-high-level-view"></span><h2>High-Level View<a class="headerlink" href="architecture.html#high-level-view" title="Permalink to this headline">#</a></h2>
+<p>Serve runs on Ray and utilizes <a class="reference internal" href="../ray-more-libs/actors.html#actor-guide"><span class="std std-ref">Ray actors</span></a>.</p>
+<p>There are three kinds of actors that are created to make up a Serve instance:</p>
+<ul class="simple">
+<li><p><strong>Controller</strong>: A global actor unique to each Serve instance that manages
+the control plane. The Controller is responsible for creating, updating, and
+destroying other actors. Serve API calls like creating or getting a deployment
+make remote calls to the Controller.</p></li>
+<li><p><strong>HTTP Proxy</strong>: By default there is one HTTP proxy actor on the head node. This actor runs a <a class="reference external" href="https://www.uvicorn.org/">Uvicorn</a> HTTP
+server that accepts incoming requests, forwards them to replicas, and
+responds once they are completed.  For scalability and high availability,
+you can also run a proxy on each node in the cluster via the <code class="docutils literal notranslate"><span class="pre">location</span></code> field of <a class="reference internal" href="api/index.html#core-apis"><span class="std std-ref"><code class="docutils literal notranslate"><span class="pre">http_options</span></code></span></a>.</p></li>
+<li><p><strong>Replicas</strong>: Actors that actually execute the code in response to a
+request. For example, they may contain an instantiation of an ML model. Each
+replica processes individual requests from the HTTP proxy (these may be batched
+by the replica using <code class="docutils literal notranslate"><span class="pre">&#64;serve.batch</span></code>, see the <a class="reference internal" href="advanced-guides/dyn-req-batch.html#serve-performance-batching-requests"><span class="std std-ref">batching</span></a> docs).</p></li>
+</ul>
+</section>
+<section id="lifetime-of-a-request">
+<h2>Lifetime of a Request<a class="headerlink" href="architecture.html#lifetime-of-a-request" title="Permalink to this headline">#</a></h2>
+<p>When an HTTP request is sent to the HTTP proxy, the following happens:</p>
+<ol class="simple">
+<li><p>The HTTP request is received and parsed.</p></li>
+<li><p>The correct deployment associated with the HTTP URL path is looked up. The
+request is placed on a queue.</p></li>
+<li><p>For each request in a deployment’s queue, an available replica is looked up in round-robin fashion
+and the request is sent to it. If there are no available replicas (i.e. there
+are more than <code class="docutils literal notranslate"><span class="pre">max_concurrent_queries</span></code> requests outstanding at each replica), the request
+is left in the queue until a replica becomes available.</p></li>
+</ol>
+<p>Each replica maintains a queue of requests and executes requests one at a time, possibly
+using <code class="docutils literal notranslate"><span class="pre">asyncio</span></code> to process them concurrently. If the handler (the deployment function or the <code class="docutils literal notranslate"><span class="pre">__call__</span></code> method of the deployment class) is declared with <code class="docutils literal notranslate"><span class="pre">async</span> <span class="pre">def</span></code>, the replica will not wait for the
+handler to run.  Otherwise, the replica will block until the handler returns.</p>
+<p>When making a request via <a class="reference internal" href="model_composition.html#serve-handle-explainer"><span class="std std-ref">ServeHandle</span></a> instead of HTTP, the request is placed on a queue in the ServeHandle, and we skip to step 3 above.</p>
+</section>
+<section id="fault-tolerance">
+<span id="serve-ft-detail"></span><h2>Fault tolerance<a class="headerlink" href="architecture.html#fault-tolerance" title="Permalink to this headline">#</a></h2>
+<p>Application errors like exceptions in your model evaluation code are caught and
+wrapped. A 500 status code will be returned with the traceback information. The
+replica will be able to continue to handle requests.</p>
+<p>Machine errors and faults will be handled by Ray Serve as follows:</p>
+<ul class="simple">
+<li><p>When replica actors fail, the Controller actor will replace them with new ones.</p></li>
+<li><p>When the HTTP proxy actor fails, the Controller actor will restart it.</p></li>
+<li><p>When the Controller actor fails, Ray will restart it.</p></li>
+<li><p>When using the <a class="reference external" href="https://ray-project.github.io/kuberay/guidance/rayservice/">KubeRay RayService</a>, KubeRay will recover crashed nodes or a crashed cluster.  Cluster crashes can be avoided using the <a class="reference external" href="https://ray-project.github.io/kuberay/guidance/gcs-ft/">GCS FT feature</a>.</p></li>
+<li><p>If not using KubeRay, when the Ray cluster fails, Ray Serve cannot recover.</p></li>
+</ul>
+<p>When a machine hosting any of the actors crashes, those actors will be automatically restarted on another
+available machine. All data in the Controller (routing policies, deployment
+configurations, etc) is checkpointed to the Ray Global Control Store (GCS) on the head node. Transient data in the
+router and the replica (like network connections and internal request queues) will be lost for this kind of failure.
+See <a class="reference internal" href="production-guide/fault-tolerance.html#serve-e2e-ft"><span class="std std-ref">the end-to-end fault tolerance guide</span></a> for more details on how actor crashes are detected.</p>
+</section>
+<section id="ray-serve-autoscaling">
+<span id="serve-autoscaling-architecture"></span><h2>Ray Serve Autoscaling<a class="headerlink" href="architecture.html#ray-serve-autoscaling" title="Permalink to this headline">#</a></h2>
+<p>Ray Serve’s autoscaling feature automatically increases or decreases a deployment’s number of replicas based on its load.</p>
+<p><img alt="pic" src="https://raw.githubusercontent.com/ray-project/images/master/docs/serve/autoscaling.svg" /></p>
+<ul class="simple">
+<li><p>The Serve Autoscaler runs in the Serve Controller actor.</p></li>
+<li><p>Each ServeHandle and each replica periodically pushes its metrics to the autoscaler.</p></li>
+<li><p>For each deployment, the autoscaler periodically checks ServeHandle queues and in-flight queries on replicas to decide whether or not to scale the number of replicas.</p></li>
+<li><p>Each ServeHandle continuously polls the controller to check for new deployment replicas. Whenever new replicas are discovered, it will send any buffered or new queries to the replica until <code class="docutils literal notranslate"><span class="pre">max_concurrent_queries</span></code> is reached.  Queries are sent to replicas in round-robin fashion, subject to the constraint that no replica is handling more than <code class="docutils literal notranslate"><span class="pre">max_concurrent_queries</span></code> requests at a time.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When the controller dies, requests can still be sent via HTTP and ServeHandles, but autoscaling will be paused. When the controller recovers, the autoscaling will resume, but all previous metrics collected will be lost.</p>
+</div>
+</section>
+<section id="ray-serve-api-server">
+<h2>Ray Serve API Server<a class="headerlink" href="architecture.html#ray-serve-api-server" title="Permalink to this headline">#</a></h2>
+<p>Ray Serve provides a <a class="reference internal" href="api/index.html#serve-cli"><span class="std std-ref">CLI</span></a> for managing your Ray Serve instance, as well as a <a class="reference internal" href="api/index.html#serve-rest-api"><span class="std std-ref">REST API</span></a>.
+Each node in your Ray cluster provides a Serve REST API server that can connect to Serve and respond to Serve REST requests.</p>
+</section>
+<section id="faq">
+<h2>FAQ<a class="headerlink" href="architecture.html#faq" title="Permalink to this headline">#</a></h2>
+<section id="how-does-serve-ensure-horizontal-scalability-and-availability">
+<h3>How does Serve ensure horizontal scalability and availability?<a class="headerlink" href="architecture.html#how-does-serve-ensure-horizontal-scalability-and-availability" title="Permalink to this headline">#</a></h3>
+<p>Serve can be configured to start one HTTP proxy actor per node via the <code class="docutils literal notranslate"><span class="pre">location</span></code> field of <a class="reference internal" href="api/index.html#core-apis"><span class="std std-ref"><code class="docutils literal notranslate"><span class="pre">http_options</span></code></span></a>. Each one will bind the same port. You
+should be able to reach Serve and send requests to any models via any of the
+servers.  You can use your own load balancer on top of Ray Serve.</p>
+<p>This architecture ensures horizontal scalability for Serve. You can scale your HTTP ingress by adding more nodes and scale your model inference by increasing the number
+of replicas via the <code class="docutils literal notranslate"><span class="pre">num_replicas</span></code> option of your deployment.</p>
+</section>
+<section id="how-do-servehandles-work">
+<h3>How do ServeHandles work?<a class="headerlink" href="architecture.html#how-do-servehandles-work" title="Permalink to this headline">#</a></h3>
+<p><code class="xref py py-mod docutils literal notranslate"><span class="pre">ServeHandles</span></code> wrap a handle to a “router” on the
+same node which routes requests to replicas for a deployment. When a
+request is sent from one replica to another via the handle, the
+requests go through the same data path as incoming HTTP requests. This enables
+the same deployment selection and batching procedures to happen. ServeHandles are
+often used to implement <a class="reference internal" href="model_composition.html#serve-model-composition"><span class="std std-ref">model composition</span></a>.</p>
+</section>
+<section id="what-happens-to-large-requests">
+<h3>What happens to large requests?<a class="headerlink" href="architecture.html#what-happens-to-large-requests" title="Permalink to this headline">#</a></h3>
+<p>Serve utilizes Ray’s <a class="reference internal" href="../ray-core/objects/serialization.html#plasma-store"><span class="std std-ref">shared memory object store</span></a> and in process memory
+store. Small request objects are directly sent between actors via network
+call. Larger request objects (100KiB+) are written to the object store and the replica can read them via zero-copy read.</p>
+</section>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="advanced-guides/deploy-vm.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Deploy on VM</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="tutorials/index.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Examples</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

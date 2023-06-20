@@ -1,0 +1,913 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Batching Tutorial &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/js/versionwarning.js"></script>
+    <script src="../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../_static/js/docsearch.js"></script>
+    <script src="../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../_static/js/top-navigation.js"></script>
+    <script src="../../_static/js/tags.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/serve/tutorials/batch.html" />
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Serving RLlib Models" href="rllib.html" />
+    <link rel="prev" title="Serving ML Models (Tensorflow, PyTorch, Scikit-Learn, others)" href="serve-ml-models.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "serve/tutorials/batch", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".md", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tune.html">
+   Ray Tune
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../index.html">
+   Ray Serve
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../getting_started.html">
+     Getting Started
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../model_composition.html">
+     Deploy a Composition of Models
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../deploy-many-models/index.html">
+     Deploy Many Models
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../http-guide.html">
+     Set Up FastAPI and HTTP
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../production-guide/index.html">
+     Production Guide
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../monitoring.html">
+     Monitor Your Application
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../scaling-and-resource-allocation.html">
+     Set Up Autoscaling and Resource Allocation
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../advanced-guides/index.html">
+     Advanced Guides
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../architecture.html">
+     Architecture
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="index.html">
+     Examples
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="serve-ml-models.html">
+       Serving ML Models (Tensorflow, PyTorch, Scikit-Learn, others)
+      </a>
+     </li>
+     <li class="toctree-l3 current active">
+      <a class="current reference internal" href="batch.html#">
+       Batching Tutorial
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rllib.html">
+       Serving RLlib Models
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gradio-integration.html">
+       Scaling your Gradio app with Ray Serve
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gradio-dag-visualization.html">
+       Visualizing a Deployment Graph with Gradio
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="java.html">
+       Java Tutorial
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="stable-diffusion.html">
+       Serving a Stable Diffusion Model
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="text-classification.html">
+       Serving a Distilbert Model
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="object-detection.html">
+       Serving an Object Detection Model
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="deployment-graph-patterns.html">
+       Deployment Graph Patterns
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/index.html">
+     Ray Serve API
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Fserve/tutorials/batch.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/serve/tutorials/batch.md"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../_sources/serve/tutorials/batch.md.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.md</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="batch.html#define-the-deployment">
+   Define the Deployment
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="batch.html#deploy-the-deployment">
+   Deploy the Deployment
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="batch.html#deploy-the-deployment-using-python-api">
+   Deploy the Deployment using Python API
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="batch.html#troubleshooting">
+   Troubleshooting
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Batching Tutorial</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="batch.html#define-the-deployment">
+   Define the Deployment
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="batch.html#deploy-the-deployment">
+   Deploy the Deployment
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="batch.html#deploy-the-deployment-using-python-api">
+   Deploy the Deployment using Python API
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="batch.html#troubleshooting">
+   Troubleshooting
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section class="tex2jax_ignore mathjax_ignore" id="batching-tutorial">
+<span id="serve-batch-tutorial"></span><h1>Batching Tutorial<a class="headerlink" href="batch.html#batching-tutorial" title="Permalink to this headline">#</a></h1>
+<p>In this guide, we will deploy a simple text generator that takes in
+a batch of queries and processes them at once. In particular, we show:</p>
+<ul class="simple">
+<li><p>How to implement and deploy a Ray Serve deployment that accepts batches.</p></li>
+<li><p>How to configure the batch size.</p></li>
+<li><p>How to query the model in Python.</p></li>
+</ul>
+<p>This tutorial should help the following use cases:</p>
+<ul class="simple">
+<li><p>You want to perform offline batch inference on a cluster of machines.</p></li>
+<li><p>You want to serve online queries and your model can take advantage of batching.
+For example, linear regressions and neural networks use CPU and GPU’s
+vectorized instructions to perform computation in parallel. Performing
+inference with batching can increase the <em>throughput</em> of the model as well as
+<em>utilization</em> of the hardware.</p></li>
+</ul>
+<section id="define-the-deployment">
+<h2>Define the Deployment<a class="headerlink" href="batch.html#define-the-deployment" title="Permalink to this headline">#</a></h2>
+<p>Open a new Python file called <code class="docutils literal notranslate"><span class="pre">tutorial_batch.py</span></code>. First, let’s import Ray Serve and some other helpers.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+
+<span class="kn">from</span> <span class="nn">starlette.requests</span> <span class="kn">import</span> <span class="n">Request</span>
+<span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">pipeline</span>
+
+<span class="kn">from</span> <span class="nn">ray</span> <span class="kn">import</span> <span class="n">serve</span>
+</pre></div>
+</div>
+<p>You can use the <code class="docutils literal notranslate"><span class="pre">&#64;serve.batch</span></code> decorator to annotate a function or a method.
+This annotation will automatically cause calls to the function to be batched together.
+The function must handle a list of objects and will be called with a single object.
+This function must also be <code class="docutils literal notranslate"><span class="pre">async</span> <span class="pre">def</span></code> so that you can handle multiple queries concurrently:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@serve</span><span class="o">.</span><span class="n">batch</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">my_batch_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">requests</span><span class="p">:</span> <span class="n">List</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>This batch handler can then be called from another <code class="docutils literal notranslate"><span class="pre">async</span> <span class="pre">def</span></code> method in your deployment.
+These calls will be batched and executed together, but return an individual result as if
+they were a normal function call:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyBackend</span><span class="p">:</span>
+    <span class="nd">@serve</span><span class="o">.</span><span class="n">batch</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">my_batch_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">requests</span><span class="p">:</span> <span class="n">List</span><span class="p">):</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">request</span> <span class="ow">in</span> <span class="n">requests</span><span class="p">:</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">results</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">my_batch_handler</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, Ray Serve performs <em>opportunistic batching</em>. This means that as
+soon as the batch handler is called, the method will be executed without
+waiting for a full batch. If there are more queries available after this call
+finishes, a larger batch may be executed. This behavior can be tuned using the
+<code class="docutils literal notranslate"><span class="pre">batch_wait_timeout_s</span></code> option to <code class="docutils literal notranslate"><span class="pre">&#64;serve.batch</span></code> (defaults to 0). Increasing this
+timeout may improve throughput at the cost of latency under low load.</p>
+</div>
+<p>Let’s define a deployment that takes in a list of input strings and runs
+vectorized text generation on the inputs.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@serve</span><span class="o">.</span><span class="n">deployment</span>
+<span class="k">class</span> <span class="nc">BatchTextGenerator</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipeline_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="n">pipeline_key</span><span class="p">,</span> <span class="n">model_key</span><span class="p">)</span>
+
+    <span class="nd">@serve</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">max_batch_size</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">handle_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Our input array has length:&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">inputs</span><span class="p">))</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;generated_text&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="p">]</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_batch</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Let’s prepare to deploy the deployment. Note that in the <code class="docutils literal notranslate"><span class="pre">&#64;serve.batch</span></code> decorator, we
+are specifying the maximum batch size via <code class="docutils literal notranslate"><span class="pre">max_batch_size=4</span></code>. This option limits
+the maximum possible batch size that will be executed at once.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">generator</span> <span class="o">=</span> <span class="n">BatchTextGenerator</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="s2">&quot;text-generation&quot;</span><span class="p">,</span> <span class="s2">&quot;gpt2&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="deploy-the-deployment">
+<h2>Deploy the Deployment<a class="headerlink" href="batch.html#deploy-the-deployment" title="Permalink to this headline">#</a></h2>
+<p>Deploy the deployment by running the following through the terminal.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>serve run tutorial_batch:generator
+</pre></div>
+</div>
+<p>Let’s define a <a class="reference internal" href="../../ray-core/tasks.html#ray-remote-functions"><span class="std std-ref">Ray remote task</span></a> to send queries in
+parallel. While Serve is running, open a separate terminal window, and run the
+following in an interactive Python shell or a separate Python script:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="nd">@ray</span><span class="o">.</span><span class="n">remote</span>
+<span class="k">def</span> <span class="nf">send_query</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="n">resp</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;http://localhost:8000/?text=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">text</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">resp</span><span class="o">.</span><span class="n">text</span>
+
+<span class="c1"># Let&#39;s use Ray to send all queries in parallel</span>
+<span class="n">texts</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;Once upon a time,&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Hi my name is Lewis and I like to&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;My name is Mary, and my favorite&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;My name is Clara and I am&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;My name is Julien and I like to&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Today I accidentally&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;My greatest wish is to&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;In a galaxy far far away&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;My best talent is&#39;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">([</span><span class="n">send_query</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">texts</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Result returned:&quot;</span><span class="p">,</span> <span class="n">results</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You should get an output like the following. As you can see, the first batch has a
+batch size of 1, and the subsequent queries have a batch size of 4. Even though each
+query is issued independently, Ray Serve was able to evaluate them in batches.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">pid</span><span class="o">=...</span><span class="p">)</span> <span class="n">Our</span> <span class="nb">input</span> <span class="n">array</span> <span class="n">has</span> <span class="n">length</span><span class="p">:</span> <span class="mi">1</span>
+<span class="p">(</span><span class="n">pid</span><span class="o">=...</span><span class="p">)</span> <span class="n">Our</span> <span class="nb">input</span> <span class="n">array</span> <span class="n">has</span> <span class="n">length</span><span class="p">:</span> <span class="mi">4</span>
+<span class="p">(</span><span class="n">pid</span><span class="o">=...</span><span class="p">)</span> <span class="n">Our</span> <span class="nb">input</span> <span class="n">array</span> <span class="n">has</span> <span class="n">length</span><span class="p">:</span> <span class="mi">4</span>
+<span class="n">Result</span> <span class="n">returned</span><span class="p">:</span> <span class="p">[</span>
+    <span class="s1">&#39;Once upon a time, when I got to look at and see the work of my parents (I still can</span><span class="se">\&#39;</span><span class="s1">t stand them,) they said, &quot;Boys, you</span><span class="se">\&#39;</span><span class="s1">re going to like it if you</span><span class="se">\&#39;</span><span class="s1">ll stay away from him or make him look&#39;</span><span class="p">,</span>
+
+    <span class="s2">&quot;Hi my name is Lewis and I like to look great. When I&#39;m not playing against, it&#39;s when I play my best and always feel most comfortable. I get paid by the same people who make my games, who work hardest for me.&quot;</span><span class="p">,</span> 
+
+    <span class="s2">&quot;My name is Mary, and my favorite person in these two universes, the Green Lantern and the Red Lantern, are the same, except they&#39;re two of the Green Lanterns, but they also have their own different traits. Now their relationship is known&quot;</span><span class="p">,</span> 
+
+    <span class="s1">&#39;My name is Clara and I am married and live in Philadelphia. I am an English language teacher and translator. I am passionate about the issues that have so inspired me and my journey. My story begins with the discovery of my own child having been born&#39;</span><span class="p">,</span> 
+
+    <span class="s1">&#39;My name is Julien and I like to travel with my son on vacations... In fact I really prefer to spend more time with my son.&quot;</span><span class="se">\n\n</span><span class="s1">In 2011, the following year he was diagnosed with terminal Alzheimer</span><span class="se">\&#39;</span><span class="s1">s disease, and since then,&#39;</span><span class="p">,</span> 
+
+    <span class="s2">&quot;Today I accidentally got lost and went on another tour in August. My story was different, but it had so many emotions that it made me happy. I&#39;m proud to still be able to go back to Oregon for work.</span><span class="se">\n\n</span><span class="s2">For the longest&quot;</span><span class="p">,</span> 
+
+    <span class="s1">&#39;My greatest wish is to return your loved ones to this earth where they can begin their own free and prosperous lives. This is true only on occasion as it is not intended or even encouraged to be so.</span><span class="se">\n\n</span><span class="s1">The Gospel of Luke 8:29&#39;</span><span class="p">,</span> 
+
+    <span class="s1">&#39;In a galaxy far far away, the most brilliant and powerful beings known would soon enter upon New York, setting out to restore order to the state. When the world turned against them, Darth Vader himself and Obi-Wan Kenobi, along with the Jedi&#39;</span><span class="p">,</span> 
+
+    <span class="s1">&#39;My best talent is that I can make a movie with somebody who really has a big and strong voice. I do believe that they would be great writers. I can tell you that to make sure.&quot;</span><span class="se">\n\n\n</span><span class="s1">With this in mind, &quot;Ghostbusters&#39;</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="deploy-the-deployment-using-python-api">
+<h2>Deploy the Deployment using Python API<a class="headerlink" href="batch.html#deploy-the-deployment-using-python-api" title="Permalink to this headline">#</a></h2>
+<p>What if you want to evaluate a whole batch in Python? Ray Serve allows you to send
+queries via the Python API. A batch of queries can either come from the web server
+or the Python API.</p>
+<p>To query the deployment via the Python API, we can use <code class="docutils literal notranslate"><span class="pre">serve.run()</span></code>, which is part
+of the Python API, instead of running <code class="docutils literal notranslate"><span class="pre">serve</span> <span class="pre">run</span></code> from the console. Add the following
+to the Python script <code class="docutils literal notranslate"><span class="pre">tutorial_batch.py</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">handle</span> <span class="o">=</span> <span class="n">serve</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">generator</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Generally, to enqueue a query, you can call <code class="docutils literal notranslate"><span class="pre">handle.method.remote(data)</span></code>. This call
+returns immediately with a <a class="reference internal" href="../../ray-core/tasks.html#ray-object-refs"><span class="std std-ref">Ray ObjectRef</span></a>. You can call <code class="docutils literal notranslate"><span class="pre">ray.get</span></code> to
+retrieve the result. Add the following to the same Python script.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">input_batch</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;Once upon a time,&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Hi my name is Lewis and I like to&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;My name is Mary, and my favorite&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;My name is Clara and I am&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;My name is Julien and I like to&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Today I accidentally&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;My greatest wish is to&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;In a galaxy far far away&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;My best talent is&#39;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Input batch is&quot;</span><span class="p">,</span> <span class="n">input_batch</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">ray</span>
+<span class="n">result_batch</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">([</span><span class="n">handle</span><span class="o">.</span><span class="n">handle_batch</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span> <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">input_batch</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Result batch is&quot;</span><span class="p">,</span> <span class="n">result_batch</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Finally, let’s run the script.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python tutorial_batch.py
+</pre></div>
+</div>
+<p>You should get a similar output like before!</p>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="batch.html#troubleshooting" title="Permalink to this headline">#</a></h2>
+<p>If you see the following error:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">TypeError: Descriptors cannot not be created directly.</span>
+<span class="go">    If this call came from a _pb2.py file, your generated code is out of date and must be regenerated with protoc &gt;= 3.19.0.</span>
+<span class="go">    If you cannot immediately regenerate your protos, some other possible workarounds are:   </span>
+<span class="go">     1. Downgrade the protobuf package to 3.20.x or lower.</span>
+<span class="go">     2. Set PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python (but this will use pure-Python parsing and will be much slower).</span>
+</pre></div>
+</div>
+<p>You can downgrade the protobuf package to 3.20.x or lower in your Docker image, or tell Ray to do it at runtime by specifying a <a class="reference internal" href="../../ray-core/handling-dependencies.html#runtime-environments"><span class="std std-ref">runtime environment</span></a>:</p>
+<p>Open a new YAML file called <code class="docutils literal notranslate"><span class="pre">batch_env.yaml</span></code> for runtime environment.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">pip</span><span class="p">:</span><span class="w"></span>
+<span class="w"> </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">protobuf==3.20.3</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Then, run the following command to deploy the model with the runtime environment.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>serve run --runtime-env batch_env.yaml tutorial_batch:generator
+</pre></div>
+</div>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="serve-ml-models.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Serving ML Models (Tensorflow, PyTorch, Scikit-Learn, others)</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="rllib.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Serving RLlib Models</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

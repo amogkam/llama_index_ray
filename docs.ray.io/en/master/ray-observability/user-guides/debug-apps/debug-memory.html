@@ -1,0 +1,909 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Debugging Memory Issues &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/js/versionwarning.js"></script>
+    <script src="../../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../../_static/js/docsearch.js"></script>
+    <script src="../../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../../_static/js/top-navigation.js"></script>
+    <script src="../../../_static/js/tags.js"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/ray-observability/user-guides/debug-apps/debug-memory.html" />
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Debugging Hangs" href="debug-hangs.html" />
+    <link rel="prev" title="General Debugging" href="general-debugging.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "ray-observability/user-guides/debug-apps/debug-memory", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".rst", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../tune.html">
+   Ray Tune
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../../index.html">
+   Monitoring and Debugging
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../getting-started.html">
+     Ray Dashboard
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="../index.html">
+     User Guides
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3 current active has-children">
+      <a class="reference internal" href="index.html">
+       Debugging Applications
+      </a>
+      <input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+      <label for="toctree-checkbox-3">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul class="current">
+       <li class="toctree-l4">
+        <a class="reference internal" href="general-debugging.html">
+         General Debugging
+        </a>
+       </li>
+       <li class="toctree-l4 current active">
+        <a class="current reference internal" href="debug-memory.html#">
+         Debugging Memory Issues
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="debug-hangs.html">
+         Debugging Hangs
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="debug-failures.html">
+         Debugging Failures
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="optimize-performance.html">
+         Optimizing Performance
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="ray-debugging.html">
+         Using the Ray Debugger
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../cli-sdk.html">
+       Monitoring with the CLI or SDK
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../configure-logging.html">
+       Configuring Logging
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../add-app-metrics.html">
+       Adding Application-Level Metrics
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../ray-tracing.html">
+       Tracing
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../reference/index.html">
+     Reference
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Fray-observability/user-guides/debug-apps/debug-memory.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/ray-observability/user-guides/debug-apps/debug-memory.rst"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../../_sources/ray-observability/user-guides/debug-apps/debug-memory.rst.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.rst</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="debug-memory.html#debugging-out-of-memory">
+   Debugging Out of Memory
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="debug-memory.html#what-s-the-out-of-memory-error">
+     What’s the Out-of-Memory Error?
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="debug-memory.html#detecting-out-of-memory-errors">
+     Detecting Out-of-Memory errors
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="debug-memory.html#find-per-task-and-actor-memory-usage">
+     Find per Task and Actor Memory Usage
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="debug-memory.html#head-node-out-of-memory-error">
+     Head node out-of-Memory error
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="debug-memory.html#reduce-parallelism">
+     Reduce Parallelism
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="debug-memory.html#profiling-task-and-actor-memory-usage">
+     Profiling Task and Actor memory usage
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="debug-memory.html#memory-profiling-ray-tasks-and-actors">
+   Memory Profiling Ray tasks and actors
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Debugging Memory Issues</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="debug-memory.html#debugging-out-of-memory">
+   Debugging Out of Memory
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="debug-memory.html#what-s-the-out-of-memory-error">
+     What’s the Out-of-Memory Error?
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="debug-memory.html#detecting-out-of-memory-errors">
+     Detecting Out-of-Memory errors
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="debug-memory.html#find-per-task-and-actor-memory-usage">
+     Find per Task and Actor Memory Usage
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="debug-memory.html#head-node-out-of-memory-error">
+     Head node out-of-Memory error
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="debug-memory.html#reduce-parallelism">
+     Reduce Parallelism
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="debug-memory.html#profiling-task-and-actor-memory-usage">
+     Profiling Task and Actor memory usage
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="debug-memory.html#memory-profiling-ray-tasks-and-actors">
+   Memory Profiling Ray tasks and actors
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section id="debugging-memory-issues">
+<span id="ray-core-mem-profiling"></span><h1>Debugging Memory Issues<a class="headerlink" href="debug-memory.html#debugging-memory-issues" title="Permalink to this headline">#</a></h1>
+<section id="debugging-out-of-memory">
+<span id="troubleshooting-out-of-memory"></span><h2>Debugging Out of Memory<a class="headerlink" href="debug-memory.html#debugging-out-of-memory" title="Permalink to this headline">#</a></h2>
+<p>Before reading this section, familiarize yourself with the Ray <a class="reference internal" href="../../../ray-core/scheduling/memory-management.html#memory"><span class="std std-ref">Memory Management</span></a> model.</p>
+<ul class="simple">
+<li><p>If your cluster has out-of-memory problems, view <a class="reference internal" href="debug-memory.html#troubleshooting-out-of-memory-how-to-detect"><span class="std std-ref">How to Detect Out-of-Memory Errors</span></a>.</p></li>
+<li><p>To locate the source of the memory leak, view <a class="reference internal" href="debug-memory.html#troubleshooting-out-of-memory-task-actor-mem-usage"><span class="std std-ref">Find per Task and Actor Memory Usage</span></a>.</p></li>
+<li><p>If your head node has high memory usage, view <a class="reference internal" href="debug-memory.html#troubleshooting-out-of-memory-head"><span class="std std-ref">Head Node Out-of-Memory Error</span></a>.</p></li>
+<li><p>If your memory usage is high due to high parallelism, view <a class="reference internal" href="debug-memory.html#troubleshooting-out-of-memory-reduce-parallelism"><span class="std std-ref">Reduce Parallelism</span></a>.</p></li>
+<li><p>If you want to profile per Task and Actor memory usage, view <a class="reference internal" href="debug-memory.html#troubleshooting-out-of-memory-profile"><span class="std std-ref">Profile Task and Actor Memory Usage</span></a>.</p></li>
+</ul>
+<section id="what-s-the-out-of-memory-error">
+<h3>What’s the Out-of-Memory Error?<a class="headerlink" href="debug-memory.html#what-s-the-out-of-memory-error" title="Permalink to this headline">#</a></h3>
+<p>Memory is a limited resource. When a process requests memory and the OS fails to allocate it, the OS executes a routine to free up memory
+by killing a process that has high memory usage (via SIGKILL) to avoid the OS becoming unstable. This routine is called the <a class="reference external" href="https://www.kernel.org/doc/gorman/html/understand/understand016.html">Linux Out of Memory killer</a>.</p>
+<p>One of the common problems of the Linux out-of-memory killer is that SIGKILL kills processes without Ray noticing it.
+Since SIGKILL cannot be handled by processes, Ray has difficulty raising a proper error message
+and taking proper actions for fault tolerance.
+To solve this problem, Ray has (from Ray 2.2) an application-level <a class="reference internal" href="../../../ray-core/scheduling/ray-oom-prevention.html#ray-oom-monitor"><span class="std std-ref">memory monitor</span></a>,
+which continually monitors the memory usage of the host and kills the Ray Workers before the Linux out-of-memory killer executes.</p>
+</section>
+<section id="detecting-out-of-memory-errors">
+<span id="troubleshooting-out-of-memory-how-to-detect"></span><h3>Detecting Out-of-Memory errors<a class="headerlink" href="debug-memory.html#detecting-out-of-memory-errors" title="Permalink to this headline">#</a></h3>
+<p>If the Linux out-of-memory killer terminates Tasks or Actors, Ray Worker processes are unable to catch and display an exact root cause
+because SIGKILL cannot be handled by processes. If you call <code class="docutils literal notranslate"><span class="pre">ray.get</span></code> into the Tasks and Actors that were executed from the dead worker,
+it raises an exception with one of the following error messages (which indicates the worker is killed unexpectedly).</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Worker <span class="nb">exit</span> type: UNEXPECTED_SY STEM_EXIT Worker <span class="nb">exit</span> detail: Worker unexpectedly exits with a connection error code <span class="m">2</span>. End of file. There are some potential root causes. <span class="o">(</span><span class="m">1</span><span class="o">)</span> The process is killed by SIGKILL by OOM killer due to high memory usage. <span class="o">(</span><span class="m">2</span><span class="o">)</span> ray stop --force is called. <span class="o">(</span><span class="m">3</span><span class="o">)</span> The worker is crashed unexpectedly due to SIGSEGV or other unexpected errors.
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Worker <span class="nb">exit</span> type: SYSTEM_ERROR Worker <span class="nb">exit</span> detail: The leased worker has unrecoverable failure. Worker is requested to be destroyed when it is returned.
+</pre></div>
+</div>
+<p>You can also use the <a class="reference external" href="https://phoenixnap.com/kb/dmesg-linux#:~:text=The%20dmesg%20command%20is%20a,take%20place%20during%20system%20startup.">dmesg</a> CLI command to verify the processes are killed by the Linux out-of-memory killer.</p>
+<img alt="../../../_images/dmsg.png" class="align-center" src="../../../_images/dmsg.png" />
+<p>If Ray’s memory monitor kills the worker, it is automatically retried (see the <a class="reference internal" href="../../../ray-core/scheduling/ray-oom-prevention.html#ray-oom-retry-policy"><span class="std std-ref">link</span></a> for details).
+If Tasks or Actors cannot be retried, they raise an exception with
+a much cleaner error message when you call <code class="docutils literal notranslate"><span class="pre">ray.get</span></code> to it.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ray.exceptions.OutOfMemoryError: Task was killed due to the node running low on memory.
+
+Task was killed due to the node running low on memory.
+Memory on the node <span class="o">(</span>IP: <span class="m">10</span>.0.62.231, ID: e5d953ef03e55e26f13973ea1b5a0fd0ecc729cd820bc89e4aa50451<span class="o">)</span> where the task <span class="o">(</span>task ID: 43534ce9375fa8e4cd0d0ec285d9974a6a95897401000000, <span class="nv">name</span><span class="o">=</span>allocate_memory, <span class="nv">pid</span><span class="o">=</span><span class="m">11362</span>, memory <span class="nv">used</span><span class="o">=</span><span class="m">1</span>.25GB<span class="o">)</span> was running was <span class="m">27</span>.71GB / <span class="m">28</span>.80GB <span class="o">(</span><span class="m">0</span>.962273<span class="o">)</span>, which exceeds the memory usage threshold of <span class="m">0</span>.95. Ray killed this worker <span class="o">(</span>ID: 6f2ec5c8b0d5f5a66572859faf192d36743536c2e9702ea58084b037<span class="o">)</span> because it was the most recently scheduled task<span class="p">;</span> to see more information about memory usage on this node, use <span class="sb">`</span>ray logs raylet.out -ip <span class="m">10</span>.0.62.231<span class="sb">`</span>. To see the logs of the worker, use <span class="sb">`</span>ray logs worker-6f2ec5c8b0d5f5a66572859faf192d36743536c2e9702ea58084b037*out -ip <span class="m">10</span>.0.62.231.<span class="sb">`</span>
+Top <span class="m">10</span> memory users:
+PID   MEM<span class="o">(</span>GB<span class="o">)</span> COMMAND
+<span class="m">410728</span>        <span class="m">8</span>.47    <span class="m">510953</span>  <span class="m">7</span>.19    ray::allocate_memory
+<span class="m">610952</span>        <span class="m">6</span>.15    ray::allocate_memory
+<span class="m">711164</span>        <span class="m">3</span>.63    ray::allocate_memory
+<span class="m">811156</span>        <span class="m">3</span>.63    ray::allocate_memory
+<span class="m">911362</span>        <span class="m">1</span>.25    ray::allocate_memory
+<span class="m">107230</span>        <span class="m">0</span>.09    python test.py --num-tasks <span class="m">2011327</span>      <span class="m">0</span>.08    /home/ray/anaconda3/bin/python /home/ray/anaconda3/lib/python3.9/site-packages/ray/dashboard/dashboa...
+
+Refer to the documentation on how to address the out of memory issue: https://docs.ray.io/en/latest/ray-core/scheduling/ray-oom-prevention.html.
+</pre></div>
+</div>
+<p>Ray memory monitor also periodically prints the aggregated out-of-memory killer summary to Ray drivers.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">(</span>raylet<span class="o">)</span> <span class="o">[</span><span class="m">2023</span>-04-09 <span class="m">07</span>:23:59,445 E <span class="m">395</span> <span class="m">395</span><span class="o">]</span> <span class="o">(</span>raylet<span class="o">)</span> node_manager.cc:3049: <span class="m">10</span> Workers <span class="o">(</span>tasks / actors<span class="o">)</span> killed due to memory pressure <span class="o">(</span>OOM<span class="o">)</span>, <span class="m">0</span> Workers crashed due to other reasons at node <span class="o">(</span>ID: e5d953ef03e55e26f13973ea1b5a0fd0ecc729cd820bc89e4aa50451, IP: <span class="m">10</span>.0.62.231<span class="o">)</span> over the last <span class="nb">time</span> period. To see more information about the Workers killed on this node, use <span class="sb">`</span>ray logs raylet.out -ip <span class="m">10</span>.0.62.231<span class="sb">`</span>
+<span class="o">(</span>raylet<span class="o">)</span>
+<span class="o">(</span>raylet<span class="o">)</span> Refer to the documentation on how to address the out of memory issue: https://docs.ray.io/en/latest/ray-core/scheduling/ray-oom-prevention.html. Consider provisioning more memory on this node or reducing task parallelism by requesting more CPUs per task. To adjust the <span class="nb">kill</span> threshold, <span class="nb">set</span> the environment variable <span class="sb">`</span>RAY_memory_usage_threshold<span class="sb">`</span> when starting Ray. To disable worker killing, <span class="nb">set</span> the environment variable <span class="sb">`</span>RAY_memory_monitor_refresh_ms<span class="sb">`</span> to zero.
+</pre></div>
+</div>
+<p>Ray Dashboard’s <a class="reference internal" href="../../getting-started.html#dash-metrics-view"><span class="std std-ref">metrics page</span></a> and <a class="reference internal" href="../../getting-started.html#dash-event"><span class="std std-ref">event page</span></a> also provides the out-of-memory killer-specific events and metrics.</p>
+<img alt="../../../_images/oom-metrics.png" class="align-center" src="../../../_images/oom-metrics.png" />
+<img alt="../../../_images/oom-events.png" class="align-center" src="../../../_images/oom-events.png" />
+</section>
+<section id="find-per-task-and-actor-memory-usage">
+<span id="troubleshooting-out-of-memory-task-actor-mem-usage"></span><h3>Find per Task and Actor Memory Usage<a class="headerlink" href="debug-memory.html#find-per-task-and-actor-memory-usage" title="Permalink to this headline">#</a></h3>
+<p>If Tasks or Actors fail because of out-of-memory errors, they are retried based on <a class="reference internal" href="../../../ray-core/scheduling/ray-oom-prevention.html#ray-oom-retry-policy"><span class="std std-ref">retry policies</span></a>.
+However, it is often preferred to find the root causes of memory issues and fix them instead of relying on fault tolerance mechanisms.
+This section explains how to debug out-of-memory errors in Ray.</p>
+<p>First, find the Tasks and Actors that have high memory usage. View the <a class="reference internal" href="../../getting-started.html#dash-workflow-cpu-memory-analysis"><span class="std std-ref">per Task and Actor memory usage graph</span></a> for more details.
+The memory usage from the per component graph uses RSS - SHR. See below for reasoning.</p>
+<p>Alternatively, you can also use the CLI command <a class="reference external" href="https://htop.dev/">htop</a>.</p>
+<img alt="../../../_images/htop.png" class="align-center" src="../../../_images/htop.png" />
+<p>See the <code class="docutils literal notranslate"><span class="pre">allocate_memory</span></code> row. See two columns, RSS and SHR.</p>
+<p>SHR usage is typically the memory usage from the Ray object store. The Ray object store allocates 30% of host memory to the shared memory (<code class="docutils literal notranslate"><span class="pre">/dev/shm</span></code>, unless you specify <code class="docutils literal notranslate"><span class="pre">--object-store-memory</span></code>).
+If Ray workers access the object inside the object store using <code class="docutils literal notranslate"><span class="pre">ray.get</span></code>, SHR usage increases. Since the Ray object store supports the <a class="reference internal" href="../../../ray-core/objects/serialization.html#serialization-guide"><span class="std std-ref">zero-copy</span></a>
+deserialization, several workers can access the same object without copying them to in-process memory. For example, if
+8 workers access the same object inside the Ray object store, each process’ <code class="docutils literal notranslate"><span class="pre">SHR</span></code> usage increases. However, they are not using 8 * SHR memory (there’s only 1 copy in the shared memory).
+Also note that Ray object store triggers <a class="reference internal" href="../../../ray-core/objects/object-spilling.html#id1"><span class="std std-ref">object spilling</span></a> when the object usage goes beyond the limit, which means the memory usage from the shared memory won’t exceed 30%
+of the host memory.</p>
+<p>Out-of-memory issues from a host, are due to RSS usage from each worker. Calculate per
+process memory usage by RSS - SHR because SHR is for Ray object store as explained above. The total memory usage is typically
+<code class="docutils literal notranslate"><span class="pre">SHR</span> <span class="pre">(object</span> <span class="pre">store</span> <span class="pre">memory</span> <span class="pre">usage,</span> <span class="pre">30%</span> <span class="pre">of</span> <span class="pre">memory)</span> <span class="pre">+</span> <span class="pre">sum(RSS</span> <span class="pre">-</span> <span class="pre">SHR</span> <span class="pre">from</span> <span class="pre">each</span> <span class="pre">ray</span> <span class="pre">proc)</span> <span class="pre">+</span> <span class="pre">sum(RSS</span> <span class="pre">-</span> <span class="pre">SHR</span> <span class="pre">from</span> <span class="pre">system</span> <span class="pre">components.</span> <span class="pre">e.g.,</span> <span class="pre">raylet,</span> <span class="pre">GCS.</span> <span class="pre">Usually</span> <span class="pre">small)</span></code>.</p>
+</section>
+<section id="head-node-out-of-memory-error">
+<span id="troubleshooting-out-of-memory-head"></span><h3>Head node out-of-Memory error<a class="headerlink" href="debug-memory.html#head-node-out-of-memory-error" title="Permalink to this headline">#</a></h3>
+<p>First, check the head node memory usage from the metrics page. Find the head node address from the cluster page.</p>
+<img alt="../../../_images/head-node-addr.png" class="align-center" src="../../../_images/head-node-addr.png" />
+<p>Then check the memory usage from the head node from the node memory usage view inside the Dashboard <a class="reference internal" href="../../getting-started.html#dash-metrics-view"><span class="std std-ref">metrics view</span></a>.</p>
+<img alt="../../../_images/metrics-node-view.png" class="align-center" src="../../../_images/metrics-node-view.png" />
+<p>The Ray head node has more memory-demanding system components such as GCS or the dashboard.
+Also, the driver runs from a head node by default. If the head node has the same memory capacity as worker nodes
+and if you execute the same number of Tasks and Actors from a head node, it can easily have out-of-memory problems.
+In this case, do not run any Tasks and Actors on the head node by specifying <code class="docutils literal notranslate"><span class="pre">--num-cpus=0</span></code> when starting a head node by <code class="docutils literal notranslate"><span class="pre">ray</span> <span class="pre">start</span> <span class="pre">--head</span></code>. If you use Kuberay, view <code class="xref py py-obj docutils literal notranslate"><span class="pre">here</span></code>.</p>
+</section>
+<section id="reduce-parallelism">
+<span id="troubleshooting-out-of-memory-reduce-parallelism"></span><h3>Reduce Parallelism<a class="headerlink" href="debug-memory.html#reduce-parallelism" title="Permalink to this headline">#</a></h3>
+<p>High parallelism can trigger out-of-memory errors. For example, if
+you have 8 training workers that perform the data preprocessing -&gt; training.
+If you load too much data into each worker, the total memory usage (<code class="docutils literal notranslate"><span class="pre">training</span> <span class="pre">worker</span> <span class="pre">mem</span> <span class="pre">usage</span> <span class="pre">*</span> <span class="pre">8</span></code>) can exceed the
+memory capacity.</p>
+<p>Verify the memory usage by looking at the <a class="reference internal" href="../../getting-started.html#dash-workflow-cpu-memory-analysis"><span class="std std-ref">per Task and Actor memory usage graph</span></a> and the Task metrics.</p>
+<p>First, see the memory usage of an <code class="docutils literal notranslate"><span class="pre">allocate_memory</span></code> task. The total is 18GB.
+At the same time, verify the 15 concurrent tasks that are running.</p>
+<img alt="../../../_images/component-memory.png" class="align-center" src="../../../_images/component-memory.png" />
+<img alt="../../../_images/tasks-graph.png" class="align-center" src="../../../_images/tasks-graph.png" />
+<p>Each task uses about 18GB / 15 == 1.2 GB. To reduce the parallelism:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://docs.ray.io/en/latest/ray-core/patterns/limit-running-tasks.html">Limit the max number of running tasks</a>.</p></li>
+<li><p>Increase the <code class="docutils literal notranslate"><span class="pre">num_cpus</span></code> options for <a class="reference internal" href="../../../ray-core/api/doc/ray.remote.html#ray.remote" title="ray.remote"><code class="xref py py-func docutils literal notranslate"><span class="pre">ray.remote()</span></code></a>. Modern hardware typically has 4GB of memory per CPU, so you can choose the CPU requirements accordingly. This example specifies 1 CPU per <code class="docutils literal notranslate"><span class="pre">allocate_memory</span></code> Task. Doubling the CPU requirements, runs only half(7) of the Tasks at the same time, and memory usage doesn’t exceed 9GB.</p></li>
+</ul>
+</section>
+<section id="profiling-task-and-actor-memory-usage">
+<span id="troubleshooting-out-of-memory-profile"></span><h3>Profiling Task and Actor memory usage<a class="headerlink" href="debug-memory.html#profiling-task-and-actor-memory-usage" title="Permalink to this headline">#</a></h3>
+<p>It is also possible tasks and actors use more memory than you expect. For example, actors or tasks can have a memory leak or have unnecessary copies.</p>
+<p>View the instructions below to learn how to memory profile individual actors and tasks.</p>
+</section>
+</section>
+<section id="memory-profiling-ray-tasks-and-actors">
+<span id="memray-profiling"></span><h2>Memory Profiling Ray tasks and actors<a class="headerlink" href="debug-memory.html#memory-profiling-ray-tasks-and-actors" title="Permalink to this headline">#</a></h2>
+<p>To memory profile Ray tasks or actors, use <a class="reference external" href="https://bloomberg.github.io/memray/">memray</a>.
+Note that you can also use other memory profiling tools if it supports a similar API.</p>
+<p>First, install <code class="docutils literal notranslate"><span class="pre">memray</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install memray
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">memray</span></code> supports a Python context manager to enable memory profiling. You can write the <code class="docutils literal notranslate"><span class="pre">memray</span></code> profiling file wherever you want.
+But in this example, we will write them to <code class="xref py py-obj docutils literal notranslate"><span class="pre">/tmp/ray/session_latest/logs</span></code> because Ray dashboard allows you to download files inside the log folder.
+This will allow you to download profiling files from other nodes.</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
+</input><label class="sd-tab-label" for="sd-tab-item-0">
+Actors</label><div class="sd-tab-content docutils">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">memray</span>
+<span class="kn">import</span> <span class="nn">ray</span>
+
+
+<span class="nd">@ray</span><span class="o">.</span><span class="n">remote</span>
+<span class="k">class</span> <span class="nc">Actor</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Every memory allocation after `__enter__` method will be tracked.</span>
+        <span class="n">memray</span><span class="o">.</span><span class="n">Tracker</span><span class="p">(</span>
+            <span class="s2">&quot;/tmp/ray/session_latest/logs/&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ray</span><span class="o">.</span><span class="n">get_runtime_context</span><span class="p">()</span><span class="o">.</span><span class="n">get_actor_id</span><span class="p">()</span><span class="si">}</span><span class="s2">_mem_profile.bin&quot;</span>
+        <span class="p">)</span><span class="o">.</span><span class="fm">__enter__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">arr</span> <span class="o">=</span> <span class="p">[</span><span class="nb">bytearray</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;1&quot;</span> <span class="o">*</span> <span class="mi">1000000</span><span class="p">)]</span>
+
+    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">arr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">bytearray</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;1&quot;</span> <span class="o">*</span> <span class="mi">1000000</span><span class="p">))</span>
+
+
+<span class="n">a</span> <span class="o">=</span> <span class="n">Actor</span><span class="o">.</span><span class="n">remote</span><span class="p">()</span>
+<span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">append</span><span class="o">.</span><span class="n">remote</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
+</input><label class="sd-tab-label" for="sd-tab-item-1">
+Tasks</label><div class="sd-tab-content docutils">
+<p>Note that tasks have a shorter lifetime, so there could be lots of memory profiling files.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">memray</span>  <span class="c1"># noqa</span>
+<span class="kn">import</span> <span class="nn">ray</span>  <span class="c1"># noqa</span>
+
+
+<span class="nd">@ray</span><span class="o">.</span><span class="n">remote</span>
+<span class="k">def</span> <span class="nf">task</span><span class="p">():</span>
+    <span class="k">with</span> <span class="n">memray</span><span class="o">.</span><span class="n">Tracker</span><span class="p">(</span>
+        <span class="s2">&quot;/tmp/ray/session_latest/logs/&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ray</span><span class="o">.</span><span class="n">get_runtime_context</span><span class="p">()</span><span class="o">.</span><span class="n">get_task_id</span><span class="p">()</span><span class="si">}</span><span class="s2">_mem_profile.bin&quot;</span>
+    <span class="p">):</span>
+        <span class="n">arr</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;1&quot;</span> <span class="o">*</span> <span class="mi">1000000</span><span class="p">)</span>  <span class="c1"># noqa</span>
+
+
+<span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">remote</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Once the task or actor runs, go to the <a class="reference internal" href="../../getting-started.html#dash-logs-view"><span class="std std-ref">Logs view</span></a> of the dashboard. Find and click the log file name.</p>
+<img alt="../../../_images/memory-profiling-files.png" class="align-center" src="../../../_images/memory-profiling-files.png" />
+<p>Click the download button.</p>
+<img alt="../../../_images/download-memory-profiling-files.png" class="align-center" src="../../../_images/download-memory-profiling-files.png" />
+<p>Now, you have the memory profiling file. Running</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>memray flamegraph &lt;memory profiling bin file&gt;
+</pre></div>
+</div>
+<p>And you can see the result of the memory profiling!</p>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="general-debugging.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">General Debugging</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="debug-hangs.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Debugging Hangs</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

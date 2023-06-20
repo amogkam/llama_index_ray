@@ -1,0 +1,1597 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Fine-tune dolly-v2-7b with Ray AIR LightningTrainer and FSDP &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/js/versionwarning.js"></script>
+    <script src="../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../_static/js/docsearch.js"></script>
+    <script src="../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../_static/js/top-navigation.js"></script>
+    <script src="../../_static/js/tags.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/ray-air/examples/dolly_lightning_fsdp_finetuning.html" />
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Ray AIR API" href="../api/api.html" />
+    <link rel="prev" title="Fine-tuning DreamBooth with Ray AIR" href="dreambooth_finetuning.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "ray-air/examples/dolly_lightning_fsdp_finetuning", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".ipynb", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../user-guides.html">
+     User Guides
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="index.html">
+     Examples
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="opt_deepspeed_batch_inference.html">
+       Batch Inference with OPT 30B and Ray Data
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="torch_image_example.html">
+       Training a Torch Image Classifier
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="torch_detection.html">
+       Fine-tuning a Torch object detection model
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="convert_existing_pytorch_code_to_ray_air.html">
+       Convert existing PyTorch code to Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="convert_existing_tf_code_to_ray_air.html">
+       Convert existing Tensorflow/Keras code to Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tfx_tabular_train_to_serve.html">
+       Tabular data training and serving with Keras and Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="huggingface_text_classification.html">
+       Fine-tune a 🤗 Transformers model
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="sklearn_example.html">
+       Training a model with Sklearn
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="xgboost_example.html">
+       Training a model with distributed XGBoost
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="analyze_tuning_results.html">
+       Hyperparameter tuning with XGBoostTrainer
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="lightgbm_example.html">
+       Training a model with distributed LightGBM
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="torch_incremental_learning.html">
+       Incremental Learning with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rl_serving_example.html">
+       Serving reinforcement learning policy models
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rl_online_example.html">
+       Online reinforcement learning with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rl_offline_example.html">
+       Offline reinforcement learning with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="upload_to_comet_ml.html">
+       Logging results and uploading models to Comet ML
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="upload_to_wandb.html">
+       Logging results and uploading models to Weights &amp; Biases
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="feast_example.html">
+       Integrate Ray AIR with Feast feature store
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="automl_with_ray_air.html">
+       AutoML for time series forecasting with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="batch_tuning.html">
+       Batch training &amp; tuning on Ray Tune
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="batch_forecasting.html">
+       Parallel demand forecasting at scale using Ray Tune
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="stablediffusion_batch_prediction.html">
+       Stable Diffusion Batch Prediction with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gptj_deepspeed_fine_tuning.html">
+       GPT-J-6B Fine-Tuning with Ray AIR and DeepSpeed
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gptj_batch_prediction.html">
+       GPT-J-6B Batch Prediction with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gptj_serving.html">
+       GPT-J-6B Serving with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="dreambooth_finetuning.html">
+       Fine-tuning DreamBooth with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3 current active">
+      <a class="current reference internal" href="dolly_lightning_fsdp_finetuning.html#">
+       Fine-tune
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         dolly-v2-7b
+        </span>
+       </code>
+       with Ray AIR LightningTrainer and FSDP
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/api.html">
+     Ray AIR API
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../benchmarks.html">
+     Benchmarks
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tune.html">
+   Ray Tune
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Fray-air/examples/dolly_lightning_fsdp_finetuning.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/ray-air/examples/dolly_lightning_fsdp_finetuning.ipynb"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../_sources/ray-air/examples/dolly_lightning_fsdp_finetuning.ipynb.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.ipynb</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="dolly_lightning_fsdp_finetuning.html#set-up-ray-cluster">
+   Set up ray cluster
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="dolly_lightning_fsdp_finetuning.html#prepare-your-data">
+   Prepare your data
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="dolly_lightning_fsdp_finetuning.html#define-your-lightning-model">
+   Define your lightning model
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="dolly_lightning_fsdp_finetuning.html#configure-your-fsdp-strategy">
+   Configure your FSDP strategy
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="dolly_lightning_fsdp_finetuning.html#fine-tune-with-lightningtrainer">
+   Fine-tune with LightningTrainer
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="dolly_lightning_fsdp_finetuning.html#text-generation-with-huggingface-pipeline">
+   Text-generation with HuggingFace Pipeline
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Fine-tune dolly-v2-7b with Ray AIR LightningTrainer and FSDP</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="dolly_lightning_fsdp_finetuning.html#set-up-ray-cluster">
+   Set up ray cluster
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="dolly_lightning_fsdp_finetuning.html#prepare-your-data">
+   Prepare your data
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="dolly_lightning_fsdp_finetuning.html#define-your-lightning-model">
+   Define your lightning model
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="dolly_lightning_fsdp_finetuning.html#configure-your-fsdp-strategy">
+   Configure your FSDP strategy
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="dolly_lightning_fsdp_finetuning.html#fine-tune-with-lightningtrainer">
+   Fine-tune with LightningTrainer
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="dolly_lightning_fsdp_finetuning.html#text-generation-with-huggingface-pipeline">
+   Text-generation with HuggingFace Pipeline
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section class="tex2jax_ignore mathjax_ignore" id="fine-tune-dolly-v2-7b-with-ray-air-lightningtrainer-and-fsdp">
+<span id="dolly-lightning-fsdp-finetuning"></span><h1>Fine-tune <code class="docutils literal notranslate"><span class="pre">dolly-v2-7b</span></code> with Ray AIR LightningTrainer and FSDP<a class="headerlink" href="dolly_lightning_fsdp_finetuning.html#fine-tune-dolly-v2-7b-with-ray-air-lightningtrainer-and-fsdp" title="Permalink to this headline">#</a></h1>
+<p>In this example, we demonstrate how to use Ray AIR to fine-tune a <a class="reference external" href="https://huggingface.co/databricks/dolly-v2-7b"><code class="docutils literal notranslate"><span class="pre">dolly-v2-7b</span></code></a> model. <code class="docutils literal notranslate"><span class="pre">dolly-v2-12b</span></code> is a 12 billion parameter causal language model created by Databricks, derived from EleutherAI’s <a class="reference external" href="https://huggingface.co/EleutherAI/pythia-12b">Pythia-12b</a>, and fine-tuned on a <a class="reference external" href="https://github.com/databrickslabs/dolly/tree/master/data">~15K record instruction corpus</a>.</p>
+<p>We load the pre-trained model from the HuggingFace model hub into a LightningModule and launch an FSDP fine-tuning job across 16 T4 GPUs with the help of <a class="reference internal" href="../../train/api/doc/ray.train.lightning.LightningTrainer.html#ray.train.lightning.LightningTrainer" title="ray.train.lightning.LightningTrainer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Ray</span> <span class="pre">LightningTrainer</span></code></a>. It is also straightforward to fine-tune other similar large language models in a similar manner as shown in this example.</p>
+<p>Before starting this example, we highly recommend reading <a class="reference internal" href="../key-concepts.html#air-key-concepts"><span class="std std-ref">Ray AIR Key Concepts</span></a> and <a class="reference internal" href="../../data/key-concepts.html#data-key-concepts"><span class="std std-ref">Ray Data Key Concepts</span></a>.</p>
+<section id="set-up-ray-cluster">
+<h2>Set up ray cluster<a class="headerlink" href="dolly_lightning_fsdp_finetuning.html#set-up-ray-cluster" title="Permalink to this headline">#</a></h2>
+<p>In this example, we are using a ray cluster with 16 g4dn.4xlarge instances. Each instance has one Tesla T4 GPU (16GiB Memory).</p>
+<p>We define a <code class="docutils literal notranslate"><span class="pre">runtime_env</span></code> to install the necessary Python libraries on each node. You can skip this step if you have already installed all the required packages in your workers’ base image. We tested this example with <code class="docutils literal notranslate"><span class="pre">pytorch_lightning==2.0.2</span></code> and <code class="docutils literal notranslate"><span class="pre">transformers==4.29.2</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ray</span>
+
+<span class="n">ray</span><span class="o">.</span><span class="n">init</span><span class="p">(</span>
+    <span class="n">runtime_env</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;pip&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;datasets&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;evaluate&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;transformers&gt;=4.26.0&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;torch&gt;=1.12.0&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pytorch_lightning&gt;=2.0&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">MODEL_NAME</span> <span class="o">=</span> <span class="s2">&quot;databricks/dolly-v2-7b&quot;</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="prepare-your-data">
+<h2>Prepare your data<a class="headerlink" href="dolly_lightning_fsdp_finetuning.html#prepare-your-data" title="Permalink to this headline">#</a></h2>
+<p>We are using tiny_shakespeare for fine-tuning, which contains 40,000 lines of Shakespeare from a variety of Shakespeare’s plays. Featured in Andrej Karpathy’s blog post <a class="reference external" href="http://karpathy.github.io/2015/05/21/rnn-effectiveness/">‘The Unreasonable Effectiveness of Recurrent Neural Networks’</a>.</p>
+<p>Dataset samples:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>BAPTISTA:
+I know him well: you are welcome for his sake.
+
+GREMIO:
+Saving your tale, Petruchio, I pray,
+Let us, that are poor petitioners, speak too:
+Baccare! you are marvellous forward.
+
+PETRUCHIO:
+O, pardon me, Signior Gremio; I would fain be doing.
+</pre></div>
+</div>
+<p>Here, we have adopted similar pre-processing logic from another demo: <a class="reference internal" href="gptj_deepspeed_fine_tuning.html#gptj-deepspeed-finetune"><span class="std std-ref">GPT-J-6B Fine-Tuning with Ray AIR and DeepSpeed</span></a>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">datasets</span> <span class="kn">import</span> <span class="n">load_dataset</span>
+<span class="kn">from</span> <span class="nn">ray.data.preprocessors</span> <span class="kn">import</span> <span class="n">BatchMapper</span><span class="p">,</span> <span class="n">Chain</span>
+<span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">AutoTokenizer</span><span class="p">,</span> <span class="n">AutoModelForCausalLM</span>
+
+<span class="k">def</span> <span class="nf">split_text</span><span class="p">(</span><span class="n">batch</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">])</span>
+    <span class="n">flat_text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="n">split_text</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">flat_text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;:&quot;</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">split_text</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">])</span>
+
+
+<span class="k">def</span> <span class="nf">tokenize</span><span class="p">(</span><span class="n">batch</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="n">tokenizer</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">MODEL_NAME</span><span class="p">,</span> <span class="n">padding_side</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+    <span class="n">tokenizer</span><span class="o">.</span><span class="n">pad_token</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">eos_token</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="p">(</span>
+        <span class="nb">list</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">]),</span>
+        <span class="n">truncation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span>
+        <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;max_length&quot;</span><span class="p">,</span>
+        <span class="n">return_tensors</span><span class="o">=</span><span class="s2">&quot;np&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;labels&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;input_ids&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
+
+<span class="n">splitter</span> <span class="o">=</span> <span class="n">BatchMapper</span><span class="p">(</span><span class="n">split_text</span><span class="p">,</span> <span class="n">batch_format</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span><span class="p">)</span>
+<span class="n">tokenizer</span> <span class="o">=</span> <span class="n">BatchMapper</span><span class="p">(</span><span class="n">tokenize</span><span class="p">,</span> <span class="n">batch_format</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span><span class="p">)</span>
+<span class="n">preprocessor</span> <span class="o">=</span> <span class="n">Chain</span><span class="p">(</span><span class="n">splitter</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">)</span>
+
+<span class="n">hf_dataset</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;tiny_shakespeare&quot;</span><span class="p">)</span>
+<span class="n">ray_datasets</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">from_huggingface</span><span class="p">(</span><span class="n">hf_dataset</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We first split the original paragraphs into multiple sentences, then tokenize them. Here are some samples:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">ray_datasets</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">]</span>
+<span class="n">splitter</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[{&#39;text&#39;: &#39;Before we proceed any further, hear me speak.&#39;},
+ {&#39;text&#39;: &#39;Speak, speak.&#39;},
+ {&#39;text&#39;: &#39;You are all resolved rather to die than to famish?&#39;},
+ {&#39;text&#39;: &#39;Resolved. resolved.&#39;},
+ {&#39;text&#39;: &#39;First, you know Caius Marcius is chief enemy to the people.&#39;},
+ {&#39;text&#39;: &quot;We know&#39;t, we know&#39;t.&quot;},
+ {&#39;text&#39;: &quot;Let us kill him, and we&#39;ll have corn at our own price.&quot;},
+ {&#39;text&#39;: &quot;Is&#39;t a verdict?&quot;},
+ {&#39;text&#39;: &quot;No more talking on&#39;t; let it be done: away, away!&quot;},
+ {&#39;text&#39;: &#39;One word, good citizens.&#39;}]
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="define-your-lightning-model">
+<h2>Define your lightning model<a class="headerlink" href="dolly_lightning_fsdp_finetuning.html#define-your-lightning-model" title="Permalink to this headline">#</a></h2>
+<p>In this example, we use the <a class="reference external" href="https://huggingface.co/databricks/dolly-v2-7b">dolly-v2-7b</a> model for finetuning. It is an instruction-following large language model trained on the Databricks machine learning platform that is licensed for commercial use. We load the model weights from Huggingface Model Hub and encapsulate it into a <code class="docutils literal notranslate"><span class="pre">pl.LightningModule</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Make sure you pass the FSDP wrapped model parameters <code class="docutils literal notranslate"><span class="pre">self.trainer.model.parameters()</span></code> into the optimizer, instead of <code class="docutils literal notranslate"><span class="pre">self.model.parameters()</span></code>.</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">pytorch_lightning</span> <span class="k">as</span> <span class="nn">pl</span>
+
+<span class="k">class</span> <span class="nc">DollyV2Model</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">LightningModule</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">2e-5</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lr</span> <span class="o">=</span> <span class="n">lr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eps</span> <span class="o">=</span> <span class="n">eps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">AutoModelForCausalLM</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">MODEL_NAME</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">predictions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">references</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">):</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span>
+            <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;input_ids&quot;</span><span class="p">],</span> 
+            <span class="n">attention_mask</span><span class="o">=</span><span class="n">batch</span><span class="p">[</span><span class="s2">&quot;attention_mask&quot;</span><span class="p">],</span> 
+            <span class="n">labels</span><span class="o">=</span><span class="n">batch</span><span class="p">[</span><span class="s2">&quot;labels&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">outputs</span><span class="o">.</span><span class="n">loss</span>
+
+    <span class="k">def</span> <span class="nf">training_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">batch_idx</span><span class="p">):</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;train_loss&quot;</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">prog_bar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">on_step</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">loss</span>
+
+    <span class="k">def</span> <span class="nf">configure_optimizers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trainer</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">AdamW</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trainer</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lr</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">eps</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="configure-your-fsdp-strategy">
+<h2>Configure your FSDP strategy<a class="headerlink" href="dolly_lightning_fsdp_finetuning.html#configure-your-fsdp-strategy" title="Permalink to this headline">#</a></h2>
+<p>As Dolly-v2-3b is a relatively large model, it cannot be properly fit into a single commercial GPU. In this example, we use the FSDP strategy to shard model parameters across multiple workers. This allows us to avoid GPU out-of-memory issues and support a larger global batch size.</p>
+<p><img alt="" src="https://user-images.githubusercontent.com/26745457/236892936-d4b91751-4689-421e-ac5f-edfd2eeeb635.png" />
+Image source: <a class="reference external" href="https://engineering.fb.com/2021/07/15/open-source/fsdp/">Fully Sharded Data Parallel: faster AI training with fewer GPUs</a></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>FSDP is a type of data parallelism that shards model parameters, optimizer states and gradients across DDP ranks. This was inspired by Xu et al. as well as the ZeRO Stage 3 from DeepSpeed. You may refer to these blogs for more information:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://engineering.fb.com/2021/07/15/open-source/fsdp/">Fully Sharded Data Parallel: faster AI training with fewer GPUs</a></p></li>
+<li><p><a class="reference external" href="https://pytorch.org/tutorials/intermediate/FSDP_tutorial.html#:~:text=FSDP%20is%20a%20type%20of,sizes%20for%20our%20training%20job.">Getting Started with Fully Sharded Data Parallel(FSDP)</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=8_k76AHu__s&amp;list=PL_lsbAsL_o2BT6aerEKgIoufVD_fodnuT">PyTorch FSDP Tutorial</a></p></li>
+</ul>
+</div>
+<p>To start trainig with Lightning’s <a class="reference external" href="https://lightning.ai/docs/pytorch/stable/api/lightning.pytorch.strategies.FSDPStrategy.html#lightning.pytorch.strategies.FSDPStrategy">FSDPStrategy</a>, you only need to provide the initialization arguments in <code class="docutils literal notranslate"><span class="pre">LightningConfigBuilder.strategy()</span></code>. Behind the scenes, LightningTrainer handles the cluster environment settings and job launching.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">from</span> <span class="nn">ray.train.lightning</span> <span class="kn">import</span> <span class="n">LightningTrainer</span><span class="p">,</span> <span class="n">LightningConfigBuilder</span>
+<span class="kn">from</span> <span class="nn">ray.air.config</span> <span class="kn">import</span> <span class="n">RunConfig</span><span class="p">,</span> <span class="n">ScalingConfig</span><span class="p">,</span> <span class="n">CheckpointConfig</span>
+<span class="kn">from</span> <span class="nn">torch.distributed.fsdp.wrap</span> <span class="kn">import</span> <span class="n">transformer_auto_wrap_policy</span>
+<span class="kn">from</span> <span class="nn">torch.distributed.fsdp</span> <span class="kn">import</span> <span class="n">ShardingStrategy</span><span class="p">,</span> <span class="n">BackwardPrefetch</span>
+<span class="kn">from</span> <span class="nn">transformers.models.gpt_neox.modeling_gpt_neox</span> <span class="kn">import</span> <span class="n">GPTNeoXLayer</span>
+
+<span class="c1"># Define the model sharding policy:</span>
+<span class="c1"># Wrap every GPTNeoXLayer as its own FSDP instance</span>
+<span class="n">auto_wrap_policy</span> <span class="o">=</span> <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span>
+    <span class="n">transformer_auto_wrap_policy</span><span class="p">,</span>
+    <span class="n">transformer_layer_cls</span> <span class="o">=</span> <span class="p">{</span><span class="n">GPTNeoXLayer</span><span class="p">}</span>
+<span class="p">)</span>
+
+<span class="c1"># Aggregate all arguments for LightningTrainer</span>
+<span class="n">lightning_config</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">LightningConfigBuilder</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">module</span><span class="p">(</span><span class="bp">cls</span><span class="o">=</span><span class="n">DollyV2Model</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">2e-5</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">trainer</span><span class="p">(</span>
+        <span class="n">max_epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> 
+        <span class="n">accelerator</span><span class="o">=</span><span class="s2">&quot;gpu&quot;</span><span class="p">,</span> 
+        <span class="n">precision</span><span class="o">=</span><span class="s2">&quot;16-mixed&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="o">.</span><span class="n">strategy</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;fsdp&quot;</span><span class="p">,</span>
+        <span class="n">sharding_strategy</span><span class="o">=</span><span class="n">ShardingStrategy</span><span class="o">.</span><span class="n">FULL_SHARD</span><span class="p">,</span>
+        <span class="n">backward_prefetch</span><span class="o">=</span><span class="n">BackwardPrefetch</span><span class="o">.</span><span class="n">BACKWARD_PRE</span><span class="p">,</span>
+        <span class="n">forward_prefetch</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">auto_wrap_policy</span><span class="o">=</span><span class="n">auto_wrap_policy</span><span class="p">,</span>
+        <span class="n">limit_all_gathers</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">activation_checkpointing</span><span class="o">=</span><span class="p">[</span><span class="n">GPTNeoXLayer</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="o">.</span><span class="n">checkpointing</span><span class="p">(</span><span class="n">save_top_k</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">save_weights_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">save_last</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Some tips for FSDP configutarion:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">sharding_strategy</span></code>:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">ShardingStrategy.NO_SHARD</span></code>: Parameters, gradients, and optimizer states are not sharded. Similar to DDP.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ShardingStrategy.SHARD_GRAD_OP</span></code>: Gradients and optimizer states are sharded during computation, and additionally, parameters are sharded outside computation. Similar to ZeRO stage-2.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ShardingStrategy.FULL_SHARD</span></code>: Parameters, gradients, and optimizer states are sharded. It has minimal GRAM usage among the 3 options. Similar to ZeRO stage-3.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">auto_wrap_policy</span></code>:</p>
+<ul>
+<li><p>Model layers are often wrapped with FSDP in a layered fashion. This means that only the layers in a single FSDP instance are required to aggregate all parameters to a single device during forwarding or backward calculations.</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">transformer_auto_wrap_policy</span></code> to automatically wrap each Transformer Block into a single FSDP instance.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">backward_prefetch</span></code> and <code class="docutils literal notranslate"><span class="pre">forward_prefetch</span></code>:</p>
+<ul>
+<li><p>Overlap the upcoming all-gather while executing the current forward/backward pass. It can improve throughput but may slightly increase peak memory usage.</p></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="fine-tune-with-lightningtrainer">
+<h2>Fine-tune with LightningTrainer<a class="headerlink" href="dolly_lightning_fsdp_finetuning.html#fine-tune-with-lightningtrainer" title="Permalink to this headline">#</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Here we save the checkpoints to the local file system. You can also upload the checkpoints to cloud storage by setting S3 bucket URI to <a class="reference internal" href="../api/doc/ray.air.RunConfig.html#ray.air.RunConfig" title="ray.air.RunConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">air.RunConfig(storage_path=S3_BUCKET_URI)</span></code></a>. See <a class="reference internal" href="../../train/config_guide.html#train-run-config"><span class="std std-ref">Run Configuration in Train (RunConfig)</span></a> for an example.</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">num_workers</span> <span class="o">=</span> <span class="mi">16</span>
+<span class="n">batch_size_per_worker</span> <span class="o">=</span> <span class="mi">10</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ray.tune.syncer</span> <span class="kn">import</span> <span class="n">SyncConfig</span>
+<span class="c1"># Save AIR checkpoints according to the performance on validation set</span>
+<span class="n">run_config</span> <span class="o">=</span> <span class="n">RunConfig</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;finetune_dolly-v2-7b&quot;</span><span class="p">,</span>
+    <span class="n">checkpoint_config</span><span class="o">=</span><span class="n">CheckpointConfig</span><span class="p">(),</span>
+    <span class="n">sync_config</span><span class="o">=</span><span class="n">SyncConfig</span><span class="p">(</span><span class="n">sync_artifacts</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="c1"># Scale the DDP training workload across 16 GPUs</span>
+<span class="c1"># You can change this config based on your compute resources.</span>
+<span class="n">scaling_config</span> <span class="o">=</span> <span class="n">ScalingConfig</span><span class="p">(</span>
+    <span class="n">num_workers</span><span class="o">=</span><span class="n">num_workers</span><span class="p">,</span> <span class="n">use_gpu</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">resources_per_worker</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;CPU&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="s2">&quot;GPU&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+<span class="p">)</span>
+
+<span class="n">trainer</span> <span class="o">=</span> <span class="n">LightningTrainer</span><span class="p">(</span>
+    <span class="n">lightning_config</span><span class="o">=</span><span class="n">lightning_config</span><span class="o">.</span><span class="n">build</span><span class="p">(),</span>
+    <span class="n">run_config</span><span class="o">=</span><span class="n">run_config</span><span class="p">,</span>
+    <span class="n">scaling_config</span><span class="o">=</span><span class="n">scaling_config</span><span class="p">,</span>
+    <span class="n">datasets</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;train&quot;</span><span class="p">:</span> <span class="n">ray_datasets</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">]},</span>
+    <span class="n">datasets_iter_config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="n">batch_size_per_worker</span><span class="p">},</span>
+    <span class="n">preprocessor</span><span class="o">=</span><span class="n">preprocessor</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+
+<span class="n">result</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div class="tuneStatus">
+  <div style="display: flex;flex-direction: row">
+    <div style="display: flex;flex-direction: column;">
+      <h3>Tune Status</h3>
+      <table>
+<tbody>
+<tr><td>Current time:</td><td>2023-05-05 01:03:12</td></tr>
+<tr><td>Running for: </td><td>00:45:50.28        </td></tr>
+<tr><td>Memory:      </td><td>35.4/124.4 GiB     </td></tr>
+</tbody>
+</table>
+    </div>
+    <div class="vDivider"></div>
+    <div class="systemInfo">
+      <h3>System Info</h3>
+      Using FIFO scheduling algorithm.<br>Logical resource usage: 0/272 CPUs, 0/16 GPUs (0.0/16.0 accelerator_type:T4)
+    </div>
+
+  </div>
+  <div class="hDivider"></div>
+  <div class="trialStatus">
+    <h3>Trial Status</h3>
+    <table>
+<thead>
+<tr><th>Trial name                  </th><th>status    </th><th>loc               </th><th style="text-align: right;">  iter</th><th style="text-align: right;">  total time (s)</th><th style="text-align: right;">  train_loss</th><th style="text-align: right;">  epoch</th><th style="text-align: right;">  step</th></tr>
+</thead>
+<tbody>
+<tr><td>LightningTrainer_e0990_00000</td><td>TERMINATED</td><td>10.0.102.147:41219</td><td style="text-align: right;">     1</td><td style="text-align: right;">         2699.78</td><td style="text-align: right;">    0.166992</td><td style="text-align: right;">      0</td><td style="text-align: right;">   135</td></tr>
+</tbody>
+</table>
+  </div>
+</div>
+<style>
+.tuneStatus {
+  color: var(--jp-ui-font-color1);
+}
+.tuneStatus .systemInfo {
+  display: flex;
+  flex-direction: column;
+}
+.tuneStatus td {
+  white-space: nowrap;
+}
+.tuneStatus .trialStatus {
+  display: flex;
+  flex-direction: column;
+}
+.tuneStatus h3 {
+  font-weight: bold;
+}
+.tuneStatus .hDivider {
+  border-bottom-width: var(--jp-border-width);
+  border-bottom-color: var(--jp-border-color0);
+  border-bottom-style: solid;
+}
+.tuneStatus .vDivider {
+  border-left-width: var(--jp-border-width);
+  border-left-color: var(--jp-border-color0);
+  border-left-style: solid;
+  margin: 0.5em 1em 0.5em 1em;
+}
+</style>
+</div><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-05-05 00:17:21,842	WARNING trial_runner.py:1607 -- The maximum number of pending trials has been automatically set to the number of available cluster CPUs, which is high (299 CPUs/pending trials). If you&#39;re running an experiment with a large number of trials, this could lead to scheduling overhead. In this case, consider setting the `TUNE_MAX_PENDING_TRIALS_PG` environment variable to the desired maximum number of concurrent trials.
+(LightningTrainer pid=41219) 2023-05-05 00:17:28,673	INFO backend_executor.py:128 -- Starting distributed worker processes: [&#39;41376 (10.0.102.147)&#39;, &#39;8301 (10.0.67.96)&#39;, &#39;8263 (10.0.103.36)&#39;, &#39;27794 (10.0.105.149)&#39;, &#39;8088 (10.0.110.210)&#39;, &#39;8238 (10.0.106.19)&#39;, &#39;8225 (10.0.81.63)&#39;, &#39;8200 (10.0.106.22)&#39;, &#39;8231 (10.0.90.160)&#39;, &#39;8345 (10.0.98.168)&#39;, &#39;28207 (10.0.76.146)&#39;, &#39;8213 (10.0.115.72)&#39;, &#39;8272 (10.0.92.209)&#39;, &#39;8247 (10.0.74.31)&#39;, &#39;27629 (10.0.68.102)&#39;, &#39;8224 (10.0.88.86)&#39;]
+(RayTrainWorker pid=41376) 2023-05-05 00:17:30,953	INFO config.py:86 -- Setting up process group for: env:// [rank=0, world_size=16]
+
+(pid=41219) Running: 0.0/272.0 CPU, 0.0/16.0 GPU, 0.0 MiB/73.21 GiB object_store_memory:   0%|          | 0/1 [00:00&lt;?, ?it/s]
+(pid=41219) - RandomizeBlockOrder: 0 active, 0 queued, 0.0 MiB objects, 0 output:   0%|          | 0/1 [00:00&lt;?, ?it/s]
+(LightningTrainer pid=41219)                                                                                                   2023-05-05 00:17:31,564	INFO streaming_executor.py:87 -- Executing DAG InputDataBuffer[Input] -&gt; TaskPoolMapOperator[BatchMapper-&gt;BatchMapper] -&gt; AllToAllOperator[RandomizeBlockOrder]
+
+(pid=41219) Running: 0.0/272.0 CPU, 0.0/16.0 GPU, 0.0 MiB/73.21 GiB object_store_memory:   0%|          | 0/1 [00:00&lt;?, ?it/s]
+(LightningTrainer pid=41219)                                                                                                   2023-05-05 00:17:31,564	INFO streaming_executor.py:88 -- Execution config: ExecutionOptions(resource_limits=ExecutionResources(cpu=None, gpu=None, object_store_memory=None), locality_with_output=False, preserve_order=False, actor_locality_enabled=True, verbose_progress=False)
+
+(pid=41219) Running: 0.0/272.0 CPU, 0.0/16.0 GPU, 0.0 MiB/73.21 GiB object_store_memory:   0%|          | 0/1 [00:00&lt;?, ?it/s]
+(LightningTrainer pid=41219)                                                                                                   2023-05-05 00:17:31,565	INFO streaming_executor.py:90 -- Tip: To enable per-operator progress reporting, set RAY_DATA_VERBOSE_PROGRESS=1.
+
+(pid=41219) Running: 1.0/272.0 CPU, 0.0/16.0 GPU, 0.96 MiB/73.21 GiB object_store_memory:   0%|          | 0/1 [00:00&lt;?, ?it/s]
+Downloading (…)okenizer_config.json: 100%|██████████| 450/450 [00:00&lt;00:00, 68.5kB/s]                                           
+
+(pid=41219) Running: 1.0/272.0 CPU, 0.0/16.0 GPU, 0.96 MiB/73.21 GiB object_store_memory:   0%|          | 0/1 [00:02&lt;?, ?it/s]
+Downloading (…)/main/tokenizer.json:   0%|          | 0.00/2.11M [00:00&lt;?, ?B/s]                                                
+
+(pid=41219) Running: 1.0/272.0 CPU, 0.0/16.0 GPU, 0.96 MiB/73.21 GiB object_store_memory:   0%|          | 0/1 [00:02&lt;?, ?it/s]
+Downloading (…)/main/tokenizer.json: 100%|██████████| 2.11M/2.11M [00:00&lt;00:00, 28.0MB/s]                                       
+
+(pid=41219) Running: 1.0/272.0 CPU, 0.0/16.0 GPU, 0.96 MiB/73.21 GiB object_store_memory:   0%|          | 0/1 [00:02&lt;?, ?it/s]
+Downloading (…)cial_tokens_map.json: 100%|██████████| 228/228 [00:00&lt;00:00, 150kB/s]                                            
+
+(pid=41219) Running: 0.0/272.0 CPU, 0.0/16.0 GPU, 0.0 MiB/73.21 GiB object_store_memory:   0%|          | 0/1 [00:07&lt;?, ?it/s]   
+(pid=41219) - RandomizeBlockOrder: 0 active, 0 queued, 0.0 MiB objects, 1 output:   0%|          | 0/1 [00:07&lt;?, ?it/s]
+(pid=41219) Running: 0.0/272.0 CPU, 0.0/16.0 GPU, 126.69 MiB/73.21 GiB object_store_memory:   0%|          | 0/1 [00:07&lt;?, ?it/s]
+                                                                                                                                         
+Downloading (…)lve/main/config.json: 100%|██████████| 819/819 [00:00&lt;00:00, 123kB/s]                                           (RayTrainWorker pid=8247, ip=10.0.74.31) 
+Downloading pytorch_model.bin:   0%|          | 0.00/13.8G [00:00&lt;?, ?B/s]
+Downloading pytorch_model.bin:   0%|          | 21.0M/13.8G [00:00&lt;01:28, 156MB/s]
+Downloading (…)lve/main/config.json: 100%|██████████| 819/819 [00:00&lt;00:00, 125kB/s] [repeated 15x across cluster] (Ray deduplicates logs by default. Set RAY_DEDUP_LOGS=0 to disable log deduplication, or see https://docs.ray.io/en/master/ray-observability/ray-logging.html#log-deduplication for more options.)
+Downloading pytorch_model.bin:   0%|          | 0.00/13.8G [00:00&lt;?, ?B/s] [repeated 15x across cluster]
+Downloading pytorch_model.bin:   7%|▋         | 975M/13.8G [00:04&lt;01:04, 199MB/s] [repeated 613x across cluster]
+Downloading pytorch_model.bin:  14%|█▍        | 1.92G/13.8G [00:09&lt;00:57, 206MB/s]
+Downloading pytorch_model.bin:  15%|█▌        | 2.11G/13.8G [00:10&lt;00:53, 219MB/s] [repeated 619x across cluster]
+Downloading pytorch_model.bin:  23%|██▎       | 3.19G/13.8G [00:15&lt;00:51, 207MB/s] [repeated 610x across cluster]
+Downloading pytorch_model.bin:  30%|███       | 4.20G/13.8G [00:20&lt;00:46, 209MB/s] [repeated 643x across cluster]
+Downloading pytorch_model.bin:  40%|███▉      | 5.52G/13.8G [00:24&lt;00:35, 233MB/s] [repeated 637x across cluster]
+Downloading pytorch_model.bin:  43%|████▎     | 5.97G/13.8G [00:30&lt;00:38, 206MB/s] [repeated 614x across cluster]
+Downloading pytorch_model.bin:  59%|█████▉    | 8.22G/13.8G [00:35&lt;00:21, 260MB/s] [repeated 619x across cluster]
+Downloading pytorch_model.bin:  65%|██████▌   | 9.05G/13.8G [00:40&lt;00:20, 238MB/s] [repeated 621x across cluster]
+Downloading pytorch_model.bin:  63%|██████▎   | 8.72G/13.8G [00:45&lt;00:26, 191MB/s] [repeated 627x across cluster]
+Downloading pytorch_model.bin:  82%|████████▏ | 11.4G/13.8G [00:50&lt;00:11, 221MB/s] [repeated 621x across cluster]
+Downloading pytorch_model.bin:  91%|█████████▏| 12.6G/13.8G [00:53&lt;00:04, 267MB/s]
+Downloading pytorch_model.bin:  91%|█████████▏| 12.7G/13.8G [00:53&lt;00:04, 268MB/s]
+Downloading pytorch_model.bin:  92%|█████████▏| 12.7G/13.8G [00:53&lt;00:04, 267MB/s]
+Downloading pytorch_model.bin:  83%|████████▎ | 11.5G/13.8G [00:55&lt;00:11, 215MB/s] [repeated 597x across cluster]
+Downloading pytorch_model.bin: 100%|██████████| 13.8G/13.8G [00:57&lt;00:00, 239MB/s]
+Downloading pytorch_model.bin:  92%|█████████▏| 12.7G/13.8G [00:58&lt;00:04, 237MB/s] [repeated 119x across cluster]
+Downloading pytorch_model.bin:  84%|████████▍ | 11.7G/13.8G [01:00&lt;00:10, 198MB/s] [repeated 440x across cluster]
+Downloading pytorch_model.bin:  90%|█████████ | 12.5G/13.8G [01:03&lt;00:06, 217MB/s]
+Downloading pytorch_model.bin:  96%|█████████▌| 13.3G/13.8G [01:03&lt;00:02, 230MB/s] [repeated 233x across cluster]
+Downloading pytorch_model.bin: 100%|██████████| 13.8G/13.8G [01:04&lt;00:00, 214MB/s]
+Downloading pytorch_model.bin:  91%|█████████ | 12.6G/13.8G [01:04&lt;00:06, 203MB/s] [repeated 145x across cluster]
+Downloading pytorch_model.bin:  98%|█████████▊| 13.6G/13.8G [01:08&lt;00:01, 216MB/s] [repeated 241x across cluster]
+Downloading pytorch_model.bin: 100%|██████████| 13.8G/13.8G [01:09&lt;00:00, 200MB/s] [repeated 4x across cluster]
+(RayTrainWorker pid=8231, ip=10.0.90.160) Using 16bit Automatic Mixed Precision (AMP)
+Downloading pytorch_model.bin: 100%|█████████▉| 13.8G/13.8G [01:10&lt;00:00, 207MB/s] [repeated 77x across cluster]
+(RayTrainWorker pid=8088, ip=10.0.110.210) Using 16bit Automatic Mixed Precision (AMP)
+(RayTrainWorker pid=8231, ip=10.0.90.160) Missing logger folder: /home/ray/ray_results/finetune_dolly-v2-7b/LightningTrainer_e0990_00000_0_2023-05-05_00-17-21/rank_8/lightning_logs
+(RayTrainWorker pid=8345, ip=10.0.98.168) Using 16bit Automatic Mixed Precision (AMP) [repeated 4x across cluster]
+(RayTrainWorker pid=8345, ip=10.0.98.168) Missing logger folder: /home/ray/ray_results/finetune_dolly-v2-7b/LightningTrainer_e0990_00000_0_2023-05-05_00-17-21/rank_9/lightning_logs [repeated 4x across cluster]
+(RayTrainWorker pid=41376) GPU available: True (cuda), used: True
+(RayTrainWorker pid=41376) TPU available: False, using: 0 TPU cores
+(RayTrainWorker pid=41376) IPU available: False, using: 0 IPUs
+(RayTrainWorker pid=41376) HPU available: False, using: 0 HPUs
+(RayTrainWorker pid=8238, ip=10.0.106.19) Using 16bit Automatic Mixed Precision (AMP) [repeated 8x across cluster]
+(RayTrainWorker pid=8213, ip=10.0.115.72) Missing logger folder: /home/ray/ray_results/finetune_dolly-v2-7b/LightningTrainer_e0990_00000_0_2023-05-05_00-17-21/rank_11/lightning_logs [repeated 7x across cluster]
+(RayTrainWorker pid=8238, ip=10.0.106.19) LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]
+(RayTrainWorker pid=8088, ip=10.0.110.210) Using 16bit Automatic Mixed Precision (AMP) [repeated 3x across cluster]
+(RayTrainWorker pid=8088, ip=10.0.110.210) Missing logger folder: /home/ray/ray_results/finetune_dolly-v2-7b/LightningTrainer_e0990_00000_0_2023-05-05_00-17-21/rank_4/lightning_logs [repeated 4x across cluster]
+(RayTrainWorker pid=41376) 
+(RayTrainWorker pid=41376)   | Name  | Type               | Params
+(RayTrainWorker pid=41376) ---------------------------------------------
+(RayTrainWorker pid=41376) 0 | model | GPTNeoXForCausalLM | 402 M 
+(RayTrainWorker pid=41376) ---------------------------------------------
+(RayTrainWorker pid=41376) 402 M     Trainable params
+(RayTrainWorker pid=41376) 0         Non-trainable params
+(RayTrainWorker pid=41376) 402 M     Total params
+(RayTrainWorker pid=41376) 1,611.039 Total estimated model params size (MB)
+(RayTrainWorker pid=8088, ip=10.0.110.210) LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0] [repeated 15x across cluster]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(RayTrainWorker pid=41376) FullyShardedDataParallel(
+(RayTrainWorker pid=41376)   (_fsdp_wrapped_module): _LightningModuleWrapperBase(
+(RayTrainWorker pid=41376)     (_forward_module): DollyV2Model(
+(RayTrainWorker pid=41376)       (model): GPTNeoXForCausalLM(
+(RayTrainWorker pid=41376)         (gpt_neox): GPTNeoXModel(
+(RayTrainWorker pid=41376)           (embed_in): Embedding(50280, 4096)
+(RayTrainWorker pid=41376)           (layers): ModuleList(
+(RayTrainWorker pid=41376)             (0-31): 32 x FullyShardedDataParallel(
+(RayTrainWorker pid=41376)               (_fsdp_wrapped_module): CheckpointWrapper(
+(RayTrainWorker pid=41376)                 (_checkpoint_wrapped_module): GPTNeoXLayer(
+(RayTrainWorker pid=41376)                   (input_layernorm): LayerNorm((4096,), eps=1e-05, elementwise_affine=True)
+(RayTrainWorker pid=41376)                   (post_attention_layernorm): LayerNorm((4096,), eps=1e-05, elementwise_affine=True)
+(RayTrainWorker pid=41376)                   (attention): GPTNeoXAttention(
+(RayTrainWorker pid=41376)                     (rotary_emb): RotaryEmbedding()
+(RayTrainWorker pid=41376)                     (query_key_value): Linear(in_features=4096, out_features=12288, bias=True)
+(RayTrainWorker pid=41376)                     (dense): Linear(in_features=4096, out_features=4096, bias=True)
+(RayTrainWorker pid=41376)                   )
+(RayTrainWorker pid=41376)                   (mlp): GPTNeoXMLP(
+(RayTrainWorker pid=41376)                     (dense_h_to_4h): Linear(in_features=4096, out_features=16384, bias=True)
+(RayTrainWorker pid=41376)                     (dense_4h_to_h): Linear(in_features=16384, out_features=4096, bias=True)
+(RayTrainWorker pid=41376)                     (act): GELUActivation()
+(RayTrainWorker pid=41376)                   )
+(RayTrainWorker pid=41376)                 )
+(RayTrainWorker pid=41376)               )
+(RayTrainWorker pid=41376)             )
+(RayTrainWorker pid=41376)           )
+(RayTrainWorker pid=41376)           (final_layer_norm): LayerNorm((4096,), eps=1e-05, elementwise_affine=True)
+(RayTrainWorker pid=41376)         )
+(RayTrainWorker pid=41376)         (embed_out): Linear(in_features=4096, out_features=50280, bias=False)
+(RayTrainWorker pid=41376)       )
+(RayTrainWorker pid=41376)     )
+(RayTrainWorker pid=41376)   )
+(RayTrainWorker pid=41376) )
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(RayTrainWorker pid=41376) /home/ray/anaconda3/lib/python3.8/site-packages/pytorch_lightning/trainer/connectors/data_connector.py:430: PossibleUserWarning: The dataloader, train_dataloader, does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` (try 32 which is the number of cpus on this machine) in the `DataLoader` init to improve performance.
+(RayTrainWorker pid=41376)   rank_zero_warn(
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Epoch 0:   0%|          | 0/134 [00:00&lt;?, ?it/s]
+Epoch 0:   1%|          | 1/134 [00:19&lt;43:46, 19.75s/it, v_num=0, train_loss=12.90]
+Epoch 0:   1%|▏         | 2/134 [00:37&lt;40:43, 18.51s/it, v_num=0, train_loss=12.50]
+Epoch 0:   2%|▏         | 3/134 [00:54&lt;39:20, 18.02s/it, v_num=0, train_loss=12.50]
+Epoch 0:   3%|▎         | 4/134 [01:11&lt;38:48, 17.91s/it, v_num=0, train_loss=12.50]
+Epoch 0:   4%|▎         | 5/134 [01:28&lt;38:14, 17.78s/it, v_num=0, train_loss=12.50]
+Epoch 0:   4%|▍         | 6/134 [01:46&lt;37:45, 17.70s/it, v_num=0, train_loss=12.50]
+Epoch 0:   5%|▌         | 7/134 [02:03&lt;37:17, 17.62s/it, v_num=0, train_loss=12.50]
+Epoch 0:   6%|▌         | 8/134 [02:20&lt;36:52, 17.56s/it, v_num=0, train_loss=12.50]
+Epoch 0:   7%|▋         | 9/134 [02:37&lt;36:30, 17.52s/it, v_num=0, train_loss=12.50]
+Epoch 0:   7%|▋         | 9/134 [02:37&lt;36:32, 17.54s/it, v_num=0, train_loss=12.50]
+Epoch 0:   7%|▋         | 10/134 [02:55&lt;36:12, 17.52s/it, v_num=0, train_loss=12.50]
+Epoch 0:   7%|▋         | 10/134 [02:55&lt;36:14, 17.54s/it, v_num=0, train_loss=0.669]
+Epoch 0:   8%|▊         | 11/134 [03:12&lt;35:55, 17.53s/it, v_num=0, train_loss=0.669]
+Epoch 0:   8%|▊         | 11/134 [03:12&lt;35:57, 17.54s/it, v_num=0, train_loss=0.663]
+Epoch 0:   9%|▉         | 12/134 [03:30&lt;35:38, 17.53s/it, v_num=0, train_loss=0.663]
+Epoch 0:   9%|▉         | 12/134 [03:30&lt;35:39, 17.54s/it, v_num=0, train_loss=0.604]
+Epoch 0:  10%|▉         | 13/134 [03:47&lt;35:20, 17.53s/it, v_num=0, train_loss=0.604]
+Epoch 0:  10%|▉         | 13/134 [03:48&lt;35:22, 17.54s/it, v_num=0, train_loss=0.601]
+Epoch 0:  10%|█         | 14/134 [04:05&lt;35:01, 17.51s/it, v_num=0, train_loss=0.601]
+Epoch 0:  10%|█         | 14/134 [04:05&lt;35:02, 17.52s/it, v_num=0, train_loss=0.586]
+Epoch 0:  11%|█         | 15/134 [04:22&lt;34:45, 17.53s/it, v_num=0, train_loss=0.586]
+Epoch 0:  11%|█         | 15/134 [04:23&lt;34:46, 17.54s/it, v_num=0, train_loss=0.551]
+Epoch 0:  12%|█▏        | 16/134 [04:40&lt;34:28, 17.53s/it, v_num=0, train_loss=0.551]
+Epoch 0:  12%|█▏        | 16/134 [04:40&lt;34:29, 17.54s/it, v_num=0, train_loss=0.516]
+Epoch 0:  13%|█▎        | 17/134 [04:57&lt;34:10, 17.52s/it, v_num=0, train_loss=0.516]
+Epoch 0:  13%|█▎        | 17/134 [04:58&lt;34:11, 17.53s/it, v_num=0, train_loss=0.521]
+Epoch 0:  13%|█▎        | 18/134 [05:15&lt;33:52, 17.52s/it, v_num=0, train_loss=0.521]
+Epoch 0:  13%|█▎        | 18/134 [05:15&lt;33:53, 17.53s/it, v_num=0, train_loss=0.511]
+Epoch 0:  14%|█▍        | 19/134 [05:32&lt;33:34, 17.52s/it, v_num=0, train_loss=0.511]
+Epoch 0:  14%|█▍        | 19/134 [05:33&lt;33:35, 17.53s/it, v_num=0, train_loss=0.470]
+Epoch 0:  15%|█▍        | 20/134 [05:50&lt;33:17, 17.52s/it, v_num=0, train_loss=0.470]
+Epoch 0:  15%|█▍        | 20/134 [05:50&lt;33:17, 17.53s/it, v_num=0, train_loss=0.443]
+Epoch 0:  16%|█▌        | 21/134 [06:07&lt;32:59, 17.52s/it, v_num=0, train_loss=0.443]
+Epoch 0:  16%|█▌        | 21/134 [06:08&lt;33:00, 17.53s/it, v_num=0, train_loss=0.466]
+Epoch 0:  16%|█▋        | 22/134 [06:25&lt;32:42, 17.52s/it, v_num=0, train_loss=0.466]
+Epoch 0:  16%|█▋        | 22/134 [06:25&lt;32:42, 17.53s/it, v_num=0, train_loss=0.434]
+Epoch 0:  17%|█▋        | 23/134 [06:43&lt;32:25, 17.53s/it, v_num=0, train_loss=0.434]
+Epoch 0:  17%|█▋        | 23/134 [06:43&lt;32:26, 17.53s/it, v_num=0, train_loss=0.403]
+Epoch 0:  18%|█▊        | 24/134 [07:00&lt;32:08, 17.53s/it, v_num=0, train_loss=0.403]
+Epoch 0:  18%|█▊        | 24/134 [07:00&lt;32:09, 17.54s/it, v_num=0, train_loss=0.370]
+Epoch 0:  19%|█▊        | 25/134 [07:18&lt;31:51, 17.53s/it, v_num=0, train_loss=0.370]
+Epoch 0:  19%|█▊        | 25/134 [07:18&lt;31:51, 17.54s/it, v_num=0, train_loss=0.361]
+Epoch 0:  19%|█▉        | 26/134 [07:35&lt;31:34, 17.54s/it, v_num=0, train_loss=0.361]
+Epoch 0:  19%|█▉        | 26/134 [07:36&lt;31:34, 17.54s/it, v_num=0, train_loss=0.383]
+Epoch 0:  20%|██        | 27/134 [07:54&lt;31:18, 17.56s/it, v_num=0, train_loss=0.383]
+Epoch 0:  20%|██        | 27/134 [07:54&lt;31:19, 17.56s/it, v_num=0, train_loss=0.360]
+Epoch 0:  21%|██        | 28/134 [08:11&lt;31:01, 17.56s/it, v_num=0, train_loss=0.360]
+Epoch 0:  21%|██        | 28/134 [08:11&lt;31:02, 17.57s/it, v_num=0, train_loss=0.382]
+Epoch 0:  22%|██▏       | 29/134 [08:29&lt;30:44, 17.57s/it, v_num=0, train_loss=0.382]
+Epoch 0:  22%|██▏       | 29/134 [08:29&lt;30:45, 17.57s/it, v_num=0, train_loss=0.328]
+Epoch 0:  22%|██▏       | 30/134 [08:47&lt;30:28, 17.58s/it, v_num=0, train_loss=0.328]
+Epoch 0:  22%|██▏       | 30/134 [08:47&lt;30:28, 17.58s/it, v_num=0, train_loss=0.342]
+Epoch 0:  23%|██▎       | 31/134 [09:04&lt;30:10, 17.57s/it, v_num=0, train_loss=0.342]
+Epoch 0:  23%|██▎       | 31/134 [09:04&lt;30:10, 17.58s/it, v_num=0, train_loss=0.303]
+Epoch 0:  24%|██▍       | 32/134 [09:22&lt;29:51, 17.57s/it, v_num=0, train_loss=0.303]
+Epoch 0:  24%|██▍       | 32/134 [09:22&lt;29:52, 17.57s/it, v_num=0, train_loss=0.326]
+Epoch 0:  25%|██▍       | 33/134 [09:39&lt;29:33, 17.56s/it, v_num=0, train_loss=0.326]
+Epoch 0:  25%|██▍       | 33/134 [09:39&lt;29:34, 17.57s/it, v_num=0, train_loss=0.285]
+Epoch 0:  25%|██▌       | 34/134 [09:56&lt;29:14, 17.55s/it, v_num=0, train_loss=0.285]
+Epoch 0:  25%|██▌       | 34/134 [09:56&lt;29:15, 17.55s/it, v_num=0, train_loss=0.321]
+Epoch 0:  26%|██▌       | 35/134 [10:14&lt;28:57, 17.55s/it, v_num=0, train_loss=0.321]
+Epoch 0:  26%|██▌       | 35/134 [10:14&lt;28:57, 17.55s/it, v_num=0, train_loss=0.341]
+Epoch 0:  27%|██▋       | 36/134 [10:31&lt;28:39, 17.55s/it, v_num=0, train_loss=0.341]
+Epoch 0:  27%|██▋       | 36/134 [10:31&lt;28:40, 17.55s/it, v_num=0, train_loss=0.296]
+Epoch 0:  28%|██▊       | 37/134 [10:49&lt;28:21, 17.54s/it, v_num=0, train_loss=0.296]
+Epoch 0:  28%|██▊       | 37/134 [10:49&lt;28:22, 17.55s/it, v_num=0, train_loss=0.288]
+Epoch 0:  28%|██▊       | 38/134 [11:07&lt;28:05, 17.55s/it, v_num=0, train_loss=0.288]
+Epoch 0:  28%|██▊       | 38/134 [11:07&lt;28:05, 17.56s/it, v_num=0, train_loss=0.280]
+Epoch 0:  29%|██▉       | 39/134 [11:24&lt;27:47, 17.55s/it, v_num=0, train_loss=0.280]
+Epoch 0:  29%|██▉       | 39/134 [11:24&lt;27:47, 17.55s/it, v_num=0, train_loss=0.257]
+Epoch 0:  30%|██▉       | 40/134 [11:42&lt;27:29, 17.55s/it, v_num=0, train_loss=0.257]
+Epoch 0:  30%|██▉       | 40/134 [11:42&lt;27:30, 17.56s/it, v_num=0, train_loss=0.271]
+Epoch 0:  31%|███       | 41/134 [11:59&lt;27:11, 17.55s/it, v_num=0, train_loss=0.271]
+Epoch 0:  31%|███       | 41/134 [11:59&lt;27:12, 17.55s/it, v_num=0, train_loss=0.243]
+Epoch 0:  31%|███▏      | 42/134 [12:16&lt;26:54, 17.54s/it, v_num=0, train_loss=0.243]
+Epoch 0:  31%|███▏      | 42/134 [12:17&lt;26:54, 17.55s/it, v_num=0, train_loss=0.267]
+Epoch 0:  32%|███▏      | 43/134 [12:34&lt;26:36, 17.54s/it, v_num=0, train_loss=0.267]
+Epoch 0:  32%|███▏      | 43/134 [12:34&lt;26:36, 17.54s/it, v_num=0, train_loss=0.249]
+Epoch 0:  33%|███▎      | 44/134 [12:51&lt;26:18, 17.54s/it, v_num=0, train_loss=0.249]
+Epoch 0:  33%|███▎      | 44/134 [12:51&lt;26:18, 17.54s/it, v_num=0, train_loss=0.262]
+Epoch 0:  34%|███▎      | 45/134 [13:09&lt;26:01, 17.54s/it, v_num=0, train_loss=0.262]
+Epoch 0:  34%|███▎      | 45/134 [13:09&lt;26:01, 17.54s/it, v_num=0, train_loss=0.185]
+Epoch 0:  34%|███▍      | 46/134 [13:26&lt;25:43, 17.54s/it, v_num=0, train_loss=0.185]
+Epoch 0:  34%|███▍      | 46/134 [13:26&lt;25:43, 17.54s/it, v_num=0, train_loss=0.261]
+Epoch 0:  35%|███▌      | 47/134 [13:43&lt;25:25, 17.53s/it, v_num=0, train_loss=0.261]
+Epoch 0:  35%|███▌      | 47/134 [13:44&lt;25:25, 17.53s/it, v_num=0, train_loss=0.233]
+Epoch 0:  36%|███▌      | 48/134 [14:01&lt;25:07, 17.53s/it, v_num=0, train_loss=0.233]
+Epoch 0:  36%|███▌      | 48/134 [14:01&lt;25:07, 17.53s/it, v_num=0, train_loss=0.255]
+Epoch 0:  37%|███▋      | 49/134 [14:18&lt;24:50, 17.53s/it, v_num=0, train_loss=0.255]
+Epoch 0:  37%|███▋      | 49/134 [14:19&lt;24:50, 17.53s/it, v_num=0, train_loss=0.282]
+Epoch 0:  37%|███▋      | 50/134 [14:36&lt;24:32, 17.53s/it, v_num=0, train_loss=0.282]
+Epoch 0:  37%|███▋      | 50/134 [14:36&lt;24:32, 17.53s/it, v_num=0, train_loss=0.202]
+Epoch 0:  38%|███▊      | 51/134 [14:54&lt;24:15, 17.53s/it, v_num=0, train_loss=0.202]
+Epoch 0:  38%|███▊      | 51/134 [14:54&lt;24:15, 17.54s/it, v_num=0, train_loss=0.239]
+Epoch 0:  39%|███▉      | 52/134 [15:11&lt;23:57, 17.53s/it, v_num=0, train_loss=0.239]
+Epoch 0:  39%|███▉      | 52/134 [15:11&lt;23:57, 17.53s/it, v_num=0, train_loss=0.227]
+Epoch 0:  40%|███▉      | 53/134 [15:28&lt;23:39, 17.53s/it, v_num=0, train_loss=0.227]
+Epoch 0:  40%|███▉      | 53/134 [15:29&lt;23:39, 17.53s/it, v_num=0, train_loss=0.240]
+Epoch 0:  40%|████      | 54/134 [15:46&lt;23:21, 17.52s/it, v_num=0, train_loss=0.240]
+Epoch 0:  40%|████      | 54/134 [15:46&lt;23:21, 17.52s/it, v_num=0, train_loss=0.205]
+Epoch 0:  41%|████      | 55/134 [16:03&lt;23:04, 17.52s/it, v_num=0, train_loss=0.205]
+Epoch 0:  41%|████      | 55/134 [16:03&lt;23:04, 17.53s/it, v_num=0, train_loss=0.218]
+Epoch 0:  42%|████▏     | 56/134 [16:21&lt;22:47, 17.53s/it, v_num=0, train_loss=0.218]
+Epoch 0:  42%|████▏     | 56/134 [16:21&lt;22:47, 17.53s/it, v_num=0, train_loss=0.199]
+Epoch 0:  43%|████▎     | 57/134 [16:38&lt;22:29, 17.52s/it, v_num=0, train_loss=0.199]
+Epoch 0:  43%|████▎     | 57/134 [16:39&lt;22:29, 17.53s/it, v_num=0, train_loss=0.194]
+Epoch 0:  43%|████▎     | 58/134 [16:56&lt;22:11, 17.52s/it, v_num=0, train_loss=0.194]
+Epoch 0:  43%|████▎     | 58/134 [16:56&lt;22:11, 17.53s/it, v_num=0, train_loss=0.193]
+Epoch 0:  44%|████▍     | 59/134 [17:13&lt;21:54, 17.52s/it, v_num=0, train_loss=0.193]
+Epoch 0:  44%|████▍     | 59/134 [17:13&lt;21:54, 17.52s/it, v_num=0, train_loss=0.204]
+Epoch 0:  45%|████▍     | 60/134 [17:31&lt;21:36, 17.52s/it, v_num=0, train_loss=0.204]
+Epoch 0:  45%|████▍     | 60/134 [17:31&lt;21:36, 17.52s/it, v_num=0, train_loss=0.197]
+Epoch 0:  46%|████▌     | 61/134 [17:48&lt;21:18, 17.52s/it, v_num=0, train_loss=0.197]
+Epoch 0:  46%|████▌     | 61/134 [17:48&lt;21:18, 17.52s/it, v_num=0, train_loss=0.211]
+Epoch 0:  46%|████▋     | 62/134 [18:06&lt;21:01, 17.52s/it, v_num=0, train_loss=0.211]
+Epoch 0:  46%|████▋     | 62/134 [18:06&lt;21:01, 17.52s/it, v_num=0, train_loss=0.203]
+Epoch 0:  47%|████▋     | 63/134 [18:23&lt;20:43, 17.52s/it, v_num=0, train_loss=0.203]
+Epoch 0:  47%|████▋     | 63/134 [18:23&lt;20:43, 17.52s/it, v_num=0, train_loss=0.217]
+Epoch 0:  48%|████▊     | 64/134 [18:41&lt;20:26, 17.52s/it, v_num=0, train_loss=0.217]
+Epoch 0:  48%|████▊     | 64/134 [18:41&lt;20:26, 17.52s/it, v_num=0, train_loss=0.214]
+Epoch 0:  49%|████▊     | 65/134 [18:58&lt;20:08, 17.51s/it, v_num=0, train_loss=0.214]
+Epoch 0:  49%|████▊     | 65/134 [18:58&lt;20:08, 17.52s/it, v_num=0, train_loss=0.215]
+Epoch 0:  49%|████▉     | 66/134 [19:15&lt;19:50, 17.51s/it, v_num=0, train_loss=0.215]
+Epoch 0:  49%|████▉     | 66/134 [19:15&lt;19:50, 17.51s/it, v_num=0, train_loss=0.216]
+Epoch 0:  50%|█████     | 67/134 [19:33&lt;19:33, 17.51s/it, v_num=0, train_loss=0.216]
+Epoch 0:  50%|█████     | 67/134 [19:33&lt;19:33, 17.52s/it, v_num=0, train_loss=0.207]
+Epoch 0:  51%|█████     | 68/134 [19:50&lt;19:15, 17.51s/it, v_num=0, train_loss=0.207]
+Epoch 0:  51%|█████     | 68/134 [19:50&lt;19:15, 17.51s/it, v_num=0, train_loss=0.242]
+Epoch 0:  51%|█████▏    | 69/134 [20:08&lt;18:58, 17.51s/it, v_num=0, train_loss=0.242]
+Epoch 0:  51%|█████▏    | 69/134 [20:08&lt;18:58, 17.51s/it, v_num=0, train_loss=0.196]
+Epoch 0:  52%|█████▏    | 70/134 [20:25&lt;18:40, 17.51s/it, v_num=0, train_loss=0.196]
+Epoch 0:  52%|█████▏    | 70/134 [20:25&lt;18:40, 17.51s/it, v_num=0, train_loss=0.224]
+Epoch 0:  53%|█████▎    | 71/134 [20:43&lt;18:23, 17.51s/it, v_num=0, train_loss=0.224]
+Epoch 0:  53%|█████▎    | 71/134 [20:43&lt;18:23, 17.51s/it, v_num=0, train_loss=0.212]
+Epoch 0:  54%|█████▎    | 72/134 [21:00&lt;18:05, 17.51s/it, v_num=0, train_loss=0.212]
+Epoch 0:  54%|█████▎    | 72/134 [21:00&lt;18:05, 17.51s/it, v_num=0, train_loss=0.189]
+Epoch 0:  54%|█████▍    | 73/134 [21:18&lt;17:48, 17.51s/it, v_num=0, train_loss=0.189]
+Epoch 0:  54%|█████▍    | 73/134 [21:18&lt;17:48, 17.51s/it, v_num=0, train_loss=0.240]
+Epoch 0:  55%|█████▌    | 74/134 [21:35&lt;17:30, 17.51s/it, v_num=0, train_loss=0.240]
+Epoch 0:  55%|█████▌    | 74/134 [21:35&lt;17:30, 17.51s/it, v_num=0, train_loss=0.233]
+Epoch 0:  56%|█████▌    | 75/134 [21:53&lt;17:12, 17.51s/it, v_num=0, train_loss=0.233]
+Epoch 0:  56%|█████▌    | 75/134 [21:53&lt;17:13, 17.51s/it, v_num=0, train_loss=0.216]
+Epoch 0:  57%|█████▋    | 76/134 [22:10&lt;16:55, 17.51s/it, v_num=0, train_loss=0.216]
+Epoch 0:  57%|█████▋    | 76/134 [22:10&lt;16:55, 17.51s/it, v_num=0, train_loss=0.177]
+Epoch 0:  57%|█████▋    | 77/134 [22:27&lt;16:37, 17.51s/it, v_num=0, train_loss=0.177]
+Epoch 0:  57%|█████▋    | 77/134 [22:28&lt;16:37, 17.51s/it, v_num=0, train_loss=0.187]
+Epoch 0:  58%|█████▊    | 78/134 [22:45&lt;16:20, 17.50s/it, v_num=0, train_loss=0.187]
+Epoch 0:  58%|█████▊    | 78/134 [22:45&lt;16:20, 17.51s/it, v_num=0, train_loss=0.178]
+Epoch 0:  59%|█████▉    | 79/134 [23:02&lt;16:02, 17.51s/it, v_num=0, train_loss=0.178]
+Epoch 0:  59%|█████▉    | 79/134 [23:03&lt;16:02, 17.51s/it, v_num=0, train_loss=0.216]
+Epoch 0:  60%|█████▉    | 80/134 [23:21&lt;15:45, 17.51s/it, v_num=0, train_loss=0.216]
+Epoch 0:  60%|█████▉    | 80/134 [23:21&lt;15:45, 17.51s/it, v_num=0, train_loss=0.244]
+Epoch 0:  60%|██████    | 81/134 [23:38&lt;15:28, 17.51s/it, v_num=0, train_loss=0.244]
+Epoch 0:  60%|██████    | 81/134 [23:38&lt;15:28, 17.51s/it, v_num=0, train_loss=0.225]
+Epoch 0:  61%|██████    | 82/134 [23:56&lt;15:10, 17.51s/it, v_num=0, train_loss=0.225]
+Epoch 0:  61%|██████    | 82/134 [23:56&lt;15:10, 17.52s/it, v_num=0, train_loss=0.150]
+Epoch 0:  62%|██████▏   | 83/134 [24:13&lt;14:53, 17.51s/it, v_num=0, train_loss=0.150]
+Epoch 0:  62%|██████▏   | 83/134 [24:13&lt;14:53, 17.51s/it, v_num=0, train_loss=0.211]
+Epoch 0:  63%|██████▎   | 84/134 [24:31&lt;14:35, 17.51s/it, v_num=0, train_loss=0.211]
+Epoch 0:  63%|██████▎   | 84/134 [24:31&lt;14:35, 17.51s/it, v_num=0, train_loss=0.216]
+Epoch 0:  63%|██████▎   | 85/134 [24:48&lt;14:17, 17.51s/it, v_num=0, train_loss=0.216]
+Epoch 0:  63%|██████▎   | 85/134 [24:48&lt;14:18, 17.51s/it, v_num=0, train_loss=0.217]
+Epoch 0:  64%|██████▍   | 86/134 [25:06&lt;14:00, 17.51s/it, v_num=0, train_loss=0.217]
+Epoch 0:  64%|██████▍   | 86/134 [25:06&lt;14:00, 17.51s/it, v_num=0, train_loss=0.236]
+Epoch 0:  65%|██████▍   | 87/134 [25:23&lt;13:42, 17.51s/it, v_num=0, train_loss=0.236]
+Epoch 0:  65%|██████▍   | 87/134 [25:23&lt;13:43, 17.51s/it, v_num=0, train_loss=0.276]
+Epoch 0:  66%|██████▌   | 88/134 [25:40&lt;13:25, 17.51s/it, v_num=0, train_loss=0.276]
+Epoch 0:  66%|██████▌   | 88/134 [25:40&lt;13:25, 17.51s/it, v_num=0, train_loss=0.262]
+Epoch 0:  66%|██████▋   | 89/134 [25:58&lt;13:07, 17.51s/it, v_num=0, train_loss=0.262]
+Epoch 0:  66%|██████▋   | 89/134 [25:58&lt;13:07, 17.51s/it, v_num=0, train_loss=0.244]
+Epoch 0:  67%|██████▋   | 90/134 [26:15&lt;12:50, 17.51s/it, v_num=0, train_loss=0.244]
+Epoch 0:  67%|██████▋   | 90/134 [26:15&lt;12:50, 17.51s/it, v_num=0, train_loss=0.246]
+Epoch 0:  68%|██████▊   | 91/134 [26:33&lt;12:32, 17.51s/it, v_num=0, train_loss=0.246]
+Epoch 0:  68%|██████▊   | 91/134 [26:33&lt;12:32, 17.51s/it, v_num=0, train_loss=0.261]
+Epoch 0:  69%|██████▊   | 92/134 [26:50&lt;12:15, 17.51s/it, v_num=0, train_loss=0.261]
+Epoch 0:  69%|██████▊   | 92/134 [26:50&lt;12:15, 17.51s/it, v_num=0, train_loss=0.174]
+Epoch 0:  69%|██████▉   | 93/134 [27:08&lt;11:57, 17.51s/it, v_num=0, train_loss=0.174]
+Epoch 0:  69%|██████▉   | 93/134 [27:08&lt;11:57, 17.51s/it, v_num=0, train_loss=0.219]
+Epoch 0:  70%|███████   | 94/134 [27:25&lt;11:40, 17.50s/it, v_num=0, train_loss=0.219]
+Epoch 0:  70%|███████   | 94/134 [27:25&lt;11:40, 17.50s/it, v_num=0, train_loss=0.225]
+Epoch 0:  71%|███████   | 95/134 [27:42&lt;11:22, 17.50s/it, v_num=0, train_loss=0.225]
+Epoch 0:  71%|███████   | 95/134 [27:42&lt;11:22, 17.50s/it, v_num=0, train_loss=0.208]
+Epoch 0:  72%|███████▏  | 96/134 [27:59&lt;11:04, 17.50s/it, v_num=0, train_loss=0.208]
+Epoch 0:  72%|███████▏  | 96/134 [27:59&lt;11:04, 17.50s/it, v_num=0, train_loss=0.211]
+Epoch 0:  72%|███████▏  | 97/134 [28:16&lt;10:47, 17.49s/it, v_num=0, train_loss=0.211]
+Epoch 0:  72%|███████▏  | 97/134 [28:17&lt;10:47, 17.50s/it, v_num=0, train_loss=0.226]
+Epoch 0:  73%|███████▎  | 98/134 [28:34&lt;10:29, 17.49s/it, v_num=0, train_loss=0.226]
+Epoch 0:  73%|███████▎  | 98/134 [28:34&lt;10:29, 17.50s/it, v_num=0, train_loss=0.148]
+Epoch 0:  74%|███████▍  | 99/134 [28:51&lt;10:12, 17.49s/it, v_num=0, train_loss=0.148]
+Epoch 0:  74%|███████▍  | 99/134 [28:51&lt;10:12, 17.49s/it, v_num=0, train_loss=0.187]
+Epoch 0:  75%|███████▍  | 100/134 [29:08&lt;09:54, 17.49s/it, v_num=0, train_loss=0.187]
+Epoch 0:  75%|███████▍  | 100/134 [29:09&lt;09:54, 17.49s/it, v_num=0, train_loss=0.189]
+Epoch 0:  75%|███████▌  | 101/134 [29:26&lt;09:37, 17.49s/it, v_num=0, train_loss=0.189]
+Epoch 0:  75%|███████▌  | 101/134 [29:26&lt;09:37, 17.49s/it, v_num=0, train_loss=0.153]
+Epoch 0:  76%|███████▌  | 102/134 [29:43&lt;09:19, 17.48s/it, v_num=0, train_loss=0.153]
+Epoch 0:  76%|███████▌  | 102/134 [29:43&lt;09:19, 17.49s/it, v_num=0, train_loss=0.256]
+Epoch 0:  77%|███████▋  | 103/134 [30:00&lt;09:01, 17.48s/it, v_num=0, train_loss=0.256]
+Epoch 0:  77%|███████▋  | 103/134 [30:00&lt;09:01, 17.48s/it, v_num=0, train_loss=0.243]
+Epoch 0:  78%|███████▊  | 104/134 [30:17&lt;08:44, 17.48s/it, v_num=0, train_loss=0.243]
+Epoch 0:  78%|███████▊  | 104/134 [30:18&lt;08:44, 17.48s/it, v_num=0, train_loss=0.144]
+Epoch 0:  78%|███████▊  | 105/134 [30:35&lt;08:26, 17.48s/it, v_num=0, train_loss=0.144]
+Epoch 0:  78%|███████▊  | 105/134 [30:35&lt;08:26, 17.48s/it, v_num=0, train_loss=0.194]
+Epoch 0:  79%|███████▉  | 106/134 [30:52&lt;08:09, 17.48s/it, v_num=0, train_loss=0.194]
+Epoch 0:  79%|███████▉  | 106/134 [30:52&lt;08:09, 17.48s/it, v_num=0, train_loss=0.164]
+Epoch 0:  80%|███████▉  | 107/134 [31:10&lt;07:52, 17.48s/it, v_num=0, train_loss=0.164]
+Epoch 0:  80%|███████▉  | 107/134 [31:10&lt;07:52, 17.49s/it, v_num=0, train_loss=0.217]
+Epoch 0:  81%|████████  | 108/134 [31:28&lt;07:34, 17.49s/it, v_num=0, train_loss=0.217]
+Epoch 0:  81%|████████  | 108/134 [31:28&lt;07:34, 17.49s/it, v_num=0, train_loss=0.180]
+Epoch 0:  81%|████████▏ | 109/134 [31:46&lt;07:17, 17.49s/it, v_num=0, train_loss=0.180]
+Epoch 0:  81%|████████▏ | 109/134 [31:46&lt;07:17, 17.49s/it, v_num=0, train_loss=0.195]
+Epoch 0:  82%|████████▏ | 110/134 [32:03&lt;06:59, 17.49s/it, v_num=0, train_loss=0.195]
+Epoch 0:  82%|████████▏ | 110/134 [32:04&lt;06:59, 17.49s/it, v_num=0, train_loss=0.197]
+Epoch 0:  83%|████████▎ | 111/134 [32:21&lt;06:42, 17.49s/it, v_num=0, train_loss=0.197]
+Epoch 0:  83%|████████▎ | 111/134 [32:21&lt;06:42, 17.49s/it, v_num=0, train_loss=0.251]
+Epoch 0:  84%|████████▎ | 112/134 [32:38&lt;06:24, 17.49s/it, v_num=0, train_loss=0.251]
+Epoch 0:  84%|████████▎ | 112/134 [32:38&lt;06:24, 17.49s/it, v_num=0, train_loss=0.231]
+Epoch 0:  84%|████████▍ | 113/134 [32:56&lt;06:07, 17.49s/it, v_num=0, train_loss=0.231]
+Epoch 0:  84%|████████▍ | 113/134 [32:56&lt;06:07, 17.49s/it, v_num=0, train_loss=0.211]
+Epoch 0:  85%|████████▌ | 114/134 [33:13&lt;05:49, 17.49s/it, v_num=0, train_loss=0.211]
+Epoch 0:  85%|████████▌ | 114/134 [33:13&lt;05:49, 17.49s/it, v_num=0, train_loss=0.173]
+Epoch 0:  86%|████████▌ | 115/134 [33:31&lt;05:32, 17.49s/it, v_num=0, train_loss=0.173]
+Epoch 0:  86%|████████▌ | 115/134 [33:31&lt;05:32, 17.49s/it, v_num=0, train_loss=0.175]
+Epoch 0:  87%|████████▋ | 116/134 [33:48&lt;05:14, 17.49s/it, v_num=0, train_loss=0.175]
+Epoch 0:  87%|████████▋ | 116/134 [33:48&lt;05:14, 17.49s/it, v_num=0, train_loss=0.156]
+Epoch 0:  87%|████████▋ | 117/134 [34:06&lt;04:57, 17.49s/it, v_num=0, train_loss=0.156]
+Epoch 0:  87%|████████▋ | 117/134 [34:06&lt;04:57, 17.49s/it, v_num=0, train_loss=0.149]
+Epoch 0:  88%|████████▊ | 118/134 [34:23&lt;04:39, 17.49s/it, v_num=0, train_loss=0.149]
+Epoch 0:  88%|████████▊ | 118/134 [34:24&lt;04:39, 17.49s/it, v_num=0, train_loss=0.170]
+Epoch 0:  89%|████████▉ | 119/134 [34:41&lt;04:22, 17.49s/it, v_num=0, train_loss=0.170]
+Epoch 0:  89%|████████▉ | 119/134 [34:41&lt;04:22, 17.49s/it, v_num=0, train_loss=0.220]
+Epoch 0:  90%|████████▉ | 120/134 [34:58&lt;04:04, 17.49s/it, v_num=0, train_loss=0.220]
+Epoch 0:  90%|████████▉ | 120/134 [34:58&lt;04:04, 17.49s/it, v_num=0, train_loss=0.246]
+Epoch 0:  90%|█████████ | 121/134 [35:15&lt;03:47, 17.49s/it, v_num=0, train_loss=0.246]
+Epoch 0:  90%|█████████ | 121/134 [35:16&lt;03:47, 17.49s/it, v_num=0, train_loss=0.238]
+Epoch 0:  91%|█████████ | 122/134 [35:33&lt;03:29, 17.49s/it, v_num=0, train_loss=0.238]
+Epoch 0:  91%|█████████ | 122/134 [35:33&lt;03:29, 17.49s/it, v_num=0, train_loss=0.230]
+Epoch 0:  92%|█████████▏| 123/134 [35:50&lt;03:12, 17.49s/it, v_num=0, train_loss=0.230]
+Epoch 0:  92%|█████████▏| 123/134 [35:50&lt;03:12, 17.49s/it, v_num=0, train_loss=0.189]
+Epoch 0:  93%|█████████▎| 124/134 [36:08&lt;02:54, 17.49s/it, v_num=0, train_loss=0.189]
+Epoch 0:  93%|█████████▎| 124/134 [36:08&lt;02:54, 17.49s/it, v_num=0, train_loss=0.140]
+Epoch 0:  93%|█████████▎| 125/134 [36:25&lt;02:37, 17.49s/it, v_num=0, train_loss=0.140]
+Epoch 0:  93%|█████████▎| 125/134 [36:26&lt;02:37, 17.49s/it, v_num=0, train_loss=0.158]
+Epoch 0:  94%|█████████▍| 126/134 [36:43&lt;02:19, 17.49s/it, v_num=0, train_loss=0.158]
+Epoch 0:  94%|█████████▍| 126/134 [36:43&lt;02:19, 17.49s/it, v_num=0, train_loss=0.168]
+Epoch 0:  95%|█████████▍| 127/134 [37:00&lt;02:02, 17.49s/it, v_num=0, train_loss=0.168]
+Epoch 0:  95%|█████████▍| 127/134 [37:01&lt;02:02, 17.49s/it, v_num=0, train_loss=0.182]
+Epoch 0:  96%|█████████▌| 128/134 [37:18&lt;01:44, 17.49s/it, v_num=0, train_loss=0.182]
+Epoch 0:  96%|█████████▌| 128/134 [37:18&lt;01:44, 17.49s/it, v_num=0, train_loss=0.204]
+Epoch 0:  96%|█████████▋| 129/134 [37:35&lt;01:27, 17.49s/it, v_num=0, train_loss=0.204]
+Epoch 0:  96%|█████████▋| 129/134 [37:36&lt;01:27, 17.49s/it, v_num=0, train_loss=0.237]
+Epoch 0:  97%|█████████▋| 130/134 [37:53&lt;01:09, 17.49s/it, v_num=0, train_loss=0.237]
+Epoch 0:  97%|█████████▋| 130/134 [37:53&lt;01:09, 17.49s/it, v_num=0, train_loss=0.234]
+Epoch 0:  98%|█████████▊| 131/134 [38:10&lt;00:52, 17.49s/it, v_num=0, train_loss=0.234]
+Epoch 0:  98%|█████████▊| 131/134 [38:11&lt;00:52, 17.49s/it, v_num=0, train_loss=0.204]
+Epoch 0:  99%|█████████▊| 132/134 [38:28&lt;00:34, 17.49s/it, v_num=0, train_loss=0.204]
+Epoch 0:  99%|█████████▊| 132/134 [38:28&lt;00:34, 17.49s/it, v_num=0, train_loss=0.202]
+Epoch 0:  99%|█████████▉| 133/134 [38:46&lt;00:17, 17.49s/it, v_num=0, train_loss=0.202]
+Epoch 0:  99%|█████████▉| 133/134 [38:46&lt;00:17, 17.49s/it, v_num=0, train_loss=0.170]
+Epoch 0: 100%|██████████| 134/134 [39:03&lt;00:00, 17.49s/it, v_num=0, train_loss=0.170]
+Epoch 0: 100%|██████████| 134/134 [39:03&lt;00:00, 17.49s/it, v_num=0, train_loss=0.161]
+Epoch 0: : 135it [39:21, 17.49s/it, v_num=0, train_loss=0.161]                       
+Epoch 0: : 135it [39:21, 17.49s/it, v_num=0, train_loss=0.167]
+</pre></div>
+</div>
+<div class="output text_html"><div class="trialProgress">
+  <h3>Trial Progress</h3>
+  <table>
+<thead>
+<tr><th>Trial name                  </th><th>_report_on     </th><th>date               </th><th>done  </th><th style="text-align: right;">  epoch</th><th style="text-align: right;">  experiment_tag</th><th>hostname       </th><th style="text-align: right;">  iterations_since_restore</th><th>node_ip     </th><th style="text-align: right;">  pid</th><th>should_checkpoint  </th><th style="text-align: right;">  step</th><th style="text-align: right;">  time_since_restore</th><th style="text-align: right;">  time_this_iter_s</th><th style="text-align: right;">  time_total_s</th><th style="text-align: right;">  timestamp</th><th style="text-align: right;">  train_loss</th><th style="text-align: right;">  training_iteration</th><th>trial_id   </th></tr>
+</thead>
+<tbody>
+<tr><td>LightningTrainer_e0990_00000</td><td>train_epoch_end</td><td>2023-05-05_01-02-26</td><td>True  </td><td style="text-align: right;">      0</td><td style="text-align: right;">               0</td><td>ip-10-0-102-147</td><td style="text-align: right;">                         1</td><td>10.0.102.147</td><td style="text-align: right;">41219</td><td>True               </td><td style="text-align: right;">   135</td><td style="text-align: right;">             2699.78</td><td style="text-align: right;">           2699.78</td><td style="text-align: right;">       2699.78</td><td style="text-align: right;"> 1683273746</td><td style="text-align: right;">    0.166992</td><td style="text-align: right;">                   1</td><td>e0990_00000</td></tr>
+</tbody>
+</table>
+</div>
+<style>
+.trialProgress {
+  display: flex;
+  flex-direction: column;
+  color: var(--jp-ui-font-color1);
+}
+.trialProgress h3 {
+  font-weight: bold;
+}
+.trialProgress td {
+  white-space: nowrap;
+}
+</style>
+</div><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(RayTrainWorker pid=41376) `Trainer.fit` stopped: `max_epochs=1` reached.
+(RayTrainWorker pid=41376) RayFSDPStrategy: tearing down strategy...
+</pre></div>
+</div>
+</div>
+</div>
+<p>We finished training in 2361s. The price for an on-demand g4dn.4xlarge instance is <code class="docutils literal notranslate"><span class="pre">$1.204/hour</span></code>, while a g4dn.4xlarge instance costs <code class="docutils literal notranslate"><span class="pre">$2.176/hour</span></code>. The total cost would be <code class="docutils literal notranslate"><span class="pre">($1.204</span> <span class="pre">*</span> <span class="pre">15</span> <span class="pre">+</span> <span class="pre">$2.176)</span> <span class="pre">*</span> <span class="pre">2699</span> <span class="pre">/</span> <span class="pre">3600</span> <span class="pre">=</span> <span class="pre">$15.17</span></code>.</p>
+</section>
+<section id="text-generation-with-huggingface-pipeline">
+<h2>Text-generation with HuggingFace Pipeline<a class="headerlink" href="dolly_lightning_fsdp_finetuning.html#text-generation-with-huggingface-pipeline" title="Permalink to this headline">#</a></h2>
+<p>We can use the <a class="reference external" href="https://huggingface.co/docs/transformers/main_classes/pipelines">HuggingFace Pipeline</a> to generate predictions from our fine-tuned model. Let’s input some prompts and see if our tuned Dolly can speak like Shakespeare:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">pipeline</span>
+
+<span class="n">tokenizer</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">MODEL_NAME</span><span class="p">,</span> <span class="n">padding_side</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
+
+<span class="n">dolly</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">checkpoint</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="n">model_class</span><span class="o">=</span><span class="n">DollyV2Model</span><span class="p">,</span> <span class="n">map_location</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cpu&quot;</span><span class="p">))</span>
+
+<span class="n">nlp_pipeline</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span>
+    <span class="n">task</span><span class="o">=</span><span class="s2">&quot;text-generation&quot;</span><span class="p">,</span> 
+    <span class="n">model</span><span class="o">=</span><span class="n">dolly</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> 
+    <span class="n">tokenizer</span><span class="o">=</span><span class="n">tokenizer</span><span class="p">,</span> 
+    <span class="n">device_map</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">prompt</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;This is&quot;</span><span class="p">,</span> <span class="s2">&quot;I am&quot;</span><span class="p">,</span> <span class="s2">&quot;Once more&quot;</span><span class="p">]:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">nlp_pipeline</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">max_new_tokens</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">do_sample</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pad_token_id</span><span class="o">=</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">eos_token_id</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[{&#39;generated_text&#39;: &#39;This is the very place, my lord, where I was born.&#39;}]
+[{&#39;generated_text&#39;: &#39;I am a man of a thousand lives, and I will live.&#39;}]
+[{&#39;generated_text&#39;: &#39;Once more, my lord, I beseech you, hear me speak.&#39;}]
+</pre></div>
+</div>
+</div>
+</div>
+<p>References:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=8_k76AHu__s&amp;list=PL_lsbAsL_o2BT6aerEKgIoufVD_fodnuT">PyTorch FSDP Tutorial</a></p></li>
+<li><p><a class="reference external" href="https://pytorch.org/tutorials/intermediate/FSDP_tutorial.html#:~:text=FSDP%20is%20a%20type%20of,sizes%20for%20our%20training%20job.">Getting Started with Fully Sharded Data Parallel(FSDP)</a></p></li>
+<li><p><a class="reference external" href="https://engineering.fb.com/2021/07/15/open-source/fsdp/">Fully Sharded Data Parallel: faster AI training with fewer GPUs</a></p></li>
+<li><p><a class="reference external" href="https://huggingface.co/databricks/dolly-v2-7b">Hugging Face: dolly-v2-7b Model Card</a></p></li>
+<li><p><a class="reference external" href="https://huggingface.co/docs/accelerate/usage_guides/big_modeling">Hugging Face: Handling big models for inference</a></p></li>
+</ul>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="dreambooth_finetuning.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Fine-tuning DreamBooth with Ray AIR</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="../api/api.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Ray AIR API</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

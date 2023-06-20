@@ -1,0 +1,1817 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Integrate Ray AIR with Feast feature store &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/js/versionwarning.js"></script>
+    <script src="../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../_static/js/docsearch.js"></script>
+    <script src="../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../_static/js/top-navigation.js"></script>
+    <script src="../../_static/js/tags.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/ray-air/examples/feast_example.html" />
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="AutoML for time series forecasting with Ray AIR" href="automl_with_ray_air.html" />
+    <link rel="prev" title="Logging results and uploading models to Weights &amp; Biases" href="upload_to_wandb.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "ray-air/examples/feast_example", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".ipynb", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../user-guides.html">
+     User Guides
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="index.html">
+     Examples
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="opt_deepspeed_batch_inference.html">
+       Batch Inference with OPT 30B and Ray Data
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="torch_image_example.html">
+       Training a Torch Image Classifier
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="torch_detection.html">
+       Fine-tuning a Torch object detection model
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="convert_existing_pytorch_code_to_ray_air.html">
+       Convert existing PyTorch code to Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="convert_existing_tf_code_to_ray_air.html">
+       Convert existing Tensorflow/Keras code to Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tfx_tabular_train_to_serve.html">
+       Tabular data training and serving with Keras and Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="huggingface_text_classification.html">
+       Fine-tune a 🤗 Transformers model
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="sklearn_example.html">
+       Training a model with Sklearn
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="xgboost_example.html">
+       Training a model with distributed XGBoost
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="analyze_tuning_results.html">
+       Hyperparameter tuning with XGBoostTrainer
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="lightgbm_example.html">
+       Training a model with distributed LightGBM
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="torch_incremental_learning.html">
+       Incremental Learning with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rl_serving_example.html">
+       Serving reinforcement learning policy models
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rl_online_example.html">
+       Online reinforcement learning with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rl_offline_example.html">
+       Offline reinforcement learning with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="upload_to_comet_ml.html">
+       Logging results and uploading models to Comet ML
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="upload_to_wandb.html">
+       Logging results and uploading models to Weights &amp; Biases
+      </a>
+     </li>
+     <li class="toctree-l3 current active">
+      <a class="current reference internal" href="feast_example.html#">
+       Integrate Ray AIR with Feast feature store
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="automl_with_ray_air.html">
+       AutoML for time series forecasting with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="batch_tuning.html">
+       Batch training &amp; tuning on Ray Tune
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="batch_forecasting.html">
+       Parallel demand forecasting at scale using Ray Tune
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="stablediffusion_batch_prediction.html">
+       Stable Diffusion Batch Prediction with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gptj_deepspeed_fine_tuning.html">
+       GPT-J-6B Fine-Tuning with Ray AIR and DeepSpeed
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gptj_batch_prediction.html">
+       GPT-J-6B Batch Prediction with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gptj_serving.html">
+       GPT-J-6B Serving with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="dreambooth_finetuning.html">
+       Fine-tuning DreamBooth with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="dolly_lightning_fsdp_finetuning.html">
+       Fine-tune
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         dolly-v2-7b
+        </span>
+       </code>
+       with Ray AIR LightningTrainer and FSDP
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/api.html">
+     Ray AIR API
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../benchmarks.html">
+     Benchmarks
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tune.html">
+   Ray Tune
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Fray-air/examples/feast_example.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/ray-air/examples/feast_example.ipynb"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../_sources/ray-air/examples/feast_example.ipynb.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.ipynb</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="feast_example.html#generate-training-data">
+   Generate training data
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="feast_example.html#define-preprocessors">
+   Define Preprocessors
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="feast_example.html#train-xgboost-model-using-ray-air-trainer">
+   Train XGBoost model using Ray AIR Trainer
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="feast_example.html#inference">
+   Inference
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Integrate Ray AIR with Feast feature store</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="feast_example.html#generate-training-data">
+   Generate training data
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="feast_example.html#define-preprocessors">
+   Define Preprocessors
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="feast_example.html#train-xgboost-model-using-ray-air-trainer">
+   Train XGBoost model using Ray AIR Trainer
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="feast_example.html#inference">
+   Inference
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section class="tex2jax_ignore mathjax_ignore" id="integrate-ray-air-with-feast-feature-store">
+<h1>Integrate Ray AIR with Feast feature store<a class="headerlink" href="feast_example.html#integrate-ray-air-with-feast-feature-store" title="Permalink to this headline">#</a></h1>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># !pip install feast==0.20.1 ray[air]&gt;=1.13 xgboost_ray</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>In this example, we showcase how to use Ray AIR with Feast feature store, leveraging both historical features for training a model and online features for inference.</p>
+<p>The task is adapted from <a class="reference external" href="https://github.com/feast-dev/feast-aws-credit-scoring-tutorial">Feast credit scoring tutorial</a>. In this example, we train a xgboost model and run some prediction on an incoming loan request to see if it is approved or rejected.</p>
+<p>Let’s first set up our workspace and prepare the data to work with.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span> wget --no-check-certificate https://github.com/ray-project/air-sample-data/raw/main/air-feast-example.zip
+<span class="o">!</span> unzip air-feast-example.zip 
+<span class="o">%</span><span class="k">cd</span> air-feast-example
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>--2022-09-12 19:24:21--  https://github.com/ray-project/air-sample-data/raw/main/air-feast-example.zip
+Loaded CA certificate &#39;/etc/ssl/certs/ca-certificates.crt&#39;
+Resolving github.com (github.com)... 192.30.255.113
+Connecting to github.com (github.com)|192.30.255.113|:443... connected.
+HTTP request sent, awaiting response... 302 Found
+Location: https://raw.githubusercontent.com/ray-project/air-sample-data/main/air-feast-example.zip [following]
+--2022-09-12 19:24:21--  https://raw.githubusercontent.com/ray-project/air-sample-data/main/air-feast-example.zip
+Resolving raw.githubusercontent.com (raw.githubusercontent.com)... 185.199.108.133, 185.199.111.133, 185.199.110.133, ...
+Connecting to raw.githubusercontent.com (raw.githubusercontent.com)|185.199.108.133|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 23715107 (23M) [application/zip]
+Saving to: ‘air-feast-example.zip’
+
+air-feast-example.z 100%[===================&gt;]  22.62M  8.79MB/s    in 2.6s    
+
+2022-09-12 19:24:25 (8.79 MB/s) - ‘air-feast-example.zip’ saved [23715107/23715107]
+
+Archive:  air-feast-example.zip
+   creating: air-feast-example/
+   creating: air-feast-example/feature_repo/
+  inflating: air-feast-example/feature_repo/.DS_Store  
+ extracting: air-feast-example/feature_repo/__init__.py  
+  inflating: air-feast-example/feature_repo/features.py  
+   creating: air-feast-example/feature_repo/data/
+  inflating: air-feast-example/feature_repo/data/.DS_Store  
+  inflating: air-feast-example/feature_repo/data/credit_history_sample.csv  
+  inflating: air-feast-example/feature_repo/data/zipcode_table_sample.csv  
+  inflating: air-feast-example/feature_repo/data/credit_history.parquet  
+  inflating: air-feast-example/feature_repo/data/zipcode_table.parquet  
+  inflating: air-feast-example/feature_repo/feature_store.yaml  
+  inflating: air-feast-example/.DS_Store  
+   creating: air-feast-example/data/
+  inflating: air-feast-example/data/loan_table.parquet  
+  inflating: air-feast-example/data/loan_table_sample.csv  
+/home/ray/Desktop/workspace/ray/doc/source/ray-air/examples/air-feast-example
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span> ls
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>data  feature_repo
+</pre></div>
+</div>
+</div>
+</div>
+<p>There is already a feature repository set up in <code class="docutils literal notranslate"><span class="pre">feature_repo/</span></code>. It isn’t necessary to create a new feature repository, but it can be done using the following command: <code class="docutils literal notranslate"><span class="pre">feast</span> <span class="pre">init</span> <span class="pre">-t</span> <span class="pre">local</span> <span class="pre">feature_repo</span></code>.</p>
+<p>Now let’s take a look at the schema in Feast feature store, which is defined by <code class="docutils literal notranslate"><span class="pre">feature_repo/features.py</span></code>. There are mainly two features: zipcode_feature and credit_history, both are generated from parquet files - <code class="docutils literal notranslate"><span class="pre">feature_repo/data/zipcode_table.parquet</span></code> and <code class="docutils literal notranslate"><span class="pre">feature_repo/data/credit_history.parquet</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>pygmentize feature_repo/features.py
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Blue">from</span> <span class=" -Color -Color-Cyan">datetime</span> <span class=" -Color -Color-Blue">import</span> timedelta
+
+<span class=" -Color -Color-Blue">from</span> <span class=" -Color -Color-Cyan">feast</span> <span class=" -Color -Color-Blue">import</span> (Entity, Field, FeatureView, FileSource, ValueType)
+<span class=" -Color -Color-Blue">from</span> <span class=" -Color -Color-Cyan">feast.types</span> <span class=" -Color -Color-Blue">import</span> Float32, Int64, String
+
+
+zipcode = Entity(name=<span class=" -Color -Color-Yellow">&quot;zipcode&quot;</span>, value_type=Int64)
+
+zipcode_source = FileSource(
+    path=<span class=" -Color -Color-Yellow">&quot;feature_repo/data/zipcode_table.parquet&quot;</span>,
+    timestamp_field=<span class=" -Color -Color-Yellow">&quot;event_timestamp&quot;</span>,
+    created_timestamp_column=<span class=" -Color -Color-Yellow">&quot;created_timestamp&quot;</span>,
+)
+
+zipcode_features = FeatureView(
+    name=<span class=" -Color -Color-Yellow">&quot;zipcode_features&quot;</span>,
+    entities=[<span class=" -Color -Color-Yellow">&quot;zipcode&quot;</span>],
+    ttl=timedelta(days=<span class=" -Color -Color-Blue">3650</span>),
+    schema=[
+        Field(name=<span class=" -Color -Color-Yellow">&quot;city&quot;</span>, dtype=String),
+        Field(name=<span class=" -Color -Color-Yellow">&quot;state&quot;</span>, dtype=String),
+        Field(name=<span class=" -Color -Color-Yellow">&quot;location_type&quot;</span>, dtype=String),
+        Field(name=<span class=" -Color -Color-Yellow">&quot;tax_returns_filed&quot;</span>, dtype=Int64),
+        Field(name=<span class=" -Color -Color-Yellow">&quot;population&quot;</span>, dtype=Int64),
+        Field(name=<span class=" -Color -Color-Yellow">&quot;total_wages&quot;</span>, dtype=Int64),
+    ],
+    source=zipcode_source,
+)
+
+dob_ssn = Entity(
+    name=<span class=" -Color -Color-Yellow">&quot;dob_ssn&quot;</span>,
+    value_type=ValueType.STRING,
+    description=<span class=" -Color -Color-Yellow">&quot;Date of birth and last four digits of social security number&quot;</span>,
+)
+
+credit_history_source = FileSource(
+    path=<span class=" -Color -Color-Yellow">&quot;feature_repo/data/credit_history.parquet&quot;</span>,
+    timestamp_field=<span class=" -Color -Color-Yellow">&quot;event_timestamp&quot;</span>,
+    created_timestamp_column=<span class=" -Color -Color-Yellow">&quot;created_timestamp&quot;</span>,
+)
+
+credit_history = FeatureView(
+    name=<span class=" -Color -Color-Yellow">&quot;credit_history&quot;</span>,
+    entities=[<span class=" -Color -Color-Yellow">&quot;dob_ssn&quot;</span>],
+    ttl=timedelta(days=<span class=" -Color -Color-Blue">90</span>),
+    schema=[
+        Field(name=<span class=" -Color -Color-Yellow">&quot;credit_card_due&quot;</span>, dtype=Int64),
+        Field(name=<span class=" -Color -Color-Yellow">&quot;mortgage_due&quot;</span>, dtype=Int64),
+        Field(name=<span class=" -Color -Color-Yellow">&quot;student_loan_due&quot;</span>, dtype=Int64),
+        Field(name=<span class=" -Color -Color-Yellow">&quot;vehicle_loan_due&quot;</span>, dtype=Int64),
+        Field(name=<span class=" -Color -Color-Yellow">&quot;hard_pulls&quot;</span>, dtype=Int64),
+        Field(name=<span class=" -Color -Color-Yellow">&quot;missed_payments_2y&quot;</span>, dtype=Int64),
+        Field(name=<span class=" -Color -Color-Yellow">&quot;missed_payments_1y&quot;</span>, dtype=Int64),
+        Field(name=<span class=" -Color -Color-Yellow">&quot;missed_payments_6m&quot;</span>, dtype=Int64),
+        Field(name=<span class=" -Color -Color-Yellow">&quot;bankruptcies&quot;</span>, dtype=Int64),
+    ],
+    source=credit_history_source,
+)
+</pre></div>
+</div>
+</div>
+</div>
+<p>Deploy the above defined feature store by running <code class="docutils literal notranslate"><span class="pre">apply</span></code> from within the feature_repo/ folder.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span> <span class="nb">cd</span> feature_repo <span class="o">&amp;&amp;</span> feast apply
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Created entity <span class=" -Color -Color-Bold -Color-Bold-Green">zipcode</span>
+Created entity <span class=" -Color -Color-Bold -Color-Bold-Green">dob_ssn</span>
+Created feature view <span class=" -Color -Color-Bold -Color-Bold-Green">credit_history</span>
+Created feature view <span class=" -Color -Color-Bold -Color-Bold-Green">zipcode_features</span>
+
+Created sqlite table <span class=" -Color -Color-Bold -Color-Bold-Green">feature_repo_credit_history</span>
+Created sqlite table <span class=" -Color -Color-Bold -Color-Bold-Green">feature_repo_zipcode_features</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">feast</span>
+<span class="n">fs</span> <span class="o">=</span> <span class="n">feast</span><span class="o">.</span><span class="n">FeatureStore</span><span class="p">(</span><span class="n">repo_path</span><span class="o">=</span><span class="s2">&quot;feature_repo&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="generate-training-data">
+<h2>Generate training data<a class="headerlink" href="feast_example.html#generate-training-data" title="Permalink to this headline">#</a></h2>
+<p>On top of the features in Feast, we also have labeled training data at <code class="docutils literal notranslate"><span class="pre">data/loan_table.parquet</span></code>. At the time of training, loan table will be passed into Feast as an entity dataframe for training data generation. Feast will intelligently join credit_history and zipcode_feature tables to create relevant feature vectors to augment the training data.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="n">loan_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="s2">&quot;data/loan_table.parquet&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">loan_df</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>loan_id</th>
+      <th>dob_ssn</th>
+      <th>zipcode</th>
+      <th>person_age</th>
+      <th>person_income</th>
+      <th>person_home_ownership</th>
+      <th>person_emp_length</th>
+      <th>loan_intent</th>
+      <th>loan_amnt</th>
+      <th>loan_int_rate</th>
+      <th>loan_status</th>
+      <th>event_timestamp</th>
+      <th>created_timestamp</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>10000</td>
+      <td>19530219_5179</td>
+      <td>76104</td>
+      <td>22</td>
+      <td>59000</td>
+      <td>RENT</td>
+      <td>123.0</td>
+      <td>PERSONAL</td>
+      <td>35000</td>
+      <td>16.02</td>
+      <td>1</td>
+      <td>2021-08-25 20:34:41.361000+00:00</td>
+      <td>2021-08-25 20:34:41.361000+00:00</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>10001</td>
+      <td>19520816_8737</td>
+      <td>70380</td>
+      <td>21</td>
+      <td>9600</td>
+      <td>OWN</td>
+      <td>5.0</td>
+      <td>EDUCATION</td>
+      <td>1000</td>
+      <td>11.14</td>
+      <td>0</td>
+      <td>2021-08-25 20:16:20.128000+00:00</td>
+      <td>2021-08-25 20:16:20.128000+00:00</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>10002</td>
+      <td>19860413_2537</td>
+      <td>97039</td>
+      <td>25</td>
+      <td>9600</td>
+      <td>MORTGAGE</td>
+      <td>1.0</td>
+      <td>MEDICAL</td>
+      <td>5500</td>
+      <td>12.87</td>
+      <td>1</td>
+      <td>2021-08-25 19:57:58.896000+00:00</td>
+      <td>2021-08-25 19:57:58.896000+00:00</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>10003</td>
+      <td>19760701_8090</td>
+      <td>63785</td>
+      <td>23</td>
+      <td>65500</td>
+      <td>RENT</td>
+      <td>4.0</td>
+      <td>MEDICAL</td>
+      <td>35000</td>
+      <td>15.23</td>
+      <td>1</td>
+      <td>2021-08-25 19:39:37.663000+00:00</td>
+      <td>2021-08-25 19:39:37.663000+00:00</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>10004</td>
+      <td>19830125_8297</td>
+      <td>82223</td>
+      <td>24</td>
+      <td>54400</td>
+      <td>RENT</td>
+      <td>8.0</td>
+      <td>MEDICAL</td>
+      <td>35000</td>
+      <td>14.27</td>
+      <td>1</td>
+      <td>2021-08-25 19:21:16.430000+00:00</td>
+      <td>2021-08-25 19:21:16.430000+00:00</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>28633</th>
+      <td>38633</td>
+      <td>19491126_1487</td>
+      <td>43205</td>
+      <td>57</td>
+      <td>53000</td>
+      <td>MORTGAGE</td>
+      <td>1.0</td>
+      <td>PERSONAL</td>
+      <td>5800</td>
+      <td>13.16</td>
+      <td>0</td>
+      <td>2020-08-25 21:48:06.292000+00:00</td>
+      <td>2020-08-25 21:48:06.292000+00:00</td>
+    </tr>
+    <tr>
+      <th>28634</th>
+      <td>38634</td>
+      <td>19681208_6537</td>
+      <td>24872</td>
+      <td>54</td>
+      <td>120000</td>
+      <td>MORTGAGE</td>
+      <td>4.0</td>
+      <td>PERSONAL</td>
+      <td>17625</td>
+      <td>7.49</td>
+      <td>0</td>
+      <td>2020-08-25 21:29:45.059000+00:00</td>
+      <td>2020-08-25 21:29:45.059000+00:00</td>
+    </tr>
+    <tr>
+      <th>28635</th>
+      <td>38635</td>
+      <td>19880422_2592</td>
+      <td>68826</td>
+      <td>65</td>
+      <td>76000</td>
+      <td>RENT</td>
+      <td>3.0</td>
+      <td>HOMEIMPROVEMENT</td>
+      <td>35000</td>
+      <td>10.99</td>
+      <td>1</td>
+      <td>2020-08-25 21:11:23.826000+00:00</td>
+      <td>2020-08-25 21:11:23.826000+00:00</td>
+    </tr>
+    <tr>
+      <th>28636</th>
+      <td>38636</td>
+      <td>19901017_6108</td>
+      <td>92014</td>
+      <td>56</td>
+      <td>150000</td>
+      <td>MORTGAGE</td>
+      <td>5.0</td>
+      <td>PERSONAL</td>
+      <td>15000</td>
+      <td>11.48</td>
+      <td>0</td>
+      <td>2020-08-25 20:53:02.594000+00:00</td>
+      <td>2020-08-25 20:53:02.594000+00:00</td>
+    </tr>
+    <tr>
+      <th>28637</th>
+      <td>38637</td>
+      <td>19960703_3449</td>
+      <td>69033</td>
+      <td>66</td>
+      <td>42000</td>
+      <td>RENT</td>
+      <td>2.0</td>
+      <td>MEDICAL</td>
+      <td>6475</td>
+      <td>9.99</td>
+      <td>0</td>
+      <td>2020-08-25 20:34:41.361000+00:00</td>
+      <td>2020-08-25 20:34:41.361000+00:00</td>
+    </tr>
+  </tbody>
+</table>
+<p>28638 rows × 13 columns</p>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">feast_features</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;zipcode_features:city&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;zipcode_features:state&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;zipcode_features:location_type&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;zipcode_features:tax_returns_filed&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;zipcode_features:population&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;zipcode_features:total_wages&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;credit_history:credit_card_due&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;credit_history:mortgage_due&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;credit_history:student_loan_due&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;credit_history:vehicle_loan_due&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;credit_history:hard_pulls&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;credit_history:missed_payments_2y&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;credit_history:missed_payments_1y&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;credit_history:missed_payments_6m&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;credit_history:bankruptcies&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">loan_w_offline_feature</span> <span class="o">=</span> <span class="n">fs</span><span class="o">.</span><span class="n">get_historical_features</span><span class="p">(</span>
+    <span class="n">entity_df</span><span class="o">=</span><span class="n">loan_df</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">feast_features</span>
+<span class="p">)</span><span class="o">.</span><span class="n">to_df</span><span class="p">()</span>
+
+<span class="c1"># Drop some unnecessary columns for simplicity</span>
+<span class="n">loan_w_offline_feature</span> <span class="o">=</span> <span class="n">loan_w_offline_feature</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s2">&quot;event_timestamp&quot;</span><span class="p">,</span> <span class="s2">&quot;created_timestamp__&quot;</span><span class="p">,</span> <span class="s2">&quot;loan_id&quot;</span><span class="p">,</span> <span class="s2">&quot;zipcode&quot;</span><span class="p">,</span> <span class="s2">&quot;dob_ssn&quot;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Now let’s take a look at the training data as it is augmented by Feast.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">display</span><span class="p">(</span><span class="n">loan_w_offline_feature</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>person_age</th>
+      <th>person_income</th>
+      <th>person_home_ownership</th>
+      <th>person_emp_length</th>
+      <th>loan_intent</th>
+      <th>loan_amnt</th>
+      <th>loan_int_rate</th>
+      <th>loan_status</th>
+      <th>city</th>
+      <th>state</th>
+      <th>...</th>
+      <th>total_wages</th>
+      <th>credit_card_due</th>
+      <th>mortgage_due</th>
+      <th>student_loan_due</th>
+      <th>vehicle_loan_due</th>
+      <th>hard_pulls</th>
+      <th>missed_payments_2y</th>
+      <th>missed_payments_1y</th>
+      <th>missed_payments_6m</th>
+      <th>bankruptcies</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1358886</th>
+      <td>55</td>
+      <td>24543</td>
+      <td>RENT</td>
+      <td>3.0</td>
+      <td>VENTURE</td>
+      <td>4000</td>
+      <td>13.92</td>
+      <td>0</td>
+      <td>SLIDELL</td>
+      <td>LA</td>
+      <td>...</td>
+      <td>315061217</td>
+      <td>1777</td>
+      <td>690650</td>
+      <td>46372</td>
+      <td>10439</td>
+      <td>5</td>
+      <td>1</td>
+      <td>2</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1358815</th>
+      <td>58</td>
+      <td>20000</td>
+      <td>RENT</td>
+      <td>0.0</td>
+      <td>EDUCATION</td>
+      <td>4000</td>
+      <td>9.99</td>
+      <td>0</td>
+      <td>CHOUTEAU</td>
+      <td>OK</td>
+      <td>...</td>
+      <td>59412230</td>
+      <td>1791</td>
+      <td>462670</td>
+      <td>19421</td>
+      <td>3583</td>
+      <td>8</td>
+      <td>7</td>
+      <td>1</td>
+      <td>0</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>1353348</th>
+      <td>64</td>
+      <td>24000</td>
+      <td>RENT</td>
+      <td>1.0</td>
+      <td>MEDICAL</td>
+      <td>3000</td>
+      <td>6.99</td>
+      <td>0</td>
+      <td>BISMARCK</td>
+      <td>ND</td>
+      <td>...</td>
+      <td>469621263</td>
+      <td>5917</td>
+      <td>1780959</td>
+      <td>11835</td>
+      <td>27910</td>
+      <td>8</td>
+      <td>3</td>
+      <td>2</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1354200</th>
+      <td>55</td>
+      <td>34000</td>
+      <td>RENT</td>
+      <td>0.0</td>
+      <td>DEBTCONSOLIDATION</td>
+      <td>12000</td>
+      <td>6.92</td>
+      <td>1</td>
+      <td>SANTA BARBARA</td>
+      <td>CA</td>
+      <td>...</td>
+      <td>24537583</td>
+      <td>8091</td>
+      <td>364271</td>
+      <td>30248</td>
+      <td>22640</td>
+      <td>2</td>
+      <td>7</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1354271</th>
+      <td>51</td>
+      <td>74628</td>
+      <td>MORTGAGE</td>
+      <td>3.0</td>
+      <td>PERSONAL</td>
+      <td>3000</td>
+      <td>13.49</td>
+      <td>0</td>
+      <td>HUNTINGTON BEACH</td>
+      <td>CA</td>
+      <td>...</td>
+      <td>19749601</td>
+      <td>3679</td>
+      <td>1659968</td>
+      <td>37582</td>
+      <td>20284</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>674285</th>
+      <td>23</td>
+      <td>74000</td>
+      <td>RENT</td>
+      <td>3.0</td>
+      <td>MEDICAL</td>
+      <td>25000</td>
+      <td>10.36</td>
+      <td>1</td>
+      <td>MANSFIELD</td>
+      <td>MO</td>
+      <td>...</td>
+      <td>33180988</td>
+      <td>5176</td>
+      <td>1089963</td>
+      <td>44642</td>
+      <td>2877</td>
+      <td>1</td>
+      <td>6</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>668250</th>
+      <td>21</td>
+      <td>200000</td>
+      <td>MORTGAGE</td>
+      <td>2.0</td>
+      <td>DEBTCONSOLIDATION</td>
+      <td>25000</td>
+      <td>13.99</td>
+      <td>0</td>
+      <td>SALISBURY</td>
+      <td>MD</td>
+      <td>...</td>
+      <td>470634058</td>
+      <td>5297</td>
+      <td>1288915</td>
+      <td>22471</td>
+      <td>22630</td>
+      <td>0</td>
+      <td>5</td>
+      <td>2</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>668321</th>
+      <td>24</td>
+      <td>200000</td>
+      <td>MORTGAGE</td>
+      <td>3.0</td>
+      <td>VENTURE</td>
+      <td>24000</td>
+      <td>7.49</td>
+      <td>0</td>
+      <td>STRUNK</td>
+      <td>KY</td>
+      <td>...</td>
+      <td>10067358</td>
+      <td>6549</td>
+      <td>22399</td>
+      <td>11806</td>
+      <td>13005</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>670025</th>
+      <td>23</td>
+      <td>215000</td>
+      <td>MORTGAGE</td>
+      <td>7.0</td>
+      <td>MEDICAL</td>
+      <td>35000</td>
+      <td>14.79</td>
+      <td>0</td>
+      <td>HAWTHORN</td>
+      <td>PA</td>
+      <td>...</td>
+      <td>5956835</td>
+      <td>9079</td>
+      <td>876038</td>
+      <td>4556</td>
+      <td>21588</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2034006</th>
+      <td>22</td>
+      <td>59000</td>
+      <td>RENT</td>
+      <td>123.0</td>
+      <td>PERSONAL</td>
+      <td>35000</td>
+      <td>16.02</td>
+      <td>1</td>
+      <td>FORT WORTH</td>
+      <td>TX</td>
+      <td>...</td>
+      <td>142325465</td>
+      <td>8419</td>
+      <td>91803</td>
+      <td>22328</td>
+      <td>15078</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+<p>28638 rows × 23 columns</p>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Convert into Train and Validation datasets.</span>
+<span class="kn">import</span> <span class="nn">ray</span>
+
+<span class="n">loan_ds</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">from_pandas</span><span class="p">(</span><span class="n">loan_w_offline_feature</span><span class="p">)</span>
+<span class="n">train_ds</span><span class="p">,</span> <span class="n">validation_ds</span> <span class="o">=</span> <span class="n">loan_ds</span><span class="o">.</span><span class="n">split_proportionately</span><span class="p">([</span><span class="mf">0.8</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2022-09-12 19:25:14,018	INFO worker.py:1508 -- Started a local Ray instance. View the dashboard at <span class=" -Color -Color-Bold -Color-Bold-Green">127.0.0.1:8265 </span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="define-preprocessors">
+<h2>Define Preprocessors<a class="headerlink" href="feast_example.html#define-preprocessors" title="Permalink to this headline">#</a></h2>
+<p><a class="reference external" href="https://docs.ray.io/en/latest/ray-air/getting-started.html#preprocessors">Preprocessor</a> does last mile processing on Ray Data before feeding into training model.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">categorical_features</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;person_home_ownership&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;loan_intent&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;city&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;state&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;location_type&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="kn">from</span> <span class="nn">ray.data.preprocessors</span> <span class="kn">import</span> <span class="n">Chain</span><span class="p">,</span> <span class="n">OrdinalEncoder</span><span class="p">,</span> <span class="n">SimpleImputer</span>
+
+<span class="n">imputer</span> <span class="o">=</span> <span class="n">SimpleImputer</span><span class="p">(</span><span class="n">categorical_features</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="s2">&quot;most_frequent&quot;</span><span class="p">)</span>
+<span class="n">encoder</span> <span class="o">=</span> <span class="n">OrdinalEncoder</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">categorical_features</span><span class="p">)</span>
+<span class="n">chained_preprocessor</span> <span class="o">=</span> <span class="n">Chain</span><span class="p">(</span><span class="n">imputer</span><span class="p">,</span> <span class="n">encoder</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="train-xgboost-model-using-ray-air-trainer">
+<h2>Train XGBoost model using Ray AIR Trainer<a class="headerlink" href="feast_example.html#train-xgboost-model-using-ray-air-trainer" title="Permalink to this headline">#</a></h2>
+<p>Ray AIR provides a variety of <a class="reference external" href="https://docs.ray.io/en/latest/ray-air/getting-started.html#trainer">Trainers</a> that are integrated with popular machine learning frameworks. You can train a distributed model at scale leveraging Ray using the intuitive API <code class="docutils literal notranslate"><span class="pre">trainer.fit()</span></code>. The output is a Ray AIR <a class="reference external" href="https://docs.ray.io/en/latest/ray-air/getting-started.html#module-ray.ml.checkpoint">Checkpoint</a>, that will seamlessly transfer the workload from training to prediction. Let’s take a look!</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">LABEL</span> <span class="o">=</span> <span class="s2">&quot;loan_status&quot;</span>
+<span class="n">CHECKPOINT_PATH</span> <span class="o">=</span> <span class="s2">&quot;checkpoint&quot;</span>
+<span class="n">NUM_WORKERS</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># Change this based on the resources in the cluster.</span>
+
+
+<span class="kn">from</span> <span class="nn">ray.train.xgboost</span> <span class="kn">import</span> <span class="n">XGBoostTrainer</span>
+<span class="kn">from</span> <span class="nn">ray.air.config</span> <span class="kn">import</span> <span class="n">ScalingConfig</span>
+<span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;tree_method&quot;</span><span class="p">:</span> <span class="s2">&quot;approx&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;objective&quot;</span><span class="p">:</span> <span class="s2">&quot;binary:logistic&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;eval_metric&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;logloss&quot;</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">],</span>
+<span class="p">}</span>
+
+<span class="n">trainer</span> <span class="o">=</span> <span class="n">XGBoostTrainer</span><span class="p">(</span>
+    <span class="n">scaling_config</span><span class="o">=</span><span class="n">ScalingConfig</span><span class="p">(</span>
+        <span class="n">num_workers</span><span class="o">=</span><span class="n">NUM_WORKERS</span><span class="p">,</span>
+        <span class="n">use_gpu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">label_column</span><span class="o">=</span><span class="n">LABEL</span><span class="p">,</span>
+    <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span>
+    <span class="n">datasets</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;train&quot;</span><span class="p">:</span> <span class="n">train_ds</span><span class="p">,</span> <span class="s2">&quot;validation&quot;</span><span class="p">:</span> <span class="n">validation_ds</span><span class="p">},</span>
+    <span class="n">preprocessor</span><span class="o">=</span><span class="n">chained_preprocessor</span><span class="p">,</span>
+    <span class="n">num_boost_round</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">checkpoint</span> <span class="o">=</span> <span class="n">trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span><span class="o">.</span><span class="n">checkpoint</span>
+<span class="c1"># This saves the checkpoint onto disk</span>
+<span class="n">checkpoint</span><span class="o">.</span><span class="n">to_directory</span><span class="p">(</span><span class="n">CHECKPOINT_PATH</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div class="tuneStatus">
+  <div style="display: flex;flex-direction: row">
+    <div style="display: flex;flex-direction: column;">
+      <h3>Tune Status</h3>
+      <table>
+<tbody>
+<tr><td>Current time:</td><td>2022-09-12 19:25:28</td></tr>
+<tr><td>Running for: </td><td>00:00:09.09        </td></tr>
+<tr><td>Memory:      </td><td>12.3/62.7 GiB      </td></tr>
+</tbody>
+</table>
+    </div>
+    <div class="vDivider"></div>
+    <div class="systemInfo">
+      <h3>System Info</h3>
+      Using FIFO scheduling algorithm.<br>Resources requested: 0/24 CPUs, 0/0 GPUs, 0.0/32.5 GiB heap, 0.0/16.25 GiB objects
+    </div>
+
+  </div>
+  <div class="hDivider"></div>
+  <div class="trialStatus">
+    <h3>Trial Status</h3>
+    <table>
+<thead>
+<tr><th>Trial name                </th><th>status    </th><th>loc                 </th><th style="text-align: right;">  iter</th><th style="text-align: right;">  total time (s)</th><th style="text-align: right;">  train-logloss</th><th style="text-align: right;">  train-error</th><th style="text-align: right;">  validation-logloss</th></tr>
+</thead>
+<tbody>
+<tr><td>XGBoostTrainer_4f411_00000</td><td>TERMINATED</td><td>10.108.96.251:348845</td><td style="text-align: right;">   101</td><td style="text-align: right;">         7.67137</td><td style="text-align: right;">      0.0578837</td><td style="text-align: right;">    0.0127019</td><td style="text-align: right;">            0.225994</td></tr>
+</tbody>
+</table>
+  </div>
+</div>
+<style>
+.tuneStatus {
+  color: var(--jp-ui-font-color1);
+}
+.tuneStatus .systemInfo {
+  display: flex;
+  flex-direction: column;
+}
+.tuneStatus td {
+  white-space: nowrap;
+}
+.tuneStatus .trialStatus {
+  display: flex;
+  flex-direction: column;
+}
+.tuneStatus h3 {
+  font-weight: bold;
+}
+.tuneStatus .hDivider {
+  border-bottom-width: var(--jp-border-width);
+  border-bottom-color: var(--jp-border-color0);
+  border-bottom-style: solid;
+}
+.tuneStatus .vDivider {
+  border-left-width: var(--jp-border-width);
+  border-left-color: var(--jp-border-color0);
+  border-left-style: solid;
+  margin: 0.5em 1em 0.5em 1em;
+}
+</style>
+</div><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Faint -Color-Faint-Cyan">(XGBoostTrainer pid=348845)</span> /home/ray/.pyenv/versions/mambaforge/envs/ray/lib/python3.9/site-packages/xgboost_ray/main.py:431: UserWarning: `num_actors` in `ray_params` is smaller than 2 (1). XGBoost will NOT be distributed!
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(XGBoostTrainer pid=348845)</span>   warnings.warn(
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(_RemoteRayXGBoostActor pid=348922)</span> [19:25:23] task [xgboost.ray]:140319682474864 got new rank 0
+</pre></div>
+</div>
+<div class="output text_html"><div class="trialProgress">
+  <h3>Trial Progress</h3>
+  <table>
+<thead>
+<tr><th>Trial name                </th><th>date               </th><th>done  </th><th>episodes_total  </th><th>experiment_id                   </th><th style="text-align: right;">  experiment_tag</th><th>hostname  </th><th style="text-align: right;">  iterations_since_restore</th><th>node_ip      </th><th style="text-align: right;">   pid</th><th style="text-align: right;">  time_since_restore</th><th style="text-align: right;">  time_this_iter_s</th><th style="text-align: right;">  time_total_s</th><th style="text-align: right;">  timestamp</th><th style="text-align: right;">  timesteps_since_restore</th><th>timesteps_total  </th><th style="text-align: right;">  train-error</th><th style="text-align: right;">  train-logloss</th><th style="text-align: right;">  training_iteration</th><th>trial_id   </th><th style="text-align: right;">  validation-error</th><th style="text-align: right;">  validation-logloss</th><th style="text-align: right;">  warmup_time</th></tr>
+</thead>
+<tbody>
+<tr><td>XGBoostTrainer_4f411_00000</td><td>2022-09-12_19-25-28</td><td>True  </td><td>                </td><td>83cacc5068a84efc8998c269bc054088</td><td style="text-align: right;">               0</td><td>corvus    </td><td style="text-align: right;">                       101</td><td>10.108.96.251</td><td style="text-align: right;">348845</td><td style="text-align: right;">             7.67137</td><td style="text-align: right;">           1.01445</td><td style="text-align: right;">       7.67137</td><td style="text-align: right;"> 1663035928</td><td style="text-align: right;">                        0</td><td>                 </td><td style="text-align: right;">    0.0127019</td><td style="text-align: right;">      0.0578837</td><td style="text-align: right;">                 101</td><td>4f411_00000</td><td style="text-align: right;">         0.0825768</td><td style="text-align: right;">            0.225994</td><td style="text-align: right;">   0.00293422</td></tr>
+</tbody>
+</table>
+</div>
+<style>
+.trialProgress {
+  display: flex;
+  flex-direction: column;
+  color: var(--jp-ui-font-color1);
+}
+.trialProgress h3 {
+  font-weight: bold;
+}
+.trialProgress td {
+  white-space: nowrap;
+}
+</style>
+</div><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2022-09-12 19:25:28,422	INFO tune.py:762 -- Total run time: 9.86 seconds (9.09 seconds for the tuning loop).
+</pre></div>
+</div>
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&#39;checkpoint&#39;
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="inference">
+<h2>Inference<a class="headerlink" href="feast_example.html#inference" title="Permalink to this headline">#</a></h2>
+<p>Now from the Checkpoint object we obtained from last session, we can construct a Ray AIR <a class="reference external" href="https://docs.ray.io/en/latest/ray-air/getting-started.html#predictors">Predictor</a> that encapsulates everything needed for inference.</p>
+<p>The API for using Predictor is also very intuitive - simply call <code class="docutils literal notranslate"><span class="pre">Predictor.predict()</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ray.air.checkpoint</span> <span class="kn">import</span> <span class="n">Checkpoint</span>
+<span class="kn">from</span> <span class="nn">ray.train.xgboost</span> <span class="kn">import</span> <span class="n">XGBoostPredictor</span>
+<span class="n">predictor</span> <span class="o">=</span> <span class="n">XGBoostPredictor</span><span class="o">.</span><span class="n">from_checkpoint</span><span class="p">(</span><span class="n">Checkpoint</span><span class="o">.</span><span class="n">from_directory</span><span class="p">(</span><span class="n">CHECKPOINT_PATH</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="c1">## Now let&#39;s do some prediciton.</span>
+<span class="n">loan_request_dict</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;zipcode&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">76104</span><span class="p">],</span>
+    <span class="s2">&quot;dob_ssn&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;19630621_4278&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;person_age&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">133</span><span class="p">],</span>
+    <span class="s2">&quot;person_income&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">59000</span><span class="p">],</span>
+    <span class="s2">&quot;person_home_ownership&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;RENT&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;person_emp_length&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">123.0</span><span class="p">],</span>
+    <span class="s2">&quot;loan_intent&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;PERSONAL&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;loan_amnt&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">35000</span><span class="p">],</span>
+    <span class="s2">&quot;loan_int_rate&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">16.02</span><span class="p">],</span>
+<span class="p">}</span>
+
+<span class="c1"># Now augment the request with online features.</span>
+<span class="n">zipcode</span> <span class="o">=</span> <span class="n">loan_request_dict</span><span class="p">[</span><span class="s2">&quot;zipcode&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">dob_ssn</span> <span class="o">=</span> <span class="n">loan_request_dict</span><span class="p">[</span><span class="s2">&quot;dob_ssn&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">online_features</span> <span class="o">=</span>  <span class="n">fs</span><span class="o">.</span><span class="n">get_online_features</span><span class="p">(</span>
+    <span class="n">entity_rows</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;zipcode&quot;</span><span class="p">:</span> <span class="n">zipcode</span><span class="p">,</span> <span class="s2">&quot;dob_ssn&quot;</span><span class="p">:</span> <span class="n">dob_ssn</span><span class="p">}],</span>
+    <span class="n">features</span><span class="o">=</span><span class="n">feast_features</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+<span class="n">loan_request_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">online_features</span><span class="p">)</span>
+<span class="n">loan_request_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">loan_request_dict</span><span class="p">)</span>
+<span class="n">loan_request_df</span> <span class="o">=</span> <span class="n">loan_request_df</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s2">&quot;zipcode&quot;</span><span class="p">,</span> <span class="s2">&quot;dob_ssn&quot;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">loan_request_df</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>person_age</th>
+      <th>person_income</th>
+      <th>person_home_ownership</th>
+      <th>person_emp_length</th>
+      <th>loan_intent</th>
+      <th>loan_amnt</th>
+      <th>loan_int_rate</th>
+      <th>location_type</th>
+      <th>city</th>
+      <th>population</th>
+      <th>...</th>
+      <th>total_wages</th>
+      <th>hard_pulls</th>
+      <th>bankruptcies</th>
+      <th>missed_payments_1y</th>
+      <th>mortgage_due</th>
+      <th>credit_card_due</th>
+      <th>missed_payments_2y</th>
+      <th>missed_payments_6m</th>
+      <th>student_loan_due</th>
+      <th>vehicle_loan_due</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>133</td>
+      <td>59000</td>
+      <td>RENT</td>
+      <td>123.0</td>
+      <td>PERSONAL</td>
+      <td>35000</td>
+      <td>16.02</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>...</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+      <td>None</td>
+    </tr>
+  </tbody>
+</table>
+<p>1 rows × 22 columns</p>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run through our predictor using `Predictor.predict()` API.</span>
+<span class="n">loan_result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">loan_request_df</span><span class="p">)[</span><span class="s2">&quot;predictions&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+
+<span class="k">if</span> <span class="n">loan_result</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Loan approved!&quot;</span><span class="p">)</span>
+<span class="k">elif</span> <span class="n">loan_result</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Loan rejected!&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Loan rejected!
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="upload_to_wandb.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Logging results and uploading models to Weights &amp; Biases</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="automl_with_ray_air.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">AutoML for time series forecasting with Ray AIR</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

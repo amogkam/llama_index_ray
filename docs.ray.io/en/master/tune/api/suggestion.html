@@ -1,0 +1,1395 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Tune Search Algorithms (tune.search) &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/js/versionwarning.js"></script>
+    <script src="../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../_static/js/docsearch.js"></script>
+    <script src="../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../_static/js/top-navigation.js"></script>
+    <script src="../../_static/js/tags.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/tune/api/suggestion.html" />
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="ray.tune.search.basic_variant.BasicVariantGenerator" href="doc/ray.tune.search.basic_variant.BasicVariantGenerator.html" />
+    <link rel="prev" title="ray.tune.sample_from" href="doc/ray.tune.sample_from.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "tune/api/suggestion", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".rst", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../../tune.html">
+   Ray Tune
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../getting-started.html">
+     Getting Started
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../tutorials/overview.html">
+     User Guides
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../examples/index.html">
+     Ray Tune Examples
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../faq.html">
+     Ray Tune FAQ
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="api.html">
+     Ray Tune API
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="execution.html">
+       Tune Execution (tune.Tuner)
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="result_grid.html">
+       Tune Experiment Results (tune.ResultGrid)
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="trainable.html">
+       Training in Tune (tune.Trainable, session.report)
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="search_space.html">
+       Tune Search Space API
+      </a>
+     </li>
+     <li class="toctree-l3 current active has-children">
+      <a class="current reference internal" href="suggestion.html#">
+       Tune Search Algorithms (tune.search)
+      </a>
+      <input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+      <label for="toctree-checkbox-3">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.tune.search.basic_variant.BasicVariantGenerator.html">
+         ray.tune.search.basic_variant.BasicVariantGenerator
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.tune.search.ax.AxSearch.html">
+         ray.tune.search.ax.AxSearch
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.tune.search.bayesopt.BayesOptSearch.html">
+         ray.tune.search.bayesopt.BayesOptSearch
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.tune.search.bohb.TuneBOHB.html">
+         ray.tune.search.bohb.TuneBOHB
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.tune.search.flaml.BlendSearch.html">
+         ray.tune.search.flaml.BlendSearch
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.tune.search.flaml.CFO.html">
+         ray.tune.search.flaml.CFO
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.tune.search.dragonfly.DragonflySearch.html">
+         ray.tune.search.dragonfly.DragonflySearch
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.tune.search.hebo.HEBOSearch.html">
+         ray.tune.search.hebo.HEBOSearch
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.tune.search.hyperopt.HyperOptSearch.html">
+         ray.tune.search.hyperopt.HyperOptSearch
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.tune.search.nevergrad.NevergradSearch.html">
+         ray.tune.search.nevergrad.NevergradSearch
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.tune.search.optuna.OptunaSearch.html">
+         ray.tune.search.optuna.OptunaSearch
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.tune.search.sigopt.SigOptSearch.html">
+         ray.tune.search.sigopt.SigOptSearch
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.tune.search.skopt.SkOptSearch.html">
+         ray.tune.search.skopt.SkOptSearch
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.tune.search.zoopt.ZOOptSearch.html">
+         ray.tune.search.zoopt.ZOOptSearch
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.tune.search.Repeater.html">
+         ray.tune.search.Repeater
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.tune.search.ConcurrencyLimiter.html">
+         ray.tune.search.ConcurrencyLimiter
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.tune.search.Searcher.html">
+         ray.tune.search.Searcher
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.tune.search.Searcher.suggest.html">
+         ray.tune.search.Searcher.suggest
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.tune.search.Searcher.save.html">
+         ray.tune.search.Searcher.save
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.tune.search.Searcher.restore.html">
+         ray.tune.search.Searcher.restore
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.tune.search.Searcher.on_trial_result.html">
+         ray.tune.search.Searcher.on_trial_result
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.tune.search.Searcher.on_trial_complete.html">
+         ray.tune.search.Searcher.on_trial_complete
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.tune.search.create_searcher.html">
+         ray.tune.search.create_searcher
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="schedulers.html">
+       Tune Trial Schedulers (tune.schedulers)
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="stoppers.html">
+       Tune Stopping Mechanisms (tune.stopper)
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="reporters.html">
+       Tune Console Output (Reporters)
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="syncing.html">
+       Syncing in Tune (tune.SyncConfig, tune.Syncer)
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="logging.html">
+       Tune Loggers (tune.logger)
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="callbacks.html">
+       Tune Callbacks (tune.Callback)
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="env.html">
+       Environment variables used by Ray Tune
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="sklearn.html">
+       Tune Scikit-Learn API  (tune.sklearn)
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="integration.html">
+       External library integrations for Ray Tune
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="internals.html">
+       Tune Internals
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="client.html">
+       Tune Client API
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="cli.html">
+       Tune CLI (Experimental)
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Ftune/api/suggestion.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/tune/api/suggestion.rst"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../_sources/tune/api/suggestion.rst.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.rst</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="suggestion.html#saving-and-restoring-tune-search-algorithms">
+   Saving and Restoring Tune Search Algorithms
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="suggestion.html#random-search-and-grid-search-tune-search-basic-variant-basicvariantgenerator">
+   Random search and grid search (tune.search.basic_variant.BasicVariantGenerator)
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="suggestion.html#ax-tune-search-ax-axsearch">
+   Ax (tune.search.ax.AxSearch)
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="suggestion.html#bayesian-optimization-tune-search-bayesopt-bayesoptsearch">
+   Bayesian Optimization (tune.search.bayesopt.BayesOptSearch)
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="suggestion.html#bohb-tune-search-bohb-tunebohb">
+   BOHB (tune.search.bohb.TuneBOHB)
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="suggestion.html#blendsearch-tune-search-flaml-blendsearch">
+   BlendSearch (tune.search.flaml.BlendSearch)
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="suggestion.html#cfo-tune-search-flaml-cfo">
+   CFO (tune.search.flaml.CFO)
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="suggestion.html#dragonfly-tune-search-dragonfly-dragonflysearch">
+   Dragonfly (tune.search.dragonfly.DragonflySearch)
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="suggestion.html#hebo-tune-search-hebo-hebosearch">
+   HEBO (tune.search.hebo.HEBOSearch)
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="suggestion.html#hyperopt-tune-search-hyperopt-hyperoptsearch">
+   HyperOpt (tune.search.hyperopt.HyperOptSearch)
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="suggestion.html#nevergrad-tune-search-nevergrad-nevergradsearch">
+   Nevergrad (tune.search.nevergrad.NevergradSearch)
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="suggestion.html#optuna-tune-search-optuna-optunasearch">
+   Optuna (tune.search.optuna.OptunaSearch)
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="suggestion.html#sigopt-tune-search-sigopt-sigoptsearch">
+   SigOpt (tune.search.sigopt.SigOptSearch)
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="suggestion.html#scikit-optimize-tune-search-skopt-skoptsearch">
+   Scikit-Optimize (tune.search.skopt.SkOptSearch)
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="suggestion.html#zoopt-tune-search-zoopt-zooptsearch">
+   ZOOpt (tune.search.zoopt.ZOOptSearch)
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="suggestion.html#repeated-evaluations-tune-search-repeater">
+   Repeated Evaluations (tune.search.Repeater)
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="suggestion.html#concurrencylimiter-tune-search-concurrencylimiter">
+   ConcurrencyLimiter (tune.search.ConcurrencyLimiter)
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="suggestion.html#custom-search-algorithms-tune-search-searcher">
+   Custom Search Algorithms (tune.search.Searcher)
+  </a>
+  <ul class="nav section-nav flex-column">
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="suggestion.html#shim-instantiation-tune-create-searcher">
+   Shim Instantiation (tune.create_searcher)
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Tune Search Algorithms (tune.search)</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="suggestion.html#saving-and-restoring-tune-search-algorithms">
+   Saving and Restoring Tune Search Algorithms
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="suggestion.html#random-search-and-grid-search-tune-search-basic-variant-basicvariantgenerator">
+   Random search and grid search (tune.search.basic_variant.BasicVariantGenerator)
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="suggestion.html#ax-tune-search-ax-axsearch">
+   Ax (tune.search.ax.AxSearch)
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="suggestion.html#bayesian-optimization-tune-search-bayesopt-bayesoptsearch">
+   Bayesian Optimization (tune.search.bayesopt.BayesOptSearch)
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="suggestion.html#bohb-tune-search-bohb-tunebohb">
+   BOHB (tune.search.bohb.TuneBOHB)
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="suggestion.html#blendsearch-tune-search-flaml-blendsearch">
+   BlendSearch (tune.search.flaml.BlendSearch)
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="suggestion.html#cfo-tune-search-flaml-cfo">
+   CFO (tune.search.flaml.CFO)
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="suggestion.html#dragonfly-tune-search-dragonfly-dragonflysearch">
+   Dragonfly (tune.search.dragonfly.DragonflySearch)
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="suggestion.html#hebo-tune-search-hebo-hebosearch">
+   HEBO (tune.search.hebo.HEBOSearch)
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="suggestion.html#hyperopt-tune-search-hyperopt-hyperoptsearch">
+   HyperOpt (tune.search.hyperopt.HyperOptSearch)
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="suggestion.html#nevergrad-tune-search-nevergrad-nevergradsearch">
+   Nevergrad (tune.search.nevergrad.NevergradSearch)
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="suggestion.html#optuna-tune-search-optuna-optunasearch">
+   Optuna (tune.search.optuna.OptunaSearch)
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="suggestion.html#sigopt-tune-search-sigopt-sigoptsearch">
+   SigOpt (tune.search.sigopt.SigOptSearch)
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="suggestion.html#scikit-optimize-tune-search-skopt-skoptsearch">
+   Scikit-Optimize (tune.search.skopt.SkOptSearch)
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="suggestion.html#zoopt-tune-search-zoopt-zooptsearch">
+   ZOOpt (tune.search.zoopt.ZOOptSearch)
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="suggestion.html#repeated-evaluations-tune-search-repeater">
+   Repeated Evaluations (tune.search.Repeater)
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="suggestion.html#concurrencylimiter-tune-search-concurrencylimiter">
+   ConcurrencyLimiter (tune.search.ConcurrencyLimiter)
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="suggestion.html#custom-search-algorithms-tune-search-searcher">
+   Custom Search Algorithms (tune.search.Searcher)
+  </a>
+  <ul class="nav section-nav flex-column">
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="suggestion.html#shim-instantiation-tune-create-searcher">
+   Shim Instantiation (tune.create_searcher)
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section id="tune-search-algorithms-tune-search">
+<span id="tune-search-alg"></span><h1>Tune Search Algorithms (tune.search)<a class="headerlink" href="suggestion.html#tune-search-algorithms-tune-search" title="Permalink to this headline">#</a></h1>
+<p>Tune’s Search Algorithms are wrappers around open-source optimization libraries for efficient hyperparameter selection.
+Each library has a specific way of defining the search space - please refer to their documentation for more details.
+Tune will automatically convert search spaces passed to <code class="docutils literal notranslate"><span class="pre">Tuner</span></code> to the library format in most cases.</p>
+<p>You can utilize these search algorithms as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ray</span> <span class="kn">import</span> <span class="n">tune</span>
+<span class="kn">from</span> <span class="nn">ray.air</span> <span class="kn">import</span> <span class="n">session</span>
+<span class="kn">from</span> <span class="nn">ray.tune.search.optuna</span> <span class="kn">import</span> <span class="n">OptunaSearch</span>
+
+<span class="k">def</span> <span class="nf">train_fn</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="c1"># This objective function is just for demonstration purposes</span>
+    <span class="n">session</span><span class="o">.</span><span class="n">report</span><span class="p">({</span><span class="s2">&quot;loss&quot;</span><span class="p">:</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;param&quot;</span><span class="p">]})</span>
+
+<span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
+    <span class="n">train_fn</span><span class="p">,</span>
+    <span class="n">tune_config</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">TuneConfig</span><span class="p">(</span>
+        <span class="n">search_alg</span><span class="o">=</span><span class="n">OptunaSearch</span><span class="p">(),</span>
+        <span class="n">num_samples</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+        <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;loss&quot;</span><span class="p">,</span>
+        <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;min&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">param_space</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;param&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)},</span>
+<span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+<section id="saving-and-restoring-tune-search-algorithms">
+<h2>Saving and Restoring Tune Search Algorithms<a class="headerlink" href="suggestion.html#saving-and-restoring-tune-search-algorithms" title="Permalink to this headline">#</a></h2>
+<p>Certain search algorithms have <code class="docutils literal notranslate"><span class="pre">save/restore</span></code> implemented,
+allowing reuse of searchers that are fitted on the results of multiple tuning runs.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">search_alg</span> <span class="o">=</span> <span class="n">HyperOptSearch</span><span class="p">()</span>
+
+<span class="n">tuner_1</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
+    <span class="n">train_fn</span><span class="p">,</span>
+    <span class="n">tune_config</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">TuneConfig</span><span class="p">(</span><span class="n">search_alg</span><span class="o">=</span><span class="n">search_alg</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">results_1</span> <span class="o">=</span> <span class="n">tuner_1</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+
+<span class="n">search_alg</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;./my-checkpoint.pkl&quot;</span><span class="p">)</span>
+
+<span class="c1"># Restore the saved state onto another search algorithm,</span>
+<span class="c1"># in a new tuning script</span>
+
+<span class="n">search_alg2</span> <span class="o">=</span> <span class="n">HyperOptSearch</span><span class="p">()</span>
+<span class="n">search_alg2</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="s2">&quot;./my-checkpoint.pkl&quot;</span><span class="p">)</span>
+
+<span class="n">tuner_2</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
+    <span class="n">train_fn</span><span class="p">,</span>
+    <span class="n">tune_config</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">TuneConfig</span><span class="p">(</span><span class="n">search_alg</span><span class="o">=</span><span class="n">search_alg2</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">results_2</span> <span class="o">=</span> <span class="n">tuner_2</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Tune automatically saves searcher state inside the current experiment folder during tuning.
+See <code class="docutils literal notranslate"><span class="pre">Result</span> <span class="pre">logdir:</span> <span class="pre">...</span></code> in the output logs for this location.</p>
+<p>Note that if you have two Tune runs with the same experiment folder,
+the previous state checkpoint will be overwritten. You can
+avoid this by making sure <code class="docutils literal notranslate"><span class="pre">air.RunConfig(name=...)</span></code> is set to a unique
+identifier:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">search_alg</span> <span class="o">=</span> <span class="n">HyperOptSearch</span><span class="p">()</span>
+<span class="n">tuner_1</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
+    <span class="n">train_fn</span><span class="p">,</span>
+    <span class="n">tune_config</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">TuneConfig</span><span class="p">(</span>
+        <span class="n">num_samples</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="n">search_alg</span><span class="o">=</span><span class="n">search_alg</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">run_config</span><span class="o">=</span><span class="n">air</span><span class="o">.</span><span class="n">RunConfig</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;my-experiment-1&quot;</span><span class="p">,</span>
+        <span class="n">storage_path</span><span class="o">=</span><span class="s2">&quot;~/my_results&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">tuner_1</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+
+<span class="n">search_alg2</span> <span class="o">=</span> <span class="n">HyperOptSearch</span><span class="p">()</span>
+<span class="n">search_alg2</span><span class="o">.</span><span class="n">restore_from_dir</span><span class="p">(</span>
+  <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;~/my_results&quot;</span><span class="p">,</span> <span class="s2">&quot;my-experiment-1&quot;</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="random-search-and-grid-search-tune-search-basic-variant-basicvariantgenerator">
+<span id="tune-basicvariant"></span><h2>Random search and grid search (tune.search.basic_variant.BasicVariantGenerator)<a class="headerlink" href="suggestion.html#random-search-and-grid-search-tune-search-basic-variant-basicvariantgenerator" title="Permalink to this headline">#</a></h2>
+<p>The default and most basic way to do hyperparameter search is via random and grid search.
+Ray Tune does this through the <a class="reference internal" href="doc/ray.tune.search.basic_variant.BasicVariantGenerator.html#ray.tune.search.basic_variant.BasicVariantGenerator" title="ray.tune.search.basic_variant.BasicVariantGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">BasicVariantGenerator</span></code></a>
+class that generates trial variants given a search space definition.</p>
+<p>The <a class="reference internal" href="doc/ray.tune.search.basic_variant.BasicVariantGenerator.html#ray.tune.search.basic_variant.BasicVariantGenerator" title="ray.tune.search.basic_variant.BasicVariantGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">BasicVariantGenerator</span></code></a> is used per
+default if no search algorithm is passed to
+<a class="reference internal" href="doc/ray.tune.Tuner.html#ray.tune.Tuner" title="ray.tune.Tuner"><code class="xref py py-func docutils literal notranslate"><span class="pre">Tuner</span></code></a>.</p>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.tune.search.basic_variant.BasicVariantGenerator.html#ray.tune.search.basic_variant.BasicVariantGenerator" title="ray.tune.search.basic_variant.BasicVariantGenerator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">basic_variant.BasicVariantGenerator</span></code></a>([...])</p></td>
+<td><p>Uses Tune's variant generation for resolving variables.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="ax-tune-search-ax-axsearch">
+<span id="tune-ax"></span><h2>Ax (tune.search.ax.AxSearch)<a class="headerlink" href="suggestion.html#ax-tune-search-ax-axsearch" title="Permalink to this headline">#</a></h2>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.tune.search.ax.AxSearch.html#ray.tune.search.ax.AxSearch" title="ray.tune.search.ax.AxSearch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ax.AxSearch</span></code></a>(space, List[Dict]]] = None, ...)</p></td>
+<td><p>Uses <a class="reference external" href="https://ax.dev/">Ax</a> to optimize hyperparameters.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="bayesian-optimization-tune-search-bayesopt-bayesoptsearch">
+<span id="bayesopt"></span><h2>Bayesian Optimization (tune.search.bayesopt.BayesOptSearch)<a class="headerlink" href="suggestion.html#bayesian-optimization-tune-search-bayesopt-bayesoptsearch" title="Permalink to this headline">#</a></h2>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.tune.search.bayesopt.BayesOptSearch.html#ray.tune.search.bayesopt.BayesOptSearch" title="ray.tune.search.bayesopt.BayesOptSearch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bayesopt.BayesOptSearch</span></code></a>([space, metric, ...])</p></td>
+<td><p>Uses fmfn/BayesianOptimization to optimize hyperparameters.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="bohb-tune-search-bohb-tunebohb">
+<span id="suggest-tunebohb"></span><h2>BOHB (tune.search.bohb.TuneBOHB)<a class="headerlink" href="suggestion.html#bohb-tune-search-bohb-tunebohb" title="Permalink to this headline">#</a></h2>
+<p>BOHB (Bayesian Optimization HyperBand) is an algorithm that both terminates bad trials
+and also uses Bayesian Optimization to improve the hyperparameter search.
+It is available from the <a class="reference external" href="https://github.com/automl/HpBandSter">HpBandSter library</a>.</p>
+<p>Importantly, BOHB is intended to be paired with a specific scheduler class: <a class="reference internal" href="schedulers.html#tune-scheduler-bohb"><span class="std std-ref">HyperBandForBOHB</span></a>.</p>
+<p>In order to use this search algorithm, you will need to install <code class="docutils literal notranslate"><span class="pre">HpBandSter</span></code> and <code class="docutils literal notranslate"><span class="pre">ConfigSpace</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pip install hpbandster ConfigSpace
+</pre></div>
+</div>
+<p>See the <a class="reference external" href="https://arxiv.org/abs/1807.01774">BOHB paper</a> for more details.</p>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.tune.search.bohb.TuneBOHB.html#ray.tune.search.bohb.TuneBOHB" title="ray.tune.search.bohb.TuneBOHB"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bohb.TuneBOHB</span></code></a>([space, bohb_config, metric, ...])</p></td>
+<td><p>BOHB suggestion component.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="blendsearch-tune-search-flaml-blendsearch">
+<span id="blendsearch"></span><h2>BlendSearch (tune.search.flaml.BlendSearch)<a class="headerlink" href="suggestion.html#blendsearch-tune-search-flaml-blendsearch" title="Permalink to this headline">#</a></h2>
+<p>BlendSearch is an economical hyperparameter optimization algorithm that combines combines local search with global search.
+It is backed by the <a class="reference external" href="https://github.com/microsoft/FLAML">FLAML library</a>.
+It allows the users to specify a low-cost initial point as input if such point exists.</p>
+<p>In order to use this search algorithm, you will need to install <code class="docutils literal notranslate"><span class="pre">flaml</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pip install <span class="s1">&#39;flaml[blendsearch]&#39;</span>
+</pre></div>
+</div>
+<p>See the <a class="reference external" href="https://openreview.net/pdf?id=VbLH04pRA3">BlendSearch paper</a> and documentation in FLAML <a class="reference external" href="https://github.com/microsoft/FLAML/tree/main/flaml/tune">BlendSearch documentation</a> for more details.</p>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.tune.search.flaml.BlendSearch.html#ray.tune.search.flaml.BlendSearch" title="ray.tune.search.flaml.BlendSearch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flaml.BlendSearch</span></code></a></p></td>
+<td><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">ray.tune.search.flaml.flaml_search._DummyErrorRaiser</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="cfo-tune-search-flaml-cfo">
+<span id="cfo"></span><h2>CFO (tune.search.flaml.CFO)<a class="headerlink" href="suggestion.html#cfo-tune-search-flaml-cfo" title="Permalink to this headline">#</a></h2>
+<p>CFO (Cost-Frugal hyperparameter Optimization) is a hyperparameter search algorithm based on randomized local search.
+It is backed by the <a class="reference external" href="https://github.com/microsoft/FLAML">FLAML library</a>.
+It allows the users to specify a low-cost initial point as input if such point exists.</p>
+<p>In order to use this search algorithm, you will need to install <code class="docutils literal notranslate"><span class="pre">flaml</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pip install flaml
+</pre></div>
+</div>
+<p>See the <a class="reference external" href="https://arxiv.org/pdf/2005.01571.pdf">CFO paper</a> and documentation in
+FLAML <a class="reference external" href="https://github.com/microsoft/FLAML/tree/main/flaml/tune">CFO documentation</a> for more details.</p>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.tune.search.flaml.CFO.html#ray.tune.search.flaml.CFO" title="ray.tune.search.flaml.CFO"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flaml.CFO</span></code></a></p></td>
+<td><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">ray.tune.search.flaml.flaml_search._DummyErrorRaiser</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="dragonfly-tune-search-dragonfly-dragonflysearch">
+<span id="dragonfly"></span><h2>Dragonfly (tune.search.dragonfly.DragonflySearch)<a class="headerlink" href="suggestion.html#dragonfly-tune-search-dragonfly-dragonflysearch" title="Permalink to this headline">#</a></h2>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.tune.search.dragonfly.DragonflySearch.html#ray.tune.search.dragonfly.DragonflySearch" title="ray.tune.search.dragonfly.DragonflySearch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dragonfly.DragonflySearch</span></code></a>([optimizer, ...])</p></td>
+<td><p>Uses Dragonfly to optimize hyperparameters.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="hebo-tune-search-hebo-hebosearch">
+<span id="tune-hebo"></span><h2>HEBO (tune.search.hebo.HEBOSearch)<a class="headerlink" href="suggestion.html#hebo-tune-search-hebo-hebosearch" title="Permalink to this headline">#</a></h2>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.tune.search.hebo.HEBOSearch.html#ray.tune.search.hebo.HEBOSearch" title="ray.tune.search.hebo.HEBOSearch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hebo.HEBOSearch</span></code></a>([space, metric, mode, ...])</p></td>
+<td><p>Uses HEBO (Heteroscedastic Evolutionary Bayesian Optimization) to optimize hyperparameters.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="hyperopt-tune-search-hyperopt-hyperoptsearch">
+<span id="tune-hyperopt"></span><h2>HyperOpt (tune.search.hyperopt.HyperOptSearch)<a class="headerlink" href="suggestion.html#hyperopt-tune-search-hyperopt-hyperoptsearch" title="Permalink to this headline">#</a></h2>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.tune.search.hyperopt.HyperOptSearch.html#ray.tune.search.hyperopt.HyperOptSearch" title="ray.tune.search.hyperopt.HyperOptSearch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hyperopt.HyperOptSearch</span></code></a>([space, metric, ...])</p></td>
+<td><p>A wrapper around HyperOpt to provide trial suggestions.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="nevergrad-tune-search-nevergrad-nevergradsearch">
+<span id="nevergrad"></span><h2>Nevergrad (tune.search.nevergrad.NevergradSearch)<a class="headerlink" href="suggestion.html#nevergrad-tune-search-nevergrad-nevergradsearch" title="Permalink to this headline">#</a></h2>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.tune.search.nevergrad.NevergradSearch.html#ray.tune.search.nevergrad.NevergradSearch" title="ray.tune.search.nevergrad.NevergradSearch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nevergrad.NevergradSearch</span></code></a>([optimizer, ...])</p></td>
+<td><p>Uses Nevergrad to optimize hyperparameters.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="optuna-tune-search-optuna-optunasearch">
+<span id="tune-optuna"></span><h2>Optuna (tune.search.optuna.OptunaSearch)<a class="headerlink" href="suggestion.html#optuna-tune-search-optuna-optunasearch" title="Permalink to this headline">#</a></h2>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.tune.search.optuna.OptunaSearch.html#ray.tune.search.optuna.OptunaSearch" title="ray.tune.search.optuna.OptunaSearch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">optuna.OptunaSearch</span></code></a>(space, ], List[Tuple], ...)</p></td>
+<td><p>A wrapper around Optuna to provide trial suggestions.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="sigopt-tune-search-sigopt-sigoptsearch">
+<span id="sigopt"></span><h2>SigOpt (tune.search.sigopt.SigOptSearch)<a class="headerlink" href="suggestion.html#sigopt-tune-search-sigopt-sigoptsearch" title="Permalink to this headline">#</a></h2>
+<p>You will need to use the <a class="reference external" href="https://docs.sigopt.com/ai-module-api-references/experiments">SigOpt experiment and space specification</a>
+to specify your search space.</p>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.tune.search.sigopt.SigOptSearch.html#ray.tune.search.sigopt.SigOptSearch" title="ray.tune.search.sigopt.SigOptSearch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sigopt.SigOptSearch</span></code></a>([space, name, ...])</p></td>
+<td><p>A wrapper around SigOpt to provide trial suggestions.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="scikit-optimize-tune-search-skopt-skoptsearch">
+<span id="skopt"></span><h2>Scikit-Optimize (tune.search.skopt.SkOptSearch)<a class="headerlink" href="suggestion.html#scikit-optimize-tune-search-skopt-skoptsearch" title="Permalink to this headline">#</a></h2>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.tune.search.skopt.SkOptSearch.html#ray.tune.search.skopt.SkOptSearch" title="ray.tune.search.skopt.SkOptSearch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">skopt.SkOptSearch</span></code></a>([optimizer, space, ...])</p></td>
+<td><p>Uses Scikit Optimize (skopt) to optimize hyperparameters.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="zoopt-tune-search-zoopt-zooptsearch">
+<span id="zoopt"></span><h2>ZOOpt (tune.search.zoopt.ZOOptSearch)<a class="headerlink" href="suggestion.html#zoopt-tune-search-zoopt-zooptsearch" title="Permalink to this headline">#</a></h2>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.tune.search.zoopt.ZOOptSearch.html#ray.tune.search.zoopt.ZOOptSearch" title="ray.tune.search.zoopt.ZOOptSearch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">zoopt.ZOOptSearch</span></code></a>([algo, budget, dim_dict, ...])</p></td>
+<td><p>A wrapper around ZOOpt to provide trial suggestions.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="repeated-evaluations-tune-search-repeater">
+<span id="repeater"></span><h2>Repeated Evaluations (tune.search.Repeater)<a class="headerlink" href="suggestion.html#repeated-evaluations-tune-search-repeater" title="Permalink to this headline">#</a></h2>
+<p>Use <code class="docutils literal notranslate"><span class="pre">ray.tune.search.Repeater</span></code> to average over multiple evaluations of the same
+hyperparameter configurations. This is useful in cases where the evaluated
+training procedure has high variance (i.e., in reinforcement learning).</p>
+<p>By default, <code class="docutils literal notranslate"><span class="pre">Repeater</span></code> will take in a <code class="docutils literal notranslate"><span class="pre">repeat</span></code> parameter and a <code class="docutils literal notranslate"><span class="pre">search_alg</span></code>.
+The <code class="docutils literal notranslate"><span class="pre">search_alg</span></code> will suggest new configurations to try, and the <code class="docutils literal notranslate"><span class="pre">Repeater</span></code>
+will run <code class="docutils literal notranslate"><span class="pre">repeat</span></code> trials of the configuration. It will then average the
+<code class="docutils literal notranslate"><span class="pre">search_alg.metric</span></code> from the final results of each repeated trial.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>It is recommended to not use <code class="docutils literal notranslate"><span class="pre">Repeater</span></code> with a TrialScheduler.
+Early termination can negatively affect the average reported metric.</p>
+</div>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.tune.search.Repeater.html#ray.tune.search.Repeater" title="ray.tune.search.Repeater"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Repeater</span></code></a>(searcher[, repeat, set_index])</p></td>
+<td><p>A wrapper algorithm for repeating trials of same parameters.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="concurrencylimiter-tune-search-concurrencylimiter">
+<span id="limiter"></span><h2>ConcurrencyLimiter (tune.search.ConcurrencyLimiter)<a class="headerlink" href="suggestion.html#concurrencylimiter-tune-search-concurrencylimiter" title="Permalink to this headline">#</a></h2>
+<p>Use <code class="docutils literal notranslate"><span class="pre">ray.tune.search.ConcurrencyLimiter</span></code> to limit the amount of concurrency when using a search algorithm.
+This is useful when a given optimization algorithm does not parallelize very well (like a naive Bayesian Optimization).</p>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.tune.search.ConcurrencyLimiter.html#ray.tune.search.ConcurrencyLimiter" title="ray.tune.search.ConcurrencyLimiter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ConcurrencyLimiter</span></code></a>(searcher, max_concurrent)</p></td>
+<td><p>A wrapper algorithm for limiting the number of concurrent trials.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="custom-search-algorithms-tune-search-searcher">
+<span id="byo-algo"></span><h2>Custom Search Algorithms (tune.search.Searcher)<a class="headerlink" href="suggestion.html#custom-search-algorithms-tune-search-searcher" title="Permalink to this headline">#</a></h2>
+<p>If you are interested in implementing or contributing a new Search Algorithm, provide the following interface:</p>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.tune.search.Searcher.html#ray.tune.search.Searcher" title="ray.tune.search.Searcher"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Searcher</span></code></a>([metric, mode])</p></td>
+<td><p>Abstract class for wrapping suggesting algorithms.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.tune.search.Searcher.suggest.html#ray.tune.search.Searcher.suggest" title="ray.tune.search.Searcher.suggest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Searcher.suggest</span></code></a>(trial_id)</p></td>
+<td><p>Queries the algorithm to retrieve the next set of parameters.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.tune.search.Searcher.save.html#ray.tune.search.Searcher.save" title="ray.tune.search.Searcher.save"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Searcher.save</span></code></a>(checkpoint_path)</p></td>
+<td><p>Save state to path for this search algorithm.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.tune.search.Searcher.restore.html#ray.tune.search.Searcher.restore" title="ray.tune.search.Searcher.restore"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Searcher.restore</span></code></a>(checkpoint_path)</p></td>
+<td><p>Restore state for this search algorithm</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.tune.search.Searcher.on_trial_result.html#ray.tune.search.Searcher.on_trial_result" title="ray.tune.search.Searcher.on_trial_result"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Searcher.on_trial_result</span></code></a>(trial_id, result)</p></td>
+<td><p>Optional notification for result during training.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.tune.search.Searcher.on_trial_complete.html#ray.tune.search.Searcher.on_trial_complete" title="ray.tune.search.Searcher.on_trial_complete"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Searcher.on_trial_complete</span></code></a>(trial_id[, ...])</p></td>
+<td><p>Notification for the completion of trial.</p></td>
+</tr>
+</tbody>
+</table>
+<p>If contributing, make sure to add test cases and an entry in the function described below.</p>
+</section>
+<section id="shim-instantiation-tune-create-searcher">
+<span id="shim"></span><h2>Shim Instantiation (tune.create_searcher)<a class="headerlink" href="suggestion.html#shim-instantiation-tune-create-searcher" title="Permalink to this headline">#</a></h2>
+<p>There is also a shim function that constructs the search algorithm based on the provided string.
+This can be useful if the search algorithm you want to use changes often
+(e.g., specifying the search algorithm via a CLI option or config file).</p>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.tune.search.create_searcher.html#ray.tune.search.create_searcher" title="ray.tune.search.create_searcher"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_searcher</span></code></a>(search_alg, **kwargs)</p></td>
+<td><p>Instantiate a search algorithm based on the given string.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="doc/ray.tune.sample_from.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">ray.tune.sample_from</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="doc/ray.tune.search.basic_variant.BasicVariantGenerator.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">ray.tune.search.basic_variant.BasicVariantGenerator</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

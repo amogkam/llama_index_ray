@@ -1,0 +1,1976 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Using Keras &amp; TensorFlow with Tune &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/js/versionwarning.js"></script>
+    <script src="../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../_static/js/docsearch.js"></script>
+    <script src="../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../_static/js/top-navigation.js"></script>
+    <script src="../../_static/js/tags.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/tune/examples/tune_mnist_keras.html" />
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="How to use Tune with PyTorch" href="tune-pytorch-cifar.html" />
+    <link rel="prev" title="Tune’s Scikit Learn Adapters" href="tune-sklearn.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "tune/examples/tune_mnist_keras", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".ipynb", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../../tune.html">
+   Ray Tune
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../getting-started.html">
+     Getting Started
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../tutorials/overview.html">
+     User Guides
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="index.html">
+     Ray Tune Examples
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3 current active has-children">
+      <a class="reference internal" href="ml-frameworks.html">
+       Examples using Ray Tune with ML Frameworks
+      </a>
+      <input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+      <label for="toctree-checkbox-3">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul class="current">
+       <li class="toctree-l4">
+        <a class="reference internal" href="tune-sklearn.html">
+         Scikit-Learn Example
+        </a>
+       </li>
+       <li class="toctree-l4 current active">
+        <a class="current reference internal" href="tune_mnist_keras.html#">
+         Keras Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="tune-pytorch-cifar.html">
+         PyTorch Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="tune-pytorch-lightning.html">
+         PyTorch Lightning Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="mxnet_example.html">
+         MXNet Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="tune-serve-integration-mnist.html">
+         Ray Serve Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="pbt_ppo_example.html">
+         Ray RLlib Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="tune-xgboost.html">
+         XGBoost Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="lightgbm_example.html">
+         LightGBM Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="horovod_simple.html">
+         Horovod Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="pbt_transformers.html">
+         Hugging Face Transformers Example
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="experiment-tracking.html">
+       Tune Experiment Tracking Examples
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="hpo-frameworks.html">
+       Tune Hyperparameter Optimization Framework Examples
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="other-examples.html">
+       Other Examples
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="exercises.html">
+       Exercises
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../faq.html">
+     Ray Tune FAQ
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/api.html">
+     Ray Tune API
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Ftune/examples/tune_mnist_keras.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/tune/examples/tune_mnist_keras.ipynb"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../_sources/tune/examples/tune_mnist_keras.ipynb.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.ipynb</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune_mnist_keras.html#example">
+   Example
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune_mnist_keras.html#more-keras-and-tensorflow-examples">
+   More Keras and TensorFlow Examples
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Using Keras & TensorFlow with Tune</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune_mnist_keras.html#example">
+   Example
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune_mnist_keras.html#more-keras-and-tensorflow-examples">
+   More Keras and TensorFlow Examples
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section class="tex2jax_ignore mathjax_ignore" id="using-keras-tensorflow-with-tune">
+<span id="tune-mnist-keras"></span><h1>Using Keras &amp; TensorFlow with Tune<a class="headerlink" href="tune_mnist_keras.html#using-keras-tensorflow-with-tune" title="Permalink to this headline">#</a></h1>
+<a class="reference external image-reference" href="https://keras.io"><img alt="Keras &amp; TensorFlow Logo" class="align-center" src="../../_images/tf_keras_logo.jpeg" style="height: 120px;" /></a>
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="tune_mnist_keras.html#example" id="id1">Example</a></p></li>
+<li><p><a class="reference internal" href="tune_mnist_keras.html#more-keras-and-tensorflow-examples" id="id2">More Keras and TensorFlow Examples</a></p></li>
+</ul>
+</div>
+<section id="example">
+<h2>Example<a class="headerlink" href="tune_mnist_keras.html#example" title="Permalink to this headline">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">filelock</span> <span class="kn">import</span> <span class="n">FileLock</span>
+<span class="kn">from</span> <span class="nn">tensorflow.keras.datasets</span> <span class="kn">import</span> <span class="n">mnist</span>
+
+<span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">from</span> <span class="nn">ray</span> <span class="kn">import</span> <span class="n">air</span><span class="p">,</span> <span class="n">tune</span>
+<span class="kn">from</span> <span class="nn">ray.tune.schedulers</span> <span class="kn">import</span> <span class="n">AsyncHyperBandScheduler</span>
+<span class="kn">from</span> <span class="nn">ray.tune.integration.keras</span> <span class="kn">import</span> <span class="n">TuneReportCallback</span>
+
+
+<span class="k">def</span> <span class="nf">train_mnist</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="c1"># https://github.com/tensorflow/tensorflow/issues/32159</span>
+    <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+
+    <span class="n">batch_size</span> <span class="o">=</span> <span class="mi">128</span>
+    <span class="n">num_classes</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">epochs</span> <span class="o">=</span> <span class="mi">12</span>
+
+    <span class="k">with</span> <span class="n">FileLock</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~/.data.lock&quot;</span><span class="p">)):</span>
+        <span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">),</span> <span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span> <span class="o">=</span> <span class="n">mnist</span><span class="o">.</span><span class="n">load_data</span><span class="p">()</span>
+    <span class="n">x_train</span><span class="p">,</span> <span class="n">x_test</span> <span class="o">=</span> <span class="n">x_train</span> <span class="o">/</span> <span class="mf">255.0</span><span class="p">,</span> <span class="n">x_test</span> <span class="o">/</span> <span class="mf">255.0</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Flatten</span><span class="p">(</span><span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">28</span><span class="p">,</span> <span class="mi">28</span><span class="p">)),</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;hidden&quot;</span><span class="p">],</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">),</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="mf">0.2</span><span class="p">),</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">num_classes</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;softmax&quot;</span><span class="p">),</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+        <span class="n">loss</span><span class="o">=</span><span class="s2">&quot;sparse_categorical_crossentropy&quot;</span><span class="p">,</span>
+        <span class="n">optimizer</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="n">lr</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;lr&quot;</span><span class="p">],</span> <span class="n">momentum</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;momentum&quot;</span><span class="p">]),</span>
+        <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;accuracy&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+        <span class="n">x_train</span><span class="p">,</span>
+        <span class="n">y_train</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+        <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">validation_data</span><span class="o">=</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">),</span>
+        <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span><span class="n">TuneReportCallback</span><span class="p">({</span><span class="s2">&quot;mean_accuracy&quot;</span><span class="p">:</span> <span class="s2">&quot;accuracy&quot;</span><span class="p">})],</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">tune_mnist</span><span class="p">(</span><span class="n">num_training_iterations</span><span class="p">):</span>
+    <span class="n">sched</span> <span class="o">=</span> <span class="n">AsyncHyperBandScheduler</span><span class="p">(</span>
+        <span class="n">time_attr</span><span class="o">=</span><span class="s2">&quot;training_iteration&quot;</span><span class="p">,</span> <span class="n">max_t</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">grace_period</span><span class="o">=</span><span class="mi">20</span>
+    <span class="p">)</span>
+
+    <span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
+        <span class="n">tune</span><span class="o">.</span><span class="n">with_resources</span><span class="p">(</span><span class="n">train_mnist</span><span class="p">,</span> <span class="n">resources</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;cpu&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;gpu&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}),</span>
+        <span class="n">tune_config</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">TuneConfig</span><span class="p">(</span>
+            <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;mean_accuracy&quot;</span><span class="p">,</span>
+            <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;max&quot;</span><span class="p">,</span>
+            <span class="n">scheduler</span><span class="o">=</span><span class="n">sched</span><span class="p">,</span>
+            <span class="n">num_samples</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">run_config</span><span class="o">=</span><span class="n">air</span><span class="o">.</span><span class="n">RunConfig</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;exp&quot;</span><span class="p">,</span>
+            <span class="n">stop</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;mean_accuracy&quot;</span><span class="p">:</span> <span class="mf">0.99</span><span class="p">,</span> <span class="s2">&quot;training_iteration&quot;</span><span class="p">:</span> <span class="n">num_training_iterations</span><span class="p">},</span>
+        <span class="p">),</span>
+        <span class="n">param_space</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;threads&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;lr&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">),</span>
+            <span class="s2">&quot;momentum&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">),</span>
+            <span class="s2">&quot;hidden&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mi">512</span><span class="p">),</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Best hyperparameters found were: &quot;</span><span class="p">,</span> <span class="n">results</span><span class="o">.</span><span class="n">get_best_result</span><span class="p">()</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--smoke-test&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Finish quickly for testing&quot;</span>
+    <span class="p">)</span>
+    <span class="n">args</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_known_args</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">smoke_test</span><span class="p">:</span>
+        <span class="n">ray</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">num_cpus</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+
+    <span class="n">tune_mnist</span><span class="p">(</span><span class="n">num_training_iterations</span><span class="o">=</span><span class="mi">5</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">smoke_test</span> <span class="k">else</span> <span class="mi">300</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2022-07-22 16:16:58,114	INFO services.py:1483 -- View the Ray dashboard at <span class=" -Color -Color-Bold -Color-Bold-Green">http://127.0.0.1:8269</span>
+2022-07-22 16:17:00,822	WARNING function_trainable.py:619 -- Function checkpointing is disabled. This may result in unexpected behavior when using checkpointing features or certain schedulers. To enable, set the train function arguments to be `func(config, checkpoint_dir=None)`.
+</pre></div>
+</div>
+<div class="output text_html">== Status ==<br>Current time: 2022-07-22 16:18:36 (running for 00:01:35.04)<br>Memory usage on this node: 9.0/16.0 GiB<br>Using AsyncHyperBand: num_stopped=0
+Bracket: Iter 320.000: None | Iter 80.000: None | Iter 20.000: None<br>Resources requested: 0/16 CPUs, 0/0 GPUs, 0.0/5.47 GiB heap, 0.0/2.0 GiB objects<br>Current best trial: 55a9b_00002 with mean_accuracy=0.9904166460037231 and parameters={'threads': 2, 'lr': 0.09518133271957563, 'momentum': 0.8254987643140009, 'hidden': 258}<br>Result logdir: /Users/kai/ray_results/exp<br>Number of trials: 10/10 (10 TERMINATED)<br><table>
+<thead>
+<tr><th>Trial name             </th><th>status    </th><th>loc            </th><th style="text-align: right;">  hidden</th><th style="text-align: right;">        lr</th><th style="text-align: right;">  momentum</th><th style="text-align: right;">     acc</th><th style="text-align: right;">  iter</th><th style="text-align: right;">  total time (s)</th></tr>
+</thead>
+<tbody>
+<tr><td>train_mnist_55a9b_00000</td><td>TERMINATED</td><td>127.0.0.1:51968</td><td style="text-align: right;">     276</td><td style="text-align: right;">0.0406397 </td><td style="text-align: right;">  0.817788</td><td style="text-align: right;">0.98455 </td><td style="text-align: right;">    12</td><td style="text-align: right;">         78.3252</td></tr>
+<tr><td>train_mnist_55a9b_00001</td><td>TERMINATED</td><td>127.0.0.1:51977</td><td style="text-align: right;">     380</td><td style="text-align: right;">0.0873557 </td><td style="text-align: right;">  0.524634</td><td style="text-align: right;">0.983717</td><td style="text-align: right;">    12</td><td style="text-align: right;">         74.9888</td></tr>
+<tr><td>train_mnist_55a9b_00002</td><td>TERMINATED</td><td>127.0.0.1:51984</td><td style="text-align: right;">     258</td><td style="text-align: right;">0.0951813 </td><td style="text-align: right;">  0.825499</td><td style="text-align: right;">0.990417</td><td style="text-align: right;">    11</td><td style="text-align: right;">         64.1272</td></tr>
+<tr><td>train_mnist_55a9b_00003</td><td>TERMINATED</td><td>127.0.0.1:51991</td><td style="text-align: right;">     255</td><td style="text-align: right;">0.0971683 </td><td style="text-align: right;">  0.23161 </td><td style="text-align: right;">0.977633</td><td style="text-align: right;">    12</td><td style="text-align: right;">         60.8475</td></tr>
+<tr><td>train_mnist_55a9b_00004</td><td>TERMINATED</td><td>127.0.0.1:52000</td><td style="text-align: right;">     303</td><td style="text-align: right;">0.00440117</td><td style="text-align: right;">  0.325439</td><td style="text-align: right;">0.90775 </td><td style="text-align: right;">    12</td><td style="text-align: right;">         55.5722</td></tr>
+<tr><td>train_mnist_55a9b_00005</td><td>TERMINATED</td><td>127.0.0.1:52007</td><td style="text-align: right;">      92</td><td style="text-align: right;">0.0651919 </td><td style="text-align: right;">  0.710183</td><td style="text-align: right;">0.974867</td><td style="text-align: right;">    12</td><td style="text-align: right;">         44.8092</td></tr>
+<tr><td>train_mnist_55a9b_00006</td><td>TERMINATED</td><td>127.0.0.1:52016</td><td style="text-align: right;">     211</td><td style="text-align: right;">0.0731116 </td><td style="text-align: right;">  0.127751</td><td style="text-align: right;">0.97025 </td><td style="text-align: right;">    12</td><td style="text-align: right;">         42.1217</td></tr>
+<tr><td>train_mnist_55a9b_00007</td><td>TERMINATED</td><td>127.0.0.1:52021</td><td style="text-align: right;">     181</td><td style="text-align: right;">0.0362389 </td><td style="text-align: right;">  0.790345</td><td style="text-align: right;">0.979967</td><td style="text-align: right;">    12</td><td style="text-align: right;">         41.7632</td></tr>
+<tr><td>train_mnist_55a9b_00008</td><td>TERMINATED</td><td>127.0.0.1:52007</td><td style="text-align: right;">     142</td><td style="text-align: right;">0.0323741 </td><td style="text-align: right;">  0.660418</td><td style="text-align: right;">0.969367</td><td style="text-align: right;">    12</td><td style="text-align: right;">         14.1527</td></tr>
+<tr><td>train_mnist_55a9b_00009</td><td>TERMINATED</td><td>127.0.0.1:51984</td><td style="text-align: right;">      97</td><td style="text-align: right;">0.0244971 </td><td style="text-align: right;">  0.175045</td><td style="text-align: right;">0.9407  </td><td style="text-align: right;">    12</td><td style="text-align: right;">         12.6405</td></tr>
+</tbody>
+</table><br><br></div><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2022-07-22 16:17:01,834	INFO plugin_schema_manager.py:52 -- Loading the default runtime env schemas: [&#39;/Users/kai/coding/ray/python/ray/_private/runtime_env/../../runtime_env/schemas/working_dir_schema.json&#39;, &#39;/Users/kai/coding/ray/python/ray/_private/runtime_env/../../runtime_env/schemas/pip_schema.json&#39;].
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=51968)</span> 2022-07-22 16:17:08.627419: I tensorflow/core/platform/cpu_feature_guard.cc:142] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 FMA
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=51968)</span> To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=51968)</span> /Users/kai/.pyenv/versions/3.7.7/lib/python3.7/site-packages/keras/optimizer_v2/optimizer_v2.py:356: UserWarning: The `lr` argument is deprecated, use `learning_rate` instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=51968)</span>   &quot;The `lr` argument is deprecated, use `learning_rate` instead.&quot;)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=51968)</span> 2022-07-22 16:17:08.947939: I tensorflow/compiler/mlir/mlir_graph_optimization_pass.cc:185] None of the MLIR Optimization Passes are enabled (registered 2)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=51977)</span> 2022-07-22 16:17:14.473677: I tensorflow/core/platform/cpu_feature_guard.cc:142] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 FMA
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=51977)</span> To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=51977)</span> /Users/kai/.pyenv/versions/3.7.7/lib/python3.7/site-packages/keras/optimizer_v2/optimizer_v2.py:356: UserWarning: The `lr` argument is deprecated, use `learning_rate` instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=51977)</span>   &quot;The `lr` argument is deprecated, use `learning_rate` instead.&quot;)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=51977)</span> 2022-07-22 16:17:14.635104: I tensorflow/compiler/mlir/mlir_graph_optimization_pass.cc:185] None of the MLIR Optimization Passes are enabled (registered 2)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=51984)</span> 2022-07-22 16:17:20.406624: I tensorflow/core/platform/cpu_feature_guard.cc:142] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 FMA
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=51984)</span> To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=51984)</span> /Users/kai/.pyenv/versions/3.7.7/lib/python3.7/site-packages/keras/optimizer_v2/optimizer_v2.py:356: UserWarning: The `lr` argument is deprecated, use `learning_rate` instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=51984)</span>   &quot;The `lr` argument is deprecated, use `learning_rate` instead.&quot;)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=51984)</span> 2022-07-22 16:17:20.681960: I tensorflow/compiler/mlir/mlir_graph_optimization_pass.cc:185] None of the MLIR Optimization Passes are enabled (registered 2)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=51991)</span> 2022-07-22 16:17:26.109460: I tensorflow/core/platform/cpu_feature_guard.cc:142] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 FMA
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=51991)</span> To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=51991)</span> /Users/kai/.pyenv/versions/3.7.7/lib/python3.7/site-packages/keras/optimizer_v2/optimizer_v2.py:356: UserWarning: The `lr` argument is deprecated, use `learning_rate` instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=51991)</span>   &quot;The `lr` argument is deprecated, use `learning_rate` instead.&quot;)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=51991)</span> 2022-07-22 16:17:26.303375: I tensorflow/compiler/mlir/mlir_graph_optimization_pass.cc:185] None of the MLIR Optimization Passes are enabled (registered 2)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=52000)</span> 2022-07-22 16:17:31.899252: I tensorflow/core/platform/cpu_feature_guard.cc:142] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 FMA
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=52000)</span> To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=52000)</span> /Users/kai/.pyenv/versions/3.7.7/lib/python3.7/site-packages/keras/optimizer_v2/optimizer_v2.py:356: UserWarning: The `lr` argument is deprecated, use `learning_rate` instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=52000)</span>   &quot;The `lr` argument is deprecated, use `learning_rate` instead.&quot;)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=52000)</span> 2022-07-22 16:17:32.300424: I tensorflow/compiler/mlir/mlir_graph_optimization_pass.cc:185] None of the MLIR Optimization Passes are enabled (registered 2)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=52007)</span> 2022-07-22 16:17:37.937471: I tensorflow/core/platform/cpu_feature_guard.cc:142] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 FMA
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=52007)</span> To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=52007)</span> /Users/kai/.pyenv/versions/3.7.7/lib/python3.7/site-packages/keras/optimizer_v2/optimizer_v2.py:356: UserWarning: The `lr` argument is deprecated, use `learning_rate` instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=52007)</span>   &quot;The `lr` argument is deprecated, use `learning_rate` instead.&quot;)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=52007)</span> 2022-07-22 16:17:38.263888: I tensorflow/compiler/mlir/mlir_graph_optimization_pass.cc:185] None of the MLIR Optimization Passes are enabled (registered 2)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=52016)</span> 2022-07-22 16:17:43.657379: I tensorflow/core/platform/cpu_feature_guard.cc:142] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 FMA
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=52016)</span> To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=52016)</span> /Users/kai/.pyenv/versions/3.7.7/lib/python3.7/site-packages/keras/optimizer_v2/optimizer_v2.py:356: UserWarning: The `lr` argument is deprecated, use `learning_rate` instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=52016)</span>   &quot;The `lr` argument is deprecated, use `learning_rate` instead.&quot;)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=52016)</span> 2022-07-22 16:17:43.828809: I tensorflow/compiler/mlir/mlir_graph_optimization_pass.cc:185] None of the MLIR Optimization Passes are enabled (registered 2)
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Result for train_mnist_55a9b_00000:
+  date: 2022-07-22_16-17-10
+  done: false
+  experiment_id: 3659349c38c746cfb71b4db5eb9302a0
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  mean_accuracy: 0.8903833627700806
+  node_ip: 127.0.0.1
+  pid: 51968
+  time_since_restore: 2.439258098602295
+  time_this_iter_s: 2.439258098602295
+  time_total_s: 2.439258098602295
+  timestamp: 1658503030
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: 55a9b_00000
+  warmup_time: 0.003445863723754883
+  
+Result for train_mnist_55a9b_00004:
+  date: 2022-07-22_16-17-33
+  done: false
+  experiment_id: 6eb62b7cb38f442a867a9094f0664701
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  mean_accuracy: 0.6376166939735413
+  node_ip: 127.0.0.1
+  pid: 52000
+  time_since_restore: 2.4364511966705322
+  time_this_iter_s: 2.4364511966705322
+  time_total_s: 2.4364511966705322
+  timestamp: 1658503053
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: 55a9b_00004
+  warmup_time: 0.0030939579010009766
+  
+Result for train_mnist_55a9b_00006:
+  date: 2022-07-22_16-17-45
+  done: false
+  experiment_id: 9594405e38084311a891b48addd13f75
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  mean_accuracy: 0.8557000160217285
+  node_ip: 127.0.0.1
+  pid: 52016
+  time_since_restore: 1.8570480346679688
+  time_this_iter_s: 1.8570480346679688
+  time_total_s: 1.8570480346679688
+  timestamp: 1658503065
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: 55a9b_00006
+  warmup_time: 0.003566741943359375
+  
+Result for train_mnist_55a9b_00001:
+  date: 2022-07-22_16-17-15
+  done: false
+  experiment_id: fcdeb049f9614755a9b7c9420ca2ae5e
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  mean_accuracy: 0.8887666463851929
+  node_ip: 127.0.0.1
+  pid: 51977
+  time_since_restore: 1.9353628158569336
+  time_this_iter_s: 1.9353628158569336
+  time_total_s: 1.9353628158569336
+  timestamp: 1658503035
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: 55a9b_00001
+  warmup_time: 0.0029449462890625
+  
+Result for train_mnist_55a9b_00005:
+  date: 2022-07-22_16-17-39
+  done: false
+  experiment_id: 8dbd22e6caed4fe39351dffa3ef14eac
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  mean_accuracy: 0.8789666891098022
+  node_ip: 127.0.0.1
+  pid: 52007
+  time_since_restore: 2.3337321281433105
+  time_this_iter_s: 2.3337321281433105
+  time_total_s: 2.3337321281433105
+  timestamp: 1658503059
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: 55a9b_00005
+  warmup_time: 0.005449056625366211
+  
+Result for train_mnist_55a9b_00002:
+  date: 2022-07-22_16-17-21
+  done: false
+  experiment_id: c4f803baf65f4d4e9fd6abc85b2fd00c
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  mean_accuracy: 0.9112833142280579
+  node_ip: 127.0.0.1
+  pid: 51984
+  time_since_restore: 2.3220012187957764
+  time_this_iter_s: 2.3220012187957764
+  time_total_s: 2.3220012187957764
+  timestamp: 1658503041
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: 55a9b_00002
+  warmup_time: 0.0028328895568847656
+  
+Result for train_mnist_55a9b_00003:
+  date: 2022-07-22_16-17-27
+  done: false
+  experiment_id: 469478f02b4a43f5b44c40e59989ad39
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  mean_accuracy: 0.8743166923522949
+  node_ip: 127.0.0.1
+  pid: 51991
+  time_since_restore: 2.0278611183166504
+  time_this_iter_s: 2.0278611183166504
+  time_total_s: 2.0278611183166504
+  timestamp: 1658503047
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: 55a9b_00003
+  warmup_time: 0.0033779144287109375
+  
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=52021)</span> 2022-07-22 16:17:51.567914: I tensorflow/core/platform/cpu_feature_guard.cc:142] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 FMA
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=52021)</span> To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=52021)</span> /Users/kai/.pyenv/versions/3.7.7/lib/python3.7/site-packages/keras/optimizer_v2/optimizer_v2.py:356: UserWarning: The `lr` argument is deprecated, use `learning_rate` instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=52021)</span>   &quot;The `lr` argument is deprecated, use `learning_rate` instead.&quot;)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_mnist pid=52021)</span> 2022-07-22 16:17:52.977183: I tensorflow/compiler/mlir/mlir_graph_optimization_pass.cc:185] None of the MLIR Optimization Passes are enabled (registered 2)
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Result for train_mnist_55a9b_00005:
+  date: 2022-07-22_16-17-54
+  done: false
+  experiment_id: 8dbd22e6caed4fe39351dffa3ef14eac
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 3
+  mean_accuracy: 0.9490833282470703
+  node_ip: 127.0.0.1
+  pid: 52007
+  time_since_restore: 17.22033405303955
+  time_this_iter_s: 2.672102928161621
+  time_total_s: 17.22033405303955
+  timestamp: 1658503074
+  timesteps_since_restore: 0
+  training_iteration: 3
+  trial_id: 55a9b_00005
+  warmup_time: 0.005449056625366211
+  
+Result for train_mnist_55a9b_00006:
+  date: 2022-07-22_16-17-54
+  done: false
+  experiment_id: 9594405e38084311a891b48addd13f75
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 3
+  mean_accuracy: 0.9327999949455261
+  node_ip: 127.0.0.1
+  pid: 52016
+  time_since_restore: 11.758372068405151
+  time_this_iter_s: 3.0426323413848877
+  time_total_s: 11.758372068405151
+  timestamp: 1658503074
+  timesteps_since_restore: 0
+  training_iteration: 3
+  trial_id: 55a9b_00006
+  warmup_time: 0.003566741943359375
+  
+Result for train_mnist_55a9b_00003:
+  date: 2022-07-22_16-17-55
+  done: false
+  experiment_id: 469478f02b4a43f5b44c40e59989ad39
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 3
+  mean_accuracy: 0.9454166889190674
+  node_ip: 127.0.0.1
+  pid: 51991
+  time_since_restore: 29.733185052871704
+  time_this_iter_s: 3.0363340377807617
+  time_total_s: 29.733185052871704
+  timestamp: 1658503075
+  timesteps_since_restore: 0
+  training_iteration: 3
+  trial_id: 55a9b_00003
+  warmup_time: 0.0033779144287109375
+  
+Result for train_mnist_55a9b_00000:
+  date: 2022-07-22_16-17-55
+  done: false
+  experiment_id: 3659349c38c746cfb71b4db5eb9302a0
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 3
+  mean_accuracy: 0.958216667175293
+  node_ip: 127.0.0.1
+  pid: 51968
+  time_since_restore: 47.272178173065186
+  time_this_iter_s: 3.2986061573028564
+  time_total_s: 47.272178173065186
+  timestamp: 1658503075
+  timesteps_since_restore: 0
+  training_iteration: 3
+  trial_id: 55a9b_00000
+  warmup_time: 0.003445863723754883
+  
+Result for train_mnist_55a9b_00004:
+  date: 2022-07-22_16-17-55
+  done: false
+  experiment_id: 6eb62b7cb38f442a867a9094f0664701
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 3
+  mean_accuracy: 0.8524500131607056
+  node_ip: 127.0.0.1
+  pid: 52000
+  time_since_restore: 24.11396098136902
+  time_this_iter_s: 3.2331089973449707
+  time_total_s: 24.11396098136902
+  timestamp: 1658503075
+  timesteps_since_restore: 0
+  training_iteration: 3
+  trial_id: 55a9b_00004
+  warmup_time: 0.0030939579010009766
+  
+Result for train_mnist_55a9b_00002:
+  date: 2022-07-22_16-17-55
+  done: false
+  experiment_id: c4f803baf65f4d4e9fd6abc85b2fd00c
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 3
+  mean_accuracy: 0.9695500135421753
+  node_ip: 127.0.0.1
+  pid: 51984
+  time_since_restore: 35.78592824935913
+  time_this_iter_s: 3.021165132522583
+  time_total_s: 35.78592824935913
+  timestamp: 1658503075
+  timesteps_since_restore: 0
+  training_iteration: 3
+  trial_id: 55a9b_00002
+  warmup_time: 0.0028328895568847656
+  
+Result for train_mnist_55a9b_00001:
+  date: 2022-07-22_16-17-56
+  done: false
+  experiment_id: fcdeb049f9614755a9b7c9420ca2ae5e
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 3
+  mean_accuracy: 0.9560333490371704
+  node_ip: 127.0.0.1
+  pid: 51977
+  time_since_restore: 42.38909387588501
+  time_this_iter_s: 3.753290891647339
+  time_total_s: 42.38909387588501
+  timestamp: 1658503076
+  timesteps_since_restore: 0
+  training_iteration: 3
+  trial_id: 55a9b_00001
+  warmup_time: 0.0029449462890625
+  
+Result for train_mnist_55a9b_00005:
+  date: 2022-07-22_16-18-00
+  done: false
+  experiment_id: 8dbd22e6caed4fe39351dffa3ef14eac
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 5
+  mean_accuracy: 0.9611166715621948
+  node_ip: 127.0.0.1
+  pid: 52007
+  time_since_restore: 23.303561210632324
+  time_this_iter_s: 2.933852195739746
+  time_total_s: 23.303561210632324
+  timestamp: 1658503080
+  timesteps_since_restore: 0
+  training_iteration: 5
+  trial_id: 55a9b_00005
+  warmup_time: 0.005449056625366211
+  
+Result for train_mnist_55a9b_00007:
+  date: 2022-07-22_16-18-01
+  done: false
+  experiment_id: d9469b1fc58b41db88da5446dc2a3b23
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  mean_accuracy: 0.8797500133514404
+  node_ip: 127.0.0.1
+  pid: 52021
+  time_since_restore: 12.469872951507568
+  time_this_iter_s: 12.469872951507568
+  time_total_s: 12.469872951507568
+  timestamp: 1658503081
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: 55a9b_00007
+  warmup_time: 0.0028028488159179688
+  
+Result for train_mnist_55a9b_00006:
+  date: 2022-07-22_16-18-01
+  done: false
+  experiment_id: 9594405e38084311a891b48addd13f75
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 5
+  mean_accuracy: 0.9499499797821045
+  node_ip: 127.0.0.1
+  pid: 52016
+  time_since_restore: 18.780059814453125
+  time_this_iter_s: 3.3080599308013916
+  time_total_s: 18.780059814453125
+  timestamp: 1658503081
+  timesteps_since_restore: 0
+  training_iteration: 5
+  trial_id: 55a9b_00006
+  warmup_time: 0.003566741943359375
+  
+Result for train_mnist_55a9b_00003:
+  date: 2022-07-22_16-18-02
+  done: false
+  experiment_id: 469478f02b4a43f5b44c40e59989ad39
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 5
+  mean_accuracy: 0.9601166844367981
+  node_ip: 127.0.0.1
+  pid: 51991
+  time_since_restore: 36.93912100791931
+  time_this_iter_s: 3.4057939052581787
+  time_total_s: 36.93912100791931
+  timestamp: 1658503082
+  timesteps_since_restore: 0
+  training_iteration: 5
+  trial_id: 55a9b_00003
+  warmup_time: 0.0033779144287109375
+  
+Result for train_mnist_55a9b_00000:
+  date: 2022-07-22_16-18-02
+  done: false
+  experiment_id: 3659349c38c746cfb71b4db5eb9302a0
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 5
+  mean_accuracy: 0.970466673374176
+  node_ip: 127.0.0.1
+  pid: 51968
+  time_since_restore: 54.49850010871887
+  time_this_iter_s: 3.4417831897735596
+  time_total_s: 54.49850010871887
+  timestamp: 1658503082
+  timesteps_since_restore: 0
+  training_iteration: 5
+  trial_id: 55a9b_00000
+  warmup_time: 0.003445863723754883
+  
+Result for train_mnist_55a9b_00004:
+  date: 2022-07-22_16-18-02
+  done: false
+  experiment_id: 6eb62b7cb38f442a867a9094f0664701
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 5
+  mean_accuracy: 0.8777499794960022
+  node_ip: 127.0.0.1
+  pid: 52000
+  time_since_restore: 31.513713121414185
+  time_this_iter_s: 3.506195068359375
+  time_total_s: 31.513713121414185
+  timestamp: 1658503082
+  timesteps_since_restore: 0
+  training_iteration: 5
+  trial_id: 55a9b_00004
+  warmup_time: 0.0030939579010009766
+  
+Result for train_mnist_55a9b_00002:
+  date: 2022-07-22_16-18-02
+  done: false
+  experiment_id: c4f803baf65f4d4e9fd6abc85b2fd00c
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 5
+  mean_accuracy: 0.979283332824707
+  node_ip: 127.0.0.1
+  pid: 51984
+  time_since_restore: 43.266417026519775
+  time_this_iter_s: 3.3383469581604004
+  time_total_s: 43.266417026519775
+  timestamp: 1658503082
+  timesteps_since_restore: 0
+  training_iteration: 5
+  trial_id: 55a9b_00002
+  warmup_time: 0.0028328895568847656
+  
+Result for train_mnist_55a9b_00001:
+  date: 2022-07-22_16-18-04
+  done: false
+  experiment_id: fcdeb049f9614755a9b7c9420ca2ae5e
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 5
+  mean_accuracy: 0.9692999720573425
+  node_ip: 127.0.0.1
+  pid: 51977
+  time_since_restore: 50.620792865753174
+  time_this_iter_s: 4.001068115234375
+  time_total_s: 50.620792865753174
+  timestamp: 1658503084
+  timesteps_since_restore: 0
+  training_iteration: 5
+  trial_id: 55a9b_00001
+  warmup_time: 0.0029449462890625
+  
+Result for train_mnist_55a9b_00005:
+  date: 2022-07-22_16-18-06
+  done: false
+  experiment_id: 8dbd22e6caed4fe39351dffa3ef14eac
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 7
+  mean_accuracy: 0.96711665391922
+  node_ip: 127.0.0.1
+  pid: 52007
+  time_since_restore: 29.40476107597351
+  time_this_iter_s: 2.976076126098633
+  time_total_s: 29.40476107597351
+  timestamp: 1658503086
+  timesteps_since_restore: 0
+  training_iteration: 7
+  trial_id: 55a9b_00005
+  warmup_time: 0.005449056625366211
+  
+Result for train_mnist_55a9b_00007:
+  date: 2022-07-22_16-18-07
+  done: false
+  experiment_id: d9469b1fc58b41db88da5446dc2a3b23
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 3
+  mean_accuracy: 0.951033353805542
+  node_ip: 127.0.0.1
+  pid: 52021
+  time_since_restore: 18.96213722229004
+  time_this_iter_s: 3.252371311187744
+  time_total_s: 18.96213722229004
+  timestamp: 1658503087
+  timesteps_since_restore: 0
+  training_iteration: 3
+  trial_id: 55a9b_00007
+  warmup_time: 0.0028028488159179688
+  
+Result for train_mnist_55a9b_00006:
+  date: 2022-07-22_16-18-08
+  done: false
+  experiment_id: 9594405e38084311a891b48addd13f75
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 7
+  mean_accuracy: 0.9584500193595886
+  node_ip: 127.0.0.1
+  pid: 52016
+  time_since_restore: 25.336583852767944
+  time_this_iter_s: 3.311979055404663
+  time_total_s: 25.336583852767944
+  timestamp: 1658503088
+  timesteps_since_restore: 0
+  training_iteration: 7
+  trial_id: 55a9b_00006
+  warmup_time: 0.003566741943359375
+  
+Result for train_mnist_55a9b_00003:
+  date: 2022-07-22_16-18-09
+  done: false
+  experiment_id: 469478f02b4a43f5b44c40e59989ad39
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 7
+  mean_accuracy: 0.9675499796867371
+  node_ip: 127.0.0.1
+  pid: 51991
+  time_since_restore: 43.7107310295105
+  time_this_iter_s: 3.3927559852600098
+  time_total_s: 43.7107310295105
+  timestamp: 1658503089
+  timesteps_since_restore: 0
+  training_iteration: 7
+  trial_id: 55a9b_00003
+  warmup_time: 0.0033779144287109375
+  
+Result for train_mnist_55a9b_00000:
+  date: 2022-07-22_16-18-09
+  done: false
+  experiment_id: 3659349c38c746cfb71b4db5eb9302a0
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 7
+  mean_accuracy: 0.9763000011444092
+  node_ip: 127.0.0.1
+  pid: 51968
+  time_since_restore: 61.30248522758484
+  time_this_iter_s: 3.4063682556152344
+  time_total_s: 61.30248522758484
+  timestamp: 1658503089
+  timesteps_since_restore: 0
+  training_iteration: 7
+  trial_id: 55a9b_00000
+  warmup_time: 0.003445863723754883
+  
+Result for train_mnist_55a9b_00002:
+  date: 2022-07-22_16-18-09
+  done: false
+  experiment_id: c4f803baf65f4d4e9fd6abc85b2fd00c
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 7
+  mean_accuracy: 0.9840666651725769
+  node_ip: 127.0.0.1
+  pid: 51984
+  time_since_restore: 50.212465047836304
+  time_this_iter_s: 3.43766188621521
+  time_total_s: 50.212465047836304
+  timestamp: 1658503089
+  timesteps_since_restore: 0
+  training_iteration: 7
+  trial_id: 55a9b_00002
+  warmup_time: 0.0028328895568847656
+  
+Result for train_mnist_55a9b_00004:
+  date: 2022-07-22_16-18-09
+  done: false
+  experiment_id: 6eb62b7cb38f442a867a9094f0664701
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 7
+  mean_accuracy: 0.8899999856948853
+  node_ip: 127.0.0.1
+  pid: 52000
+  time_since_restore: 38.63890194892883
+  time_this_iter_s: 3.5783908367156982
+  time_total_s: 38.63890194892883
+  timestamp: 1658503089
+  timesteps_since_restore: 0
+  training_iteration: 7
+  trial_id: 55a9b_00004
+  warmup_time: 0.0030939579010009766
+  
+Result for train_mnist_55a9b_00005:
+  date: 2022-07-22_16-18-12
+  done: false
+  experiment_id: 8dbd22e6caed4fe39351dffa3ef14eac
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 9
+  mean_accuracy: 0.9712333083152771
+  node_ip: 127.0.0.1
+  pid: 52007
+  time_since_restore: 35.3185760974884
+  time_this_iter_s: 3.0241990089416504
+  time_total_s: 35.3185760974884
+  timestamp: 1658503092
+  timesteps_since_restore: 0
+  training_iteration: 9
+  trial_id: 55a9b_00005
+  warmup_time: 0.005449056625366211
+  
+Result for train_mnist_55a9b_00001:
+  date: 2022-07-22_16-18-12
+  done: false
+  experiment_id: fcdeb049f9614755a9b7c9420ca2ae5e
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 7
+  mean_accuracy: 0.9755333065986633
+  node_ip: 127.0.0.1
+  pid: 51977
+  time_since_restore: 58.57745599746704
+  time_this_iter_s: 3.936232089996338
+  time_total_s: 58.57745599746704
+  timestamp: 1658503092
+  timesteps_since_restore: 0
+  training_iteration: 7
+  trial_id: 55a9b_00001
+  warmup_time: 0.0029449462890625
+  
+Result for train_mnist_55a9b_00007:
+  date: 2022-07-22_16-18-14
+  done: false
+  experiment_id: d9469b1fc58b41db88da5446dc2a3b23
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 5
+  mean_accuracy: 0.9648333191871643
+  node_ip: 127.0.0.1
+  pid: 52021
+  time_since_restore: 25.25843620300293
+  time_this_iter_s: 3.094501256942749
+  time_total_s: 25.25843620300293
+  timestamp: 1658503094
+  timesteps_since_restore: 0
+  training_iteration: 5
+  trial_id: 55a9b_00007
+  warmup_time: 0.0028028488159179688
+  
+Result for train_mnist_55a9b_00006:
+  date: 2022-07-22_16-18-15
+  done: false
+  experiment_id: 9594405e38084311a891b48addd13f75
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 9
+  mean_accuracy: 0.9646666646003723
+  node_ip: 127.0.0.1
+  pid: 52016
+  time_since_restore: 32.048911809921265
+  time_this_iter_s: 3.315690755844116
+  time_total_s: 32.048911809921265
+  timestamp: 1658503095
+  timesteps_since_restore: 0
+  training_iteration: 9
+  trial_id: 55a9b_00006
+  warmup_time: 0.003566741943359375
+  
+Result for train_mnist_55a9b_00003:
+  date: 2022-07-22_16-18-15
+  done: false
+  experiment_id: 469478f02b4a43f5b44c40e59989ad39
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 9
+  mean_accuracy: 0.9729499816894531
+  node_ip: 127.0.0.1
+  pid: 51991
+  time_since_restore: 50.50909209251404
+  time_this_iter_s: 3.4110782146453857
+  time_total_s: 50.50909209251404
+  timestamp: 1658503095
+  timesteps_since_restore: 0
+  training_iteration: 9
+  trial_id: 55a9b_00003
+  warmup_time: 0.0033779144287109375
+  
+Result for train_mnist_55a9b_00000:
+  date: 2022-07-22_16-18-16
+  done: false
+  experiment_id: 3659349c38c746cfb71b4db5eb9302a0
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 9
+  mean_accuracy: 0.9807666540145874
+  node_ip: 127.0.0.1
+  pid: 51968
+  time_since_restore: 68.26757216453552
+  time_this_iter_s: 3.4475879669189453
+  time_total_s: 68.26757216453552
+  timestamp: 1658503096
+  timesteps_since_restore: 0
+  training_iteration: 9
+  trial_id: 55a9b_00000
+  warmup_time: 0.003445863723754883
+  
+Result for train_mnist_55a9b_00002:
+  date: 2022-07-22_16-18-16
+  done: false
+  experiment_id: c4f803baf65f4d4e9fd6abc85b2fd00c
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 9
+  mean_accuracy: 0.9872999787330627
+  node_ip: 127.0.0.1
+  pid: 51984
+  time_since_restore: 57.01431703567505
+  time_this_iter_s: 3.3804008960723877
+  time_total_s: 57.01431703567505
+  timestamp: 1658503096
+  timesteps_since_restore: 0
+  training_iteration: 9
+  trial_id: 55a9b_00002
+  warmup_time: 0.0028328895568847656
+  
+Result for train_mnist_55a9b_00004:
+  date: 2022-07-22_16-18-16
+  done: false
+  experiment_id: 6eb62b7cb38f442a867a9094f0664701
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 9
+  mean_accuracy: 0.8989166617393494
+  node_ip: 127.0.0.1
+  pid: 52000
+  time_since_restore: 45.67929005622864
+  time_this_iter_s: 3.4561610221862793
+  time_total_s: 45.67929005622864
+  timestamp: 1658503096
+  timesteps_since_restore: 0
+  training_iteration: 9
+  trial_id: 55a9b_00004
+  warmup_time: 0.0030939579010009766
+  
+Result for train_mnist_55a9b_00005:
+  date: 2022-07-22_16-18-18
+  done: false
+  experiment_id: 8dbd22e6caed4fe39351dffa3ef14eac
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 11
+  mean_accuracy: 0.9744333624839783
+  node_ip: 127.0.0.1
+  pid: 52007
+  time_since_restore: 41.49077916145325
+  time_this_iter_s: 3.172250270843506
+  time_total_s: 41.49077916145325
+  timestamp: 1658503098
+  timesteps_since_restore: 0
+  training_iteration: 11
+  trial_id: 55a9b_00005
+  warmup_time: 0.005449056625366211
+  
+Result for train_mnist_55a9b_00001:
+  date: 2022-07-22_16-18-20
+  done: false
+  experiment_id: fcdeb049f9614755a9b7c9420ca2ae5e
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 9
+  mean_accuracy: 0.9806166887283325
+  node_ip: 127.0.0.1
+  pid: 51977
+  time_since_restore: 66.64132380485535
+  time_this_iter_s: 4.0674309730529785
+  time_total_s: 66.64132380485535
+  timestamp: 1658503100
+  timesteps_since_restore: 0
+  training_iteration: 9
+  trial_id: 55a9b_00001
+  warmup_time: 0.0029449462890625
+  
+Result for train_mnist_55a9b_00007:
+  date: 2022-07-22_16-18-20
+  done: false
+  experiment_id: d9469b1fc58b41db88da5446dc2a3b23
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 7
+  mean_accuracy: 0.970716655254364
+  node_ip: 127.0.0.1
+  pid: 52021
+  time_since_restore: 31.897236108779907
+  time_this_iter_s: 3.3691420555114746
+  time_total_s: 31.897236108779907
+  timestamp: 1658503100
+  timesteps_since_restore: 0
+  training_iteration: 7
+  trial_id: 55a9b_00007
+  warmup_time: 0.0028028488159179688
+  
+Result for train_mnist_55a9b_00005:
+  date: 2022-07-22_16-18-21
+  done: true
+  experiment_id: 8dbd22e6caed4fe39351dffa3ef14eac
+  experiment_tag: 5_hidden=92,lr=0.0652,momentum=0.7102
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 12
+  mean_accuracy: 0.9748666882514954
+  node_ip: 127.0.0.1
+  pid: 52007
+  time_since_restore: 44.80922222137451
+  time_this_iter_s: 3.3184430599212646
+  time_total_s: 44.80922222137451
+  timestamp: 1658503101
+  timesteps_since_restore: 0
+  training_iteration: 12
+  trial_id: 55a9b_00005
+  warmup_time: 0.005449056625366211
+  
+Result for train_mnist_55a9b_00006:
+  date: 2022-07-22_16-18-22
+  done: false
+  experiment_id: 9594405e38084311a891b48addd13f75
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 11
+  mean_accuracy: 0.9679166674613953
+  node_ip: 127.0.0.1
+  pid: 52016
+  time_since_restore: 39.08963179588318
+  time_this_iter_s: 3.4860758781433105
+  time_total_s: 39.08963179588318
+  timestamp: 1658503102
+  timesteps_since_restore: 0
+  training_iteration: 11
+  trial_id: 55a9b_00006
+  warmup_time: 0.003566741943359375
+  
+Result for train_mnist_55a9b_00003:
+  date: 2022-07-22_16-18-23
+  done: false
+  experiment_id: 469478f02b4a43f5b44c40e59989ad39
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 11
+  mean_accuracy: 0.9771833419799805
+  node_ip: 127.0.0.1
+  pid: 51991
+  time_since_restore: 57.6213219165802
+  time_this_iter_s: 3.4615819454193115
+  time_total_s: 57.6213219165802
+  timestamp: 1658503103
+  timesteps_since_restore: 0
+  training_iteration: 11
+  trial_id: 55a9b_00003
+  warmup_time: 0.0033779144287109375
+  
+Result for train_mnist_55a9b_00000:
+  date: 2022-07-22_16-18-23
+  done: false
+  experiment_id: 3659349c38c746cfb71b4db5eb9302a0
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 11
+  mean_accuracy: 0.98416668176651
+  node_ip: 127.0.0.1
+  pid: 51968
+  time_since_restore: 75.32713007926941
+  time_this_iter_s: 3.443808078765869
+  time_total_s: 75.32713007926941
+  timestamp: 1658503103
+  timesteps_since_restore: 0
+  training_iteration: 11
+  trial_id: 55a9b_00000
+  warmup_time: 0.003445863723754883
+  
+Result for train_mnist_55a9b_00002:
+  date: 2022-07-22_16-18-23
+  done: true
+  experiment_id: c4f803baf65f4d4e9fd6abc85b2fd00c
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 11
+  mean_accuracy: 0.9904166460037231
+  node_ip: 127.0.0.1
+  pid: 51984
+  time_since_restore: 64.12720203399658
+  time_this_iter_s: 3.508151054382324
+  time_total_s: 64.12720203399658
+  timestamp: 1658503103
+  timesteps_since_restore: 0
+  training_iteration: 11
+  trial_id: 55a9b_00002
+  warmup_time: 0.0028328895568847656
+  
+Result for train_mnist_55a9b_00004:
+  date: 2022-07-22_16-18-23
+  done: false
+  experiment_id: 6eb62b7cb38f442a867a9094f0664701
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 11
+  mean_accuracy: 0.9052166938781738
+  node_ip: 127.0.0.1
+  pid: 52000
+  time_since_restore: 52.687995195388794
+  time_this_iter_s: 3.420351982116699
+  time_total_s: 52.687995195388794
+  timestamp: 1658503103
+  timesteps_since_restore: 0
+  training_iteration: 11
+  trial_id: 55a9b_00004
+  warmup_time: 0.0030939579010009766
+  
+Result for train_mnist_55a9b_00006:
+  date: 2022-07-22_16-18-25
+  done: true
+  experiment_id: 9594405e38084311a891b48addd13f75
+  experiment_tag: 6_hidden=211,lr=0.0731,momentum=0.1278
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 12
+  mean_accuracy: 0.9702500104904175
+  node_ip: 127.0.0.1
+  pid: 52016
+  time_since_restore: 42.1216938495636
+  time_this_iter_s: 3.03206205368042
+  time_total_s: 42.1216938495636
+  timestamp: 1658503105
+  timesteps_since_restore: 0
+  training_iteration: 12
+  trial_id: 55a9b_00006
+  warmup_time: 0.003566741943359375
+  
+Result for train_mnist_55a9b_00003:
+  date: 2022-07-22_16-18-26
+  done: true
+  experiment_id: 469478f02b4a43f5b44c40e59989ad39
+  experiment_tag: 3_hidden=255,lr=0.0972,momentum=0.2316
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 12
+  mean_accuracy: 0.9776333570480347
+  node_ip: 127.0.0.1
+  pid: 51991
+  time_since_restore: 60.8474760055542
+  time_this_iter_s: 3.226154088973999
+  time_total_s: 60.8474760055542
+  timestamp: 1658503106
+  timesteps_since_restore: 0
+  training_iteration: 12
+  trial_id: 55a9b_00003
+  warmup_time: 0.0033779144287109375
+  
+Result for train_mnist_55a9b_00000:
+  date: 2022-07-22_16-18-26
+  done: true
+  experiment_id: 3659349c38c746cfb71b4db5eb9302a0
+  experiment_tag: 0_hidden=276,lr=0.0406,momentum=0.8178
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 12
+  mean_accuracy: 0.9845499992370605
+  node_ip: 127.0.0.1
+  pid: 51968
+  time_since_restore: 78.32520508766174
+  time_this_iter_s: 2.998075008392334
+  time_total_s: 78.32520508766174
+  timestamp: 1658503106
+  timesteps_since_restore: 0
+  training_iteration: 12
+  trial_id: 55a9b_00000
+  warmup_time: 0.003445863723754883
+  
+Result for train_mnist_55a9b_00007:
+  date: 2022-07-22_16-18-26
+  done: false
+  experiment_id: d9469b1fc58b41db88da5446dc2a3b23
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 9
+  mean_accuracy: 0.9751333594322205
+  node_ip: 127.0.0.1
+  pid: 52021
+  time_since_restore: 37.76195311546326
+  time_this_iter_s: 2.7159180641174316
+  time_total_s: 37.76195311546326
+  timestamp: 1658503106
+  timesteps_since_restore: 0
+  training_iteration: 9
+  trial_id: 55a9b_00007
+  warmup_time: 0.0028028488159179688
+  
+Result for train_mnist_55a9b_00004:
+  date: 2022-07-22_16-18-26
+  done: true
+  experiment_id: 6eb62b7cb38f442a867a9094f0664701
+  experiment_tag: 4_hidden=303,lr=0.0044,momentum=0.3254
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 12
+  mean_accuracy: 0.9077500104904175
+  node_ip: 127.0.0.1
+  pid: 52000
+  time_since_restore: 55.57219409942627
+  time_this_iter_s: 2.8841989040374756
+  time_total_s: 55.57219409942627
+  timestamp: 1658503106
+  timesteps_since_restore: 0
+  training_iteration: 12
+  trial_id: 55a9b_00004
+  warmup_time: 0.0030939579010009766
+  
+Result for train_mnist_55a9b_00001:
+  date: 2022-07-22_16-18-27
+  done: false
+  experiment_id: fcdeb049f9614755a9b7c9420ca2ae5e
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 11
+  mean_accuracy: 0.9830166697502136
+  node_ip: 127.0.0.1
+  pid: 51977
+  time_since_restore: 73.19760584831238
+  time_this_iter_s: 2.7281620502471924
+  time_total_s: 73.19760584831238
+  timestamp: 1658503107
+  timesteps_since_restore: 0
+  training_iteration: 11
+  trial_id: 55a9b_00001
+  warmup_time: 0.0029449462890625
+  
+Result for train_mnist_55a9b_00008:
+  date: 2022-07-22_16-18-28
+  done: false
+  experiment_id: 8dbd22e6caed4fe39351dffa3ef14eac
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  mean_accuracy: 0.8477166891098022
+  node_ip: 127.0.0.1
+  pid: 52007
+  time_since_restore: 6.2436230182647705
+  time_this_iter_s: 6.2436230182647705
+  time_total_s: 6.2436230182647705
+  timestamp: 1658503108
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: 55a9b_00008
+  warmup_time: 0.005449056625366211
+  
+Result for train_mnist_55a9b_00001:
+  date: 2022-07-22_16-18-28
+  done: true
+  experiment_id: fcdeb049f9614755a9b7c9420ca2ae5e
+  experiment_tag: 1_hidden=380,lr=0.0874,momentum=0.5246
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 12
+  mean_accuracy: 0.9837166666984558
+  node_ip: 127.0.0.1
+  pid: 51977
+  time_since_restore: 74.98881888389587
+  time_this_iter_s: 1.791213035583496
+  time_total_s: 74.98881888389587
+  timestamp: 1658503108
+  timesteps_since_restore: 0
+  training_iteration: 12
+  trial_id: 55a9b_00001
+  warmup_time: 0.0029449462890625
+  
+Result for train_mnist_55a9b_00009:
+  date: 2022-07-22_16-18-29
+  done: false
+  experiment_id: c4f803baf65f4d4e9fd6abc85b2fd00c
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  mean_accuracy: 0.7675999999046326
+  node_ip: 127.0.0.1
+  pid: 51984
+  time_since_restore: 5.303471088409424
+  time_this_iter_s: 5.303471088409424
+  time_total_s: 5.303471088409424
+  timestamp: 1658503109
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: 55a9b_00009
+  warmup_time: 0.0028328895568847656
+  
+Result for train_mnist_55a9b_00007:
+  date: 2022-07-22_16-18-30
+  done: true
+  experiment_id: d9469b1fc58b41db88da5446dc2a3b23
+  experiment_tag: 7_hidden=181,lr=0.0362,momentum=0.7903
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 12
+  mean_accuracy: 0.9799666404724121
+  node_ip: 127.0.0.1
+  pid: 52021
+  time_since_restore: 41.763158082962036
+  time_this_iter_s: 1.0622038841247559
+  time_total_s: 41.763158082962036
+  timestamp: 1658503110
+  timesteps_since_restore: 0
+  training_iteration: 12
+  trial_id: 55a9b_00007
+  warmup_time: 0.0028028488159179688
+  
+Result for train_mnist_55a9b_00008:
+  date: 2022-07-22_16-18-33
+  done: false
+  experiment_id: 8dbd22e6caed4fe39351dffa3ef14eac
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 8
+  mean_accuracy: 0.9599000215530396
+  node_ip: 127.0.0.1
+  pid: 52007
+  time_since_restore: 11.612935304641724
+  time_this_iter_s: 0.6818761825561523
+  time_total_s: 11.612935304641724
+  timestamp: 1658503113
+  timesteps_since_restore: 0
+  training_iteration: 8
+  trial_id: 55a9b_00008
+  warmup_time: 0.005449056625366211
+  
+Result for train_mnist_55a9b_00009:
+  date: 2022-07-22_16-18-34
+  done: false
+  experiment_id: c4f803baf65f4d4e9fd6abc85b2fd00c
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 9
+  mean_accuracy: 0.9319833517074585
+  node_ip: 127.0.0.1
+  pid: 51984
+  time_since_restore: 10.803268194198608
+  time_this_iter_s: 0.606992244720459
+  time_total_s: 10.803268194198608
+  timestamp: 1658503114
+  timesteps_since_restore: 0
+  training_iteration: 9
+  trial_id: 55a9b_00009
+  warmup_time: 0.0028328895568847656
+  
+Result for train_mnist_55a9b_00008:
+  date: 2022-07-22_16-18-36
+  done: true
+  experiment_id: 8dbd22e6caed4fe39351dffa3ef14eac
+  experiment_tag: 8_hidden=142,lr=0.0324,momentum=0.6604
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 12
+  mean_accuracy: 0.9693666696548462
+  node_ip: 127.0.0.1
+  pid: 52007
+  time_since_restore: 14.152745008468628
+  time_this_iter_s: 0.5980076789855957
+  time_total_s: 14.152745008468628
+  timestamp: 1658503116
+  timesteps_since_restore: 0
+  training_iteration: 12
+  trial_id: 55a9b_00008
+  warmup_time: 0.005449056625366211
+  
+Result for train_mnist_55a9b_00009:
+  date: 2022-07-22_16-18-36
+  done: true
+  experiment_id: c4f803baf65f4d4e9fd6abc85b2fd00c
+  experiment_tag: 9_hidden=97,lr=0.0245,momentum=0.1750
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 12
+  mean_accuracy: 0.9406999945640564
+  node_ip: 127.0.0.1
+  pid: 51984
+  time_since_restore: 12.640528202056885
+  time_this_iter_s: 0.5808131694793701
+  time_total_s: 12.640528202056885
+  timestamp: 1658503116
+  timesteps_since_restore: 0
+  training_iteration: 12
+  trial_id: 55a9b_00009
+  warmup_time: 0.0028328895568847656
+  
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2022-07-22 16:18:36,803	INFO tune.py:738 -- Total run time: 95.98 seconds (95.03 seconds for the tuning loop).
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Best hyperparameters found were:  {&#39;threads&#39;: 2, &#39;lr&#39;: 0.09518133271957563, &#39;momentum&#39;: 0.8254987643140009, &#39;hidden&#39;: 258}
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="more-keras-and-tensorflow-examples">
+<h2>More Keras and TensorFlow Examples<a class="headerlink" href="tune_mnist_keras.html#more-keras-and-tensorflow-examples" title="Permalink to this headline">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="includes/pbt_memnn_example.html"><span class="doc">Memory NN Example</span></a>: Example of training a Memory NN on bAbI with Keras using PBT.</p></li>
+<li><p><a class="reference internal" href="includes/tf_mnist_example.html"><span class="doc">TensorFlow MNIST Example</span></a>: Converts the Advanced TF2.0 MNIST example to use Tune
+with the Trainable. This uses <code class="docutils literal notranslate"><span class="pre">tf.function</span></code>.
+Original code from tensorflow: https://www.tensorflow.org/tutorials/quickstart/advanced</p></li>
+<li><p><a class="reference internal" href="includes/pbt_tune_cifar10_with_keras.html"><span class="doc">Keras Cifar10 Example</span></a>:
+A contributed example of tuning a Keras model on CIFAR10 with the PopulationBasedTraining scheduler.</p></li>
+</ul>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="tune-sklearn.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Tune’s Scikit Learn Adapters</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="tune-pytorch-cifar.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">How to use Tune with PyTorch</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

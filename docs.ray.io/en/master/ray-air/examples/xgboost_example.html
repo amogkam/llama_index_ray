@@ -1,0 +1,1009 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Training a model with distributed XGBoost &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/js/versionwarning.js"></script>
+    <script src="../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../_static/js/docsearch.js"></script>
+    <script src="../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../_static/js/top-navigation.js"></script>
+    <script src="../../_static/js/tags.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/ray-air/examples/xgboost_example.html" />
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Hyperparameter tuning with XGBoostTrainer" href="analyze_tuning_results.html" />
+    <link rel="prev" title="Training a model with Sklearn" href="sklearn_example.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "ray-air/examples/xgboost_example", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".ipynb", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../user-guides.html">
+     User Guides
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="index.html">
+     Examples
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="opt_deepspeed_batch_inference.html">
+       Batch Inference with OPT 30B and Ray Data
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="torch_image_example.html">
+       Training a Torch Image Classifier
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="torch_detection.html">
+       Fine-tuning a Torch object detection model
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="convert_existing_pytorch_code_to_ray_air.html">
+       Convert existing PyTorch code to Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="convert_existing_tf_code_to_ray_air.html">
+       Convert existing Tensorflow/Keras code to Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tfx_tabular_train_to_serve.html">
+       Tabular data training and serving with Keras and Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="huggingface_text_classification.html">
+       Fine-tune a 🤗 Transformers model
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="sklearn_example.html">
+       Training a model with Sklearn
+      </a>
+     </li>
+     <li class="toctree-l3 current active">
+      <a class="current reference internal" href="xgboost_example.html#">
+       Training a model with distributed XGBoost
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="analyze_tuning_results.html">
+       Hyperparameter tuning with XGBoostTrainer
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="lightgbm_example.html">
+       Training a model with distributed LightGBM
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="torch_incremental_learning.html">
+       Incremental Learning with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rl_serving_example.html">
+       Serving reinforcement learning policy models
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rl_online_example.html">
+       Online reinforcement learning with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rl_offline_example.html">
+       Offline reinforcement learning with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="upload_to_comet_ml.html">
+       Logging results and uploading models to Comet ML
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="upload_to_wandb.html">
+       Logging results and uploading models to Weights &amp; Biases
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="feast_example.html">
+       Integrate Ray AIR with Feast feature store
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="automl_with_ray_air.html">
+       AutoML for time series forecasting with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="batch_tuning.html">
+       Batch training &amp; tuning on Ray Tune
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="batch_forecasting.html">
+       Parallel demand forecasting at scale using Ray Tune
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="stablediffusion_batch_prediction.html">
+       Stable Diffusion Batch Prediction with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gptj_deepspeed_fine_tuning.html">
+       GPT-J-6B Fine-Tuning with Ray AIR and DeepSpeed
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gptj_batch_prediction.html">
+       GPT-J-6B Batch Prediction with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gptj_serving.html">
+       GPT-J-6B Serving with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="dreambooth_finetuning.html">
+       Fine-tuning DreamBooth with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="dolly_lightning_fsdp_finetuning.html">
+       Fine-tune
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         dolly-v2-7b
+        </span>
+       </code>
+       with Ray AIR LightningTrainer and FSDP
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/api.html">
+     Ray AIR API
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../benchmarks.html">
+     Benchmarks
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tune.html">
+   Ray Tune
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Fray-air/examples/xgboost_example.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/ray-air/examples/xgboost_example.ipynb"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../_sources/ray-air/examples/xgboost_example.ipynb.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.ipynb</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Training a model with distributed XGBoost</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section class="tex2jax_ignore mathjax_ignore" id="training-a-model-with-distributed-xgboost">
+<span id="air-xgboost-example-ref"></span><h1>Training a model with distributed XGBoost<a class="headerlink" href="xgboost_example.html#training-a-model-with-distributed-xgboost" title="Permalink to this headline">#</a></h1>
+<p>In this example we will train a model in Ray AIR using distributed XGBoost.</p>
+<p>Let’s start with installing our dependencies:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>pip install -qU <span class="s2">&quot;ray[tune]&quot;</span> xgboost_ray
+</pre></div>
+</div>
+</div>
+</div>
+<p>Then we need some imports:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">from</span> <span class="nn">ray.train.batch_predictor</span> <span class="kn">import</span> <span class="n">BatchPredictor</span>
+<span class="kn">from</span> <span class="nn">ray.train.xgboost</span> <span class="kn">import</span> <span class="n">XGBoostPredictor</span>
+<span class="kn">from</span> <span class="nn">ray.train.xgboost</span> <span class="kn">import</span> <span class="n">XGBoostTrainer</span>
+<span class="kn">from</span> <span class="nn">ray.air.config</span> <span class="kn">import</span> <span class="n">ScalingConfig</span>
+<span class="kn">from</span> <span class="nn">ray.data</span> <span class="kn">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span> <span class="nn">ray.air.result</span> <span class="kn">import</span> <span class="n">Result</span>
+<span class="kn">from</span> <span class="nn">ray.data.preprocessors</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/home/ubuntu/ray/venv/lib/python3.8/site-packages/xgboost/compat.py:31: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+  from pandas import MultiIndex, Int64Index
+FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+FutureWarning: pandas.Float64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+FutureWarning: pandas.UInt64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+</pre></div>
+</div>
+</div>
+</div>
+<p>Next we define a function to load our train, validation, and test datasets.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">prepare_data</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">Dataset</span><span class="p">]:</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;s3://anonymous@air-example-data/breast_cancer.csv&quot;</span><span class="p">)</span>
+    <span class="n">train_dataset</span><span class="p">,</span> <span class="n">valid_dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">train_test_split</span><span class="p">(</span><span class="n">test_size</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+    <span class="n">test_dataset</span> <span class="o">=</span> <span class="n">valid_dataset</span><span class="o">.</span><span class="n">drop_columns</span><span class="p">([</span><span class="s2">&quot;target&quot;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">train_dataset</span><span class="p">,</span> <span class="n">valid_dataset</span><span class="p">,</span> <span class="n">test_dataset</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The following function will create a XGBoost trainer, train it, and return the result.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">train_xgboost</span><span class="p">(</span><span class="n">num_workers</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">use_gpu</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Result</span><span class="p">:</span>
+    <span class="n">train_dataset</span><span class="p">,</span> <span class="n">valid_dataset</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">prepare_data</span><span class="p">()</span>
+
+    <span class="c1"># Scale some random columns</span>
+    <span class="n">columns_to_scale</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;mean radius&quot;</span><span class="p">,</span> <span class="s2">&quot;mean texture&quot;</span><span class="p">]</span>
+    <span class="n">preprocessor</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">columns_to_scale</span><span class="p">)</span>
+
+    <span class="c1"># XGBoost specific params</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;tree_method&quot;</span><span class="p">:</span> <span class="s2">&quot;approx&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;objective&quot;</span><span class="p">:</span> <span class="s2">&quot;binary:logistic&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;eval_metric&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;logloss&quot;</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">],</span>
+    <span class="p">}</span>
+
+    <span class="n">trainer</span> <span class="o">=</span> <span class="n">XGBoostTrainer</span><span class="p">(</span>
+        <span class="n">scaling_config</span><span class="o">=</span><span class="n">ScalingConfig</span><span class="p">(</span><span class="n">num_workers</span><span class="o">=</span><span class="n">num_workers</span><span class="p">,</span> <span class="n">use_gpu</span><span class="o">=</span><span class="n">use_gpu</span><span class="p">),</span>
+        <span class="n">label_column</span><span class="o">=</span><span class="s2">&quot;target&quot;</span><span class="p">,</span>
+        <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span>
+        <span class="n">datasets</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;train&quot;</span><span class="p">:</span> <span class="n">train_dataset</span><span class="p">,</span> <span class="s2">&quot;valid&quot;</span><span class="p">:</span> <span class="n">valid_dataset</span><span class="p">},</span>
+        <span class="n">preprocessor</span><span class="o">=</span><span class="n">preprocessor</span><span class="p">,</span>
+        <span class="n">num_boost_round</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">metrics</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">result</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Once we have the result, we can do batch inference on the obtained model. Let’s define a utility function for this.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">predict_xgboost</span><span class="p">(</span><span class="n">result</span><span class="p">:</span> <span class="n">Result</span><span class="p">):</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">test_dataset</span> <span class="o">=</span> <span class="n">prepare_data</span><span class="p">()</span>
+
+    <span class="n">batch_predictor</span> <span class="o">=</span> <span class="n">BatchPredictor</span><span class="o">.</span><span class="n">from_checkpoint</span><span class="p">(</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">checkpoint</span><span class="p">,</span> <span class="n">XGBoostPredictor</span>
+    <span class="p">)</span>
+
+    <span class="n">predicted_labels</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">batch_predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">map_batches</span><span class="p">(</span><span class="k">lambda</span> <span class="n">df</span><span class="p">:</span> <span class="p">(</span><span class="n">df</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span> <span class="n">batch_format</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PREDICTED LABELS&quot;</span><span class="p">)</span>
+    <span class="n">predicted_labels</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="n">shap_values</span> <span class="o">=</span> <span class="n">batch_predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">,</span> <span class="n">pred_contribs</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SHAP VALUES&quot;</span><span class="p">)</span>
+    <span class="n">shap_values</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Now we can run the training:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">train_xgboost</span><span class="p">(</span><span class="n">num_workers</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">use_gpu</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2022-06-22 17:28:55,841	INFO services.py:1477 -- View the Ray dashboard at <span class=" -Color -Color-Bold -Color-Bold-Green">http://127.0.0.1:8270</span>
+2022-06-22 17:28:58,044	WARNING read_api.py:260 -- The number of blocks in this dataset (1) limits its parallelism to 1 concurrent tasks. This is much less than the number of available CPU slots in the cluster. Use `.repartition(n)` to increase the number of dataset blocks.
+Map_Batches: 100%|██████████| 1/1 [00:00&lt;00:00, 40.28it/s]
+</pre></div>
+</div>
+<div class="output text_html">== Status ==<br>Current time: 2022-06-22 17:29:15 (running for 00:00:16.11)<br>Memory usage on this node: 11.5/31.0 GiB<br>Using FIFO scheduling algorithm.<br>Resources requested: 0/8 CPUs, 0/0 GPUs, 0.0/12.35 GiB heap, 0.0/6.18 GiB objects<br>Result logdir: /home/ubuntu/ray_results/XGBoostTrainer_2022-06-22_17-28-58<br>Number of trials: 1/1 (1 TERMINATED)<br><table>
+<thead>
+<tr><th>Trial name                </th><th>status    </th><th>loc                  </th><th style="text-align: right;">  iter</th><th style="text-align: right;">  total time (s)</th><th style="text-align: right;">  train-logloss</th><th style="text-align: right;">  train-error</th><th style="text-align: right;">  valid-logloss</th></tr>
+</thead>
+<tbody>
+<tr><td>XGBoostTrainer_cc863_00000</td><td>TERMINATED</td><td>172.31.43.110:1493910</td><td style="text-align: right;">   100</td><td style="text-align: right;">         12.5164</td><td style="text-align: right;">       0.005874</td><td style="text-align: right;">            0</td><td style="text-align: right;">       0.078188</td></tr>
+</tbody>
+</table><br><br></div><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1493910)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/xgboost/compat.py:31: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1493910)</span>   from pandas import MultiIndex, Int64Index
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1493910)</span> FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1493910)</span> FutureWarning: pandas.Float64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1493910)</span> FutureWarning: pandas.UInt64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(XGBoostTrainer pid=1493910)</span> UserWarning: Dataset &#39;train&#39; has 1 blocks, which is less than the `num_workers` 2. This dataset will be automatically repartitioned to 2 blocks.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(XGBoostTrainer pid=1493910)</span> UserWarning: Dataset &#39;valid&#39; has 1 blocks, which is less than the `num_workers` 2. This dataset will be automatically repartitioned to 2 blocks.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(XGBoostTrainer pid=1493910)</span> 2022-06-22 17:29:04,073	INFO main.py:980 -- [RayXGBoost] Created 2 new actors (2 total actors). Waiting until actors are ready for training.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1494007)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/xgboost/compat.py:31: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1494007)</span>   from pandas import MultiIndex, Int64Index
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1494008)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/xgboost/compat.py:31: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1494008)</span>   from pandas import MultiIndex, Int64Index
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1494009)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/xgboost/compat.py:31: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1494009)</span>   from pandas import MultiIndex, Int64Index
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1494007)</span> FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1494007)</span> FutureWarning: pandas.Float64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1494007)</span> FutureWarning: pandas.UInt64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1494008)</span> FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1494008)</span> FutureWarning: pandas.Float64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1494008)</span> FutureWarning: pandas.UInt64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(_RemoteRayXGBoostActor pid=1494008)</span> 2022-06-22 17:29:07,324	WARNING __init__.py:190 -- DeprecationWarning: `ray.worker.get_resource_ids` is a private attribute and access will be removed in a future Ray version.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1494009)</span> FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1494009)</span> FutureWarning: pandas.Float64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1494009)</span> FutureWarning: pandas.UInt64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(_RemoteRayXGBoostActor pid=1494009)</span> 2022-06-22 17:29:07,421	WARNING __init__.py:190 -- DeprecationWarning: `ray.worker.get_resource_ids` is a private attribute and access will be removed in a future Ray version.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(XGBoostTrainer pid=1493910)</span> 2022-06-22 17:29:07,874	INFO main.py:1025 -- [RayXGBoost] Starting XGBoost training.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(_RemoteRayXGBoostActor pid=1494008)</span> [17:29:07] task [xgboost.ray]:139731353900128 got new rank 0
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(_RemoteRayXGBoostActor pid=1494008)</span> FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(_RemoteRayXGBoostActor pid=1494009)</span> [17:29:07] task [xgboost.ray]:140076138558608 got new rank 1
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(_RemoteRayXGBoostActor pid=1494009)</span> FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(_QueueActor pid=1494006)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/xgboost/compat.py:31: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(_QueueActor pid=1494006)</span>   from pandas import MultiIndex, Int64Index
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(_QueueActor pid=1494006)</span> FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(_QueueActor pid=1494006)</span> FutureWarning: pandas.Float64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(_QueueActor pid=1494006)</span> FutureWarning: pandas.UInt64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Result for XGBoostTrainer_cc863_00000:
+  date: 2022-06-22_17-29-09
+  done: false
+  experiment_id: dc3dac01a34043cfb5751907e2bc648e
+  hostname: ip-172-31-43-110
+  iterations_since_restore: 1
+  node_ip: 172.31.43.110
+  pid: 1493910
+  should_checkpoint: true
+  time_since_restore: 7.967940330505371
+  time_this_iter_s: 7.967940330505371
+  time_total_s: 7.967940330505371
+  timestamp: 1655918949
+  timesteps_since_restore: 0
+  train-error: 0.017588
+  train-logloss: 0.464648
+  training_iteration: 1
+  trial_id: cc863_00000
+  valid-error: 0.081871
+  valid-logloss: 0.496374
+  warmup_time: 0.004768848419189453
+  
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Faint -Color-Faint-Cyan">(XGBoostTrainer pid=1493910)</span> 2022-06-22 17:29:14,546	INFO main.py:1516 -- [RayXGBoost] Finished XGBoost training on training data with total N=398 in 10.52 seconds (6.66 pure XGBoost training time).
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Result for XGBoostTrainer_cc863_00000:
+  date: 2022-06-22_17-29-14
+  done: true
+  experiment_id: dc3dac01a34043cfb5751907e2bc648e
+  experiment_tag: &#39;0&#39;
+  hostname: ip-172-31-43-110
+  iterations_since_restore: 100
+  node_ip: 172.31.43.110
+  pid: 1493910
+  should_checkpoint: true
+  time_since_restore: 12.516392230987549
+  time_this_iter_s: 0.03008890151977539
+  time_total_s: 12.516392230987549
+  timestamp: 1655918954
+  timesteps_since_restore: 0
+  train-error: 0.0
+  train-logloss: 0.005874
+  training_iteration: 100
+  trial_id: cc863_00000
+  valid-error: 0.040936
+  valid-logloss: 0.078188
+  warmup_time: 0.004768848419189453
+  
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2022-06-22 17:29:15,362	INFO tune.py:734 -- Total run time: 16.94 seconds (16.08 seconds for the tuning loop).
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;train-logloss&#39;: 0.005874, &#39;train-error&#39;: 0.0, &#39;valid-logloss&#39;: 0.078188, &#39;valid-error&#39;: 0.040936, &#39;time_this_iter_s&#39;: 0.03008890151977539, &#39;should_checkpoint&#39;: True, &#39;done&#39;: True, &#39;timesteps_total&#39;: None, &#39;episodes_total&#39;: None, &#39;training_iteration&#39;: 100, &#39;trial_id&#39;: &#39;cc863_00000&#39;, &#39;experiment_id&#39;: &#39;dc3dac01a34043cfb5751907e2bc648e&#39;, &#39;date&#39;: &#39;2022-06-22_17-29-14&#39;, &#39;timestamp&#39;: 1655918954, &#39;time_total_s&#39;: 12.516392230987549, &#39;pid&#39;: 1493910, &#39;hostname&#39;: &#39;ip-172-31-43-110&#39;, &#39;node_ip&#39;: &#39;172.31.43.110&#39;, &#39;config&#39;: {}, &#39;time_since_restore&#39;: 12.516392230987549, &#39;timesteps_since_restore&#39;: 0, &#39;iterations_since_restore&#39;: 100, &#39;warmup_time&#39;: 0.004768848419189453, &#39;experiment_tag&#39;: &#39;0&#39;}
+</pre></div>
+</div>
+</div>
+</div>
+<p>And perform inference on the obtained model:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">predict_xgboost</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2022-06-22 17:29:16,463	WARNING read_api.py:260 -- The number of blocks in this dataset (1) limits its parallelism to 1 concurrent tasks. This is much less than the number of available CPU slots in the cluster. Use `.repartition(n)` to increase the number of dataset blocks.
+Map_Batches: 100%|██████████| 1/1 [00:00&lt;00:00, 46.14it/s]
+Map_Batches:   0%|          | 0/1 [00:00&lt;?, ?it/s]<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1494373)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/xgboost/compat.py:31: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1494373)</span>   from pandas import MultiIndex, Int64Index
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1494373)</span> FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1494373)</span> FutureWarning: pandas.Float64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1494373)</span> FutureWarning: pandas.UInt64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+Map Progress (1 actors 1 pending): 100%|██████████| 1/1 [00:01&lt;00:00,  1.90s/it]
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(BlockWorker pid=1494373)</span> FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+Map_Batches: 100%|██████████| 1/1 [00:00&lt;00:00, 75.10it/s]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>PREDICTED LABELS
+{&#39;predictions&#39;: 1}
+{&#39;predictions&#39;: 1}
+{&#39;predictions&#39;: 0}
+{&#39;predictions&#39;: 1}
+{&#39;predictions&#39;: 1}
+{&#39;predictions&#39;: 1}
+{&#39;predictions&#39;: 1}
+{&#39;predictions&#39;: 1}
+{&#39;predictions&#39;: 0}
+{&#39;predictions&#39;: 1}
+{&#39;predictions&#39;: 0}
+{&#39;predictions&#39;: 1}
+{&#39;predictions&#39;: 1}
+{&#39;predictions&#39;: 1}
+{&#39;predictions&#39;: 1}
+{&#39;predictions&#39;: 0}
+{&#39;predictions&#39;: 0}
+{&#39;predictions&#39;: 1}
+{&#39;predictions&#39;: 1}
+{&#39;predictions&#39;: 0}
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Map_Batches:   0%|          | 0/1 [00:00&lt;?, ?it/s]<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1494403)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/xgboost/compat.py:31: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1494403)</span>   from pandas import MultiIndex, Int64Index
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1494413)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/xgboost/compat.py:31: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1494413)</span>   from pandas import MultiIndex, Int64Index
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1494403)</span> FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1494403)</span> FutureWarning: pandas.Float64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1494403)</span> FutureWarning: pandas.UInt64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1494413)</span> FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1494413)</span> FutureWarning: pandas.Float64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1494413)</span> FutureWarning: pandas.UInt64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+Map Progress (1 actors 1 pending): 100%|██████████| 1/1 [00:01&lt;00:00,  1.88s/it]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>SHAP VALUES
+{&#39;predictions_0&#39;: 0.009930070489645004, &#39;predictions_1&#39;: 0.546318531036377, &#39;predictions_2&#39;: -0.006533853709697723, &#39;predictions_3&#39;: 0.022934239357709885, &#39;predictions_4&#39;: 0.32817941904067993, &#39;predictions_5&#39;: 0.004407345782965422, &#39;predictions_6&#39;: 0.013881205581128597, &#39;predictions_7&#39;: 0.568859875202179, &#39;predictions_8&#39;: -0.27460771799087524, &#39;predictions_9&#39;: 0.013218197971582413, &#39;predictions_10&#39;: 0.009325551800429821, &#39;predictions_11&#39;: 0.04015672579407692, &#39;predictions_12&#39;: 0.11667086184024811, &#39;predictions_13&#39;: 0.9853533506393433, &#39;predictions_14&#39;: 0.05529181659221649, &#39;predictions_15&#39;: -0.005734208971261978, &#39;predictions_16&#39;: -0.0008497871458530426, &#39;predictions_17&#39;: 0.16138489544391632, &#39;predictions_18&#39;: -0.36162295937538147, &#39;predictions_19&#39;: 0.003658014815300703, &#39;predictions_20&#39;: 0.393682062625885, &#39;predictions_21&#39;: 0.6647266149520874, &#39;predictions_22&#39;: 1.7201099395751953, &#39;predictions_23&#39;: 0.35084351897239685, &#39;predictions_24&#39;: 0.4841834604740143, &#39;predictions_25&#39;: 0.013311417773365974, &#39;predictions_26&#39;: 0.8087116479873657, &#39;predictions_27&#39;: 0.5730299353599548, &#39;predictions_28&#39;: 0.1818174123764038, &#39;predictions_29&#39;: 0.1068669781088829, &#39;predictions_30&#39;: 0.5059375166893005}
+{&#39;predictions_0&#39;: 0.009930070489645004, &#39;predictions_1&#39;: 0.39265793561935425, &#39;predictions_2&#39;: -0.007271876558661461, &#39;predictions_3&#39;: 0.022934239357709885, &#39;predictions_4&#39;: -0.06737710535526276, &#39;predictions_5&#39;: 0.004407345782965422, &#39;predictions_6&#39;: 0.04250117391347885, &#39;predictions_7&#39;: 0.7946916222572327, &#39;predictions_8&#39;: 0.30412089824676514, &#39;predictions_9&#39;: 0.013218197971582413, &#39;predictions_10&#39;: 0.009325551800429821, &#39;predictions_11&#39;: 0.04129280149936676, &#39;predictions_12&#39;: -0.012254374101758003, &#39;predictions_13&#39;: 0.2327558547258377, &#39;predictions_14&#39;: 0.05529181659221649, &#39;predictions_15&#39;: 0.6405980587005615, &#39;predictions_16&#39;: -0.0014769809786230326, &#39;predictions_17&#39;: 0.16138489544391632, &#39;predictions_18&#39;: -0.3877210319042206, &#39;predictions_19&#39;: -0.0022315792739391327, &#39;predictions_20&#39;: 0.3209536671638489, &#39;predictions_21&#39;: -0.018735788762569427, &#39;predictions_22&#39;: 1.482913851737976, &#39;predictions_23&#39;: 0.3135913908481598, &#39;predictions_24&#39;: 0.5150958299636841, &#39;predictions_25&#39;: 0.013311417773365974, &#39;predictions_26&#39;: 1.0875523090362549, &#39;predictions_27&#39;: 0.7323897480964661, &#39;predictions_28&#39;: 0.12313760071992874, &#39;predictions_29&#39;: 0.1068669781088829, &#39;predictions_30&#39;: 0.5059375166893005}
+{&#39;predictions_0&#39;: -0.01911582238972187, &#39;predictions_1&#39;: -0.41554388403892517, &#39;predictions_2&#39;: -0.0034923271741718054, &#39;predictions_3&#39;: -0.06306137144565582, &#39;predictions_4&#39;: -0.3192429542541504, &#39;predictions_5&#39;: -0.009094981476664543, &#39;predictions_6&#39;: -0.08258295059204102, &#39;predictions_7&#39;: -0.8088644742965698, &#39;predictions_8&#39;: 0.2545676529407501, &#39;predictions_9&#39;: 0.015295587480068207, &#39;predictions_10&#39;: 0.0021318818908184767, &#39;predictions_11&#39;: -0.003732672892510891, &#39;predictions_12&#39;: -0.054907385259866714, &#39;predictions_13&#39;: -0.9062053561210632, &#39;predictions_14&#39;: -0.029618918895721436, &#39;predictions_15&#39;: 0.4303477704524994, &#39;predictions_16&#39;: -0.007885736413300037, &#39;predictions_17&#39;: 0.17541413009166718, &#39;predictions_18&#39;: -0.3190936744213104, &#39;predictions_19&#39;: 0.0024438181426376104, &#39;predictions_20&#39;: -0.6092430353164673, &#39;predictions_21&#39;: -0.3519248068332672, &#39;predictions_22&#39;: -2.2588469982147217, &#39;predictions_23&#39;: -0.569831371307373, &#39;predictions_24&#39;: -1.0422284603118896, &#39;predictions_25&#39;: -0.031086977571249008, &#39;predictions_26&#39;: -0.5648106932640076, &#39;predictions_27&#39;: -1.0225528478622437, &#39;predictions_28&#39;: -0.1411924958229065, &#39;predictions_29&#39;: -0.1724514663219452, &#39;predictions_30&#39;: 0.5059375166893005}
+{&#39;predictions_0&#39;: 0.009930070489645004, &#39;predictions_1&#39;: 0.5999099016189575, &#39;predictions_2&#39;: -0.007271876558661461, &#39;predictions_3&#39;: 0.022934239357709885, &#39;predictions_4&#39;: 0.31011122465133667, &#39;predictions_5&#39;: 0.004407345782965422, &#39;predictions_6&#39;: 0.013881205581128597, &#39;predictions_7&#39;: 0.5183905363082886, &#39;predictions_8&#39;: -0.27460771799087524, &#39;predictions_9&#39;: -0.015900276601314545, &#39;predictions_10&#39;: 0.009325551800429821, &#39;predictions_11&#39;: 0.04129280149936676, &#39;predictions_12&#39;: 0.11667086184024811, &#39;predictions_13&#39;: 1.0816324949264526, &#39;predictions_14&#39;: -0.01614229381084442, &#39;predictions_15&#39;: -0.23922261595726013, &#39;predictions_16&#39;: -0.0008497871458530426, &#39;predictions_17&#39;: 0.16138489544391632, &#39;predictions_18&#39;: -0.36162295937538147, &#39;predictions_19&#39;: -0.0022315792739391327, &#39;predictions_20&#39;: 0.3189953863620758, &#39;predictions_21&#39;: 0.6754519939422607, &#39;predictions_22&#39;: 1.513157606124878, &#39;predictions_23&#39;: 0.35084351897239685, &#39;predictions_24&#39;: 0.09065212309360504, &#39;predictions_25&#39;: 0.013311417773365974, &#39;predictions_26&#39;: 1.039388656616211, &#39;predictions_27&#39;: 0.5762963891029358, &#39;predictions_28&#39;: 0.1816803514957428, &#39;predictions_29&#39;: 0.1068669781088829, &#39;predictions_30&#39;: 0.5059375166893005}
+{&#39;predictions_0&#39;: 0.009930070489645004, &#39;predictions_1&#39;: 0.41290122270584106, &#39;predictions_2&#39;: -0.007271876558661461, &#39;predictions_3&#39;: 0.04113232344388962, &#39;predictions_4&#39;: 0.4761468768119812, &#39;predictions_5&#39;: 0.004407345782965422, &#39;predictions_6&#39;: 0.04250117391347885, &#39;predictions_7&#39;: 0.6889638304710388, &#39;predictions_8&#39;: 0.30412089824676514, &#39;predictions_9&#39;: -0.00703495554625988, &#39;predictions_10&#39;: 0.009325551800429821, &#39;predictions_11&#39;: 0.04129280149936676, &#39;predictions_12&#39;: -0.012254374101758003, &#39;predictions_13&#39;: 0.8955986499786377, &#39;predictions_14&#39;: 0.05529181659221649, &#39;predictions_15&#39;: 0.6405980587005615, &#39;predictions_16&#39;: -0.0010774275287985802, &#39;predictions_17&#39;: 0.16581103205680847, &#39;predictions_18&#39;: 0.4200459420681, &#39;predictions_19&#39;: 0.003658014815300703, &#39;predictions_20&#39;: 0.31559276580810547, &#39;predictions_21&#39;: 0.08991634845733643, &#39;predictions_22&#39;: 1.374340295791626, &#39;predictions_23&#39;: 0.4179628789424896, &#39;predictions_24&#39;: 0.6432731747627258, &#39;predictions_25&#39;: 0.013311417773365974, &#39;predictions_26&#39;: 1.0250954627990723, &#39;predictions_27&#39;: 0.6740144491195679, &#39;predictions_28&#39;: -0.12222569435834885, &#39;predictions_29&#39;: 0.1068669781088829, &#39;predictions_30&#39;: 0.5059375166893005}
+{&#39;predictions_0&#39;: 0.009930070489645004, &#39;predictions_1&#39;: 0.6223654747009277, &#39;predictions_2&#39;: -0.007271876558661461, &#39;predictions_3&#39;: 0.04113232344388962, &#39;predictions_4&#39;: 0.030091704800724983, &#39;predictions_5&#39;: 0.004407345782965422, &#39;predictions_6&#39;: 0.04250117391347885, &#39;predictions_7&#39;: 0.520163893699646, &#39;predictions_8&#39;: -0.13476626574993134, &#39;predictions_9&#39;: 0.013218197971582413, &#39;predictions_10&#39;: 0.004969821777194738, &#39;predictions_11&#39;: 0.04129280149936676, &#39;predictions_12&#39;: 0.11667086184024811, &#39;predictions_13&#39;: 1.0668600797653198, &#39;predictions_14&#39;: -0.46553897857666016, &#39;predictions_15&#39;: -0.06545835733413696, &#39;predictions_16&#39;: -0.0010774275287985802, &#39;predictions_17&#39;: 0.16138489544391632, &#39;predictions_18&#39;: 0.406240850687027, &#39;predictions_19&#39;: -0.004930071532726288, &#39;predictions_20&#39;: 0.303047239780426, &#39;predictions_21&#39;: 0.7582043409347534, &#39;predictions_22&#39;: 1.4096102714538574, &#39;predictions_23&#39;: 0.43191614747047424, &#39;predictions_24&#39;: 0.47695621848106384, &#39;predictions_25&#39;: 0.013311417773365974, &#39;predictions_26&#39;: 1.0482016801834106, &#39;predictions_27&#39;: 0.5110929608345032, &#39;predictions_28&#39;: -0.12222569435834885, &#39;predictions_29&#39;: 0.1068669781088829, &#39;predictions_30&#39;: 0.5059375166893005}
+{&#39;predictions_0&#39;: 0.009930070489645004, &#39;predictions_1&#39;: 0.5661754012107849, &#39;predictions_2&#39;: -0.0019909553229808807, &#39;predictions_3&#39;: 0.04113232344388962, &#39;predictions_4&#39;: 0.292957067489624, &#39;predictions_5&#39;: 0.004407345782965422, &#39;predictions_6&#39;: 0.013881205581128597, &#39;predictions_7&#39;: 0.6406195759773254, &#39;predictions_8&#39;: -0.27460771799087524, &#39;predictions_9&#39;: -0.007835762575268745, &#39;predictions_10&#39;: 0.009325551800429821, &#39;predictions_11&#39;: 0.04129280149936676, &#39;predictions_12&#39;: -0.012254374101758003, &#39;predictions_13&#39;: 0.21169273555278778, &#39;predictions_14&#39;: -0.02233714796602726, &#39;predictions_15&#39;: -0.9655348658561707, &#39;predictions_16&#39;: -0.0010828523663803935, &#39;predictions_17&#39;: 0.16581103205680847, &#39;predictions_18&#39;: 0.4200459420681, &#39;predictions_19&#39;: -0.0022315792739391327, &#39;predictions_20&#39;: 0.3136344850063324, &#39;predictions_21&#39;: 0.7264875173568726, &#39;predictions_22&#39;: 1.5534507036209106, &#39;predictions_23&#39;: 0.41967567801475525, &#39;predictions_24&#39;: 0.41908225417137146, &#39;predictions_25&#39;: 0.013311417773365974, &#39;predictions_26&#39;: 1.0032241344451904, &#39;predictions_27&#39;: 0.6091798543930054, &#39;predictions_28&#39;: 0.18174558877944946, &#39;predictions_29&#39;: 0.08268986642360687, &#39;predictions_30&#39;: 0.5059375166893005}
+{&#39;predictions_0&#39;: 0.009930070489645004, &#39;predictions_1&#39;: 0.40430790185928345, &#39;predictions_2&#39;: -0.007271876558661461, &#39;predictions_3&#39;: 0.04113232344388962, &#39;predictions_4&#39;: -0.33117765188217163, &#39;predictions_5&#39;: 0.004407345782965422, &#39;predictions_6&#39;: 0.013881205581128597, &#39;predictions_7&#39;: 0.737379252910614, &#39;predictions_8&#39;: -0.27460771799087524, &#39;predictions_9&#39;: 0.007771771401166916, &#39;predictions_10&#39;: 0.009325551800429821, &#39;predictions_11&#39;: 0.04129280149936676, &#39;predictions_12&#39;: -0.012254374101758003, &#39;predictions_13&#39;: 0.18173672258853912, &#39;predictions_14&#39;: -0.02233714796602726, &#39;predictions_15&#39;: 0.6811268329620361, &#39;predictions_16&#39;: -0.0014769809786230326, &#39;predictions_17&#39;: 0.16581103205680847, &#39;predictions_18&#39;: 0.406240850687027, &#39;predictions_19&#39;: -0.0022315792739391327, &#39;predictions_20&#39;: 0.31559276580810547, &#39;predictions_21&#39;: -0.031238339841365814, &#39;predictions_22&#39;: 1.7573171854019165, &#39;predictions_23&#39;: 0.3838556110858917, &#39;predictions_24&#39;: 0.14492939412593842, &#39;predictions_25&#39;: 0.013311417773365974, &#39;predictions_26&#39;: 1.1148661375045776, &#39;predictions_27&#39;: 0.7173758149147034, &#39;predictions_28&#39;: 0.18174558877944946, &#39;predictions_29&#39;: 0.1068669781088829, &#39;predictions_30&#39;: 0.5059375166893005}
+{&#39;predictions_0&#39;: -0.11485510319471359, &#39;predictions_1&#39;: 0.8875605463981628, &#39;predictions_2&#39;: -0.05685592442750931, &#39;predictions_3&#39;: -0.06306137144565582, &#39;predictions_4&#39;: 0.013515152037143707, &#39;predictions_5&#39;: 0.0024520084261894226, &#39;predictions_6&#39;: 0.04250117391347885, &#39;predictions_7&#39;: 0.4688224792480469, &#39;predictions_8&#39;: -0.14307911694049835, &#39;predictions_9&#39;: -0.06901921331882477, &#39;predictions_10&#39;: 0.003290211781859398, &#39;predictions_11&#39;: 0.003781725186854601, &#39;predictions_12&#39;: 0.08078579604625702, &#39;predictions_13&#39;: 0.8216619491577148, &#39;predictions_14&#39;: 0.0463210791349411, &#39;predictions_15&#39;: -0.13255546987056732, &#39;predictions_16&#39;: -0.0010776874842122197, &#39;predictions_17&#39;: 0.21504947543144226, &#39;predictions_18&#39;: -0.27619078755378723, &#39;predictions_19&#39;: -0.0025743553414940834, &#39;predictions_20&#39;: -0.9275118112564087, &#39;predictions_21&#39;: 1.0307989120483398, &#39;predictions_22&#39;: -2.7721312046051025, &#39;predictions_23&#39;: -0.4765593707561493, &#39;predictions_24&#39;: 0.5464398264884949, &#39;predictions_25&#39;: 0.004862718749791384, &#39;predictions_26&#39;: -0.619586706161499, &#39;predictions_27&#39;: -0.2188473790884018, &#39;predictions_28&#39;: 0.10512445122003555, &#39;predictions_29&#39;: 0.1068669781088829, &#39;predictions_30&#39;: 0.5059375166893005}
+{&#39;predictions_0&#39;: 0.0011090459302067757, &#39;predictions_1&#39;: -0.5595121383666992, &#39;predictions_2&#39;: -0.002613282995298505, &#39;predictions_3&#39;: 0.04113232344388962, &#39;predictions_4&#39;: 0.5254822969436646, &#39;predictions_5&#39;: 0.004407345782965422, &#39;predictions_6&#39;: 0.013881205581128597, &#39;predictions_7&#39;: 0.5551156997680664, &#39;predictions_8&#39;: -0.27460771799087524, &#39;predictions_9&#39;: 0.013218197971582413, &#39;predictions_10&#39;: 0.009325551800429821, &#39;predictions_11&#39;: 0.03278094530105591, &#39;predictions_12&#39;: -0.012305313721299171, &#39;predictions_13&#39;: -1.6061651706695557, &#39;predictions_14&#39;: -0.01887715980410576, &#39;predictions_15&#39;: 0.6405980587005615, &#39;predictions_16&#39;: -0.0014769809786230326, &#39;predictions_17&#39;: -0.1776299774646759, &#39;predictions_18&#39;: 0.4914793074131012, &#39;predictions_19&#39;: 0.014222224242985249, &#39;predictions_20&#39;: 0.311679869890213, &#39;predictions_21&#39;: -0.08892179280519485, &#39;predictions_22&#39;: 1.5504939556121826, &#39;predictions_23&#39;: 0.5073927044868469, &#39;predictions_24&#39;: 0.6315706968307495, &#39;predictions_25&#39;: 0.005095706321299076, &#39;predictions_26&#39;: 0.7821602821350098, &#39;predictions_27&#39;: 0.7409825325012207, &#39;predictions_28&#39;: 0.1818174123764038, &#39;predictions_29&#39;: 0.07541733235120773, &#39;predictions_30&#39;: 0.5059375166893005}
+{&#39;predictions_0&#39;: -0.01911582238972187, &#39;predictions_1&#39;: -0.41529545187950134, &#39;predictions_2&#39;: -0.0034923271741718054, &#39;predictions_3&#39;: -0.06306137144565582, &#39;predictions_4&#39;: -0.3192429542541504, &#39;predictions_5&#39;: 0.0166567862033844, &#39;predictions_6&#39;: -0.08258295059204102, &#39;predictions_7&#39;: -0.8088644742965698, &#39;predictions_8&#39;: 0.2545676529407501, &#39;predictions_9&#39;: 0.015658268705010414, &#39;predictions_10&#39;: 0.0021318818908184767, &#39;predictions_11&#39;: -0.003732672892510891, &#39;predictions_12&#39;: -0.054124802350997925, &#39;predictions_13&#39;: -1.0786054134368896, &#39;predictions_14&#39;: -0.03029802441596985, &#39;predictions_15&#39;: 0.46246394515037537, &#39;predictions_16&#39;: -0.007885736413300037, &#39;predictions_17&#39;: -0.168026864528656, &#39;predictions_18&#39;: -0.3190936744213104, &#39;predictions_19&#39;: 0.0024438181426376104, &#39;predictions_20&#39;: -0.6661943197250366, &#39;predictions_21&#39;: -0.2179996222257614, &#39;predictions_22&#39;: -2.689664125442505, &#39;predictions_23&#39;: -0.569831371307373, &#39;predictions_24&#39;: -0.6587631106376648, &#39;predictions_25&#39;: -0.031086977571249008, &#39;predictions_26&#39;: -0.554345428943634, &#39;predictions_27&#39;: -0.9785504937171936, &#39;predictions_28&#39;: -0.14026358723640442, &#39;predictions_29&#39;: 0.08221252262592316, &#39;predictions_30&#39;: 0.5059375166893005}
+{&#39;predictions_0&#39;: 0.009930070489645004, &#39;predictions_1&#39;: 0.46925264596939087, &#39;predictions_2&#39;: -0.007271876558661461, &#39;predictions_3&#39;: 0.04113232344388962, &#39;predictions_4&#39;: 0.49770334362983704, &#39;predictions_5&#39;: 0.004407345782965422, &#39;predictions_6&#39;: 0.04250117391347885, &#39;predictions_7&#39;: 0.7922263741493225, &#39;predictions_8&#39;: 0.30412089824676514, &#39;predictions_9&#39;: -0.020953189581632614, &#39;predictions_10&#39;: 0.009325551800429821, &#39;predictions_11&#39;: 0.04129280149936676, &#39;predictions_12&#39;: 0.10843253135681152, &#39;predictions_13&#39;: 0.21460701525211334, &#39;predictions_14&#39;: -0.01614229381084442, &#39;predictions_15&#39;: 0.6405980587005615, &#39;predictions_16&#39;: -0.0014769809786230326, &#39;predictions_17&#39;: 0.16581103205680847, &#39;predictions_18&#39;: 0.4200459420681, &#39;predictions_19&#39;: -0.004930071532726288, &#39;predictions_20&#39;: 0.31877532601356506, &#39;predictions_21&#39;: -0.01986948773264885, &#39;predictions_22&#39;: 1.556177020072937, &#39;predictions_23&#39;: 0.445791631937027, &#39;predictions_24&#39;: 0.5183241367340088, &#39;predictions_25&#39;: 0.013311417773365974, &#39;predictions_26&#39;: 1.139808177947998, &#39;predictions_27&#39;: 0.5462087988853455, &#39;predictions_28&#39;: -0.12236276268959045, &#39;predictions_29&#39;: 0.1068669781088829, &#39;predictions_30&#39;: 0.5059375166893005}
+{&#39;predictions_0&#39;: 0.009930070489645004, &#39;predictions_1&#39;: 0.4225478768348694, &#39;predictions_2&#39;: -0.007271876558661461, &#39;predictions_3&#39;: 0.022934239357709885, &#39;predictions_4&#39;: 0.38781455159187317, &#39;predictions_5&#39;: 0.004407345782965422, &#39;predictions_6&#39;: 0.013881205581128597, &#39;predictions_7&#39;: 0.6254116892814636, &#39;predictions_8&#39;: -0.28174325823783875, &#39;predictions_9&#39;: 0.008572578430175781, &#39;predictions_10&#39;: 0.009325551800429821, &#39;predictions_11&#39;: 0.022453438490629196, &#39;predictions_12&#39;: 0.09116627275943756, &#39;predictions_13&#39;: 1.01081383228302, &#39;predictions_14&#39;: 0.051560889929533005, &#39;predictions_15&#39;: -0.7526140809059143, &#39;predictions_16&#39;: -0.0010774275287985802, &#39;predictions_17&#39;: 0.13414263725280762, &#39;predictions_18&#39;: -0.36162295937538147, &#39;predictions_19&#39;: -0.004930071532726288, &#39;predictions_20&#39;: 0.21481025218963623, &#39;predictions_21&#39;: -1.7817566394805908, &#39;predictions_22&#39;: 1.5544458627700806, &#39;predictions_23&#39;: 0.37933894991874695, &#39;predictions_24&#39;: -0.5005015134811401, &#39;predictions_25&#39;: 0.013311417773365974, &#39;predictions_26&#39;: 1.2116931676864624, &#39;predictions_27&#39;: 0.44261839985847473, &#39;predictions_28&#39;: -0.1333807408809662, &#39;predictions_29&#39;: 0.12356309592723846, &#39;predictions_30&#39;: 0.5059375166893005}
+{&#39;predictions_0&#39;: 0.009930070489645004, &#39;predictions_1&#39;: 0.383541464805603, &#39;predictions_2&#39;: -0.007271876558661461, &#39;predictions_3&#39;: 0.022934239357709885, &#39;predictions_4&#39;: -0.2877747118473053, &#39;predictions_5&#39;: 0.004407345782965422, &#39;predictions_6&#39;: 0.04250117391347885, &#39;predictions_7&#39;: 0.7181150317192078, &#39;predictions_8&#39;: -0.13476626574993134, &#39;predictions_9&#39;: 0.008572578430175781, &#39;predictions_10&#39;: 0.009325551800429821, &#39;predictions_11&#39;: 0.04129280149936676, &#39;predictions_12&#39;: 0.11661991477012634, &#39;predictions_13&#39;: 1.1911046504974365, &#39;predictions_14&#39;: 0.05529181659221649, &#39;predictions_15&#39;: -0.9263618588447571, &#39;predictions_16&#39;: -0.0010774275287985802, &#39;predictions_17&#39;: 0.16138489544391632, &#39;predictions_18&#39;: -0.3877210319042206, &#39;predictions_19&#39;: -0.0022315792739391327, &#39;predictions_20&#39;: 0.33373206853866577, &#39;predictions_21&#39;: -0.10588698834180832, &#39;predictions_22&#39;: 1.7216718196868896, &#39;predictions_23&#39;: 0.33134832978248596, &#39;predictions_24&#39;: 0.07947567105293274, &#39;predictions_25&#39;: 0.013311417773365974, &#39;predictions_26&#39;: 1.1455278396606445, &#39;predictions_27&#39;: 0.6355651617050171, &#39;predictions_28&#39;: -0.12222569435834885, &#39;predictions_29&#39;: 0.08268986642360687, &#39;predictions_30&#39;: 0.5059375166893005}
+{&#39;predictions_0&#39;: 0.0006543132476508617, &#39;predictions_1&#39;: -0.9144008159637451, &#39;predictions_2&#39;: -0.002613282995298505, &#39;predictions_3&#39;: 0.04113232344388962, &#39;predictions_4&#39;: 0.3871055543422699, &#39;predictions_5&#39;: 0.004407345782965422, &#39;predictions_6&#39;: 0.013881205581128597, &#39;predictions_7&#39;: 0.6403470635414124, &#39;predictions_8&#39;: -0.27460771799087524, &#39;predictions_9&#39;: 0.05645249783992767, &#39;predictions_10&#39;: 0.009325551800429821, &#39;predictions_11&#39;: 0.02168312668800354, &#39;predictions_12&#39;: 0.11661991477012634, &#39;predictions_13&#39;: 1.00325608253479, &#39;predictions_14&#39;: 0.0834161564707756, &#39;predictions_15&#39;: 0.6231592893600464, &#39;predictions_16&#39;: -0.0010774275287985802, &#39;predictions_17&#39;: 0.16138489544391632, &#39;predictions_18&#39;: 0.37865450978279114, &#39;predictions_19&#39;: 0.014222224242985249, &#39;predictions_20&#39;: 0.38761574029922485, &#39;predictions_21&#39;: -0.02124016545712948, &#39;predictions_22&#39;: 1.7526684999465942, &#39;predictions_23&#39;: 0.5112042427062988, &#39;predictions_24&#39;: 0.5034342408180237, &#39;predictions_25&#39;: 0.005095706321299076, &#39;predictions_26&#39;: 0.9831169843673706, &#39;predictions_27&#39;: 0.6794330477714539, &#39;predictions_28&#39;: 0.1802661120891571, &#39;predictions_29&#39;: 0.1068669781088829, &#39;predictions_30&#39;: 0.5059375166893005}
+{&#39;predictions_0&#39;: -0.0415695421397686, &#39;predictions_1&#39;: -1.239405870437622, &#39;predictions_2&#39;: 0.017459018155932426, &#39;predictions_3&#39;: 0.04113232344388962, &#39;predictions_4&#39;: 0.4762759208679199, &#39;predictions_5&#39;: 0.004407345782965422, &#39;predictions_6&#39;: 0.04250117391347885, &#39;predictions_7&#39;: 0.9339500665664673, &#39;predictions_8&#39;: 0.2958080470561981, &#39;predictions_9&#39;: 0.07594440132379532, &#39;predictions_10&#39;: 0.003290211781859398, &#39;predictions_11&#39;: 0.01872287504374981, &#39;predictions_12&#39;: -0.047330088913440704, &#39;predictions_13&#39;: 0.056555308401584625, &#39;predictions_14&#39;: 0.05581967905163765, &#39;predictions_15&#39;: 0.6933314800262451, &#39;predictions_16&#39;: -0.0023022573441267014, &#39;predictions_17&#39;: 0.13856875896453857, &#39;predictions_18&#39;: 0.3069765865802765, &#39;predictions_19&#39;: 0.06924822926521301, &#39;predictions_20&#39;: -0.34636712074279785, &#39;predictions_21&#39;: -0.8682994246482849, &#39;predictions_22&#39;: -0.9693347215652466, &#39;predictions_23&#39;: -0.4783455729484558, &#39;predictions_24&#39;: 0.8846019506454468, &#39;predictions_25&#39;: -0.053959351032972336, &#39;predictions_26&#39;: -0.5963033437728882, &#39;predictions_27&#39;: -0.5447815656661987, &#39;predictions_28&#39;: -0.14065201580524445, &#39;predictions_29&#39;: 0.1068669781088829, &#39;predictions_30&#39;: 0.5059375166893005}
+{&#39;predictions_0&#39;: -0.024941062554717064, &#39;predictions_1&#39;: -1.5298322439193726, &#39;predictions_2&#39;: 0.01525309681892395, &#39;predictions_3&#39;: -0.11309991031885147, &#39;predictions_4&#39;: 0.5172238945960999, &#39;predictions_5&#39;: 0.0024520084261894226, &#39;predictions_6&#39;: 0.04250117391347885, &#39;predictions_7&#39;: 0.5354383587837219, &#39;predictions_8&#39;: 0.2944106459617615, &#39;predictions_9&#39;: -0.0466727539896965, &#39;predictions_10&#39;: 0.003290211781859398, &#39;predictions_11&#39;: 0.0188205074518919, &#39;predictions_12&#39;: -0.051007892936468124, &#39;predictions_13&#39;: -1.3502459526062012, &#39;predictions_14&#39;: -0.033535201102495193, &#39;predictions_15&#39;: 0.10678261518478394, &#39;predictions_16&#39;: -0.0014769809786230326, &#39;predictions_17&#39;: 0.13856875896453857, &#39;predictions_18&#39;: 0.3855004608631134, &#39;predictions_19&#39;: -0.008676297031342983, &#39;predictions_20&#39;: -0.3423697352409363, &#39;predictions_21&#39;: -0.8320394158363342, &#39;predictions_22&#39;: -0.677459716796875, &#39;predictions_23&#39;: -0.5385064482688904, &#39;predictions_24&#39;: 0.49956056475639343, &#39;predictions_25&#39;: 0.005095706321299076, &#39;predictions_26&#39;: 1.6938838958740234, &#39;predictions_27&#39;: 0.842454195022583, &#39;predictions_28&#39;: -0.14346282184123993, &#39;predictions_29&#39;: 0.07541733235120773, &#39;predictions_30&#39;: 0.5059375166893005}
+{&#39;predictions_0&#39;: 0.009930070489645004, &#39;predictions_1&#39;: -0.27544116973876953, &#39;predictions_2&#39;: -0.002613282995298505, &#39;predictions_3&#39;: 0.04113232344388962, &#39;predictions_4&#39;: -0.055784229189157486, &#39;predictions_5&#39;: 0.004407345782965422, &#39;predictions_6&#39;: 0.04250117391347885, &#39;predictions_7&#39;: 0.6722134947776794, &#39;predictions_8&#39;: 0.30412089824676514, &#39;predictions_9&#39;: 0.007771771401166916, &#39;predictions_10&#39;: 0.009325551800429821, &#39;predictions_11&#39;: 0.022453438490629196, &#39;predictions_12&#39;: 0.10843253135681152, &#39;predictions_13&#39;: 0.8989681005477905, &#39;predictions_14&#39;: -0.02233714796602726, &#39;predictions_15&#39;: 0.5417506694793701, &#39;predictions_16&#39;: -0.0010774275287985802, &#39;predictions_17&#39;: 0.16581103205680847, &#39;predictions_18&#39;: 0.406240850687027, &#39;predictions_19&#39;: -0.004930071532726288, &#39;predictions_20&#39;: 0.31123194098472595, &#39;predictions_21&#39;: -0.0816090777516365, &#39;predictions_22&#39;: 2.1133084297180176, &#39;predictions_23&#39;: 0.4506610333919525, &#39;predictions_24&#39;: -0.7193129658699036, &#39;predictions_25&#39;: 0.013311417773365974, &#39;predictions_26&#39;: 1.1290695667266846, &#39;predictions_27&#39;: 0.6277202367782593, &#39;predictions_28&#39;: -0.12229753285646439, &#39;predictions_29&#39;: 0.1477402150630951, &#39;predictions_30&#39;: 0.5059375166893005}
+{&#39;predictions_0&#39;: 0.0006543132476508617, &#39;predictions_1&#39;: -0.8427131175994873, &#39;predictions_2&#39;: -0.002613282995298505, &#39;predictions_3&#39;: 0.04113232344388962, &#39;predictions_4&#39;: -0.2789610028266907, &#39;predictions_5&#39;: 0.004407345782965422, &#39;predictions_6&#39;: 0.04250117391347885, &#39;predictions_7&#39;: 0.7143340706825256, &#39;predictions_8&#39;: 0.30412089824676514, &#39;predictions_9&#39;: 0.0335814394056797, &#39;predictions_10&#39;: 0.009325551800429821, &#39;predictions_11&#39;: -0.11305594444274902, &#39;predictions_12&#39;: -0.018516669049859047, &#39;predictions_13&#39;: 0.10892590880393982, &#39;predictions_14&#39;: -0.08540848642587662, &#39;predictions_15&#39;: -0.09607099741697311, &#39;predictions_16&#39;: -0.0014769809786230326, &#39;predictions_17&#39;: 0.13856875896453857, &#39;predictions_18&#39;: 0.44763222336769104, &#39;predictions_19&#39;: 0.014222224242985249, &#39;predictions_20&#39;: 0.33993175625801086, &#39;predictions_21&#39;: -0.6289445757865906, &#39;predictions_22&#39;: 1.987050175666809, &#39;predictions_23&#39;: 0.5226719379425049, &#39;predictions_24&#39;: -0.6285008788108826, &#39;predictions_25&#39;: 0.003129873890429735, &#39;predictions_26&#39;: 1.1616733074188232, &#39;predictions_27&#39;: 0.8699957132339478, &#39;predictions_28&#39;: -0.12550924718379974, &#39;predictions_29&#39;: 0.1477402150630951, &#39;predictions_30&#39;: 0.5059375166893005}
+{&#39;predictions_0&#39;: -0.01911582238972187, &#39;predictions_1&#39;: -0.41529545187950134, &#39;predictions_2&#39;: -0.0034923271741718054, &#39;predictions_3&#39;: -0.11309991031885147, &#39;predictions_4&#39;: -0.30164235830307007, &#39;predictions_5&#39;: -0.009094981476664543, &#39;predictions_6&#39;: -0.08258295059204102, &#39;predictions_7&#39;: -0.8088644742965698, &#39;predictions_8&#39;: 0.2545676529407501, &#39;predictions_9&#39;: 0.015658268705010414, &#39;predictions_10&#39;: -0.08612797409296036, &#39;predictions_11&#39;: -0.003732672892510891, &#39;predictions_12&#39;: -0.24946996569633484, &#39;predictions_13&#39;: -0.9515364766120911, &#39;predictions_14&#39;: -0.030668942257761955, &#39;predictions_15&#39;: 0.4303477704524994, &#39;predictions_16&#39;: -0.007885736413300037, &#39;predictions_17&#39;: -0.168026864528656, &#39;predictions_18&#39;: 0.25735917687416077, &#39;predictions_19&#39;: 0.0024438181426376104, &#39;predictions_20&#39;: -0.5780957937240601, &#39;predictions_21&#39;: -0.3737794756889343, &#39;predictions_22&#39;: -2.412389039993286, &#39;predictions_23&#39;: -0.6488395929336548, &#39;predictions_24&#39;: -0.6861838698387146, &#39;predictions_25&#39;: -0.031086977571249008, &#39;predictions_26&#39;: -0.5648106932640076, &#39;predictions_27&#39;: -0.9229058623313904, &#39;predictions_28&#39;: -0.14026358723640442, &#39;predictions_29&#39;: -0.1724514663219452, &#39;predictions_30&#39;: 0.5059375166893005}
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Faint -Color-Faint-Cyan">(BlockWorker pid=1494413)</span> FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1494469)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/xgboost/compat.py:31: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1494469)</span>   from pandas import MultiIndex, Int64Index
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1494469)</span> FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1494469)</span> FutureWarning: pandas.Float64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1494469)</span> FutureWarning: pandas.UInt64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="sklearn_example.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Training a model with Sklearn</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="analyze_tuning_results.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Hyperparameter tuning with XGBoostTrainer</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

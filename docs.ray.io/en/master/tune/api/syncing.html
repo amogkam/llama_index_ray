@@ -1,0 +1,864 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Syncing in Tune (tune.SyncConfig, tune.Syncer) &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/js/versionwarning.js"></script>
+    <script src="../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../_static/js/docsearch.js"></script>
+    <script src="../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../_static/js/top-navigation.js"></script>
+    <script src="../../_static/js/tags.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/tune/api/syncing.html" />
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="ray.tune.syncer.SyncConfig" href="doc/ray.tune.syncer.SyncConfig.html" />
+    <link rel="prev" title="ray.tune.JupyterNotebookReporter.output_queue" href="doc/ray.tune.JupyterNotebookReporter.output_queue.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "tune/api/syncing", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".rst", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../../tune.html">
+   Ray Tune
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../getting-started.html">
+     Getting Started
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../tutorials/overview.html">
+     User Guides
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../examples/index.html">
+     Ray Tune Examples
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../faq.html">
+     Ray Tune FAQ
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="api.html">
+     Ray Tune API
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="execution.html">
+       Tune Execution (tune.Tuner)
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="result_grid.html">
+       Tune Experiment Results (tune.ResultGrid)
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="trainable.html">
+       Training in Tune (tune.Trainable, session.report)
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="search_space.html">
+       Tune Search Space API
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="suggestion.html">
+       Tune Search Algorithms (tune.search)
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="schedulers.html">
+       Tune Trial Schedulers (tune.schedulers)
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="stoppers.html">
+       Tune Stopping Mechanisms (tune.stopper)
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="reporters.html">
+       Tune Console Output (Reporters)
+      </a>
+     </li>
+     <li class="toctree-l3 current active has-children">
+      <a class="current reference internal" href="syncing.html#">
+       Syncing in Tune (tune.SyncConfig, tune.Syncer)
+      </a>
+      <input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+      <label for="toctree-checkbox-3">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.tune.syncer.SyncConfig.html">
+         ray.tune.syncer.SyncConfig
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.tune.syncer.Syncer.html">
+         ray.tune.syncer.Syncer
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.tune.syncer.Syncer.sync_up.html">
+         ray.tune.syncer.Syncer.sync_up
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.tune.syncer.Syncer.sync_down.html">
+         ray.tune.syncer.Syncer.sync_down
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.tune.syncer.Syncer.delete.html">
+         ray.tune.syncer.Syncer.delete
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.tune.syncer.Syncer.wait.html">
+         ray.tune.syncer.Syncer.wait
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.tune.syncer.Syncer.wait_or_retry.html">
+         ray.tune.syncer.Syncer.wait_or_retry
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.tune.syncer.SyncerCallback.html">
+         ray.tune.syncer.SyncerCallback
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.tune.syncer._DefaultSyncer.html">
+         ray.tune.syncer._DefaultSyncer
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="doc/ray.tune.syncer._BackgroundSyncer.html">
+         ray.tune.syncer._BackgroundSyncer
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="logging.html">
+       Tune Loggers (tune.logger)
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="callbacks.html">
+       Tune Callbacks (tune.Callback)
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="env.html">
+       Environment variables used by Ray Tune
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="sklearn.html">
+       Tune Scikit-Learn API  (tune.sklearn)
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="integration.html">
+       External library integrations for Ray Tune
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="internals.html">
+       Tune Internals
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="client.html">
+       Tune Client API
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="cli.html">
+       Tune CLI (Experimental)
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Ftune/api/syncing.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/tune/api/syncing.rst"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../_sources/tune/api/syncing.rst.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.rst</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="syncing.html#tune-syncing-configuration">
+   Tune Syncing Configuration
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="syncing.html#remote-storage-syncer-interface-tune-syncer">
+   Remote Storage Syncer Interface (tune.Syncer)
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="syncing.html#constructor">
+     Constructor
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="syncing.html#syncer-methods-to-implement">
+     Syncer Methods to Implement
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="syncing.html#tune-built-in-syncers">
+   Tune Built-in Syncers
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Syncing in Tune (tune.SyncConfig, tune.Syncer)</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="syncing.html#tune-syncing-configuration">
+   Tune Syncing Configuration
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="syncing.html#remote-storage-syncer-interface-tune-syncer">
+   Remote Storage Syncer Interface (tune.Syncer)
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="syncing.html#constructor">
+     Constructor
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="syncing.html#syncer-methods-to-implement">
+     Syncer Methods to Implement
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="syncing.html#tune-built-in-syncers">
+   Tune Built-in Syncers
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section id="syncing-in-tune-tune-syncconfig-tune-syncer">
+<h1>Syncing in Tune (tune.SyncConfig, tune.Syncer)<a class="headerlink" href="syncing.html#syncing-in-tune-tune-syncconfig-tune-syncer" title="Permalink to this headline">#</a></h1>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>See <a class="reference internal" href="../tutorials/tune-storage.html"><span class="doc">this user guide</span></a> for more details and examples.</p>
+</div>
+<section id="tune-syncing-configuration">
+<span id="tune-sync-config"></span><h2>Tune Syncing Configuration<a class="headerlink" href="syncing.html#tune-syncing-configuration" title="Permalink to this headline">#</a></h2>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.tune.syncer.SyncConfig.html#ray.tune.syncer.SyncConfig" title="ray.tune.syncer.SyncConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SyncConfig</span></code></a>([upload_dir, syncer, ...])</p></td>
+<td><p>Configuration object for Tune syncing.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="remote-storage-syncer-interface-tune-syncer">
+<span id="tune-syncer"></span><h2>Remote Storage Syncer Interface (tune.Syncer)<a class="headerlink" href="syncing.html#remote-storage-syncer-interface-tune-syncer" title="Permalink to this headline">#</a></h2>
+<section id="constructor">
+<h3>Constructor<a class="headerlink" href="syncing.html#constructor" title="Permalink to this headline">#</a></h3>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.tune.syncer.Syncer.html#ray.tune.syncer.Syncer" title="ray.tune.syncer.Syncer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Syncer</span></code></a>([sync_period, sync_timeout])</p></td>
+<td><p>Syncer class for synchronizing data between Ray nodes and remote (cloud) storage.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="syncer-methods-to-implement">
+<h3>Syncer Methods to Implement<a class="headerlink" href="syncing.html#syncer-methods-to-implement" title="Permalink to this headline">#</a></h3>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.tune.syncer.Syncer.sync_up.html#ray.tune.syncer.Syncer.sync_up" title="ray.tune.syncer.Syncer.sync_up"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Syncer.sync_up</span></code></a>(local_dir, remote_dir[, exclude])</p></td>
+<td><p>Synchronize local directory to remote directory.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.tune.syncer.Syncer.sync_down.html#ray.tune.syncer.Syncer.sync_down" title="ray.tune.syncer.Syncer.sync_down"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Syncer.sync_down</span></code></a>(remote_dir, local_dir[, ...])</p></td>
+<td><p>Synchronize remote directory to local directory.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.tune.syncer.Syncer.delete.html#ray.tune.syncer.Syncer.delete" title="ray.tune.syncer.Syncer.delete"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Syncer.delete</span></code></a>(remote_dir)</p></td>
+<td><p>Delete directory on remote storage.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.tune.syncer.Syncer.wait.html#ray.tune.syncer.Syncer.wait" title="ray.tune.syncer.Syncer.wait"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Syncer.wait</span></code></a>()</p></td>
+<td><p>Wait for asynchronous sync command to finish.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.tune.syncer.Syncer.wait_or_retry.html#ray.tune.syncer.Syncer.wait_or_retry" title="ray.tune.syncer.Syncer.wait_or_retry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Syncer.wait_or_retry</span></code></a>([max_retries, backoff_s])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="tune-built-in-syncers">
+<h2>Tune Built-in Syncers<a class="headerlink" href="syncing.html#tune-built-in-syncers" title="Permalink to this headline">#</a></h2>
+<table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.tune.syncer.SyncerCallback.html#ray.tune.syncer.SyncerCallback" title="ray.tune.syncer.SyncerCallback"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SyncerCallback</span></code></a>([enabled, sync_period])</p></td>
+<td><p>Callback to synchronize trial directories on a worker node with the driver.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="doc/ray.tune.syncer._DefaultSyncer.html#ray.tune.syncer._DefaultSyncer" title="ray.tune.syncer._DefaultSyncer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_DefaultSyncer</span></code></a>([sync_period, sync_timeout])</p></td>
+<td><p>Default syncer between local storage and remote URI.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="doc/ray.tune.syncer._BackgroundSyncer.html#ray.tune.syncer._BackgroundSyncer" title="ray.tune.syncer._BackgroundSyncer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_BackgroundSyncer</span></code></a>([sync_period, sync_timeout])</p></td>
+<td><p>Syncer using a background process for asynchronous file transfer.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="doc/ray.tune.JupyterNotebookReporter.output_queue.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">ray.tune.JupyterNotebookReporter.output_queue</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="doc/ray.tune.syncer.SyncConfig.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">ray.tune.syncer.SyncConfig</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

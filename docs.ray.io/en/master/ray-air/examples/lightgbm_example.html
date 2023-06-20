@@ -1,0 +1,1037 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Training a model with distributed LightGBM &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/js/versionwarning.js"></script>
+    <script src="../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../_static/js/docsearch.js"></script>
+    <script src="../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../_static/js/top-navigation.js"></script>
+    <script src="../../_static/js/tags.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/ray-air/examples/lightgbm_example.html" />
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Incremental Learning with Ray AIR" href="torch_incremental_learning.html" />
+    <link rel="prev" title="Hyperparameter tuning with XGBoostTrainer" href="analyze_tuning_results.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "ray-air/examples/lightgbm_example", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".ipynb", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../user-guides.html">
+     User Guides
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="index.html">
+     Examples
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="opt_deepspeed_batch_inference.html">
+       Batch Inference with OPT 30B and Ray Data
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="torch_image_example.html">
+       Training a Torch Image Classifier
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="torch_detection.html">
+       Fine-tuning a Torch object detection model
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="convert_existing_pytorch_code_to_ray_air.html">
+       Convert existing PyTorch code to Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="convert_existing_tf_code_to_ray_air.html">
+       Convert existing Tensorflow/Keras code to Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tfx_tabular_train_to_serve.html">
+       Tabular data training and serving with Keras and Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="huggingface_text_classification.html">
+       Fine-tune a 🤗 Transformers model
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="sklearn_example.html">
+       Training a model with Sklearn
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="xgboost_example.html">
+       Training a model with distributed XGBoost
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="analyze_tuning_results.html">
+       Hyperparameter tuning with XGBoostTrainer
+      </a>
+     </li>
+     <li class="toctree-l3 current active">
+      <a class="current reference internal" href="lightgbm_example.html#">
+       Training a model with distributed LightGBM
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="torch_incremental_learning.html">
+       Incremental Learning with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rl_serving_example.html">
+       Serving reinforcement learning policy models
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rl_online_example.html">
+       Online reinforcement learning with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rl_offline_example.html">
+       Offline reinforcement learning with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="upload_to_comet_ml.html">
+       Logging results and uploading models to Comet ML
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="upload_to_wandb.html">
+       Logging results and uploading models to Weights &amp; Biases
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="feast_example.html">
+       Integrate Ray AIR with Feast feature store
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="automl_with_ray_air.html">
+       AutoML for time series forecasting with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="batch_tuning.html">
+       Batch training &amp; tuning on Ray Tune
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="batch_forecasting.html">
+       Parallel demand forecasting at scale using Ray Tune
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="stablediffusion_batch_prediction.html">
+       Stable Diffusion Batch Prediction with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gptj_deepspeed_fine_tuning.html">
+       GPT-J-6B Fine-Tuning with Ray AIR and DeepSpeed
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gptj_batch_prediction.html">
+       GPT-J-6B Batch Prediction with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gptj_serving.html">
+       GPT-J-6B Serving with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="dreambooth_finetuning.html">
+       Fine-tuning DreamBooth with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="dolly_lightning_fsdp_finetuning.html">
+       Fine-tune
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         dolly-v2-7b
+        </span>
+       </code>
+       with Ray AIR LightningTrainer and FSDP
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/api.html">
+     Ray AIR API
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../benchmarks.html">
+     Benchmarks
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tune.html">
+   Ray Tune
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Fray-air/examples/lightgbm_example.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/ray-air/examples/lightgbm_example.ipynb"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../_sources/ray-air/examples/lightgbm_example.ipynb.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.ipynb</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Training a model with distributed LightGBM</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section class="tex2jax_ignore mathjax_ignore" id="training-a-model-with-distributed-lightgbm">
+<span id="air-lightgbm-example-ref"></span><h1>Training a model with distributed LightGBM<a class="headerlink" href="lightgbm_example.html#training-a-model-with-distributed-lightgbm" title="Permalink to this headline">#</a></h1>
+<p>In this example we will train a model in Ray AIR using distributed LightGBM.</p>
+<p>Let’s start with installing our dependencies:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>pip install -qU <span class="s2">&quot;ray[tune]&quot;</span> lightgbm_ray
+</pre></div>
+</div>
+</div>
+</div>
+<p>Then we need some imports:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">from</span> <span class="nn">ray.train.batch_predictor</span> <span class="kn">import</span> <span class="n">BatchPredictor</span>
+<span class="kn">from</span> <span class="nn">ray.train.lightgbm</span> <span class="kn">import</span> <span class="n">LightGBMPredictor</span>
+<span class="kn">from</span> <span class="nn">ray.data.preprocessors.chain</span> <span class="kn">import</span> <span class="n">Chain</span>
+<span class="kn">from</span> <span class="nn">ray.data.preprocessors.encoder</span> <span class="kn">import</span> <span class="n">Categorizer</span>
+<span class="kn">from</span> <span class="nn">ray.train.lightgbm</span> <span class="kn">import</span> <span class="n">LightGBMTrainer</span>
+<span class="kn">from</span> <span class="nn">ray.air.config</span> <span class="kn">import</span> <span class="n">ScalingConfig</span>
+<span class="kn">from</span> <span class="nn">ray.data</span> <span class="kn">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span> <span class="nn">ray.air.result</span> <span class="kn">import</span> <span class="n">Result</span>
+<span class="kn">from</span> <span class="nn">ray.data.preprocessors</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Next we define a function to load our train, validation, and test datasets.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">prepare_data</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">Dataset</span><span class="p">]:</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;s3://anonymous@air-example-data/breast_cancer_with_categorical.csv&quot;</span><span class="p">)</span>
+    <span class="n">train_dataset</span><span class="p">,</span> <span class="n">valid_dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">train_test_split</span><span class="p">(</span><span class="n">test_size</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+    <span class="n">test_dataset</span> <span class="o">=</span> <span class="n">valid_dataset</span><span class="o">.</span><span class="n">drop_columns</span><span class="p">(</span><span class="n">cols</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;target&quot;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">train_dataset</span><span class="p">,</span> <span class="n">valid_dataset</span><span class="p">,</span> <span class="n">test_dataset</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The following function will create a LightGBM trainer, train it, and return the result.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">train_lightgbm</span><span class="p">(</span><span class="n">num_workers</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">use_gpu</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Result</span><span class="p">:</span>
+    <span class="n">train_dataset</span><span class="p">,</span> <span class="n">valid_dataset</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">prepare_data</span><span class="p">()</span>
+
+    <span class="c1"># Scale some random columns, and categorify the categorical_column,</span>
+    <span class="c1"># allowing LightGBM to use its built-in categorical feature support</span>
+    <span class="n">preprocessor</span> <span class="o">=</span> <span class="n">Chain</span><span class="p">(</span>
+        <span class="n">Categorizer</span><span class="p">([</span><span class="s2">&quot;categorical_column&quot;</span><span class="p">]),</span> 
+        <span class="n">StandardScaler</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mean radius&quot;</span><span class="p">,</span> <span class="s2">&quot;mean texture&quot;</span><span class="p">])</span>
+    <span class="p">)</span>
+
+    <span class="c1"># LightGBM specific params</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;objective&quot;</span><span class="p">:</span> <span class="s2">&quot;binary&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;metric&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;binary_logloss&quot;</span><span class="p">,</span> <span class="s2">&quot;binary_error&quot;</span><span class="p">],</span>
+    <span class="p">}</span>
+
+    <span class="n">trainer</span> <span class="o">=</span> <span class="n">LightGBMTrainer</span><span class="p">(</span>
+        <span class="n">scaling_config</span><span class="o">=</span><span class="n">ScalingConfig</span><span class="p">(</span><span class="n">num_workers</span><span class="o">=</span><span class="n">num_workers</span><span class="p">,</span> <span class="n">use_gpu</span><span class="o">=</span><span class="n">use_gpu</span><span class="p">),</span>
+        <span class="n">label_column</span><span class="o">=</span><span class="s2">&quot;target&quot;</span><span class="p">,</span>
+        <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span>
+        <span class="n">datasets</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;train&quot;</span><span class="p">:</span> <span class="n">train_dataset</span><span class="p">,</span> <span class="s2">&quot;valid&quot;</span><span class="p">:</span> <span class="n">valid_dataset</span><span class="p">},</span>
+        <span class="n">preprocessor</span><span class="o">=</span><span class="n">preprocessor</span><span class="p">,</span>
+        <span class="n">num_boost_round</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">metrics</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">result</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Once we have the result, we can do batch inference on the obtained model. Let’s define a utility function for this.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">predict_lightgbm</span><span class="p">(</span><span class="n">result</span><span class="p">:</span> <span class="n">Result</span><span class="p">):</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">test_dataset</span> <span class="o">=</span> <span class="n">prepare_data</span><span class="p">()</span>
+    <span class="n">batch_predictor</span> <span class="o">=</span> <span class="n">BatchPredictor</span><span class="o">.</span><span class="n">from_checkpoint</span><span class="p">(</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">checkpoint</span><span class="p">,</span> <span class="n">LightGBMPredictor</span>
+    <span class="p">)</span>
+
+    <span class="n">predicted_labels</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">batch_predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">map_batches</span><span class="p">(</span><span class="k">lambda</span> <span class="n">df</span><span class="p">:</span> <span class="p">(</span><span class="n">df</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span> <span class="n">batch_format</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PREDICTED LABELS&quot;</span><span class="p">)</span>
+    <span class="n">predicted_labels</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="n">shap_values</span> <span class="o">=</span> <span class="n">batch_predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test_dataset</span><span class="p">,</span> <span class="n">pred_contrib</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SHAP VALUES&quot;</span><span class="p">)</span>
+    <span class="n">shap_values</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Now we can run the training:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">train_lightgbm</span><span class="p">(</span><span class="n">num_workers</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">use_gpu</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2022-06-22 17:26:41,346	WARNING read_api.py:260 -- The number of blocks in this dataset (1) limits its parallelism to 1 concurrent tasks. This is much less than the number of available CPU slots in the cluster. Use `.repartition(n)` to increase the number of dataset blocks.
+Map_Batches: 100%|██████████| 1/1 [00:00&lt;00:00, 46.26it/s]
+</pre></div>
+</div>
+<div class="output text_html">== Status ==<br>Current time: 2022-06-22 17:26:56 (running for 00:00:14.07)<br>Memory usage on this node: 10.0/31.0 GiB<br>Using FIFO scheduling algorithm.<br>Resources requested: 0/8 CPUs, 0/0 GPUs, 0.0/13.32 GiB heap, 0.0/6.66 GiB objects<br>Result logdir: /home/ubuntu/ray_results/LightGBMTrainer_2022-06-22_17-26-41<br>Number of trials: 1/1 (1 TERMINATED)<br><table>
+<thead>
+<tr><th>Trial name                 </th><th>status    </th><th>loc                  </th><th style="text-align: right;">  iter</th><th style="text-align: right;">  total time (s)</th><th style="text-align: right;">  train-binary_logloss</th><th style="text-align: right;">  train-binary_error</th><th style="text-align: right;">  valid-binary_logloss</th></tr>
+</thead>
+<tbody>
+<tr><td>LightGBMTrainer_7b049_00000</td><td>TERMINATED</td><td>172.31.43.110:1491578</td><td style="text-align: right;">   100</td><td style="text-align: right;">         10.9726</td><td style="text-align: right;">           0.000574522</td><td style="text-align: right;">                   0</td><td style="text-align: right;">              0.171898</td></tr>
+</tbody>
+</table><br><br></div><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>UserWarning: cpus_per_actor is set to less than 2. Distributed LightGBM needs at least 2 CPUs per actor to train efficiently. This may lead to a degradation of performance during training.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1491578)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/dask/dataframe/backends.py:181: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1491578)</span>   _numeric_index_types = (pd.Int64Index, pd.Float64Index, pd.UInt64Index)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1491578)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/dask/dataframe/backends.py:181: FutureWarning: pandas.Float64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1491578)</span>   _numeric_index_types = (pd.Int64Index, pd.Float64Index, pd.UInt64Index)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1491578)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/dask/dataframe/backends.py:181: FutureWarning: pandas.UInt64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1491578)</span>   _numeric_index_types = (pd.Int64Index, pd.Float64Index, pd.UInt64Index)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1491578)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/xgboost/compat.py:31: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1491578)</span>   from pandas import MultiIndex, Int64Index
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(LightGBMTrainer pid=1491578)</span> UserWarning: Dataset &#39;train&#39; has 1 blocks, which is less than the `num_workers` 2. This dataset will be automatically repartitioned to 2 blocks.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(LightGBMTrainer pid=1491578)</span> UserWarning: Dataset &#39;valid&#39; has 1 blocks, which is less than the `num_workers` 2. This dataset will be automatically repartitioned to 2 blocks.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(LightGBMTrainer pid=1491578)</span> UserWarning: cpus_per_actor is set to less than 2. Distributed LightGBM needs at least 2 CPUs per actor to train efficiently. This may lead to a degradation of performance during training.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1491651)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/xgboost/compat.py:31: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1491651)</span>   from pandas import MultiIndex, Int64Index
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1491651)</span> FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1491651)</span> FutureWarning: pandas.Float64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1491651)</span> FutureWarning: pandas.UInt64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1491653)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/dask/dataframe/backends.py:181: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1491653)</span>   _numeric_index_types = (pd.Int64Index, pd.Float64Index, pd.UInt64Index)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1491653)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/dask/dataframe/backends.py:181: FutureWarning: pandas.Float64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1491653)</span>   _numeric_index_types = (pd.Int64Index, pd.Float64Index, pd.UInt64Index)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1491653)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/dask/dataframe/backends.py:181: FutureWarning: pandas.UInt64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1491653)</span>   _numeric_index_types = (pd.Int64Index, pd.Float64Index, pd.UInt64Index)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1491653)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/xgboost/compat.py:31: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1491653)</span>   from pandas import MultiIndex, Int64Index
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1491652)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/dask/dataframe/backends.py:181: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1491652)</span>   _numeric_index_types = (pd.Int64Index, pd.Float64Index, pd.UInt64Index)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1491652)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/dask/dataframe/backends.py:181: FutureWarning: pandas.Float64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1491652)</span>   _numeric_index_types = (pd.Int64Index, pd.Float64Index, pd.UInt64Index)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1491652)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/dask/dataframe/backends.py:181: FutureWarning: pandas.UInt64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1491652)</span>   _numeric_index_types = (pd.Int64Index, pd.Float64Index, pd.UInt64Index)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1491652)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/xgboost/compat.py:31: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1491652)</span>   from pandas import MultiIndex, Int64Index
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(_RemoteRayLightGBMActor pid=1491653)</span> 2022-06-22 17:26:50,509	WARNING __init__.py:190 -- DeprecationWarning: `ray.worker.get_resource_ids` is a private attribute and access will be removed in a future Ray version.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(_RemoteRayLightGBMActor pid=1491652)</span> 2022-06-22 17:26:50,658	WARNING __init__.py:190 -- DeprecationWarning: `ray.worker.get_resource_ids` is a private attribute and access will be removed in a future Ray version.
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Faint -Color-Faint-Cyan">(_RemoteRayLightGBMActor pid=1491653)</span> [LightGBM] [Info] Trying to bind port 59039...
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(_RemoteRayLightGBMActor pid=1491653)</span> [LightGBM] [Info] Binding port 59039 succeeded
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(_RemoteRayLightGBMActor pid=1491653)</span> [LightGBM] [Info] Listening...
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(_RemoteRayLightGBMActor pid=1491652)</span> [LightGBM] [Info] Trying to bind port 46955...
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(_RemoteRayLightGBMActor pid=1491652)</span> [LightGBM] [Info] Binding port 46955 succeeded
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(_RemoteRayLightGBMActor pid=1491652)</span> [LightGBM] [Info] Listening...
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(_RemoteRayLightGBMActor pid=1491652)</span> [LightGBM] [Warning] Connecting to rank 1 failed, waiting for 200 milliseconds
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Faint -Color-Faint-Cyan">(_RemoteRayLightGBMActor pid=1491653)</span> UserWarning: Overriding the parameters from Reference Dataset.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(_RemoteRayLightGBMActor pid=1491653)</span> UserWarning: categorical_column in param dict is overridden.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(_RemoteRayLightGBMActor pid=1491652)</span> UserWarning: Overriding the parameters from Reference Dataset.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(_RemoteRayLightGBMActor pid=1491652)</span> UserWarning: categorical_column in param dict is overridden.
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Faint -Color-Faint-Cyan">(_RemoteRayLightGBMActor pid=1491653)</span> [LightGBM] [Info] Connected to rank 0
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(_RemoteRayLightGBMActor pid=1491653)</span> [LightGBM] [Info] Local rank: 1, total number of machines: 2
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(_RemoteRayLightGBMActor pid=1491653)</span> [LightGBM] [Warning] num_threads is set=1, n_jobs=-1 will be ignored. Current value: num_threads=1
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(_RemoteRayLightGBMActor pid=1491652)</span> [LightGBM] [Info] Connected to rank 1
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(_RemoteRayLightGBMActor pid=1491652)</span> [LightGBM] [Info] Local rank: 0, total number of machines: 2
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(_RemoteRayLightGBMActor pid=1491652)</span> [LightGBM] [Warning] num_threads is set=1, n_jobs=-1 will be ignored. Current value: num_threads=1
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Faint -Color-Faint-Cyan">(_QueueActor pid=1491650)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/dask/dataframe/backends.py:181: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(_QueueActor pid=1491650)</span>   _numeric_index_types = (pd.Int64Index, pd.Float64Index, pd.UInt64Index)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(_QueueActor pid=1491650)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/dask/dataframe/backends.py:181: FutureWarning: pandas.Float64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(_QueueActor pid=1491650)</span>   _numeric_index_types = (pd.Int64Index, pd.Float64Index, pd.UInt64Index)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(_QueueActor pid=1491650)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/dask/dataframe/backends.py:181: FutureWarning: pandas.UInt64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(_QueueActor pid=1491650)</span>   _numeric_index_types = (pd.Int64Index, pd.Float64Index, pd.UInt64Index)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(_QueueActor pid=1491650)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/xgboost/compat.py:31: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(_QueueActor pid=1491650)</span>   from pandas import MultiIndex, Int64Index
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Result for LightGBMTrainer_7b049_00000:
+  date: 2022-06-22_17-26-53
+  done: false
+  experiment_id: b4a87c26a7604a43baf895755d4f16b3
+  hostname: ip-172-31-43-110
+  iterations_since_restore: 1
+  node_ip: 172.31.43.110
+  pid: 1491578
+  should_checkpoint: true
+  time_since_restore: 8.369545459747314
+  time_this_iter_s: 8.369545459747314
+  time_total_s: 8.369545459747314
+  timestamp: 1655918813
+  timesteps_since_restore: 0
+  train-binary_error: 0.5175879396984925
+  train-binary_logloss: 0.6302848981539763
+  training_iteration: 1
+  trial_id: 7b049_00000
+  valid-binary_error: 0.2
+  valid-binary_logloss: 0.558752017793943
+  warmup_time: 0.008721590042114258
+  
+Result for LightGBMTrainer_7b049_00000:
+  date: 2022-06-22_17-26-56
+  done: true
+  experiment_id: b4a87c26a7604a43baf895755d4f16b3
+  experiment_tag: &#39;0&#39;
+  hostname: ip-172-31-43-110
+  iterations_since_restore: 100
+  node_ip: 172.31.43.110
+  pid: 1491578
+  should_checkpoint: true
+  time_since_restore: 10.972588300704956
+  time_this_iter_s: 0.027977466583251953
+  time_total_s: 10.972588300704956
+  timestamp: 1655918816
+  timesteps_since_restore: 0
+  train-binary_error: 0.0
+  train-binary_logloss: 0.0005745220956391456
+  training_iteration: 100
+  trial_id: 7b049_00000
+  valid-binary_error: 0.058823529411764705
+  valid-binary_logloss: 0.17189847605331432
+  warmup_time: 0.008721590042114258
+  
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2022-06-22 17:26:56,406	INFO tune.py:734 -- Total run time: 14.73 seconds (14.06 seconds for the tuning loop).
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;train-binary_logloss&#39;: 0.0005745220956391456, &#39;train-binary_error&#39;: 0.0, &#39;valid-binary_logloss&#39;: 0.17189847605331432, &#39;valid-binary_error&#39;: 0.058823529411764705, &#39;time_this_iter_s&#39;: 0.027977466583251953, &#39;should_checkpoint&#39;: True, &#39;done&#39;: True, &#39;timesteps_total&#39;: None, &#39;episodes_total&#39;: None, &#39;training_iteration&#39;: 100, &#39;trial_id&#39;: &#39;7b049_00000&#39;, &#39;experiment_id&#39;: &#39;b4a87c26a7604a43baf895755d4f16b3&#39;, &#39;date&#39;: &#39;2022-06-22_17-26-56&#39;, &#39;timestamp&#39;: 1655918816, &#39;time_total_s&#39;: 10.972588300704956, &#39;pid&#39;: 1491578, &#39;hostname&#39;: &#39;ip-172-31-43-110&#39;, &#39;node_ip&#39;: &#39;172.31.43.110&#39;, &#39;config&#39;: {}, &#39;time_since_restore&#39;: 10.972588300704956, &#39;timesteps_since_restore&#39;: 0, &#39;iterations_since_restore&#39;: 100, &#39;warmup_time&#39;: 0.008721590042114258, &#39;experiment_tag&#39;: &#39;0&#39;}
+</pre></div>
+</div>
+</div>
+</div>
+<p>And perform inference on the obtained model:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">predict_lightgbm</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2022-06-22 17:26:57,517	WARNING read_api.py:260 -- The number of blocks in this dataset (1) limits its parallelism to 1 concurrent tasks. This is much less than the number of available CPU slots in the cluster. Use `.repartition(n)` to increase the number of dataset blocks.
+Map_Batches: 100%|██████████| 1/1 [00:00&lt;00:00, 50.96it/s]
+Map_Batches:   0%|          | 0/1 [00:00&lt;?, ?it/s]<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1491998)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/dask/dataframe/backends.py:181: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1491998)</span>   _numeric_index_types = (pd.Int64Index, pd.Float64Index, pd.UInt64Index)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1491998)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/dask/dataframe/backends.py:181: FutureWarning: pandas.Float64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1491998)</span>   _numeric_index_types = (pd.Int64Index, pd.Float64Index, pd.UInt64Index)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1491998)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/dask/dataframe/backends.py:181: FutureWarning: pandas.UInt64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1491998)</span>   _numeric_index_types = (pd.Int64Index, pd.Float64Index, pd.UInt64Index)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1491998)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/xgboost/compat.py:31: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1491998)</span>   from pandas import MultiIndex, Int64Index
+Map Progress (1 actors 1 pending): 100%|██████████| 1/1 [00:02&lt;00:00,  2.05s/it]
+Map_Batches: 100%|██████████| 1/1 [00:00&lt;00:00, 75.07it/s]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>PREDICTED LABELS
+{&#39;predictions&#39;: 1}
+{&#39;predictions&#39;: 1}
+{&#39;predictions&#39;: 0}
+{&#39;predictions&#39;: 1}
+{&#39;predictions&#39;: 1}
+{&#39;predictions&#39;: 1}
+{&#39;predictions&#39;: 1}
+{&#39;predictions&#39;: 1}
+{&#39;predictions&#39;: 1}
+{&#39;predictions&#39;: 1}
+{&#39;predictions&#39;: 0}
+{&#39;predictions&#39;: 1}
+{&#39;predictions&#39;: 1}
+{&#39;predictions&#39;: 1}
+{&#39;predictions&#39;: 1}
+{&#39;predictions&#39;: 0}
+{&#39;predictions&#39;: 1}
+{&#39;predictions&#39;: 1}
+{&#39;predictions&#39;: 1}
+{&#39;predictions&#39;: 0}
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Map_Batches:   0%|          | 0/1 [00:00&lt;?, ?it/s]<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1492031)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/dask/dataframe/backends.py:181: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1492031)</span>   _numeric_index_types = (pd.Int64Index, pd.Float64Index, pd.UInt64Index)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1492031)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/dask/dataframe/backends.py:181: FutureWarning: pandas.Float64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1492031)</span>   _numeric_index_types = (pd.Int64Index, pd.Float64Index, pd.UInt64Index)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1492031)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/dask/dataframe/backends.py:181: FutureWarning: pandas.UInt64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1492031)</span>   _numeric_index_types = (pd.Int64Index, pd.Float64Index, pd.UInt64Index)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1492031)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/xgboost/compat.py:31: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1492031)</span>   from pandas import MultiIndex, Int64Index
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1492033)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/dask/dataframe/backends.py:181: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1492033)</span>   _numeric_index_types = (pd.Int64Index, pd.Float64Index, pd.UInt64Index)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1492033)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/dask/dataframe/backends.py:181: FutureWarning: pandas.Float64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1492033)</span>   _numeric_index_types = (pd.Int64Index, pd.Float64Index, pd.UInt64Index)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1492033)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/dask/dataframe/backends.py:181: FutureWarning: pandas.UInt64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1492033)</span>   _numeric_index_types = (pd.Int64Index, pd.Float64Index, pd.UInt64Index)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1492033)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/xgboost/compat.py:31: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1492033)</span>   from pandas import MultiIndex, Int64Index
+Map Progress (1 actors 1 pending): 100%|██████████| 1/1 [00:02&lt;00:00,  2.09s/it]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>SHAP VALUES
+{&#39;predictions_0&#39;: 0.006121974664714535, &#39;predictions_1&#39;: 0.8940294162424869, &#39;predictions_2&#39;: -0.013623909529011522, &#39;predictions_3&#39;: -0.26580572803883, &#39;predictions_4&#39;: 0.2897686828261492, &#39;predictions_5&#39;: -0.03784232120648852, &#39;predictions_6&#39;: 0.021865334852359534, &#39;predictions_7&#39;: 1.1753326094382734, &#39;predictions_8&#39;: -0.02525466292349231, &#39;predictions_9&#39;: 0.0733463992354119, &#39;predictions_10&#39;: 0.09191922035401615, &#39;predictions_11&#39;: -0.0035196096494634313, &#39;predictions_12&#39;: 0.20211476104388482, &#39;predictions_13&#39;: 0.7813488658944929, &#39;predictions_14&#39;: 0.10000464816891827, &#39;predictions_15&#39;: 0.11543593649642907, &#39;predictions_16&#39;: -0.009732477634862284, &#39;predictions_17&#39;: 0.19117650484758314, &#39;predictions_18&#39;: -0.17600075102817322, &#39;predictions_19&#39;: 0.5829434737180024, &#39;predictions_20&#39;: 1.4220773445509465, &#39;predictions_21&#39;: 0.6086211783805069, &#39;predictions_22&#39;: 2.0031654232526925, &#39;predictions_23&#39;: 0.3090376110779834, &#39;predictions_24&#39;: -0.21156467772251453, &#39;predictions_25&#39;: 0.14122943819731193, &#39;predictions_26&#39;: -0.1324700025487787, &#39;predictions_27&#39;: 0.8280650504246968, &#39;predictions_28&#39;: 0.03147457104755769, &#39;predictions_29&#39;: 0.00029604737237433516, &#39;predictions_30&#39;: 0.024336487839325866, &#39;predictions_31&#39;: 1.5201632854544105}
+{&#39;predictions_0&#39;: 0.00565090216762466, &#39;predictions_1&#39;: 0.7173247917145018, &#39;predictions_2&#39;: -0.01352989648419376, &#39;predictions_3&#39;: -0.204508963539279, &#39;predictions_4&#39;: -0.11703564338083555, &#39;predictions_5&#39;: 0.059858710083059874, &#39;predictions_6&#39;: 0.06974454296095976, &#39;predictions_7&#39;: 1.5952991804773315, &#39;predictions_8&#39;: 0.30494490847895245, &#39;predictions_9&#39;: 0.03770331660034111, &#39;predictions_10&#39;: 0.08779844216179675, &#39;predictions_11&#39;: 0.0001818669974550241, &#39;predictions_12&#39;: -0.10871732001356472, &#39;predictions_13&#39;: 0.49872871949407244, &#39;predictions_14&#39;: 0.16083030838859202, &#39;predictions_15&#39;: 0.4071487385487001, &#39;predictions_16&#39;: -0.00920287075428388, &#39;predictions_17&#39;: 0.21519060265555054, &#39;predictions_18&#39;: -0.24141319659570365, &#39;predictions_19&#39;: -0.19394859165532527, &#39;predictions_20&#39;: 1.2358452648954865, &#39;predictions_21&#39;: 0.16127531717942642, &#39;predictions_22&#39;: 1.3397755121893355, &#39;predictions_23&#39;: 0.24271016133964965, &#39;predictions_24&#39;: -0.11296858156987878, &#39;predictions_25&#39;: 0.21775788278030012, &#39;predictions_26&#39;: 0.8594002204044787, &#39;predictions_27&#39;: 1.0571631081079365, &#39;predictions_28&#39;: 0.06338809094380635, &#39;predictions_29&#39;: 0.14952090064808415, &#39;predictions_30&#39;: -0.020191656254497082, &#39;predictions_31&#39;: 1.5201632854544105}
+{&#39;predictions_0&#39;: 0.0011410972769028797, &#39;predictions_1&#39;: -0.023112580054428615, &#39;predictions_2&#39;: 0.0015007474035067395, &#39;predictions_3&#39;: -0.3960490192373774, &#39;predictions_4&#39;: -0.30646108596137317, &#39;predictions_5&#39;: -0.015606280874156383, &#39;predictions_6&#39;: -0.10875176916234583, &#39;predictions_7&#39;: -2.3253286264519457, &#39;predictions_8&#39;: 0.2758843675860649, &#39;predictions_9&#39;: 0.029091310311824298, &#39;predictions_10&#39;: -0.057950348636255644, &#39;predictions_11&#39;: -0.00017555498393944432, &#39;predictions_12&#39;: -0.4136454204716676, &#39;predictions_13&#39;: -0.3629735922139978, &#39;predictions_14&#39;: 0.04232756741319012, &#39;predictions_15&#39;: 0.06936920198392876, &#39;predictions_16&#39;: 0.010307144611165166, &#39;predictions_17&#39;: -0.4063116213440989, &#39;predictions_18&#39;: -0.07826460708005233, &#39;predictions_19&#39;: 0.28668914680505037, &#39;predictions_20&#39;: -2.0034181076720015, &#39;predictions_21&#39;: -0.4289092806234529, &#39;predictions_22&#39;: -2.059807308089095, &#39;predictions_23&#39;: -0.2625534917898286, &#39;predictions_24&#39;: -1.0607560950436483, &#39;predictions_25&#39;: -0.13241418825219023, &#39;predictions_26&#39;: -0.46713657128877134, &#39;predictions_27&#39;: -2.0707325110237127, &#39;predictions_28&#39;: -0.0212343580603297, &#39;predictions_29&#39;: -0.11761200100287779, &#39;predictions_30&#39;: 0.03805635018946682, &#39;predictions_31&#39;: 1.5201632854544105}
+{&#39;predictions_0&#39;: 0.003501920356918757, &#39;predictions_1&#39;: 0.9649889446638613, &#39;predictions_2&#39;: -0.011627077584939034, &#39;predictions_3&#39;: -0.33201537640627937, &#39;predictions_4&#39;: 0.2626117060870051, &#39;predictions_5&#39;: -0.0420997182498785, &#39;predictions_6&#39;: 0.05656763216450521, &#39;predictions_7&#39;: 1.076092179662977, &#39;predictions_8&#39;: -0.1396182169782879, &#39;predictions_9&#39;: -0.09872952353947571, &#39;predictions_10&#39;: 0.04378766056466948, &#39;predictions_11&#39;: 0.002478996394296549, &#39;predictions_12&#39;: 0.25042183813566526, &#39;predictions_13&#39;: 0.8751692867530225, &#39;predictions_14&#39;: 0.18679133739736484, &#39;predictions_15&#39;: 0.046846715006450504, &#39;predictions_16&#39;: -0.009211815518670832, &#39;predictions_17&#39;: 0.22485983912144494, &#39;predictions_18&#39;: -0.2861737431801593, &#39;predictions_19&#39;: -0.2533929278067911, &#39;predictions_20&#39;: 1.316951719635302, &#39;predictions_21&#39;: 1.1964971086769494, &#39;predictions_22&#39;: 1.2740098717427248, &#39;predictions_23&#39;: 0.25042580055967084, &#39;predictions_24&#39;: -0.4015257176668039, &#39;predictions_25&#39;: 0.17935395324361414, &#39;predictions_26&#39;: 1.126933988937795, &#39;predictions_27&#39;: 0.8031626612897146, &#39;predictions_28&#39;: 0.0771850514731471, &#39;predictions_29&#39;: 0.03755423306624511, &#39;predictions_30&#39;: -0.016833253240925238, &#39;predictions_31&#39;: 1.5201632854544105}
+{&#39;predictions_0&#39;: -0.0034560551402153003, &#39;predictions_1&#39;: 0.5230708630376469, &#39;predictions_2&#39;: -0.015562114219360572, &#39;predictions_3&#39;: -0.1196402194436373, &#39;predictions_4&#39;: 0.4106482044292619, &#39;predictions_5&#39;: 0.06220233147046589, &#39;predictions_6&#39;: 0.12716114707514065, &#39;predictions_7&#39;: 1.3356455912614509, &#39;predictions_8&#39;: 0.1447514882444872, &#39;predictions_9&#39;: 0.12370386736447751, &#39;predictions_10&#39;: 0.07410456355721864, &#39;predictions_11&#39;: 0.012016763274156357, &#39;predictions_12&#39;: -0.10513441936331262, &#39;predictions_13&#39;: 0.7484191363603289, &#39;predictions_14&#39;: 0.18707788149117566, &#39;predictions_15&#39;: 0.3327881147491029, &#39;predictions_16&#39;: -0.009219336794413353, &#39;predictions_17&#39;: -0.10065740008750416, &#39;predictions_18&#39;: 0.16625881614886867, &#39;predictions_19&#39;: 0.23084551369873454, &#39;predictions_20&#39;: 1.358717098613538, &#39;predictions_21&#39;: 0.19175435277095332, &#39;predictions_22&#39;: 1.3375643842995248, &#39;predictions_23&#39;: 0.2926283902278477, &#39;predictions_24&#39;: 0.1146310032943002, &#39;predictions_25&#39;: 0.23343399483643015, &#39;predictions_26&#39;: 0.6034462734909513, &#39;predictions_27&#39;: 0.9230214841058666, &#39;predictions_28&#39;: 0.029594344165258104, &#39;predictions_29&#39;: 0.04913153000099999, &#39;predictions_30&#39;: 0.02341707352913655, &#39;predictions_31&#39;: 1.5201632854544105}
+{&#39;predictions_0&#39;: -0.005102561841927789, &#39;predictions_1&#39;: 1.0861119112102469, &#39;predictions_2&#39;: -0.0154828846564582, &#39;predictions_3&#39;: -0.3088905099091714, &#39;predictions_4&#39;: 0.05779026036152443, &#39;predictions_5&#39;: 0.047351932324116885, &#39;predictions_6&#39;: 0.0876371219806605, &#39;predictions_7&#39;: 1.1210466016114495, &#39;predictions_8&#39;: -0.1252369777517682, &#39;predictions_9&#39;: 0.04572512843104436, &#39;predictions_10&#39;: 0.09245771221086214, &#39;predictions_11&#39;: 0.007753500238910626, &#39;predictions_12&#39;: 0.2309698163766563, &#39;predictions_13&#39;: 0.9684988783771291, &#39;predictions_14&#39;: 0.024511467599608535, &#39;predictions_15&#39;: 0.18657179919131872, &#39;predictions_16&#39;: -0.009212652411079585, &#39;predictions_17&#39;: -0.13395842318946233, &#39;predictions_18&#39;: 0.152376407447391, &#39;predictions_19&#39;: -0.28554273302892486, &#39;predictions_20&#39;: 1.3994697511973517, &#39;predictions_21&#39;: 0.5784457048607689, &#39;predictions_22&#39;: 1.3325378201278, &#39;predictions_23&#39;: 0.30730022154186687, &#39;predictions_24&#39;: 0.017237427138293876, &#39;predictions_25&#39;: 0.19484371531419448, &#39;predictions_26&#39;: 1.0716212980249242, &#39;predictions_27&#39;: 0.7424857548065319, &#39;predictions_28&#39;: 0.030110335845485465, &#39;predictions_29&#39;: 0.08677604394991238, &#39;predictions_30&#39;: -0.018230914497616164, &#39;predictions_31&#39;: 1.5201632854544105}
+{&#39;predictions_0&#39;: 0.011026642414565658, &#39;predictions_1&#39;: 1.0433621693813095, &#39;predictions_2&#39;: -0.00702393810808943, &#39;predictions_3&#39;: -0.2962479861350653, &#39;predictions_4&#39;: 0.20838486132625483, &#39;predictions_5&#39;: -0.07568934141814487, &#39;predictions_6&#39;: 0.026798049998736986, &#39;predictions_7&#39;: 1.2233970557267948, &#39;predictions_8&#39;: -0.07215770822854156, &#39;predictions_9&#39;: 0.016138237086580777, &#39;predictions_10&#39;: 0.04908427317188252, &#39;predictions_11&#39;: -0.013274124641011575, &#39;predictions_12&#39;: -0.16059386568879297, &#39;predictions_13&#39;: 0.38386374312584454, &#39;predictions_14&#39;: -0.03476748264814593, &#39;predictions_15&#39;: -0.5225211720205649, &#39;predictions_16&#39;: -0.009220168600202043, &#39;predictions_17&#39;: -0.15278574495418593, &#39;predictions_18&#39;: 0.12911665421378546, &#39;predictions_19&#39;: -0.2782951415110554, &#39;predictions_20&#39;: 1.2470508123020512, &#39;predictions_21&#39;: 1.049830317708393, &#39;predictions_22&#39;: 2.102971796648596, &#39;predictions_23&#39;: 0.2851979247349288, &#39;predictions_24&#39;: -0.0006702647871052775, &#39;predictions_25&#39;: -0.11420596882801563, &#39;predictions_26&#39;: 1.0834575497816143, &#39;predictions_27&#39;: 0.8164104508549398, &#39;predictions_28&#39;: 0.06634783513626033, &#39;predictions_29&#39;: 0.10518170393387423, &#39;predictions_30&#39;: 0.05948635171854934, &#39;predictions_31&#39;: 1.5201632854544105}
+{&#39;predictions_0&#39;: 0.008846265655878418, &#39;predictions_1&#39;: 1.071493056050533, &#39;predictions_2&#39;: 0.0241002358002765, &#39;predictions_3&#39;: -0.2914009217752569, &#39;predictions_4&#39;: -0.1844514405858182, &#39;predictions_5&#39;: 0.09688586653158524, &#39;predictions_6&#39;: 0.1189004872794518, &#39;predictions_7&#39;: 0.019812317046639417, &#39;predictions_8&#39;: -0.0841879790447643, &#39;predictions_9&#39;: 0.0689671067023492, &#39;predictions_10&#39;: 0.057123796305462, &#39;predictions_11&#39;: 0.018751811843757425, &#39;predictions_12&#39;: -0.19278774516524225, &#39;predictions_13&#39;: 0.5521382975001031, &#39;predictions_14&#39;: -0.1961614983559944, &#39;predictions_15&#39;: 0.3352816348185536, &#39;predictions_16&#39;: -0.009197695434128215, &#39;predictions_17&#39;: -0.0600167757501572, &#39;predictions_18&#39;: 0.27488314466683056, &#39;predictions_19&#39;: -0.35962747336476697, &#39;predictions_20&#39;: 1.2317107478669351, &#39;predictions_21&#39;: 0.05530975604521487, &#39;predictions_22&#39;: 2.382011011440535, &#39;predictions_23&#39;: 0.33824065775317486, &#39;predictions_24&#39;: 0.3498540690011901, &#39;predictions_25&#39;: 0.1739274660593352, &#39;predictions_26&#39;: 1.160333734158511, &#39;predictions_27&#39;: 1.033879786485623, &#39;predictions_28&#39;: 0.08158573366246898, &#39;predictions_29&#39;: 0.10563970622307337, &#39;predictions_30&#39;: -0.04267793892712356, &#39;predictions_31&#39;: 1.5201632854544105}
+{&#39;predictions_0&#39;: 0.004750001129083867, &#39;predictions_1&#39;: 3.2244208404334374, &#39;predictions_2&#39;: 0.01622715285279811, &#39;predictions_3&#39;: -0.817260302999862, &#39;predictions_4&#39;: -0.09736090983332732, &#39;predictions_5&#39;: 0.07881792915896496, &#39;predictions_6&#39;: 0.24070898834769355, &#39;predictions_7&#39;: 0.05001221074373508, &#39;predictions_8&#39;: -0.2567854774979608, &#39;predictions_9&#39;: 0.03063087506346955, &#39;predictions_10&#39;: 0.05499599036837444, &#39;predictions_11&#39;: -0.015303644634305683, &#39;predictions_12&#39;: -0.14884606737286166, &#39;predictions_13&#39;: 0.8519672928318166, &#39;predictions_14&#39;: 0.09824149785766935, &#39;predictions_15&#39;: 0.26921023748269235, &#39;predictions_16&#39;: -0.010848751281971217, &#39;predictions_17&#39;: -0.11619083730523652, &#39;predictions_18&#39;: -0.17527472428145596, &#39;predictions_19&#39;: -0.5874677933384177, &#39;predictions_20&#39;: -0.3990904299729458, &#39;predictions_21&#39;: 2.2068328291797936, &#39;predictions_22&#39;: -1.932202847332452, &#39;predictions_23&#39;: -0.3152964245377162, &#39;predictions_24&#39;: 0.7834452171983805, &#39;predictions_25&#39;: 0.2512128072560273, &#39;predictions_26&#39;: -0.6206434154152907, &#39;predictions_27&#39;: 0.08708205787374604, &#39;predictions_28&#39;: 0.040648951231987765, &#39;predictions_29&#39;: 0.06879586583909683, &#39;predictions_30&#39;: 0.043515107484221424, &#39;predictions_31&#39;: 1.5201632854544105}
+{&#39;predictions_0&#39;: -0.011027810657660349, &#39;predictions_1&#39;: -0.5337191669392997, &#39;predictions_2&#39;: -0.0026033241771052282, &#39;predictions_3&#39;: -0.2382336633486158, &#39;predictions_4&#39;: 0.8615636351404935, &#39;predictions_5&#39;: 0.059347121609268944, &#39;predictions_6&#39;: 0.14253423982272048, &#39;predictions_7&#39;: 1.4462830393121449, &#39;predictions_8&#39;: -0.06536550111076092, &#39;predictions_9&#39;: 0.12249420022849346, &#39;predictions_10&#39;: -0.040845467674169966, &#39;predictions_11&#39;: 0.03619973926410233, &#39;predictions_12&#39;: -0.14839345664605622, &#39;predictions_13&#39;: -0.38765958181699983, &#39;predictions_14&#39;: 0.45137385893985227, &#39;predictions_15&#39;: 0.4818261473751218, &#39;predictions_16&#39;: 0.005229328958126197, &#39;predictions_17&#39;: -0.14927291449462546, &#39;predictions_18&#39;: 0.12257473692108792, &#39;predictions_19&#39;: 0.5775523654869467, &#39;predictions_20&#39;: 1.4945158847763393, &#39;predictions_21&#39;: -0.11572127634540279, &#39;predictions_22&#39;: 1.2803791500605577, &#39;predictions_23&#39;: 0.2519454034779557, &#39;predictions_24&#39;: 0.12639705427540554, &#39;predictions_25&#39;: 0.20374090734634412, &#39;predictions_26&#39;: 0.9872077234715891, &#39;predictions_27&#39;: 1.1931782325388345, &#39;predictions_28&#39;: 0.07647609206107736, &#39;predictions_29&#39;: 0.017535160650109134, &#39;predictions_30&#39;: -0.011152247353355573, &#39;predictions_31&#39;: 1.5201632854544105}
+{&#39;predictions_0&#39;: -0.009236814888869137, &#39;predictions_1&#39;: -0.08974532751806996, &#39;predictions_2&#39;: -0.005072446447076212, &#39;predictions_3&#39;: -0.49454476931590674, &#39;predictions_4&#39;: -0.14583165960960504, &#39;predictions_5&#39;: 0.037743362980294, &#39;predictions_6&#39;: -0.09071218034159645, &#39;predictions_7&#39;: -2.076157655204495, &#39;predictions_8&#39;: 0.6915530135596496, &#39;predictions_9&#39;: 0.015305309316520455, &#39;predictions_10&#39;: -0.05407297473599998, &#39;predictions_11&#39;: -0.01202689608724274, &#39;predictions_12&#39;: -0.37048240770136764, &#39;predictions_13&#39;: -1.1222567180136822, &#39;predictions_14&#39;: 0.037999849333804875, &#39;predictions_15&#39;: 0.05179781531623324, &#39;predictions_16&#39;: -0.009442169563784072, &#39;predictions_17&#39;: -0.3518926772423797, &#39;predictions_18&#39;: -0.18168464537700557, &#39;predictions_19&#39;: -0.246308669315598, &#39;predictions_20&#39;: -1.8215267653197431, &#39;predictions_21&#39;: -0.16464307910939846, &#39;predictions_22&#39;: -2.294068720859334, &#39;predictions_23&#39;: -0.3304406806357679, &#39;predictions_24&#39;: -0.8059935139116144, &#39;predictions_25&#39;: -0.15473187742974112, &#39;predictions_26&#39;: -0.44492987082868113, &#39;predictions_27&#39;: -1.706574981012038, &#39;predictions_28&#39;: 0.009928350750753007, &#39;predictions_29&#39;: -0.005531569126011125, &#39;predictions_30&#39;: 0.03400893184303606, &#39;predictions_31&#39;: 1.5201632854544105}
+{&#39;predictions_0&#39;: 0.002893918337539625, &#39;predictions_1&#39;: 0.6953965947651528, &#39;predictions_2&#39;: -0.013300368855470382, &#39;predictions_3&#39;: -0.15693491782098012, &#39;predictions_4&#39;: 0.4052561639196121, &#39;predictions_5&#39;: -0.01785344804083238, &#39;predictions_6&#39;: 0.19406598570732034, &#39;predictions_7&#39;: 1.5796202341560919, &#39;predictions_8&#39;: 0.28954821935673325, &#39;predictions_9&#39;: -0.215897797520852, &#39;predictions_10&#39;: 0.05835282036206641, &#39;predictions_11&#39;: 0.03331176153763488, &#39;predictions_12&#39;: -0.10112958834294049, &#39;predictions_13&#39;: 0.3947745629125056, &#39;predictions_14&#39;: 0.22909135741673778, &#39;predictions_15&#39;: 0.473005657256218, &#39;predictions_16&#39;: -0.009633689567643305, &#39;predictions_17&#39;: -0.09362381604913257, &#39;predictions_18&#39;: 0.14969971629912343, &#39;predictions_19&#39;: -0.1688864705396212, &#39;predictions_20&#39;: 1.3001215347067874, &#39;predictions_21&#39;: -0.21918668227485943, &#39;predictions_22&#39;: 1.3437058168797267, &#39;predictions_23&#39;: 0.3124907025891718, &#39;predictions_24&#39;: 0.14131080537131419, &#39;predictions_25&#39;: 0.2243700411172835, &#39;predictions_26&#39;: 0.9296630907535046, &#39;predictions_27&#39;: 0.41471504174869356, &#39;predictions_28&#39;: 0.020173572275052214, &#39;predictions_29&#39;: 0.04820465228613692, &#39;predictions_30&#39;: -0.020545384469295942, &#39;predictions_31&#39;: 1.5201632854544105}
+{&#39;predictions_0&#39;: 0.0019388150699810927, &#39;predictions_1&#39;: 0.9223705632364128, &#39;predictions_2&#39;: -0.012007685883043798, &#39;predictions_3&#39;: -0.31903137131372966, &#39;predictions_4&#39;: 0.628481905867853, &#39;predictions_5&#39;: -0.06149389221971728, &#39;predictions_6&#39;: 0.07061611794203079, &#39;predictions_7&#39;: 1.3823056189088423, &#39;predictions_8&#39;: -0.133343124664483, &#39;predictions_9&#39;: 0.11603949252367812, &#39;predictions_10&#39;: 0.21857476218484376, &#39;predictions_11&#39;: 0.015902798791774055, &#39;predictions_12&#39;: 0.2913666065699202, &#39;predictions_13&#39;: 0.9315294837553827, &#39;predictions_14&#39;: 0.277372510153019, &#39;predictions_15&#39;: -0.5071083100622337, &#39;predictions_16&#39;: -0.009631147961094873, &#39;predictions_17&#39;: 0.23976024706824375, &#39;predictions_18&#39;: -0.20540519019181294, &#39;predictions_19&#39;: -0.2450413530123813, &#39;predictions_20&#39;: 1.1789579806256083, &#39;predictions_21&#39;: -1.5177833757024324, &#39;predictions_22&#39;: 1.4604002248277352, &#39;predictions_23&#39;: 0.27531878725283415, &#39;predictions_24&#39;: -1.352094841156462, &#39;predictions_25&#39;: 0.16870219247146698, &#39;predictions_26&#39;: 1.2263320807717468, &#39;predictions_27&#39;: 0.8656450275023648, &#39;predictions_28&#39;: 0.04415827467622267, &#39;predictions_29&#39;: 0.049210669003044466, &#39;predictions_30&#39;: 0.03485239596130599, &#39;predictions_31&#39;: 1.5201632854544105}
+{&#39;predictions_0&#39;: 0.003483875604996794, &#39;predictions_1&#39;: 0.9677217395705439, &#39;predictions_2&#39;: -0.01375116195045965, &#39;predictions_3&#39;: -0.3148394441913672, &#39;predictions_4&#39;: -0.2574040676795255, &#39;predictions_5&#39;: 0.07782351238517007, &#39;predictions_6&#39;: 0.09223237164727777, &#39;predictions_7&#39;: 1.359163521325679, &#39;predictions_8&#39;: -0.10520478897286097, &#39;predictions_9&#39;: 0.051820926250002466, &#39;predictions_10&#39;: 0.15651454755052202, &#39;predictions_11&#39;: 0.012354841533717503, &#39;predictions_12&#39;: 0.29314938008831337, &#39;predictions_13&#39;: 1.0134451429783053, &#39;predictions_14&#39;: 0.07334166731849916, &#39;predictions_15&#39;: -0.5580245806930221, &#39;predictions_16&#39;: -0.009637538822743917, &#39;predictions_17&#39;: -0.12931888564696647, &#39;predictions_18&#39;: -0.08985648327837921, &#39;predictions_19&#39;: -0.2838831478457971, &#39;predictions_20&#39;: 1.197739882302604, &#39;predictions_21&#39;: -0.14264086768498266, &#39;predictions_22&#39;: 2.4168915798709034, &#39;predictions_23&#39;: 0.35060520926622657, &#39;predictions_24&#39;: -0.243435195670719, &#39;predictions_25&#39;: 0.15680747277488985, &#39;predictions_26&#39;: 1.2012113470638528, &#39;predictions_27&#39;: 0.9897751319349664, &#39;predictions_28&#39;: 0.05573907097988011, &#39;predictions_29&#39;: 0.06252860717834312, &#39;predictions_30&#39;: -0.05792966463337761, &#39;predictions_31&#39;: 1.5201632854544105}
+{&#39;predictions_0&#39;: 0.015122615065552805, &#39;predictions_1&#39;: -1.1167653489947622, &#39;predictions_2&#39;: -0.008012147012472742, &#39;predictions_3&#39;: -0.20874221256644707, &#39;predictions_4&#39;: 0.4252072619730782, &#39;predictions_5&#39;: 0.0038900875799020296, &#39;predictions_6&#39;: 0.1140119630004244, &#39;predictions_7&#39;: 1.1987104625838227, &#39;predictions_8&#39;: -0.0802347059616203, &#39;predictions_9&#39;: 0.14227487864929314, &#39;predictions_10&#39;: 0.061570146412656145, &#39;predictions_11&#39;: -0.0013235117361348366, &#39;predictions_12&#39;: 0.22496427871452854, &#39;predictions_13&#39;: 0.6826705611065566, &#39;predictions_14&#39;: 0.331084179340632, &#39;predictions_15&#39;: 0.2325873510907064, &#39;predictions_16&#39;: -0.005890948415758354, &#39;predictions_17&#39;: 0.23108082656181192, &#39;predictions_18&#39;: 0.08866538976848874, &#39;predictions_19&#39;: 0.5251741787977718, &#39;predictions_20&#39;: 1.5307505517513718, &#39;predictions_21&#39;: -0.07014338016238107, &#39;predictions_22&#39;: 1.8024293796373567, &#39;predictions_23&#39;: 0.3420427562962711, &#39;predictions_24&#39;: -0.3356060347979862, &#39;predictions_25&#39;: 0.08823113765567157, &#39;predictions_26&#39;: 0.9993112240252872, &#39;predictions_27&#39;: 1.1583364010362838, &#39;predictions_28&#39;: 0.05818942683648322, &#39;predictions_29&#39;: -0.010171113593323115, &#39;predictions_30&#39;: 0.017500344327137828, &#39;predictions_31&#39;: 1.5201632854544105}
+{&#39;predictions_0&#39;: 0.00510007523648401, &#39;predictions_1&#39;: -1.8438586845336085, &#39;predictions_2&#39;: 0.07034588660781765, &#39;predictions_3&#39;: -0.6334911581627888, &#39;predictions_4&#39;: 0.9114601232034509, &#39;predictions_5&#39;: 0.015641139153578926, &#39;predictions_6&#39;: 0.3391581513516312, &#39;predictions_7&#39;: 0.015993612058473987, &#39;predictions_8&#39;: 0.4979057135726034, &#39;predictions_9&#39;: 0.14140896753303245, &#39;predictions_10&#39;: 0.03348118561743431, &#39;predictions_11&#39;: 0.018019313387541973, &#39;predictions_12&#39;: -0.1851865976812716, &#39;predictions_13&#39;: 0.18463673035754868, &#39;predictions_14&#39;: 0.3321862529567762, &#39;predictions_15&#39;: 0.4582953091852766, &#39;predictions_16&#39;: -0.023872509230380146, &#39;predictions_17&#39;: -0.05714457269664822, &#39;predictions_18&#39;: 0.1677010761064405, &#39;predictions_19&#39;: 0.6590215547332258, &#39;predictions_20&#39;: -0.4470726570372422, &#39;predictions_21&#39;: -1.2957188152033094, &#39;predictions_22&#39;: -0.49568168502602117, &#39;predictions_23&#39;: -0.5319175224432703, &#39;predictions_24&#39;: 0.8792904089758667, &#39;predictions_25&#39;: -0.16764333932557407, &#39;predictions_26&#39;: -0.5006140094263773, &#39;predictions_27&#39;: -0.559662593948684, &#39;predictions_28&#39;: 0.009575432219475658, &#39;predictions_29&#39;: 0.03620587401831965, &#39;predictions_30&#39;: -0.022617768077518082, &#39;predictions_31&#39;: 1.5201632854544105}
+{&#39;predictions_0&#39;: -0.0035275503865915213, &#39;predictions_1&#39;: -1.7572879984733045, &#39;predictions_2&#39;: 0.02112961345058588, &#39;predictions_3&#39;: -0.5373126141152578, &#39;predictions_4&#39;: 0.8167634172202621, &#39;predictions_5&#39;: -0.04568688093881375, &#39;predictions_6&#39;: 0.25612518616907237, &#39;predictions_7&#39;: 1.6585574657259259, &#39;predictions_8&#39;: 0.5708485569128593, &#39;predictions_9&#39;: -0.2579041111541445, &#39;predictions_10&#39;: -0.02303431468406031, &#39;predictions_11&#39;: 0.0294850340796527, &#39;predictions_12&#39;: -0.20150167754729115, &#39;predictions_13&#39;: -0.3122660955180186, &#39;predictions_14&#39;: 0.08946441512158586, &#39;predictions_15&#39;: 0.19599051996984723, &#39;predictions_16&#39;: -0.007048153187921441, &#39;predictions_17&#39;: -0.10443059840913398, &#39;predictions_18&#39;: 0.14693551914712497, &#39;predictions_19&#39;: -0.2646088763947528, &#39;predictions_20&#39;: -0.14423328554566225, &#39;predictions_21&#39;: -1.096484854939204, &#39;predictions_22&#39;: -0.5409155996124657, &#39;predictions_23&#39;: -0.2125528115678197, &#39;predictions_24&#39;: 0.2028301059851276, &#39;predictions_25&#39;: 0.15076353496237724, &#39;predictions_26&#39;: 1.863813974679114, &#39;predictions_27&#39;: 1.2625204294969739, &#39;predictions_28&#39;: -0.009542569876103744, &#39;predictions_29&#39;: 0.08892200769099384, &#39;predictions_30&#39;: 0.016344768954324324, &#39;predictions_31&#39;: 1.5201632854544105}
+{&#39;predictions_0&#39;: 0.009144654047150176, &#39;predictions_1&#39;: 0.3616068989438007, &#39;predictions_2&#39;: -0.009713127697925978, &#39;predictions_3&#39;: -0.25503380890174077, &#39;predictions_4&#39;: -0.08841376708924753, &#39;predictions_5&#39;: 0.12905387860630704, &#39;predictions_6&#39;: 0.09872550234229752, &#39;predictions_7&#39;: 1.5461380270279617, &#39;predictions_8&#39;: 0.5934142135359506, &#39;predictions_9&#39;: 0.04672843933802434, &#39;predictions_10&#39;: 0.017982350366210965, &#39;predictions_11&#39;: 0.011836524186964618, &#39;predictions_12&#39;: -0.09329132650766998, &#39;predictions_13&#39;: 0.9816979966957412, &#39;predictions_14&#39;: -0.26131805604494435, &#39;predictions_15&#39;: 0.2573728246698596, &#39;predictions_16&#39;: -0.009616853447343936, &#39;predictions_17&#39;: -0.11778440476199589, &#39;predictions_18&#39;: 0.19894108953925974, &#39;predictions_19&#39;: -0.28976560140618507, &#39;predictions_20&#39;: 1.145755494068452, &#39;predictions_21&#39;: 0.19170884942775918, &#39;predictions_22&#39;: 1.751619931359333, &#39;predictions_23&#39;: 0.31591084941785597, &#39;predictions_24&#39;: -0.9883146017669252, &#39;predictions_25&#39;: 0.3832169744602564, &#39;predictions_26&#39;: 1.3459027320296548, &#39;predictions_27&#39;: 1.0895032649194054, &#39;predictions_28&#39;: 0.054326669111151096, &#39;predictions_29&#39;: 0.11224841710144848, &#39;predictions_30&#39;: -0.01934243236389702, &#39;predictions_31&#39;: 1.5201632854544105}
+{&#39;predictions_0&#39;: 0.05414474380600745, &#39;predictions_1&#39;: -1.149372263278166, &#39;predictions_2&#39;: -0.0034542658503694534, &#39;predictions_3&#39;: -0.11226127026369175, &#39;predictions_4&#39;: -0.2765479593192703, &#39;predictions_5&#39;: 0.057605254673602974, &#39;predictions_6&#39;: 0.04807218948118946, &#39;predictions_7&#39;: 1.627632661158546, &#39;predictions_8&#39;: 0.23594239851080898, &#39;predictions_9&#39;: 0.08102266882022441, &#39;predictions_10&#39;: -0.035797597595999694, &#39;predictions_11&#39;: -0.006940512375528646, &#39;predictions_12&#39;: -0.10341465914545066, &#39;predictions_13&#39;: 0.27134162901025793, &#39;predictions_14&#39;: -0.4589675261254597, &#39;predictions_15&#39;: 0.16906923946657362, &#39;predictions_16&#39;: -0.005805030106413082, &#39;predictions_17&#39;: -0.11670739934889805, &#39;predictions_18&#39;: 0.270439579413901, &#39;predictions_19&#39;: 0.2757024597749045, &#39;predictions_20&#39;: 1.2679444783850085, &#39;predictions_21&#39;: -1.2185063190204835, &#39;predictions_22&#39;: 2.6862730600162457, &#39;predictions_23&#39;: 0.45079291995440945, &#39;predictions_24&#39;: -0.8576927701312551, &#39;predictions_25&#39;: 0.1825880636881889, &#39;predictions_26&#39;: 0.9481775337394789, &#39;predictions_27&#39;: 1.3019845783662138, &#39;predictions_28&#39;: 0.03309325718132554, &#39;predictions_29&#39;: 0.037279537345320794, &#39;predictions_30&#39;: 0.030849407280271066, &#39;predictions_31&#39;: 1.5201632854544105}
+{&#39;predictions_0&#39;: 0.026701912078513444, &#39;predictions_1&#39;: -0.016049183561005216, &#39;predictions_2&#39;: -0.026512557715316794, &#39;predictions_3&#39;: -0.33992007086017256, &#39;predictions_4&#39;: -0.3231034954783173, &#39;predictions_5&#39;: 0.020522588667874812, &#39;predictions_6&#39;: -0.09818245278711138, &#39;predictions_7&#39;: -1.9632581054922957, &#39;predictions_8&#39;: 0.2796715168175009, &#39;predictions_9&#39;: 0.025963248780199805, &#39;predictions_10&#39;: -0.13243884691329014, &#39;predictions_11&#39;: -0.007600341414574132, &#39;predictions_12&#39;: -0.3505614312588073, &#39;predictions_13&#39;: -0.8449241022454159, &#39;predictions_14&#39;: -0.0623541831245574, &#39;predictions_15&#39;: 0.11533014973600747, &#39;predictions_16&#39;: 0.008322220108907262, &#39;predictions_17&#39;: -0.02930862278171467, &#39;predictions_18&#39;: 0.02496960430979726, &#39;predictions_19&#39;: 0.3997160251519232, &#39;predictions_20&#39;: -2.0119476119311948, &#39;predictions_21&#39;: -0.3601922717542553, &#39;predictions_22&#39;: -2.240466883625807, &#39;predictions_23&#39;: -0.24430626245778664, &#39;predictions_24&#39;: -0.732571668183472, &#39;predictions_25&#39;: -0.14435610495492934, &#39;predictions_26&#39;: -0.4186367055351456, &#39;predictions_27&#39;: -1.7801593987201698, &#39;predictions_28&#39;: 0.014498054148804375, &#39;predictions_29&#39;: -0.10768829118597369, &#39;predictions_30&#39;: -0.02172472974992555, &#39;predictions_31&#39;: 1.5201632854544105}
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1492090)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/dask/dataframe/backends.py:181: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1492090)</span>   _numeric_index_types = (pd.Int64Index, pd.Float64Index, pd.UInt64Index)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1492090)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/dask/dataframe/backends.py:181: FutureWarning: pandas.Float64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1492090)</span>   _numeric_index_types = (pd.Int64Index, pd.Float64Index, pd.UInt64Index)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1492090)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/dask/dataframe/backends.py:181: FutureWarning: pandas.UInt64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1492090)</span>   _numeric_index_types = (pd.Int64Index, pd.Float64Index, pd.UInt64Index)
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1492090)</span> /home/ubuntu/ray/venv/lib/python3.8/site-packages/xgboost/compat.py:31: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(pid=1492090)</span>   from pandas import MultiIndex, Int64Index
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="analyze_tuning_results.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Hyperparameter tuning with XGBoostTrainer</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="torch_incremental_learning.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Incremental Learning with Ray AIR</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

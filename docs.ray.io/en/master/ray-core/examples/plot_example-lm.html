@@ -1,0 +1,942 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Fault-Tolerant Fairseq Training &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/js/versionwarning.js"></script>
+    <script src="../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../_static/js/docsearch.js"></script>
+    <script src="../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../_static/js/top-navigation.js"></script>
+    <script src="../../_static/js/tags.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/ray-core/examples/plot_example-lm.html" />
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Simple Parallel Model Selection" href="plot_hyperparameter.html" />
+    <link rel="prev" title="Asynchronous Advantage Actor Critic (A3C)" href="plot_example-a3c.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "ray-core/examples/plot_example-lm", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".rst", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../walkthrough.html">
+   Ray Core
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../user-guide.html">
+     User Guides
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="overview.html">
+     Examples
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="gentle_walkthrough.html">
+       A Gentle Introduction to Ray Core by Example
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="monte_carlo_pi.html">
+       Monte Carlo Estimation of π
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="plot_example-a3c.html">
+       Asynchronous Advantage Actor Critic (A3C)
+      </a>
+     </li>
+     <li class="toctree-l3 current active">
+      <a class="current reference internal" href="plot_example-lm.html#">
+       Fault-Tolerant Fairseq Training
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="plot_hyperparameter.html">
+       Simple Parallel Model Selection
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="plot_parameter_server.html">
+       Parameter Server
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="plot_pong_example.html">
+       Learning to Play Pong
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="highly_parallel.html">
+       Using Ray for Highly Parallelizable Tasks
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="batch_prediction.html">
+       Batch Prediction
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="batch_training.html">
+       Batch Training with Ray Core
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="automl_for_time_series.html">
+       Simple AutoML for time series with Ray Core
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="web-crawler.html">
+       Speed up your web crawler by parallelizing it with Ray
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="map_reduce.html">
+       A Simple MapReduce Example with Ray Core
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/index.html">
+     Ray Core API
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tune.html">
+   Ray Tune
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Fray-core/examples/plot_example-lm.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/ray-core/examples/plot_example-lm.rst"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../_sources/ray-core/examples/plot_example-lm.rst.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.rst</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="plot_example-lm.html#preprocessing-data">
+   Preprocessing Data
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="plot_example-lm.html#training">
+   Training
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="plot_example-lm.html#helpful-ray-commands">
+   Helpful Ray Commands
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Fault-Tolerant Fairseq Training</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="plot_example-lm.html#preprocessing-data">
+   Preprocessing Data
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="plot_example-lm.html#training">
+   Training
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="plot_example-lm.html#helpful-ray-commands">
+   Helpful Ray Commands
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section id="fault-tolerant-fairseq-training">
+<h1>Fault-Tolerant Fairseq Training<a class="headerlink" href="plot_example-lm.html#fault-tolerant-fairseq-training" title="Permalink to this headline">#</a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For an overview of Ray’s distributed training library,
+see <a class="reference internal" href="../../train/train.html#train-docs"><span class="std std-ref">Ray Train</span></a>.</p>
+</div>
+<p>This document provides a walkthrough of adapting the <a class="reference external" href="https://github.com/pytorch/fairseq">Fairseq library</a> to perform fault-tolerant distributed training on AWS.
+As an example, we use the WikiText-103 dataset to pretrain the RoBERTa model following <a class="reference external" href="https://github.com/pytorch/fairseq/blob/master/examples/roberta/README.pretraining.md">this tutorial</a>. The pipeline and configurations in this document will work for other models supported by Fairseq, such as sequence-to-sequence machine translation models.</p>
+<p>To run this example, you will need to install Ray on your local machine to use the Ray cluster launcher.</p>
+<p>You can view the <a class="reference external" href="https://github.com/ray-project/ray/tree/master/doc/source/ray-core/examples/lm">code for this example</a>.</p>
+<p>To use Ray cluster launcher on AWS, install boto (<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">boto3</span></code>) and configure your AWS credentials in <code class="docutils literal notranslate"><span class="pre">~/.aws/credentials</span></code> as described on the  <a class="reference internal" href="../cluster/index.html#cluster-index"><span class="std std-ref">Automatic Cluster Setup page</span></a>.
+We provide an <a class="reference external" href="https://github.com/ray-project/ray/tree/master/doc/source/ray-core/examples/lm/lm-cluster.yaml">example config file</a> (<code class="docutils literal notranslate"><span class="pre">lm-cluster.yaml</span></code>).</p>
+<p>In the example config file, we use an <code class="docutils literal notranslate"><span class="pre">m5.xlarge</span></code> on-demand instance as the head node, and use <code class="docutils literal notranslate"><span class="pre">p3.2xlarge</span></code> GPU spot instances as the worker nodes. We set the minimal number of workers to 1 and maximum workers to 2 in the config, which can be modified according to your own demand.</p>
+<p>We also mount <a class="reference internal" href="../../cluster/vms/user-guides/launching-clusters/aws.html#aws-cluster-efs"><span class="std std-ref">Amazon EFS</span></a> to store code, data and checkpoints.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">{{SecurityGroupId}}</span></code> and <code class="docutils literal notranslate"><span class="pre">{{FileSystemId}}</span></code> fields in the config file should be replaced by your own IDs.</p>
+</div>
+<p>In <code class="docutils literal notranslate"><span class="pre">setup_commands</span></code>, we use the PyTorch environment in the Deep Learning AMI, and install Ray and Fairseq:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">setup_commands</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">echo &#39;export PATH=&quot;$HOME/anaconda3/envs/pytorch_p36/bin:$PATH&quot;&#39; &gt;&gt; ~/.bashrc;</span><span class="w"></span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">source ~/.bashrc;</span><span class="w"></span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">pip install -U ray;</span><span class="w"></span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">pip install -U fairseq==0.8.0;</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Run the following command on your local machine to start the Ray cluster:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ray up lm-cluster.yaml
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">ray_train.sh</span></code> also assumes that all of the <code class="docutils literal notranslate"><span class="pre">lm/</span></code> files are in <code class="docutils literal notranslate"><span class="pre">$HOME/efs</span></code>.
+You can move these files manually, or use the following command to upload
+files from a local path:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ray rsync-up lm-cluster.yaml PATH/TO/LM <span class="s1">&#39;~/efs/lm&#39;</span>
+</pre></div>
+</div>
+<section id="preprocessing-data">
+<h2>Preprocessing Data<a class="headerlink" href="plot_example-lm.html#preprocessing-data" title="Permalink to this headline">#</a></h2>
+<p>Once the cluster is started, you can then SSH into the head node using <code class="docutils literal notranslate"><span class="pre">ray</span> <span class="pre">attach</span> <span class="pre">lm-cluster.yaml</span></code> and download or preprocess the data on EFS for training. We can run <code class="docutils literal notranslate"><span class="pre">preprocess.sh</span></code> (<a class="reference external" href="https://github.com/ray-project/ray/tree/master/doc/source/ray-core/examples/lm/preprocess.sh">code</a>) to do this, which adapts instructions from <a class="reference external" href="https://github.com/pytorch/fairseq/blob/master/examples/roberta/README.pretraining.md">the RoBERTa tutorial</a>.</p>
+</section>
+<section id="training">
+<h2>Training<a class="headerlink" href="plot_example-lm.html#training" title="Permalink to this headline">#</a></h2>
+<p>We provide <code class="docutils literal notranslate"><span class="pre">ray_train.py</span></code> (<a class="reference external" href="https://github.com/ray-project/ray/tree/master/doc/source/ray-core/examples/lm/ray_train.py">code</a>) as an entrypoint to the Fairseq library. Since we are training the model on spot instances, we provide fault-tolerance in <code class="docutils literal notranslate"><span class="pre">ray_train.py</span></code> by checkpointing and restarting when a node fails. The code will also check whether there are new resources available after checkpointing. If so, the program will make use of them by restarting and resizing.</p>
+<p>Two main components of <code class="docutils literal notranslate"><span class="pre">ray_train.py</span></code> are a <code class="docutils literal notranslate"><span class="pre">RayDistributedActor</span></code> class and a function <code class="docutils literal notranslate"><span class="pre">run_fault_tolerant_loop()</span></code>. The <code class="docutils literal notranslate"><span class="pre">RayDistributedActor</span></code> sets proper arguments for different ray actor processes, adds a checkpoint hook to enable the process to make use of new available GPUs, and calls the <code class="docutils literal notranslate"><span class="pre">main</span></code> of Fairseq:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">socket</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">ray</span>
+
+<span class="kn">import</span> <span class="nn">fairseq</span>
+<span class="kn">from</span> <span class="nn">fairseq</span> <span class="kn">import</span> <span class="n">options</span>
+<span class="kn">from</span> <span class="nn">fairseq_cli.train</span> <span class="kn">import</span> <span class="n">main</span>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">closing</span>
+
+<span class="n">_original_save_checkpoint</span> <span class="o">=</span> <span class="n">fairseq</span><span class="o">.</span><span class="n">checkpoint_utils</span><span class="o">.</span><span class="n">save_checkpoint</span>
+
+
+<span class="k">class</span> <span class="nc">RayDistributedActor</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Actor to perform distributed training.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">world_rank</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Runs the fairseq training.</span>
+
+<span class="sd">        We set args for different ray actors for communication,</span>
+<span class="sd">        add a checkpoint hook, and call the main function of fairseq.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Set the init_method and rank of the process for distributed training.</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Ray worker at </span><span class="si">{url}</span><span class="s2"> rank </span><span class="si">{rank}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="n">world_rank</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">url</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">world_rank</span> <span class="o">=</span> <span class="n">world_rank</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">distributed_rank</span> <span class="o">=</span> <span class="n">world_rank</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">distributed_init_method</span> <span class="o">=</span> <span class="n">url</span>
+
+        <span class="c1"># Add a checkpoint hook to make use of new resources.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_checkpoint_hook</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+        <span class="c1"># Call the original main function of fairseq.</span>
+        <span class="n">main</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">init_distributed</span><span class="o">=</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">distributed_world_size</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">add_checkpoint_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a hook to the original save_checkpoint function.</span>
+
+<span class="sd">        This checks if there are new computational resources available.</span>
+<span class="sd">        If so, raise exception to restart the training process and</span>
+<span class="sd">        make use of the new resources.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">cpu</span><span class="p">:</span>
+            <span class="n">original_n_cpus</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">distributed_world_size</span>
+
+            <span class="k">def</span> <span class="nf">_new_save_checkpoint</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+                <span class="n">_original_save_checkpoint</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="n">n_cpus</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ray</span><span class="o">.</span><span class="n">cluster_resources</span><span class="p">()[</span><span class="s2">&quot;CPU&quot;</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">n_cpus</span> <span class="o">&gt;</span> <span class="n">original_n_cpus</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                        <span class="s2">&quot;New CPUs find (original </span><span class="si">%d</span><span class="s2"> CPUs, now </span><span class="si">%d</span><span class="s2"> CPUs)&quot;</span> <span class="o">%</span>
+                        <span class="p">(</span><span class="n">original_n_cpus</span><span class="p">,</span> <span class="n">n_cpus</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">original_n_gpus</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">distributed_world_size</span>
+
+            <span class="k">def</span> <span class="nf">_new_save_checkpoint</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+                <span class="n">_original_save_checkpoint</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="n">n_gpus</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ray</span><span class="o">.</span><span class="n">cluster_resources</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GPU&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">n_gpus</span> <span class="o">&gt;</span> <span class="n">original_n_gpus</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                        <span class="s2">&quot;New GPUs find (original </span><span class="si">%d</span><span class="s2"> GPUs, now </span><span class="si">%d</span><span class="s2"> GPUs)&quot;</span> <span class="o">%</span>
+                        <span class="p">(</span><span class="n">original_n_gpus</span><span class="p">,</span> <span class="n">n_gpus</span><span class="p">))</span>
+
+        <span class="n">fairseq</span><span class="o">.</span><span class="n">checkpoint_utils</span><span class="o">.</span><span class="n">save_checkpoint</span> <span class="o">=</span> <span class="n">_new_save_checkpoint</span>
+
+    <span class="k">def</span> <span class="nf">get_node_ip</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the IP address of the current node.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">ray</span><span class="o">.</span><span class="n">_private</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">get_node_ip_address</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">find_free_port</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Finds a free port on the current node.&quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">closing</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SOCK_STREAM</span><span class="p">))</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">getsockname</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>The function <code class="docutils literal notranslate"><span class="pre">run_fault_tolerant_loop()</span></code> provides fault-tolerance by catching failure and restart the computation:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">run_fault_tolerant_loop</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Entrance function to the fairseq library, providing fault-tolerance.&quot;&quot;&quot;</span>
+
+    <span class="c1"># Parse the command line arguments.</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">get_training_parser</span><span class="p">()</span>
+    <span class="n">add_ray_args</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">parse_args_and_arch</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+    <span class="n">original_args</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="c1"># Main loop for fault-tolerant training.</span>
+    <span class="n">retry</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">while</span> <span class="n">retry</span><span class="p">:</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">original_args</span><span class="p">)</span>
+
+        <span class="c1"># Initialize Ray.</span>
+        <span class="n">ray</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">address</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">ray_address</span><span class="p">)</span>
+
+        <span class="n">set_num_resources</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="n">set_batch_size</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+        <span class="c1"># Set up Ray distributed actors.</span>
+        <span class="n">Actor</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span>
+            <span class="n">num_cpus</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_gpus</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">cpu</span><span class="p">))(</span><span class="n">RayDistributedActor</span><span class="p">)</span>
+        <span class="n">workers</span> <span class="o">=</span> <span class="p">[</span><span class="n">Actor</span><span class="o">.</span><span class="n">remote</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">distributed_world_size</span><span class="p">)]</span>
+
+        <span class="c1"># Get the IP address and a free port of actor 0, which is used for</span>
+        <span class="c1"># fairseq distributed training.</span>
+        <span class="n">ip</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">workers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_node_ip</span><span class="o">.</span><span class="n">remote</span><span class="p">())</span>
+        <span class="n">port</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">workers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">find_free_port</span><span class="o">.</span><span class="n">remote</span><span class="p">())</span>
+        <span class="n">address</span> <span class="o">=</span> <span class="s2">&quot;tcp://</span><span class="si">{ip}</span><span class="s2">:</span><span class="si">{port}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ip</span><span class="o">=</span><span class="n">ip</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">)</span>
+
+        <span class="c1"># Start the remote processes, and check whether their are any process</span>
+        <span class="c1"># fails. If so, restart all the processes.</span>
+        <span class="n">unfinished</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">worker</span><span class="o">.</span><span class="n">run</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">worker</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">workers</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">unfinished</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">finished</span><span class="p">,</span> <span class="n">unfinished</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">unfinished</span><span class="p">)</span>
+                <span class="n">finished</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">finished</span><span class="p">)</span>
+            <span class="n">retry</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">inst</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Ray restart because following error occurs:&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">inst</span><span class="p">)</span>
+            <span class="n">retry</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">ray</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>In <code class="docutils literal notranslate"><span class="pre">ray_train.py</span></code>, we also define a set of helper functions. <code class="docutils literal notranslate"><span class="pre">add_ray_args()</span></code> adds Ray and fault-tolerant training related arguments to the argument parser:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">add_ray_args</span><span class="p">(</span><span class="n">parser</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Add ray and fault-tolerance related parser arguments to the parser.&quot;&quot;&quot;</span>
+    <span class="n">group</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">&quot;Ray related arguments&quot;</span><span class="p">)</span>
+    <span class="n">group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--ray-address&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;address for ray initialization&quot;</span><span class="p">)</span>
+    <span class="n">group</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--fix-batch-size&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;B1,B2,...,B_N&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="k">lambda</span> <span class="n">uf</span><span class="p">:</span> <span class="n">options</span><span class="o">.</span><span class="n">eval_str_list</span><span class="p">(</span><span class="n">uf</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;fix the actual batch size (max_sentences * update_freq &quot;</span>
+            <span class="s2">&quot;* n_GPUs) to be the fixed input values by adjusting update_freq &quot;</span>
+            <span class="s2">&quot;accroding to actual n_GPUs; the batch size is fixed to B_i for &quot;</span>
+            <span class="s2">&quot;epoch i; all epochs &gt;N are fixed to B_N&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">group</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">set_num_resources()</span></code> sets the distributed world size to be the number of resources. Also if we want to use GPUs but the current number of GPUs is 0, the function will wait until there is GPU available:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">set_num_resources</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get the number of resources and set the corresponding fields.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">cpu</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">distributed_world_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ray</span><span class="o">.</span><span class="n">cluster_resources</span><span class="p">()[</span><span class="s2">&quot;CPU&quot;</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">n_gpus</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ray</span><span class="o">.</span><span class="n">cluster_resources</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GPU&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="k">while</span> <span class="n">n_gpus</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No GPUs available, wait 10 seconds&quot;</span><span class="p">)</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+            <span class="n">n_gpus</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ray</span><span class="o">.</span><span class="n">cluster_resources</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GPU&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">distributed_world_size</span> <span class="o">=</span> <span class="n">n_gpus</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">set_batch_size()</span></code> keeps the effective batch size to be relatively the same given different number of GPUs:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">set_batch_size</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Fixes the total batch_size to be agnostic to the GPU count.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">fix_batch_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">update_freq</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">batch_size</span> <span class="o">/</span>
+                      <span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">max_sentences</span> <span class="o">*</span> <span class="n">args</span><span class="o">.</span><span class="n">distributed_world_size</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">batch_size</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">fix_batch_size</span>
+        <span class="p">]</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Training on </span><span class="si">%d</span><span class="s2"> GPUs, max_sentences=</span><span class="si">%d</span><span class="s2">, update_freq=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
+              <span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">distributed_world_size</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">max_sentences</span><span class="p">,</span>
+                <span class="nb">repr</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">update_freq</span><span class="p">)))</span>
+</pre></div>
+</div>
+<p>To start training, run <a class="reference external" href="https://github.com/ray-project/ray/tree/master/doc/source/ray-core/examples/lm/ray_train.sh">following commands</a> (<code class="docutils literal notranslate"><span class="pre">ray_train.sh</span></code>) on the head machine:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> ~/efs/lm
+
+<span class="nv">TOTAL_UPDATES</span><span class="o">=</span><span class="m">125000</span>       <span class="c1"># Total number of training steps</span>
+<span class="nv">WARMUP_UPDATES</span><span class="o">=</span><span class="m">10000</span>       <span class="c1"># Warmup the learning rate over this many updates</span>
+<span class="nv">PEAK_LR</span><span class="o">=</span><span class="m">0</span>.0005             <span class="c1"># Peak learning rate, adjust as needed</span>
+<span class="nv">TOKENS_PER_SAMPLE</span><span class="o">=</span><span class="m">512</span>      <span class="c1"># Max sequence length</span>
+<span class="c1">#MAX_POSITIONS=512         # Num. positional embeddings (usually same as above)</span>
+<span class="nv">MAX_SENTENCES</span><span class="o">=</span><span class="m">8</span>            <span class="c1"># Number of sequences per batch on one GPU (batch size)</span>
+<span class="nv">FIX_BATCH_SIZE</span><span class="o">=</span><span class="m">2048</span>        <span class="c1"># Number of batch size in total (max_sentences * update_freq * n_gpus)</span>
+<span class="nv">SAVE_INTERVAL_UPDATES</span><span class="o">=</span><span class="m">1000</span> <span class="c1"># save a checkpoint every N updates</span>
+
+<span class="nv">LOG_DIR</span><span class="o">=</span><span class="nv">$HOME</span>/efs/lm/log/
+<span class="nv">DATA_DIR</span><span class="o">=</span><span class="nv">$HOME</span>/efs/lm/data-bin/wikitext-103/
+mkdir -p <span class="nv">$LOG_DIR</span>
+
+python <span class="nv">$HOME</span>/efs/lm/ray_train.py --fp16 <span class="nv">$DATA_DIR</span> <span class="se">\</span>
+    --task masked_lm --criterion masked_lm <span class="se">\</span>
+    --arch roberta_base --sample-break-mode <span class="nb">complete</span> --tokens-per-sample <span class="nv">$TOKENS_PER_SAMPLE</span> <span class="se">\</span>
+    --optimizer adam --adam-betas <span class="s1">&#39;(0.9, 0.98)&#39;</span> --adam-eps 1e-6 --clip-norm <span class="m">0</span>.0 <span class="se">\</span>
+    --lr-scheduler polynomial_decay --lr <span class="nv">$PEAK_LR</span> --warmup-updates <span class="nv">$WARMUP_UPDATES</span> --total-num-update <span class="nv">$TOTAL_UPDATES</span> <span class="se">\</span>
+    --dropout <span class="m">0</span>.1 --attention-dropout <span class="m">0</span>.1 --weight-decay <span class="m">0</span>.01 <span class="se">\</span>
+    --max-sentences <span class="nv">$MAX_SENTENCES</span> <span class="se">\</span>
+    --fix-batch-size <span class="nv">$FIX_BATCH_SIZE</span> <span class="se">\</span>
+    --max-update <span class="nv">$TOTAL_UPDATES</span> --log-format simple --log-interval <span class="m">1</span> <span class="se">\</span>
+    --save-interval-updates <span class="nv">$SAVE_INTERVAL_UPDATES</span> <span class="se">\</span>
+    --save-dir <span class="nv">$LOG_DIR</span> --ddp-backend<span class="o">=</span>no_c10d
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">SAVE_INTERVAL_UPDATES</span></code> controls how often to save a checkpoint, which can be tuned based on the <a class="reference external" href="https://aws.amazon.com/ec2/spot/instance-advisor/">stability of chosen instances</a>. <code class="docutils literal notranslate"><span class="pre">FIX_BATCH_SIZE</span></code> controls the total batch size to be a roughly fixed number.</p>
+</section>
+<section id="helpful-ray-commands">
+<h2>Helpful Ray Commands<a class="headerlink" href="plot_example-lm.html#helpful-ray-commands" title="Permalink to this headline">#</a></h2>
+<p>To let Ray automatically stop the cluster after the training finished, you can download the <code class="docutils literal notranslate"><span class="pre">ray_train.sh</span></code> to <code class="docutils literal notranslate"><span class="pre">~/efs</span></code> of the remote machine, and run the following command on your local machine:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ray <span class="nb">exec</span> --stop lm-cluster.yaml <span class="s1">&#39;bash $HOME/efs/lm/ray_train.sh&#39;</span>
+</pre></div>
+</div>
+<p>or run the following command on the remote head node:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ray <span class="nb">exec</span> --stop ~/ray_bootstrap_config.yaml <span class="s1">&#39;bash $HOME/efs/lm/ray_train.sh&#39;</span>
+</pre></div>
+</div>
+<p>To test the fault-tolerance, you can run the following command on your local machine to randomly kill one node:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ray kill-random-node lm-cluster.yaml
+</pre></div>
+</div>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="plot_example-a3c.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Asynchronous Advantage Actor Critic (A3C)</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="plot_hyperparameter.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Simple Parallel Model Selection</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

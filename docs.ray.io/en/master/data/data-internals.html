@@ -1,0 +1,1036 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Scheduling, Execution, and Memory Management &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/js/versionwarning.js"></script>
+    <script src="../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../_static/js/docsearch.js"></script>
+    <script src="../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../_static/js/termynal.js"></script>
+    <script defer="defer" src="../_static/js/custom.js"></script>
+    <script defer="defer" src="../_static/js/top-navigation.js"></script>
+    <script src="../_static/js/tags.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../_static/design-tabs.js"></script>
+    <script async="async" src="../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/data/data-internals.html" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Performance Tips and Tuning" href="performance-tips.html" />
+    <link rel="prev" title="Working with Tensors" href="working-with-tensors.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "data/data-internals", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".rst", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="data.html">
+   Ray Data
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="overview.html">
+     Overview
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="getting-started.html">
+     Getting Started
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="user-guide.html">
+     User Guides
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="loading-data.html">
+       Loading Data
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="transforming-data.html">
+       Transforming Data
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="inspecting-data.html">
+       Inspecting Data
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="iterating-over-data.html">
+       Iterating over Data
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="saving-data.html">
+       Saving Data
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="working-with-tensors.html">
+       Working with Tensors
+      </a>
+     </li>
+     <li class="toctree-l3 current active">
+      <a class="current reference internal" href="data-internals.html#">
+       Scheduling, Execution, and Memory Management
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="performance-tips.html">
+       Performance Tips and Tuning
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="batch_inference.html">
+       End-to-end: Offline Batch Inference
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="examples/index.html">
+     Ray Data Examples
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="faq.html">
+     FAQ
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="api/api.html">
+     Ray Data API
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../tune.html">
+   Ray Tune
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Fdata/data-internals.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/data/data-internals.rst"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../_sources/data/data-internals.rst.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.rst</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="data-internals.html#scheduling">
+   Scheduling
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="data-internals.html#ray-data-and-tune">
+     Ray Data and Tune
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="data-internals.html#ray-data-and-placement-groups">
+     Ray Data and Placement Groups
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="data-internals.html#execution">
+   Execution
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="data-internals.html#lazy-execution">
+     Lazy Execution
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="data-internals.html#streaming-execution">
+     Streaming Execution
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="data-internals.html#configuring-resources-and-locality">
+       Configuring Resources and Locality
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="data-internals.html#deterministic-execution">
+       Deterministic Execution
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="data-internals.html#actor-locality-optimization-ml-inference-use-case">
+       Actor Locality Optimization (ML inference use case)
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="data-internals.html#locality-with-output-ml-ingest-use-case">
+       Locality with Output (ML ingest use case)
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="data-internals.html#scalability">
+       Scalability
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="data-internals.html#stage-fusion-optimization">
+     Stage Fusion Optimization
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="data-internals.html#memory-management">
+   Memory Management
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="data-internals.html#execution-memory">
+     Execution Memory
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="data-internals.html#object-store-memory">
+     Object Store Memory
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="data-internals.html#block-data-formats">
+     Block Data Formats
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Scheduling, Execution, and Memory Management</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="data-internals.html#scheduling">
+   Scheduling
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="data-internals.html#ray-data-and-tune">
+     Ray Data and Tune
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="data-internals.html#ray-data-and-placement-groups">
+     Ray Data and Placement Groups
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="data-internals.html#execution">
+   Execution
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="data-internals.html#lazy-execution">
+     Lazy Execution
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="data-internals.html#streaming-execution">
+     Streaming Execution
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="data-internals.html#configuring-resources-and-locality">
+       Configuring Resources and Locality
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="data-internals.html#deterministic-execution">
+       Deterministic Execution
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="data-internals.html#actor-locality-optimization-ml-inference-use-case">
+       Actor Locality Optimization (ML inference use case)
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="data-internals.html#locality-with-output-ml-ingest-use-case">
+       Locality with Output (ML ingest use case)
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="data-internals.html#scalability">
+       Scalability
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="data-internals.html#stage-fusion-optimization">
+     Stage Fusion Optimization
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="data-internals.html#memory-management">
+   Memory Management
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="data-internals.html#execution-memory">
+     Execution Memory
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="data-internals.html#object-store-memory">
+     Object Store Memory
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="data-internals.html#block-data-formats">
+     Block Data Formats
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section id="scheduling-execution-and-memory-management">
+<span id="datasets-scheduling"></span><h1>Scheduling, Execution, and Memory Management<a class="headerlink" href="data-internals.html#scheduling-execution-and-memory-management" title="Permalink to this headline">#</a></h1>
+<section id="scheduling">
+<h2>Scheduling<a class="headerlink" href="data-internals.html#scheduling" title="Permalink to this headline">#</a></h2>
+<p>Ray Data uses Ray core for execution, and hence is subject to the same scheduling considerations as normal Ray tasks and actors. Ray Data uses the following custom scheduling settings by default for improved performance:</p>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">SPREAD</span></code> scheduling strategy is used to ensure data blocks are evenly balanced across the cluster.</p></li>
+<li><p>Retries of application-level exceptions are enabled to handle transient errors from remote datasources.</p></li>
+<li><p>Dataset tasks ignore placement groups by default, see <a class="reference internal" href="data-internals.html#datasets-pg"><span class="std std-ref">Ray Data and Placement Groups</span></a>.</p></li>
+</ul>
+<section id="ray-data-and-tune">
+<span id="datasets-tune"></span><h3>Ray Data and Tune<a class="headerlink" href="data-internals.html#ray-data-and-tune" title="Permalink to this headline">#</a></h3>
+<p>When using Ray Data in conjunction with <a class="reference internal" href="../tune.html#tune-main"><span class="std std-ref">Ray Tune</span></a>, it is important to ensure there are enough free CPUs for Ray Data to run on. By default, Tune will try to fully utilize cluster CPUs. This can prevent Ray Data from scheduling tasks, reducing performance or causing workloads to hang.</p>
+<p>To ensure CPU resources are always available for Ray Data execution, limit the number of concurrent Tune trials. This can be done using the <code class="docutils literal notranslate"><span class="pre">max_concurrent_trials</span></code> Tune option.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">from</span> <span class="nn">ray</span> <span class="kn">import</span> <span class="n">tune</span>
+
+<span class="c1"># This workload will use spare cluster resources for execution.</span>
+<span class="k">def</span> <span class="nf">objective</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">ray</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1"># Create a cluster with 4 CPU slots available.</span>
+<span class="n">ray</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">num_cpus</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+
+<span class="c1"># By setting `max_concurrent_trials=3`, this ensures the cluster will always</span>
+<span class="c1"># have a sparse CPU for Dataset. Try setting `max_concurrent_trials=4` here,</span>
+<span class="c1"># and notice that the experiment will appear to hang.</span>
+<span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
+    <span class="n">tune</span><span class="o">.</span><span class="n">with_resources</span><span class="p">(</span><span class="n">objective</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;cpu&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}),</span>
+    <span class="n">tune_config</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">TuneConfig</span><span class="p">(</span>
+        <span class="n">num_samples</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">max_concurrent_trials</span><span class="o">=</span><span class="mi">3</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+<span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="ray-data-and-placement-groups">
+<span id="datasets-pg"></span><h3>Ray Data and Placement Groups<a class="headerlink" href="data-internals.html#ray-data-and-placement-groups" title="Permalink to this headline">#</a></h3>
+<p>By default, Ray Data configures its tasks and actors to use the cluster-default scheduling strategy (“DEFAULT”). You can inspect this configuration variable here:
+<a class="reference internal" href="api/doc/ray.data.DataContext.html#ray.data.DataContext" title="ray.data.DataContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">ray.data.DataContext.get_current().scheduling_strategy</span></code></a>. This scheduling strategy will schedule these tasks and actors outside any present
+placement group. If you want to force Ray Data to schedule tasks within the current placement group (i.e., to use current placement group resources specifically for Ray Data), you can set <code class="docutils literal notranslate"><span class="pre">ray.data.DataContext.get_current().scheduling_strategy</span> <span class="pre">=</span> <span class="pre">None</span></code>.</p>
+<p>This should be considered for advanced use cases to improve performance predictability only. We generally recommend letting Ray Data run outside placement groups as documented in the <a class="reference internal" href="data-internals.html#datasets-tune"><span class="std std-ref">Ray Data and Other Libraries</span></a> section.</p>
+</section>
+</section>
+<section id="execution">
+<span id="dataset-execution"></span><h2>Execution<a class="headerlink" href="data-internals.html#execution" title="Permalink to this headline">#</a></h2>
+<p>Ray Data execution by default is:</p>
+<ul class="simple">
+<li><p><strong>Lazy</strong>: This means that transformations on Dataset are not executed until a
+consumption operation (e.g. <a class="reference internal" href="api/doc/ray.data.Dataset.iter_batches.html#ray.data.Dataset.iter_batches" title="ray.data.Dataset.iter_batches"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ds.iter_batches()</span></code></a>)
+or <a class="reference internal" href="api/doc/ray.data.Dataset.materialize.html#ray.data.Dataset.materialize" title="ray.data.Dataset.materialize"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Dataset.materialize()</span></code></a> is called. This creates
+opportunities for optimizing the execution plan (e.g. <a class="reference internal" href="data-internals.html#datasets-stage-fusion"><span class="std std-ref">stage fusion</span></a>).</p></li>
+<li><p><strong>Streaming</strong>: This means that Dataset transformations will be executed in a
+streaming way, incrementally on the base data, instead of on all of the data
+at once, and overlapping the execution of operations. This can be used for streaming
+data loading into ML training to overlap the data preprocessing and model training,
+or to execute batch transformations on large datasets without needing to load the
+entire dataset into cluster memory.</p></li>
+</ul>
+<section id="lazy-execution">
+<span id="datasets-lazy-execution"></span><h3>Lazy Execution<a class="headerlink" href="data-internals.html#lazy-execution" title="Permalink to this headline">#</a></h3>
+<p>Lazy execution offers opportunities for improved performance and memory stability due
+to stage fusion optimizations and aggressive garbage collection of intermediate results.</p>
+<p>Dataset creation and transformation APIs are lazy, with execution only triggered via “sink”
+APIs, such as consuming (<a class="reference internal" href="api/doc/ray.data.Dataset.iter_batches.html#ray.data.Dataset.iter_batches" title="ray.data.Dataset.iter_batches"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ds.iter_batches()</span></code></a>),
+writing (<a class="reference internal" href="api/doc/ray.data.Dataset.write_parquet.html#ray.data.Dataset.write_parquet" title="ray.data.Dataset.write_parquet"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ds.write_parquet()</span></code></a>), or manually triggering via
+<a class="reference internal" href="api/doc/ray.data.Dataset.materialize.html#ray.data.Dataset.materialize" title="ray.data.Dataset.materialize"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ds.materialize()</span></code></a>. There are a few
+exceptions to this rule, where transformations such as <a class="reference internal" href="api/doc/ray.data.Dataset.union.html#ray.data.Dataset.union" title="ray.data.Dataset.union"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ds.union()</span></code></a> and
+<a class="reference internal" href="api/doc/ray.data.Dataset.limit.html#ray.data.Dataset.limit" title="ray.data.Dataset.limit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ds.limit()</span></code></a> trigger execution; we plan to make these
+operations lazy in the future.</p>
+<p>Check the API docs for Ray Data methods to see if they
+trigger execution. Those that do trigger execution will have a <code class="docutils literal notranslate"><span class="pre">Note</span></code> indicating as
+much.</p>
+</section>
+<section id="streaming-execution">
+<span id="id1"></span><h3>Streaming Execution<a class="headerlink" href="data-internals.html#streaming-execution" title="Permalink to this headline">#</a></h3>
+<p>The following code is a hello world example which invokes the execution with
+<a class="reference internal" href="api/doc/ray.data.Dataset.iter_batches.html#ray.data.Dataset.iter_batches" title="ray.data.Dataset.iter_batches"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ds.iter_batches()</span></code></a> consumption. We will also enable verbose progress reporting, which shows per-operator progress in addition to overall progress.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="c1"># Enable verbose reporting. This can also be toggled on by setting</span>
+<span class="c1"># the environment variable RAY_DATA_VERBOSE_PROGRESS=1.</span>
+<span class="n">ctx</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataContext</span><span class="o">.</span><span class="n">get_current</span><span class="p">()</span>
+<span class="n">ctx</span><span class="o">.</span><span class="n">execution_options</span><span class="o">.</span><span class="n">verbose_progress</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="k">def</span> <span class="nf">sleep</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">x</span>
+
+<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="p">(</span>
+    <span class="n">ray</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">range_tensor</span><span class="p">(</span><span class="mi">5000</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">80</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">parallelism</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">map_batches</span><span class="p">(</span><span class="n">sleep</span><span class="p">,</span> <span class="n">num_cpus</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">map_batches</span><span class="p">(</span><span class="n">sleep</span><span class="p">,</span> <span class="n">compute</span><span class="o">=</span><span class="n">ray</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">ActorPoolStrategy</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+    <span class="o">.</span><span class="n">map_batches</span><span class="p">(</span><span class="n">sleep</span><span class="p">,</span> <span class="n">num_cpus</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">iter_batches</span><span class="p">()</span>
+<span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>This launches a simple 4-stage pipeline. We use different compute args for each stage, which forces them to be run as separate operators instead of getting fused together. You should see a log message indicating streaming execution is being used:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">2023</span><span class="o">-</span><span class="mi">03</span><span class="o">-</span><span class="mi">30</span> <span class="mi">16</span><span class="p">:</span><span class="mi">40</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span><span class="mi">076</span>      <span class="n">INFO</span> <span class="n">streaming_executor</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="mi">83</span> <span class="o">--</span> <span class="n">Executing</span> <span class="n">DAG</span> <span class="n">InputDataBuffer</span><span class="p">[</span><span class="n">Input</span><span class="p">]</span> <span class="o">-&gt;</span> <span class="n">TaskPoolMapOperator</span><span class="p">[</span><span class="n">ReadRange</span><span class="p">]</span> <span class="o">-&gt;</span> <span class="n">TaskPoolMapOperator</span><span class="p">[</span><span class="n">MapBatches</span><span class="p">(</span><span class="n">sleep</span><span class="p">)]</span> <span class="o">-&gt;</span> <span class="n">ActorPoolMapOperator</span><span class="p">[</span><span class="n">MapBatches</span><span class="p">(</span><span class="n">sleep</span><span class="p">)]</span> <span class="o">-&gt;</span> <span class="n">TaskPoolMapOperator</span><span class="p">[</span><span class="n">MapBatches</span><span class="p">(</span><span class="n">sleep</span><span class="p">)]</span>
+</pre></div>
+</div>
+<p>The next few lines will show execution progress. Here is how to interpret the output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Running: 7.0/16.0 CPU, 0.0/0.0 GPU, 76.91 MiB/2.25 GiB object_store_memory 65%|██▊ | 130/200 [00:08&lt;00:02, 22.52it/s]
+</pre></div>
+</div>
+<p>This line tells you how many resources are currently being used by the streaming executor out of the limits, as well as the number of completed output blocks. The streaming executor will attempt to keep resource usage under the printed limits by throttling task executions.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>ReadRange: 2 active, 37 queued, 7.32 MiB objects 1:  80%|████████▊  | 161/200 [00:08&lt;00:02, 17.81it/s]
+MapBatches(sleep): 5 active, 5 queued, 18.31 MiB objects 2:  76%|██▎| 151/200 [00:08&lt;00:02, 19.93it/s]
+MapBatches(sleep): 7 active, 2 queued, 25.64 MiB objects, 2 actors [all objects local] 3:  71%|▋| 142/
+MapBatches(sleep): 2 active, 0 queued, 7.32 MiB objects 4:  70%|██▊ | 139/200 [00:08&lt;00:02, 23.16it/s]
+</pre></div>
+</div>
+<p>These lines are only shown when verbose progress reporting is enabled. The <code class="xref py py-obj docutils literal notranslate"><span class="pre">active</span></code> count indicates the number of running tasks for the operator. The <code class="xref py py-obj docutils literal notranslate"><span class="pre">queued</span></code> count is the number of input blocks for the operator that are computed but are not yet submitted for execution. For operators that use actor-pool execution, the number of running actors is shown as <code class="xref py py-obj docutils literal notranslate"><span class="pre">actors</span></code>.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Avoid returning large outputs from the final operation of a pipeline you are iterating over, since the consumer process will be a serial bottleneck.</p>
+</div>
+<section id="configuring-resources-and-locality">
+<h4>Configuring Resources and Locality<a class="headerlink" href="data-internals.html#configuring-resources-and-locality" title="Permalink to this headline">#</a></h4>
+<p>By default, the CPU and GPU limits are set to the cluster size, and the object store memory limit conservatively to 1/4 of the total object store size to avoid the possibility of disk spilling.</p>
+<p>You may want to customize these limits in the following scenarios:
+- If running multiple concurrent jobs on the cluster, setting lower limits can avoid resource contention between the jobs.
+- If you want to fine-tune the memory limit to maximize performance.
+- For data loading into training jobs, you may want to set the object store memory to a low value (e.g., 2GB) to limit resource usage.</p>
+<p>Execution options can be configured via the global DataContext. The options will be applied for future jobs launched in the process:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ctx</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataContext</span><span class="o">.</span><span class="n">get_current</span><span class="p">()</span>
+<span class="n">ctx</span><span class="o">.</span><span class="n">execution_options</span><span class="o">.</span><span class="n">resource_limits</span><span class="o">.</span><span class="n">cpu</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">ctx</span><span class="o">.</span><span class="n">execution_options</span><span class="o">.</span><span class="n">resource_limits</span><span class="o">.</span><span class="n">gpu</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">ctx</span><span class="o">.</span><span class="n">execution_options</span><span class="o">.</span><span class="n">resource_limits</span><span class="o">.</span><span class="n">object_store_memory</span> <span class="o">=</span> <span class="mf">10e9</span>
+</pre></div>
+</div>
+</section>
+<section id="deterministic-execution">
+<h4>Deterministic Execution<a class="headerlink" href="data-internals.html#deterministic-execution" title="Permalink to this headline">#</a></h4>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># By default, this is set to False.</span>
+<span class="n">ctx</span><span class="o">.</span><span class="n">execution_options</span><span class="o">.</span><span class="n">preserve_order</span> <span class="o">=</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<p>To enable deterministic execution, set the above to True. This may decrease performance, but will ensure block ordering is preserved through execution. This flag defaults to False.</p>
+</section>
+<section id="actor-locality-optimization-ml-inference-use-case">
+<h4>Actor Locality Optimization (ML inference use case)<a class="headerlink" href="data-internals.html#actor-locality-optimization-ml-inference-use-case" title="Permalink to this headline">#</a></h4>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># By default, this is set to True already.</span>
+<span class="n">ctx</span><span class="o">.</span><span class="n">execution_options</span><span class="o">.</span><span class="n">actor_locality_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<p>The actor locality optimization (if you’re using actor pools) tries to schedule objects that are already local to an actor’s node to the same actor. This reduces network traffic across nodes. When actor locality is enabled, you’ll see a report in the progress output of the hit rate:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>MapBatches(Model): 0 active, 0 queued, 0 actors [992 locality hits, 8 misses]: 100%|██████████| 1000/1000 [00:59&lt;00:00, 16.84it/s]
+</pre></div>
+</div>
+</section>
+<section id="locality-with-output-ml-ingest-use-case">
+<h4>Locality with Output (ML ingest use case)<a class="headerlink" href="data-internals.html#locality-with-output-ml-ingest-use-case" title="Permalink to this headline">#</a></h4>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ctx</span><span class="o">.</span><span class="n">execution_options</span><span class="o">.</span><span class="n">locality_with_output</span> <span class="o">=</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<p>Setting this to True tells Ray Data to prefer placing operator tasks onto the consumer node in the cluster, rather than spreading them evenly across the cluster. This can be useful if you know you’ll be consuming the output data directly on the consumer node (i.e., for ML training ingest). However, this may incur a performance penalty for other use cases.</p>
+</section>
+<section id="scalability">
+<h4>Scalability<a class="headerlink" href="data-internals.html#scalability" title="Permalink to this headline">#</a></h4>
+<p>We expect the data streaming backend to scale to tens of thousands of files / blocks and up to hundreds of terabytes of data. Please report if you experience performance degradation at these scales, we would be very interested to investigate!</p>
+</section>
+</section>
+<section id="stage-fusion-optimization">
+<span id="datasets-stage-fusion"></span><h3>Stage Fusion Optimization<a class="headerlink" href="data-internals.html#stage-fusion-optimization" title="Permalink to this headline">#</a></h3>
+<p>In order to reduce memory usage and task overheads, Ray Data will automatically fuse together
+lazy operations that are compatible:</p>
+<ul class="simple">
+<li><p>Same compute pattern: embarrassingly parallel map vs. all-to-all shuffle</p></li>
+<li><p>Same compute strategy: Ray tasks vs Ray actors</p></li>
+<li><p>Same resource specification, e.g. <code class="docutils literal notranslate"><span class="pre">num_cpus</span></code> or <code class="docutils literal notranslate"><span class="pre">num_gpus</span></code> requests</p></li>
+</ul>
+<p>Read stages and subsequent map-like transformations will usually be fused together.
+All-to-all transformations such as
+<a class="reference internal" href="api/doc/ray.data.Dataset.random_shuffle.html#ray.data.Dataset.random_shuffle" title="ray.data.Dataset.random_shuffle"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ds.random_shuffle()</span></code></a> can be fused with earlier
+map-like stages, but not later stages.</p>
+<p>You can tell if stage fusion is enabled by checking the <a class="reference internal" href="performance-tips.html#data-performance-tips"><span class="std std-ref">Dataset stats</span></a> and looking for fused stages (e.g., <code class="docutils literal notranslate"><span class="pre">read-&gt;map_batches</span></code>).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Stage</span> <span class="n">N</span> <span class="n">read</span><span class="o">-&gt;</span><span class="n">map_batches</span><span class="o">-&gt;</span><span class="n">shuffle_map</span><span class="p">:</span> <span class="n">N</span><span class="o">/</span><span class="n">N</span> <span class="n">blocks</span> <span class="n">executed</span> <span class="ow">in</span> <span class="n">T</span>
+<span class="o">*</span> <span class="n">Remote</span> <span class="n">wall</span> <span class="n">time</span><span class="p">:</span> <span class="n">T</span> <span class="nb">min</span><span class="p">,</span> <span class="n">T</span> <span class="nb">max</span><span class="p">,</span> <span class="n">T</span> <span class="n">mean</span><span class="p">,</span> <span class="n">T</span> <span class="n">total</span>
+<span class="o">*</span> <span class="n">Remote</span> <span class="n">cpu</span> <span class="n">time</span><span class="p">:</span> <span class="n">T</span> <span class="nb">min</span><span class="p">,</span> <span class="n">T</span> <span class="nb">max</span><span class="p">,</span> <span class="n">T</span> <span class="n">mean</span><span class="p">,</span> <span class="n">T</span> <span class="n">total</span>
+<span class="o">*</span> <span class="n">Output</span> <span class="n">num</span> <span class="n">rows</span><span class="p">:</span> <span class="n">N</span> <span class="nb">min</span><span class="p">,</span> <span class="n">N</span> <span class="nb">max</span><span class="p">,</span> <span class="n">N</span> <span class="n">mean</span><span class="p">,</span> <span class="n">N</span> <span class="n">total</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="memory-management">
+<h2>Memory Management<a class="headerlink" href="data-internals.html#memory-management" title="Permalink to this headline">#</a></h2>
+<p>This section describes how Ray Data manages execution and object store memory.</p>
+<section id="execution-memory">
+<h3>Execution Memory<a class="headerlink" href="data-internals.html#execution-memory" title="Permalink to this headline">#</a></h3>
+<p>During execution, a task can read multiple input blocks, and write multiple output blocks. Input and output blocks consume both worker heap memory and shared memory via Ray’s object store.</p>
+<p>Ray Data attempts to bound its heap memory usage to <code class="xref py py-obj docutils literal notranslate"><span class="pre">num_execution_slots</span> <span class="pre">*</span> <span class="pre">max_block_size</span></code>. The number of execution slots is by default equal to the number of CPUs, unless custom resources are specified. The maximum block size is set by the configuration parameter <code class="xref py py-obj docutils literal notranslate"><span class="pre">ray.data.DataContext.target_max_block_size</span></code> and is set to 512MiB by default. When a task’s output is larger than this value, the worker will automatically split the output into multiple smaller blocks to avoid running out of heap memory.</p>
+<p>Large block size can lead to potential out-of-memory situations. To avoid these issues, make sure no single item in your Ray Data is too large, and always call <a class="reference internal" href="api/doc/ray.data.Dataset.map_batches.html#ray.data.Dataset.map_batches" title="ray.data.Dataset.map_batches"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ds.map_batches()</span></code></a> with batch size small enough such that the output batch can comfortably fit into memory.</p>
+</section>
+<section id="object-store-memory">
+<h3>Object Store Memory<a class="headerlink" href="data-internals.html#object-store-memory" title="Permalink to this headline">#</a></h3>
+<p>Ray Data uses the Ray object store to store data blocks, which means it inherits the memory management features of the Ray object store. This section discusses the relevant features:</p>
+<ul class="simple">
+<li><p>Object Spilling: Since Ray Data uses the Ray object store to store data blocks, any blocks that can’t fit into object store memory are automatically spilled to disk. The objects are automatically reloaded when needed by downstream compute tasks:</p></li>
+<li><p>Locality Scheduling: Ray will preferentially schedule compute tasks on nodes that already have a local copy of the object, reducing the need to transfer objects between nodes in the cluster.</p></li>
+<li><p>Reference Counting: Dataset blocks are kept alive by object store reference counting as long as there is any Dataset that references them. To free memory, delete any Python references to the Dataset object.</p></li>
+</ul>
+</section>
+<section id="block-data-formats">
+<h3>Block Data Formats<a class="headerlink" href="data-internals.html#block-data-formats" title="Permalink to this headline">#</a></h3>
+<p>In order to optimize conversion costs, Ray Data can hold tabular data in-memory
+as either <a class="reference external" href="https://arrow.apache.org/docs/python/generated/pyarrow.Table.html">Arrow Tables</a>
+or <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html">Pandas DataFrames</a>.</p>
+<p>Different ways of creating Ray Data leads to a different starting internal format:</p>
+<ul class="simple">
+<li><p>Reading tabular files (Parquet, CSV, JSON) creates Arrow blocks initially.</p></li>
+<li><p>Converting from Pandas, Dask, Modin, and Mars creates Pandas blocks initially.</p></li>
+<li><p>Reading NumPy files or converting from NumPy ndarrays creates Arrow blocks.</p></li>
+<li><p>Reading TFRecord file creates Arrow blocks.</p></li>
+<li><p>Reading MongoDB creates Arrow blocks.</p></li>
+</ul>
+<p>However, this internal format is not exposed to the user. Ray Data converts between formats
+as needed internally depending on the specified <code class="docutils literal notranslate"><span class="pre">batch_format</span></code> of transformations.</p>
+</section>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="working-with-tensors.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Working with Tensors</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="performance-tips.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Performance Tips and Tuning</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

@@ -1,0 +1,881 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Deploy a Composition of Models &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/js/versionwarning.js"></script>
+    <script src="../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../_static/js/docsearch.js"></script>
+    <script src="../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../_static/js/termynal.js"></script>
+    <script defer="defer" src="../_static/js/custom.js"></script>
+    <script defer="defer" src="../_static/js/top-navigation.js"></script>
+    <script src="../_static/js/tags.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../_static/design-tabs.js"></script>
+    <script async="async" src="../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/serve/model_composition.html" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Deploy Many Models" href="deploy-many-models/index.html" />
+    <link rel="prev" title="Key Concepts" href="key-concepts.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "serve/model_composition", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".md", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../tune.html">
+   Ray Tune
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="index.html">
+   Ray Serve
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="getting_started.html">
+     Getting Started
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2 current active">
+    <a class="current reference internal" href="model_composition.html#">
+     Deploy a Composition of Models
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="deploy-many-models/index.html">
+     Deploy Many Models
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="http-guide.html">
+     Set Up FastAPI and HTTP
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="production-guide/index.html">
+     Production Guide
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="monitoring.html">
+     Monitor Your Application
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="scaling-and-resource-allocation.html">
+     Set Up Autoscaling and Resource Allocation
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="advanced-guides/index.html">
+     Advanced Guides
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="architecture.html">
+     Architecture
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="tutorials/index.html">
+     Examples
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="api/index.html">
+     Ray Serve API
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Fserve/model_composition.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/serve/model_composition.md"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../_sources/serve/model_composition.md.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.md</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="model_composition.html#composing-deployments-using-servehandles">
+   Composing Deployments using ServeHandles
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="model_composition.html#model-composition-example">
+     Model Composition Example
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="model_composition.html#servehandle-deep-dive">
+     ServeHandle Deep Dive
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Deploy a Composition of Models</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="model_composition.html#composing-deployments-using-servehandles">
+   Composing Deployments using ServeHandles
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="model_composition.html#model-composition-example">
+     Model Composition Example
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="model_composition.html#servehandle-deep-dive">
+     ServeHandle Deep Dive
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section class="tex2jax_ignore mathjax_ignore" id="deploy-a-composition-of-models">
+<span id="serve-model-composition"></span><h1>Deploy a Composition of Models<a class="headerlink" href="model_composition.html#deploy-a-composition-of-models" title="Permalink to this headline">#</a></h1>
+<p>This section helps you:</p>
+<ul class="simple">
+<li><p>compose multiple deployments containing ML logic or business logic into a single application</p></li>
+<li><p>independently scale and configure each of your ML models and business logic steps</p></li>
+</ul>
+<p>Check out a <a class="reference internal" href="advanced-guides/deployment-graphs.html#serve-deployment-graphs"><span class="std std-ref">new experimental API</span></a> under development for connecting Ray Serve deployments together with the <strong>deployment graph</strong> API.</p>
+<section id="composing-deployments-using-servehandles">
+<span id="serve-handle-explainer"></span><h2>Composing Deployments using ServeHandles<a class="headerlink" href="model_composition.html#composing-deployments-using-servehandles" title="Permalink to this headline">#</a></h2>
+<p>You can call deployment methods from within other deployments using the <a class="reference internal" href="key-concepts.html#serve-key-concepts-query-deployment"><span class="std std-ref">ServeHandle</span></a>. This lets you divide your application’s steps (such as preprocessing, model inference, and post-processing) into independent deployments that can be independently scaled and configured.</p>
+<p>To use the <code class="docutils literal notranslate"><span class="pre">ServeHandle</span></code>, use <code class="xref py py-mod docutils literal notranslate"><span class="pre">handle.remote</span></code> to send requests to a deployment.
+These requests can be ordinary Python args and kwargs that are passed directly to the method. This method call returns a Ray <code class="docutils literal notranslate"><span class="pre">ObjectRef</span></code> whose result can be waited for or retrieved using <code class="docutils literal notranslate"><span class="pre">await</span></code> or <code class="docutils literal notranslate"><span class="pre">ray.get</span></code>.</p>
+<section id="model-composition-example">
+<span id="serve-model-composition-serve-handles"></span><h3>Model Composition Example<a class="headerlink" href="model_composition.html#model-composition-example" title="Permalink to this headline">#</a></h3>
+<p>Here’s an example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1"># File name: hello.py</span>
+<span class="linenos"> 2</span><span class="kn">import</span> <span class="nn">ray</span>
+<span class="linenos"> 3</span><span class="kn">from</span> <span class="nn">ray</span> <span class="kn">import</span> <span class="n">serve</span>
+<span class="linenos"> 4</span>
+<span class="linenos"> 5</span>
+<span class="linenos"> 6</span><span class="nd">@serve</span><span class="o">.</span><span class="n">deployment</span>
+<span class="linenos"> 7</span><span class="k">class</span> <span class="nc">LanguageClassifer</span><span class="p">:</span>
+<span class="linenos"> 8</span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spanish_responder</span><span class="p">,</span> <span class="n">french_responder</span><span class="p">):</span>
+<span class="linenos"> 9</span>        <span class="bp">self</span><span class="o">.</span><span class="n">spanish_responder</span> <span class="o">=</span> <span class="n">spanish_responder</span>
+<span class="linenos">10</span>        <span class="bp">self</span><span class="o">.</span><span class="n">french_responder</span> <span class="o">=</span> <span class="n">french_responder</span>
+<span class="linenos">11</span>
+<span class="linenos">12</span>    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">http_request</span><span class="p">):</span>
+<span class="linenos">13</span>        <span class="n">request</span> <span class="o">=</span> <span class="k">await</span> <span class="n">http_request</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+<span class="linenos">14</span>        <span class="n">language</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">request</span><span class="p">[</span><span class="s2">&quot;language&quot;</span><span class="p">],</span> <span class="n">request</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+<span class="linenos">15</span>
+<span class="linenos">16</span>        <span class="k">if</span> <span class="n">language</span> <span class="o">==</span> <span class="s2">&quot;spanish&quot;</span><span class="p">:</span>
+<span class="linenos">17</span>            <span class="n">ref</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">spanish_responder</span><span class="o">.</span><span class="n">say_hello</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+<span class="linenos">18</span>        <span class="k">elif</span> <span class="n">language</span> <span class="o">==</span> <span class="s2">&quot;french&quot;</span><span class="p">:</span>
+<span class="linenos">19</span>            <span class="n">ref</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">french_responder</span><span class="o">.</span><span class="n">say_hello</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+<span class="linenos">20</span>        <span class="k">else</span><span class="p">:</span>
+<span class="linenos">21</span>            <span class="k">return</span> <span class="s2">&quot;Please try again.&quot;</span>
+<span class="linenos">22</span>
+<span class="linenos">23</span>        <span class="k">return</span> <span class="k">await</span> <span class="n">ref</span>
+<span class="linenos">24</span>
+<span class="linenos">25</span>
+<span class="linenos">26</span><span class="nd">@serve</span><span class="o">.</span><span class="n">deployment</span>
+<span class="linenos">27</span><span class="k">class</span> <span class="nc">SpanishResponder</span><span class="p">:</span>
+<span class="linenos">28</span>    <span class="k">def</span> <span class="nf">say_hello</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="linenos">29</span>        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Hola </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="linenos">30</span>
+<span class="linenos">31</span>
+<span class="linenos">32</span><span class="nd">@serve</span><span class="o">.</span><span class="n">deployment</span>
+<span class="linenos">33</span><span class="k">class</span> <span class="nc">FrenchResponder</span><span class="p">:</span>
+<span class="linenos">34</span>    <span class="k">def</span> <span class="nf">say_hello</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="linenos">35</span>        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Bonjour </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="linenos">36</span>
+<span class="linenos">37</span>
+<span class="linenos">38</span><span class="n">spanish_responder</span> <span class="o">=</span> <span class="n">SpanishResponder</span><span class="o">.</span><span class="n">bind</span><span class="p">()</span>
+<span class="linenos">39</span><span class="n">french_responder</span> <span class="o">=</span> <span class="n">FrenchResponder</span><span class="o">.</span><span class="n">bind</span><span class="p">()</span>
+<span class="linenos">40</span><span class="n">language_classifier</span> <span class="o">=</span> <span class="n">LanguageClassifer</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">spanish_responder</span><span class="p">,</span> <span class="n">french_responder</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In line 40, the <code class="docutils literal notranslate"><span class="pre">LanguageClassifier</span></code> deployment takes in the <code class="docutils literal notranslate"><span class="pre">spanish_responder</span></code> and <code class="docutils literal notranslate"><span class="pre">french_responder</span></code> as constructor arguments. At runtime, these arguments are converted into <code class="docutils literal notranslate"><span class="pre">ServeHandles</span></code>. <code class="docutils literal notranslate"><span class="pre">LanguageClassifier</span></code> can then call the <code class="docutils literal notranslate"><span class="pre">spanish_responder</span></code> and <code class="docutils literal notranslate"><span class="pre">french_responder</span></code>’s deployment methods using this handle.</p>
+<p>For example, the <code class="docutils literal notranslate"><span class="pre">LanguageClassifier</span></code>’s <code class="docutils literal notranslate"><span class="pre">__call__</span></code> method uses the HTTP request’s values to decide whether to respond in Spanish or French. It then forwards the request’s name to the <code class="docutils literal notranslate"><span class="pre">spanish_responder</span></code> or the <code class="docutils literal notranslate"><span class="pre">french_responder</span></code> on lines 17 and 19 using the <code class="docutils literal notranslate"><span class="pre">ServeHandles</span></code>. The calls are formatted as:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">spanish_responder</span><span class="o">.</span><span class="n">say_hello</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This call has a few parts:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">await</span></code> lets us issue an asynchronous request through the <code class="docutils literal notranslate"><span class="pre">ServeHandle</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.spanish_responder</span></code> is the <code class="docutils literal notranslate"><span class="pre">SpanishResponder</span></code> handle taken in through the constructor.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">say_hello</span></code> is the <code class="docutils literal notranslate"><span class="pre">SpanishResponder</span></code> method to invoke.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">remote</span></code> indicates that this is a <code class="docutils literal notranslate"><span class="pre">ServeHandle</span></code> call to another deployment. This is required when invoking a deployment’s method through another deployment. It needs to be added to the method name.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> is the argument for <code class="docutils literal notranslate"><span class="pre">say_hello</span></code>. You can pass any number of arguments or keyword arguments here.</p></li>
+</ul>
+<p>This call returns a reference to the result– not the result itself. This pattern allows the call to execute asynchronously. To get the actual result, <code class="docutils literal notranslate"><span class="pre">await</span></code> the reference. <code class="docutils literal notranslate"><span class="pre">await</span></code> blocks until the asynchronous call executes, and then it returns the result. In this example, line 23 calls <code class="docutils literal notranslate"><span class="pre">await</span> <span class="pre">ref</span></code> and returns the resulting string. <strong>Note that getting the result needs two <code class="docutils literal notranslate"><span class="pre">await</span></code> statements in total</strong>. First, the script must <code class="docutils literal notranslate"><span class="pre">await</span></code> the <code class="docutils literal notranslate"><span class="pre">ServeHandle</span></code> call itself to retrieve a reference. Then it must <code class="docutils literal notranslate"><span class="pre">await</span></code> the reference to get the final result.</p>
+<div class="admonition warning" id="serve-model-composition-await-warning">
+<p class="admonition-title">Warning</p>
+<p>You can use the <code class="docutils literal notranslate"><span class="pre">ray.get(ref)</span></code> method to get the return value of remote <code class="docutils literal notranslate"><span class="pre">ServeHandle</span></code> calls. However, calling <code class="docutils literal notranslate"><span class="pre">ray.get</span></code> from inside a deployment is an antipattern. It blocks the deployment from executing any other code until the call is finished. Using <code class="docutils literal notranslate"><span class="pre">await</span></code> lets the deployment process other requests while waiting for the <code class="docutils literal notranslate"><span class="pre">ServeHandle</span></code> call to finish. You should use <code class="docutils literal notranslate"><span class="pre">await</span></code> instead of <code class="docutils literal notranslate"><span class="pre">ray.get</span></code> inside deployments.</p>
+</div>
+<p>You can copy the <code class="docutils literal notranslate"><span class="pre">hello.py</span></code> script above and run it with <code class="docutils literal notranslate"><span class="pre">serve</span> <span class="pre">run</span></code>. Make sure to run the command from a directory containing <code class="docutils literal notranslate"><span class="pre">hello.py</span></code>, so it can locate the script:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>serve run hello:language_classifier
+</pre></div>
+</div>
+<p>You can use this client script to interact with the example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># File name: hello_client.py</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+
+<span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+    <span class="s2">&quot;http://localhost:8000&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;language&quot;</span><span class="p">:</span> <span class="s2">&quot;spanish&quot;</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Dora&quot;</span><span class="p">}</span>
+<span class="p">)</span>
+<span class="n">greeting</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">greeting</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>While the <code class="docutils literal notranslate"><span class="pre">serve</span> <span class="pre">run</span></code> command is running, open a separate terminal window and run this script:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python hello_client.py
+
+<span class="go">Hola Dora</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Composition lets you break apart your application and independently scale each part. For instance, suppose this <code class="docutils literal notranslate"><span class="pre">LanguageClassifier</span></code> application’s requests were 75% Spanish and 25% French. You could scale your <code class="docutils literal notranslate"><span class="pre">SpanishResponder</span></code> to have 3 replicas and your <code class="docutils literal notranslate"><span class="pre">FrenchResponder</span></code> to have 1 replica, so you could meet your workload’s demand. This flexibility also applies to reserving resources like CPUs and GPUs, as well as any other configurations you can set for each deployment.</p>
+<p>With composition, you can avoid application-level bottlenecks when serving models and business logic steps that use different types and amounts of resources.</p>
+</div>
+</section>
+<section id="servehandle-deep-dive">
+<h3>ServeHandle Deep Dive<a class="headerlink" href="model_composition.html#servehandle-deep-dive" title="Permalink to this headline">#</a></h3>
+<p>Conceptually, a <code class="docutils literal notranslate"><span class="pre">ServeHandle</span></code> is a client-side load balancer, routing requests to any replicas of a given deployment. Also, it performs buffering internally so it won’t overwhelm the replicas.
+Using the current number of requests buffered, it informs the autoscaler to scale up the number of replicas.</p>
+<p><img alt="architecture-diagram-of-serve-handle" src="https://raw.githubusercontent.com/ray-project/images/master/docs/serve/serve-handle-explainer.png" /></p>
+<p><code class="docutils literal notranslate"><span class="pre">ServeHandle</span></code>s take request parameters and returns a future object of type <a class="reference internal" href="../ray-core/objects.html#objects-in-ray"><span class="std std-ref"><code class="docutils literal notranslate"><span class="pre">ray.ObjectRef</span></code></span></a>, whose value will be filled with the result object. Because of the internal buffering, the time from submitting a request to getting a <code class="docutils literal notranslate"><span class="pre">ray.ObjectRef</span></code> can vary.</p>
+<p>Because of this variability, Serve offers two types of handles to ensure the buffering period is handled efficiently. We offer synchronous and asynchronous versions of the handle:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">RayServeSyncHandle</span></code> directly returns a <code class="docutils literal notranslate"><span class="pre">ray.ObjectRef</span></code>. It blocks the current thread until the request is matched to a replica.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RayServeDeploymentHandle</span></code> returns an <code class="docutils literal notranslate"><span class="pre">asyncio.Task</span></code> upon submission. The <code class="docutils literal notranslate"><span class="pre">asyncio.Task</span></code> can be awaited to resolve to a <code class="docutils literal notranslate"><span class="pre">ray.ObjectRef</span></code>. While the current request is buffered, other requests can be processed concurrently.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">serve.run</span></code> deploys a deployment graph and returns the entrypoint node’s handle (the node you passed as argument to <code class="docutils literal notranslate"><span class="pre">serve.run</span></code>). The return type is a <code class="docutils literal notranslate"><span class="pre">RayServeSyncHandle</span></code>. This is useful for interacting with and testing the newly created deployment graph.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">starlette.requests</span> <span class="kn">import</span> <span class="n">Request</span>
+
+<span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">from</span> <span class="nn">ray</span> <span class="kn">import</span> <span class="n">serve</span>
+<span class="kn">from</span> <span class="nn">ray.serve.handle</span> <span class="kn">import</span> <span class="n">RayServeSyncHandle</span>
+
+
+<span class="nd">@serve</span><span class="o">.</span><span class="n">deployment</span>
+<span class="k">class</span> <span class="nc">Model</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;hello&quot;</span>
+
+
+<span class="n">handle</span><span class="p">:</span> <span class="n">RayServeSyncHandle</span> <span class="o">=</span> <span class="n">serve</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">Model</span><span class="o">.</span><span class="n">bind</span><span class="p">())</span>
+<span class="n">ref</span><span class="p">:</span> <span class="n">ray</span><span class="o">.</span><span class="n">ObjectRef</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">remote</span><span class="p">()</span>  <span class="c1"># blocks until request is assigned to replica</span>
+<span class="k">assert</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;hello&quot;</span>
+</pre></div>
+</div>
+<p>In all other cases, <code class="docutils literal notranslate"><span class="pre">RayServeDeploymentHandle</span></code> is the default because the API is more performant than its blocking counterpart. For example, when implementing a dynamic dispatch node in deployment graph, the handle is asynchronous.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">from</span> <span class="nn">ray</span> <span class="kn">import</span> <span class="n">serve</span>
+<span class="kn">from</span> <span class="nn">ray.serve.handle</span> <span class="kn">import</span> <span class="n">RayServeDeploymentHandle</span><span class="p">,</span> <span class="n">RayServeSyncHandle</span>
+
+
+<span class="nd">@serve</span><span class="o">.</span><span class="n">deployment</span>
+<span class="k">class</span> <span class="nc">Model</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;hello&quot;</span>
+
+
+<span class="nd">@serve</span><span class="o">.</span><span class="n">deployment</span>
+<span class="k">class</span> <span class="nc">DynamicDispatcher</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">handle_a</span><span class="p">:</span> <span class="n">RayServeDeploymentHandle</span><span class="p">,</span> <span class="n">handle_b</span><span class="p">:</span> <span class="n">RayServeDeploymentHandle</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">handle_a</span> <span class="o">=</span> <span class="n">handle_a</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">handle_b</span> <span class="o">=</span> <span class="n">handle_b</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">handle_chosen</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_a</span> <span class="k">if</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mf">0.5</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_b</span>
+
+        <span class="c1"># The request is enqueued.</span>
+        <span class="n">submission_task</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Task</span> <span class="o">=</span> <span class="n">handle_chosen</span><span class="o">.</span><span class="n">remote</span><span class="p">()</span>
+        <span class="c1"># The request is assigned to a replica.</span>
+        <span class="n">ref</span><span class="p">:</span> <span class="n">ray</span><span class="o">.</span><span class="n">ObjectRef</span> <span class="o">=</span> <span class="k">await</span> <span class="n">submission_task</span>
+        <span class="c1"># The request has been processed by the replica.</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">ref</span>
+
+        <span class="k">return</span> <span class="n">result</span>
+
+
+<span class="n">handle</span><span class="p">:</span> <span class="n">RayServeSyncHandle</span> <span class="o">=</span> <span class="n">serve</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+    <span class="n">DynamicDispatcher</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">Model</span><span class="o">.</span><span class="n">bind</span><span class="p">(),</span> <span class="n">Model</span><span class="o">.</span><span class="n">bind</span><span class="p">())</span>
+<span class="p">)</span>
+<span class="n">ref</span><span class="p">:</span> <span class="n">ray</span><span class="o">.</span><span class="n">ObjectRef</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">remote</span><span class="p">()</span>
+<span class="k">assert</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;hello&quot;</span>
+
+</pre></div>
+</div>
+<p>The result of <code class="docutils literal notranslate"><span class="pre">deployment_handle.remote()</span></code> can also be passed directly as an argument to other downstream handles, without having to await on it.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
+<span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">from</span> <span class="nn">ray</span> <span class="kn">import</span> <span class="n">serve</span>
+<span class="kn">from</span> <span class="nn">ray.serve.handle</span> <span class="kn">import</span> <span class="n">RayServeDeploymentHandle</span><span class="p">,</span> <span class="n">RayServeSyncHandle</span>
+
+
+<span class="nd">@serve</span><span class="o">.</span><span class="n">deployment</span>
+<span class="k">class</span> <span class="nc">Model</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inp</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;hello &quot;</span> <span class="o">+</span> <span class="n">inp</span>
+
+
+<span class="nd">@serve</span><span class="o">.</span><span class="n">deployment</span>
+<span class="k">class</span> <span class="nc">Chain</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">handle_a</span><span class="p">:</span> <span class="n">RayServeDeploymentHandle</span><span class="p">,</span> <span class="n">handle_b</span><span class="p">:</span> <span class="n">RayServeDeploymentHandle</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">handle_a</span> <span class="o">=</span> <span class="n">handle_a</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">handle_b</span> <span class="o">=</span> <span class="n">handle_b</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inp</span><span class="p">):</span>
+        <span class="n">ref</span><span class="p">:</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Task</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_b</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span>
+            <span class="c1"># Serve can handle enqueued-task as dependencies.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">handle_a</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">inp</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="n">ref</span>
+
+
+<span class="n">handle</span><span class="p">:</span> <span class="n">RayServeSyncHandle</span> <span class="o">=</span> <span class="n">serve</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">Chain</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">Model</span><span class="o">.</span><span class="n">bind</span><span class="p">(),</span> <span class="n">Model</span><span class="o">.</span><span class="n">bind</span><span class="p">()))</span>
+<span class="n">ref</span><span class="p">:</span> <span class="n">ray</span><span class="o">.</span><span class="n">ObjectRef</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="s2">&quot;Serve&quot;</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;hello hello Serve&quot;</span>
+
+</pre></div>
+</div>
+<p>In both types of <code class="docutils literal notranslate"><span class="pre">ServeHandle</span></code>, you can call a specific method by using the <code class="docutils literal notranslate"><span class="pre">.method_name</span></code> accessor. For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">from</span> <span class="nn">ray</span> <span class="kn">import</span> <span class="n">serve</span>
+<span class="kn">from</span> <span class="nn">ray.serve.handle</span> <span class="kn">import</span> <span class="n">RayServeSyncHandle</span>
+
+
+<span class="nd">@serve</span><span class="o">.</span><span class="n">deployment</span>
+<span class="k">class</span> <span class="nc">Deployment</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">method1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Method1: </span><span class="si">{</span><span class="n">arg</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;__call__: </span><span class="si">{</span><span class="n">arg</span><span class="si">}</span><span class="s2">&quot;</span>
+
+
+<span class="n">handle</span><span class="p">:</span> <span class="n">RayServeSyncHandle</span> <span class="o">=</span> <span class="n">serve</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">Deployment</span><span class="o">.</span><span class="n">bind</span><span class="p">())</span>
+
+<span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">handle</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="s2">&quot;hi&quot;</span><span class="p">))</span>  <span class="c1"># Defaults to calling the __call__ method.</span>
+<span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">handle</span><span class="o">.</span><span class="n">method1</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="s2">&quot;hi&quot;</span><span class="p">))</span>  <span class="c1"># Call a different method.</span>
+
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">ray.ObjectRef</span></code> corresponds to the result of a request submission. To retrieve the result, you can use the synchronous Ray Core API <code class="docutils literal notranslate"><span class="pre">ray.get(ref)</span></code> or the async API <code class="docutils literal notranslate"><span class="pre">await</span> <span class="pre">ref</span></code>. To wait for the result to be available without retrieving it, you can use the synchronous API <code class="docutils literal notranslate"><span class="pre">ray.wait([ref])</span></code> or the async API <code class="docutils literal notranslate"><span class="pre">await</span> <span class="pre">asyncio.wait([ref])</span></code>. You can mix and match these calls, but we recommend using async APIs to increase concurrency.</p>
+</div>
+</section>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="key-concepts.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Key Concepts</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="deploy-many-models/index.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Deploy Many Models</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

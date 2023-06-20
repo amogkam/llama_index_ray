@@ -1,0 +1,3371 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Running Tune experiments with BlendSearch and CFO &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/js/versionwarning.js"></script>
+    <script src="../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../_static/js/docsearch.js"></script>
+    <script src="../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../_static/js/top-navigation.js"></script>
+    <script src="../../_static/js/tags.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/tune/examples/flaml_example.html" />
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Running Tune experiments with BOHB" href="bohb_example.html" />
+    <link rel="prev" title="Running Tune experiments with BayesOpt" href="bayesopt_example.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "tune/examples/flaml_example", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".ipynb", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../../tune.html">
+   Ray Tune
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../getting-started.html">
+     Getting Started
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../tutorials/overview.html">
+     User Guides
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="index.html">
+     Ray Tune Examples
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="ml-frameworks.html">
+       Examples using Ray Tune with ML Frameworks
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="experiment-tracking.html">
+       Tune Experiment Tracking Examples
+      </a>
+     </li>
+     <li class="toctree-l3 current active has-children">
+      <a class="reference internal" href="hpo-frameworks.html">
+       Tune Hyperparameter Optimization Framework Examples
+      </a>
+      <input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+      <label for="toctree-checkbox-3">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul class="current">
+       <li class="toctree-l4">
+        <a class="reference internal" href="ax_example.html">
+         Ax Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="dragonfly_example.html">
+         Dragonfly Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="skopt_example.html">
+         Skopt Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="hyperopt_example.html">
+         HyperOpt Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="bayesopt_example.html">
+         Bayesopt Example
+        </a>
+       </li>
+       <li class="toctree-l4 current active">
+        <a class="current reference internal" href="flaml_example.html#">
+         FLAML Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="bohb_example.html">
+         BOHB Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="nevergrad_example.html">
+         Nevergrad Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="optuna_example.html">
+         Optuna Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="zoopt_example.html">
+         ZOOpt Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="sigopt_example.html">
+         SigOpt Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="hebo_example.html">
+         HEBO Example
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="other-examples.html">
+       Other Examples
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="exercises.html">
+       Exercises
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../faq.html">
+     Ray Tune FAQ
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/api.html">
+     Ray Tune API
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Ftune/examples/flaml_example.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/tune/examples/flaml_example.ipynb"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../_sources/tune/examples/flaml_example.ipynb.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.ipynb</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="flaml_example.html#running-tune-experiments-with-blendsearch">
+   Running Tune experiments with BlendSearch
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="flaml_example.html#incorporating-a-time-budget-to-the-experiment">
+   Incorporating a time budget to the experiment
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="flaml_example.html#running-tune-experiments-with-cfo">
+   Running Tune experiments with CFO
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Running Tune experiments with BlendSearch and CFO</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="flaml_example.html#running-tune-experiments-with-blendsearch">
+   Running Tune experiments with BlendSearch
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="flaml_example.html#incorporating-a-time-budget-to-the-experiment">
+   Incorporating a time budget to the experiment
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="flaml_example.html#running-tune-experiments-with-cfo">
+   Running Tune experiments with CFO
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section class="tex2jax_ignore mathjax_ignore" id="running-tune-experiments-with-blendsearch-and-cfo">
+<h1>Running Tune experiments with BlendSearch and CFO<a class="headerlink" href="flaml_example.html#running-tune-experiments-with-blendsearch-and-cfo" title="Permalink to this headline">#</a></h1>
+<p>In this tutorial we introduce BlendSearch and CFO, while running a simple Ray Tune
+experiment. Tune’s Search Algorithms integrate with FLAML and, as a result, allow
+you to seamlessly scale up a BlendSearch and CFO optimization
+process - without sacrificing performance.</p>
+<p>Fast Library for Automated Machine Learning &amp; Tuning (FLAML) does not rely on the
+gradient of the objective function, but instead, learns from samples of the
+search space. It is suitable for optimizing functions that are non-differentiable,
+with many local minima, or even unknown but only testable. Therefore, it is
+necessarily belongs to the domain of “derivative-free optimization”
+and “black-box optimization”.</p>
+<p>FLAML has two primary algorithms: (1) Frugal Optimization for Cost-related
+Hyperparameters (CFO) begins with a low-cost initial point and gradually moves to
+a high-cost region as needed. It is a local search method that leverages randomized
+direct search method with an adaptive step-size and random restarts.
+As a local search method, it has an appealing provable convergence rate and bounded
+cost but may get trapped in suboptimal local minima. (2) Economical Hyperparameter
+Optimization With Blended Search Strategy (BlendSearch) combines CFO’s local search
+with global search, making it less suspectable to local minima traps.
+It leverages the frugality of CFO and the space exploration ability of global search
+methods such as Bayesian optimization.</p>
+<p>In this example we minimize a simple objective to briefly demonstrate the usage of
+FLAML with Ray Tune via <code class="docutils literal notranslate"><span class="pre">BlendSearch</span></code> and <code class="docutils literal notranslate"><span class="pre">CFO</span></code>. It’s useful to keep in mind that
+despite the emphasis on machine learning experiments, Ray Tune optimizes any implicit
+or explicit objective. Here we assume <code class="docutils literal notranslate"><span class="pre">flaml==1.1.1</span></code> and <code class="docutils literal notranslate"><span class="pre">optuna==2.8.0</span></code> libraries
+are installed. To learn more, please refer to
+the <a class="reference external" href="https://github.com/microsoft/FLAML/tree/main/flaml/tune">FLAML website</a>.</p>
+<p>Click below to see all the imports we need for this example.
+You can also launch directly into a Binder instance to run this notebook yourself.
+Just click on the rocket symbol at the top of the navigation.</p>
+<div class="cell tag_hide-input docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">from</span> <span class="nn">ray</span> <span class="kn">import</span> <span class="n">tune</span>
+<span class="kn">from</span> <span class="nn">ray.air</span> <span class="kn">import</span> <span class="n">session</span>
+<span class="kn">from</span> <span class="nn">ray.tune.search</span> <span class="kn">import</span> <span class="n">ConcurrencyLimiter</span>
+<span class="kn">from</span> <span class="nn">ray.tune.search.flaml</span> <span class="kn">import</span> <span class="n">BlendSearch</span><span class="p">,</span> <span class="n">CFO</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/Users/kai/.pyenv/versions/3.7.7/lib/python3.7/site-packages/flaml/searcher/blendsearch.py:14: DeprecationWarning: The module `ray.tune.suggest` has been moved to `ray.tune.search` and the old location will be deprecated soon. Please adjust your imports to point to the new location. Example: Do a global search and replace `ray.tune.suggest` with `ray.tune.search`.
+  from ray.tune.suggest import Searcher
+/Users/kai/.pyenv/versions/3.7.7/lib/python3.7/site-packages/flaml/searcher/blendsearch.py:15: DeprecationWarning: The module `ray.tune.suggest.optuna` has been moved to `ray.tune.search.optuna` and the old location will be deprecated soon. Please adjust your imports to point to the new location. Example: Do a global search and replace `ray.tune.suggest.optuna` with `ray.tune.search.optuna`.
+  from ray.tune.suggest.optuna import OptunaSearch as GlobalSearch
+/Users/kai/.pyenv/versions/3.7.7/lib/python3.7/site-packages/flaml/tune/sample.py:39: DeprecationWarning: The module `ray.tune.sample` has been moved to `ray.tune.search.sample` and the old location will be deprecated soon. Please adjust your imports to point to the new location. Example: Do a global search and replace `ray.tune.sample` with `ray.tune.search.sample`.
+  from ray.tune.sample import _BackwardsCompatibleNumpyRng
+/Users/kai/.pyenv/versions/3.7.7/lib/python3.7/site-packages/flaml/tune/space.py:6: DeprecationWarning: The module `ray.tune.suggest.variant_generator` has been moved to `ray.tune.search.variant_generator` and the old location will be deprecated soon. Please adjust your imports to point to the new location. Example: Do a global search and replace `ray.tune.suggest.variant_generator` with `ray.tune.search.variant_generator`.
+  from ray.tune.suggest.variant_generator import generate_variants
+</pre></div>
+</div>
+</div>
+</div>
+<p>Let’s start by defining a simple evaluation function.
+We artificially sleep for a bit (<code class="docutils literal notranslate"><span class="pre">0.1</span></code> seconds) to simulate a long-running ML experiment.
+This setup assumes that we’re running multiple <code class="docutils literal notranslate"><span class="pre">step</span></code>s of an experiment and try to
+tune three hyperparameters, namely <code class="docutils literal notranslate"><span class="pre">width</span></code> and <code class="docutils literal notranslate"><span class="pre">height</span></code>, and <code class="docutils literal notranslate"><span class="pre">activation</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">activation</span><span class="p">):</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+    <span class="n">activation_boost</span> <span class="o">=</span> <span class="mi">10</span> <span class="k">if</span> <span class="n">activation</span><span class="o">==</span><span class="s2">&quot;relu&quot;</span> <span class="k">else</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="p">(</span><span class="mf">0.1</span> <span class="o">+</span> <span class="n">width</span> <span class="o">*</span> <span class="n">step</span> <span class="o">/</span> <span class="mi">100</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">height</span> <span class="o">*</span> <span class="mf">0.1</span> <span class="o">+</span> <span class="n">activation_boost</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Next, our <code class="docutils literal notranslate"><span class="pre">objective</span></code> function takes a Tune <code class="docutils literal notranslate"><span class="pre">config</span></code>, evaluates the <code class="docutils literal notranslate"><span class="pre">score</span></code> of your
+experiment in a training loop, and uses <code class="docutils literal notranslate"><span class="pre">session.report</span></code> to report the <code class="docutils literal notranslate"><span class="pre">score</span></code> back to Tune.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">objective</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;steps&quot;</span><span class="p">]):</span>
+        <span class="n">score</span> <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;width&quot;</span><span class="p">],</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">],</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;activation&quot;</span><span class="p">])</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">report</span><span class="p">({</span><span class="s2">&quot;iterations&quot;</span><span class="p">:</span> <span class="n">step</span><span class="p">,</span> <span class="s2">&quot;mean_loss&quot;</span><span class="p">:</span> <span class="n">score</span><span class="p">})</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="running-tune-experiments-with-blendsearch">
+<h2>Running Tune experiments with BlendSearch<a class="headerlink" href="flaml_example.html#running-tune-experiments-with-blendsearch" title="Permalink to this headline">#</a></h2>
+<p>This example demonstrates the usage of Economical Hyperparameter Optimization
+With Blended Search Strategy (BlendSearch) with Ray Tune.</p>
+<p>Now we define the search algorithm built from <code class="docutils literal notranslate"><span class="pre">BlendSearch</span></code>, constrained to a
+maximum of <code class="docutils literal notranslate"><span class="pre">4</span></code> concurrent trials with a <code class="docutils literal notranslate"><span class="pre">ConcurrencyLimiter</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">algo</span> <span class="o">=</span> <span class="n">BlendSearch</span><span class="p">()</span>
+<span class="n">algo</span> <span class="o">=</span> <span class="n">ConcurrencyLimiter</span><span class="p">(</span><span class="n">algo</span><span class="p">,</span> <span class="n">max_concurrent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The number of samples this Tune run is set to <code class="docutils literal notranslate"><span class="pre">1000</span></code>.
+(you can decrease this if it takes too long on your machine).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">num_samples</span> <span class="o">=</span> <span class="mi">1000</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Next we define a search space. The critical assumption is that the optimal
+hyperparameters live within this space. Yet, if the space is very large, then those
+hyperparameters may be difficult to find in a short amount of time.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">search_config</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;steps&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+    <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span>
+    <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
+    <span class="s2">&quot;activation&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="s2">&quot;relu, tanh&quot;</span><span class="p">])</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Finally, we run the experiment to <code class="docutils literal notranslate"><span class="pre">&quot;min&quot;</span></code>imize the “mean_loss” of the <code class="docutils literal notranslate"><span class="pre">objective</span></code> by
+searching <code class="docutils literal notranslate"><span class="pre">search_config</span></code> via <code class="docutils literal notranslate"><span class="pre">algo</span></code>, <code class="docutils literal notranslate"><span class="pre">num_samples</span></code> times. This previous sentence is
+fully characterizes the search problem we aim to solve. With this in mind, observe
+how efficient it is to execute <code class="docutils literal notranslate"><span class="pre">tuner.fit()</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
+    <span class="n">objective</span><span class="p">,</span>
+    <span class="n">tune_config</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">TuneConfig</span><span class="p">(</span>
+        <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;mean_loss&quot;</span><span class="p">,</span>
+        <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;min&quot;</span><span class="p">,</span>
+        <span class="n">search_alg</span><span class="o">=</span><span class="n">algo</span><span class="p">,</span>
+        <span class="n">num_samples</span><span class="o">=</span><span class="n">num_samples</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">param_space</span><span class="o">=</span><span class="n">search_config</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Function checkpointing is disabled. This may result in unexpected behavior when using checkpointing features or certain schedulers. To enable, set the train function arguments to be `func(config, checkpoint_dir=None)`.
+<span class=" -Color -Color-Green">[I 2022-07-22 15:18:10,659]</span> A new study created in memory with name: optuna
+</pre></div>
+</div>
+<div class="output text_html">== Status ==<br>Current time: 2022-07-22 15:18:55 (running for 00:00:43.79)<br>Memory usage on this node: 10.0/16.0 GiB<br>Using FIFO scheduling algorithm.<br>Resources requested: 0/16 CPUs, 0/0 GPUs, 0.0/4.69 GiB heap, 0.0/2.0 GiB objects<br>Current best trial: 1fc231f8 with mean_loss=-8.519908298508359 and parameters={'steps': 100, 'width': 15.42641286533492, 'height': -95.8496101281197, 'activation': 'relu, tanh'}<br>Result logdir: /Users/kai/ray_results/blendsearch_exp<br>Number of trials: 10/10 (10 TERMINATED)<br><table>
+<thead>
+<tr><th>Trial name        </th><th>status    </th><th>loc            </th><th>activation  </th><th style="text-align: right;">   height</th><th style="text-align: right;">  steps</th><th style="text-align: right;">     width</th><th style="text-align: right;">    loss</th><th style="text-align: right;">  iter</th><th style="text-align: right;">  total time (s)</th><th style="text-align: right;">  iterations</th><th style="text-align: right;">  neg_mean_loss</th></tr>
+</thead>
+<tbody>
+<tr><td>objective_1e0f814e</td><td>TERMINATED</td><td>127.0.0.1:45801</td><td>relu, tanh  </td><td style="text-align: right;"> 29.4532 </td><td style="text-align: right;">    100</td><td style="text-align: right;"> 1.94864  </td><td style="text-align: right;"> 4.43814</td><td style="text-align: right;">   100</td><td style="text-align: right;">         11.061 </td><td style="text-align: right;">          99</td><td style="text-align: right;">       -4.43814</td></tr>
+<tr><td>objective_1fc231f8</td><td>TERMINATED</td><td>127.0.0.1:45809</td><td>relu, tanh  </td><td style="text-align: right;">-95.8496 </td><td style="text-align: right;">    100</td><td style="text-align: right;">15.4264   </td><td style="text-align: right;">-8.51991</td><td style="text-align: right;">   100</td><td style="text-align: right;">         11.6807</td><td style="text-align: right;">          99</td><td style="text-align: right;">        8.51991</td></tr>
+<tr><td>objective_1fc3b668</td><td>TERMINATED</td><td>127.0.0.1:45810</td><td>relu, tanh  </td><td style="text-align: right;"> 49.7608 </td><td style="text-align: right;">    100</td><td style="text-align: right;">12.673    </td><td style="text-align: right;"> 6.05515</td><td style="text-align: right;">   100</td><td style="text-align: right;">         11.7372</td><td style="text-align: right;">          99</td><td style="text-align: right;">       -6.05515</td></tr>
+<tr><td>objective_1fc58b1e</td><td>TERMINATED</td><td>127.0.0.1:45811</td><td>relu, tanh  </td><td style="text-align: right;">-55.0407 </td><td style="text-align: right;">    100</td><td style="text-align: right;"> 9.97014  </td><td style="text-align: right;">-4.40377</td><td style="text-align: right;">   100</td><td style="text-align: right;">         11.6335</td><td style="text-align: right;">          99</td><td style="text-align: right;">        4.40377</td></tr>
+<tr><td>objective_265c09ee</td><td>TERMINATED</td><td>127.0.0.1:45837</td><td>relu, tanh  </td><td style="text-align: right;"> 52.1061 </td><td style="text-align: right;">    100</td><td style="text-align: right;"> 3.96126  </td><td style="text-align: right;"> 6.45927</td><td style="text-align: right;">   100</td><td style="text-align: right;">         10.7539</td><td style="text-align: right;">          99</td><td style="text-align: right;">       -6.45927</td></tr>
+<tr><td>objective_28587494</td><td>TERMINATED</td><td>127.0.0.1:45842</td><td>relu, tanh  </td><td style="text-align: right;">-82.332  </td><td style="text-align: right;">    100</td><td style="text-align: right;"> 3.38222  </td><td style="text-align: right;">-6.94321</td><td style="text-align: right;">   100</td><td style="text-align: right;">         10.7116</td><td style="text-align: right;">          99</td><td style="text-align: right;">        6.94321</td></tr>
+<tr><td>objective_28682bfa</td><td>TERMINATED</td><td>127.0.0.1:45845</td><td>relu, tanh  </td><td style="text-align: right;">-94.9771 </td><td style="text-align: right;">    100</td><td style="text-align: right;">17.681    </td><td style="text-align: right;">-8.4409 </td><td style="text-align: right;">   100</td><td style="text-align: right;">         10.7471</td><td style="text-align: right;">          99</td><td style="text-align: right;">        8.4409 </td></tr>
+<tr><td>objective_28788388</td><td>TERMINATED</td><td>127.0.0.1:45848</td><td>relu, tanh  </td><td style="text-align: right;"> 90.6787 </td><td style="text-align: right;">    100</td><td style="text-align: right;">13.7072   </td><td style="text-align: right;">10.141  </td><td style="text-align: right;">   100</td><td style="text-align: right;">         10.7525</td><td style="text-align: right;">          99</td><td style="text-align: right;">      -10.141  </td></tr>
+<tr><td>objective_2e3cd63e</td><td>TERMINATED</td><td>127.0.0.1:45864</td><td>relu, tanh  </td><td style="text-align: right;">  2.43845</td><td style="text-align: right;">    100</td><td style="text-align: right;"> 0.0789653</td><td style="text-align: right;"> 6.85628</td><td style="text-align: right;">   100</td><td style="text-align: right;">         10.7006</td><td style="text-align: right;">          99</td><td style="text-align: right;">       -6.85628</td></tr>
+<tr><td>objective_3046455a</td><td>TERMINATED</td><td>127.0.0.1:45869</td><td>relu, tanh  </td><td style="text-align: right;"> 22.5052 </td><td style="text-align: right;">    100</td><td style="text-align: right;">16.2524   </td><td style="text-align: right;"> 3.31229</td><td style="text-align: right;">   100</td><td style="text-align: right;">         10.7176</td><td style="text-align: right;">          99</td><td style="text-align: right;">       -3.31229</td></tr>
+</tbody>
+</table><br><br></div><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Result for objective_1e0f814e:
+  date: 2022-07-22_15-18-14
+  done: false
+  experiment_id: 623da6c1aa28400a9d85da19bdc5721d
+  hostname: Kais-MacBook-Pro.local
+  iterations: 0
+  iterations_since_restore: 1
+  mean_loss: 13.945321626643842
+  neg_mean_loss: -13.945321626643842
+  node_ip: 127.0.0.1
+  pid: 45801
+  time_since_restore: 0.10402607917785645
+  time_this_iter_s: 0.10402607917785645
+  time_total_s: 0.10402607917785645
+  timestamp: 1658499494
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: 1e0f814e
+  warmup_time: 0.003920078277587891
+  
+Result for objective_1fc58b1e:
+  date: 2022-07-22_15-18-17
+  done: false
+  experiment_id: da508e209a1946e89ec15a3f1a5ce5ef
+  hostname: Kais-MacBook-Pro.local
+  iterations: 0
+  iterations_since_restore: 1
+  mean_loss: 5.495932910616953
+  neg_mean_loss: -5.495932910616953
+  node_ip: 127.0.0.1
+  pid: 45811
+  time_since_restore: 0.10269379615783691
+  time_this_iter_s: 0.10269379615783691
+  time_total_s: 0.10269379615783691
+  timestamp: 1658499497
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: 1fc58b1e
+  warmup_time: 0.004099130630493164
+  
+Result for objective_1fc231f8:
+  date: 2022-07-22_15-18-17
+  done: false
+  experiment_id: 24c1fa443be246229e2c2ed9581452de
+  hostname: Kais-MacBook-Pro.local
+  iterations: 0
+  iterations_since_restore: 1
+  mean_loss: 1.4150389871880282
+  neg_mean_loss: -1.4150389871880282
+  node_ip: 127.0.0.1
+  pid: 45809
+  time_since_restore: 0.10376811027526855
+  time_this_iter_s: 0.10376811027526855
+  time_total_s: 0.10376811027526855
+  timestamp: 1658499497
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: 1fc231f8
+  warmup_time: 0.004148244857788086
+  
+Result for objective_1fc3b668:
+  date: 2022-07-22_15-18-17
+  done: false
+  experiment_id: 5cdd489afb0e43b7a44aa4484765dc92
+  hostname: Kais-MacBook-Pro.local
+  iterations: 0
+  iterations_since_restore: 1
+  mean_loss: 15.976077650772236
+  neg_mean_loss: -15.976077650772236
+  node_ip: 127.0.0.1
+  pid: 45810
+  time_since_restore: 0.1012420654296875
+  time_this_iter_s: 0.1012420654296875
+  time_total_s: 0.1012420654296875
+  timestamp: 1658499497
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: 1fc3b668
+  warmup_time: 0.002666950225830078
+  
+Result for objective_1e0f814e:
+  date: 2022-07-22_15-18-19
+  done: false
+  experiment_id: 623da6c1aa28400a9d85da19bdc5721d
+  hostname: Kais-MacBook-Pro.local
+  iterations: 44
+  iterations_since_restore: 45
+  mean_loss: 4.989814690087961
+  neg_mean_loss: -4.989814690087961
+  node_ip: 127.0.0.1
+  pid: 45801
+  time_since_restore: 5.1339499950408936
+  time_this_iter_s: 0.10842394828796387
+  time_total_s: 5.1339499950408936
+  timestamp: 1658499499
+  timesteps_since_restore: 0
+  training_iteration: 45
+  trial_id: 1e0f814e
+  warmup_time: 0.003920078277587891
+  
+Result for objective_1fc58b1e:
+  date: 2022-07-22_15-18-22
+  done: false
+  experiment_id: da508e209a1946e89ec15a3f1a5ce5ef
+  hostname: Kais-MacBook-Pro.local
+  iterations: 47
+  iterations_since_restore: 48
+  mean_loss: -4.295122851662673
+  neg_mean_loss: 4.295122851662673
+  node_ip: 127.0.0.1
+  pid: 45811
+  time_since_restore: 5.167006015777588
+  time_this_iter_s: 0.10817217826843262
+  time_total_s: 5.167006015777588
+  timestamp: 1658499502
+  timesteps_since_restore: 0
+  training_iteration: 48
+  trial_id: 1fc58b1e
+  warmup_time: 0.004099130630493164
+  
+Result for objective_1fc231f8:
+  date: 2022-07-22_15-18-22
+  done: false
+  experiment_id: 24c1fa443be246229e2c2ed9581452de
+  hostname: Kais-MacBook-Pro.local
+  iterations: 47
+  iterations_since_restore: 48
+  mean_loss: -8.44891425494968
+  neg_mean_loss: 8.44891425494968
+  node_ip: 127.0.0.1
+  pid: 45809
+  time_since_restore: 5.138737916946411
+  time_this_iter_s: 0.10868191719055176
+  time_total_s: 5.138737916946411
+  timestamp: 1658499502
+  timesteps_since_restore: 0
+  training_iteration: 48
+  trial_id: 1fc231f8
+  warmup_time: 0.004148244857788086
+  
+Result for objective_1fc3b668:
+  date: 2022-07-22_15-18-22
+  done: false
+  experiment_id: 5cdd489afb0e43b7a44aa4484765dc92
+  hostname: Kais-MacBook-Pro.local
+  iterations: 47
+  iterations_since_restore: 48
+  mean_loss: 6.141195146339472
+  neg_mean_loss: -6.141195146339472
+  node_ip: 127.0.0.1
+  pid: 45810
+  time_since_restore: 5.181504011154175
+  time_this_iter_s: 0.10758399963378906
+  time_total_s: 5.181504011154175
+  timestamp: 1658499502
+  timesteps_since_restore: 0
+  training_iteration: 48
+  trial_id: 1fc3b668
+  warmup_time: 0.002666950225830078
+  
+Result for objective_1e0f814e:
+  date: 2022-07-22_15-18-24
+  done: false
+  experiment_id: 623da6c1aa28400a9d85da19bdc5721d
+  hostname: Kais-MacBook-Pro.local
+  iterations: 91
+  iterations_since_restore: 92
+  mean_loss: 4.479149291114477
+  neg_mean_loss: -4.479149291114477
+  node_ip: 127.0.0.1
+  pid: 45801
+  time_since_restore: 10.196602821350098
+  time_this_iter_s: 0.10757303237915039
+  time_total_s: 10.196602821350098
+  timestamp: 1658499504
+  timesteps_since_restore: 0
+  training_iteration: 92
+  trial_id: 1e0f814e
+  warmup_time: 0.003920078277587891
+  
+Result for objective_1e0f814e:
+  date: 2022-07-22_15-18-25
+  done: true
+  experiment_id: 623da6c1aa28400a9d85da19bdc5721d
+  experiment_tag: 1_activation=relu_tanh,height=29.4532,steps=100,width=1.9486
+  hostname: Kais-MacBook-Pro.local
+  iterations: 99
+  iterations_since_restore: 100
+  mean_loss: 4.438137591322411
+  neg_mean_loss: -4.438137591322411
+  node_ip: 127.0.0.1
+  pid: 45801
+  time_since_restore: 11.060971975326538
+  time_this_iter_s: 0.10748600959777832
+  time_total_s: 11.060971975326538
+  timestamp: 1658499505
+  timesteps_since_restore: 0
+  training_iteration: 100
+  trial_id: 1e0f814e
+  warmup_time: 0.003920078277587891
+  
+Result for objective_1fc231f8:
+  date: 2022-07-22_15-18-26
+  done: false
+  experiment_id: 24c1fa443be246229e2c2ed9581452de
+  hostname: Kais-MacBook-Pro.local
+  iterations: 90
+  iterations_since_restore: 91
+  mean_loss: -8.513449547227397
+  neg_mean_loss: 8.513449547227397
+  node_ip: 127.0.0.1
+  pid: 45809
+  time_since_restore: 9.72878909111023
+  time_this_iter_s: 0.10644912719726562
+  time_total_s: 9.72878909111023
+  timestamp: 1658499506
+  timesteps_since_restore: 0
+  training_iteration: 91
+  trial_id: 1fc231f8
+  warmup_time: 0.004148244857788086
+  
+Result for objective_1fc3b668:
+  date: 2022-07-22_15-18-26
+  done: false
+  experiment_id: 5cdd489afb0e43b7a44aa4484765dc92
+  hostname: Kais-MacBook-Pro.local
+  iterations: 89
+  iterations_since_restore: 90
+  mean_loss: 6.063959309753095
+  neg_mean_loss: -6.063959309753095
+  node_ip: 127.0.0.1
+  pid: 45810
+  time_since_restore: 9.6911301612854
+  time_this_iter_s: 0.10597920417785645
+  time_total_s: 9.6911301612854
+  timestamp: 1658499506
+  timesteps_since_restore: 0
+  training_iteration: 90
+  trial_id: 1fc3b668
+  warmup_time: 0.002666950225830078
+  
+Result for objective_1fc58b1e:
+  date: 2022-07-22_15-18-27
+  done: false
+  experiment_id: da508e209a1946e89ec15a3f1a5ce5ef
+  hostname: Kais-MacBook-Pro.local
+  iterations: 91
+  iterations_since_restore: 92
+  mean_loss: -4.395049451529077
+  neg_mean_loss: 4.395049451529077
+  node_ip: 127.0.0.1
+  pid: 45811
+  time_since_restore: 9.873695850372314
+  time_this_iter_s: 0.10703802108764648
+  time_total_s: 9.873695850372314
+  timestamp: 1658499507
+  timesteps_since_restore: 0
+  training_iteration: 92
+  trial_id: 1fc58b1e
+  warmup_time: 0.004099130630493164
+  
+Result for objective_265c09ee:
+  date: 2022-07-22_15-18-28
+  done: false
+  experiment_id: a7543e8d696745edbfe36a6f4ebe4071
+  hostname: Kais-MacBook-Pro.local
+  iterations: 0
+  iterations_since_restore: 1
+  mean_loss: 16.210614243979172
+  neg_mean_loss: -16.210614243979172
+  node_ip: 127.0.0.1
+  pid: 45837
+  time_since_restore: 0.1049339771270752
+  time_this_iter_s: 0.1049339771270752
+  time_total_s: 0.1049339771270752
+  timestamp: 1658499508
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: 265c09ee
+  warmup_time: 0.0026078224182128906
+  
+Result for objective_1fc58b1e:
+  date: 2022-07-22_15-18-28
+  done: true
+  experiment_id: da508e209a1946e89ec15a3f1a5ce5ef
+  experiment_tag: 4_activation=relu_tanh,height=-55.0407,steps=100,width=9.9701
+  hostname: Kais-MacBook-Pro.local
+  iterations: 99
+  iterations_since_restore: 100
+  mean_loss: -4.403770601366095
+  neg_mean_loss: 4.403770601366095
+  node_ip: 127.0.0.1
+  pid: 45811
+  time_since_restore: 11.633522987365723
+  time_this_iter_s: 0.10734701156616211
+  time_total_s: 11.633522987365723
+  timestamp: 1658499508
+  timesteps_since_restore: 0
+  training_iteration: 100
+  trial_id: 1fc58b1e
+  warmup_time: 0.004099130630493164
+  
+Result for objective_1fc231f8:
+  date: 2022-07-22_15-18-28
+  done: true
+  experiment_id: 24c1fa443be246229e2c2ed9581452de
+  experiment_tag: 2_activation=relu_tanh,height=-95.8496,steps=100,width=15.4264
+  hostname: Kais-MacBook-Pro.local
+  iterations: 99
+  iterations_since_restore: 100
+  mean_loss: -8.519908298508359
+  neg_mean_loss: 8.519908298508359
+  node_ip: 127.0.0.1
+  pid: 45809
+  time_since_restore: 11.680676937103271
+  time_this_iter_s: 0.10814285278320312
+  time_total_s: 11.680676937103271
+  timestamp: 1658499508
+  timesteps_since_restore: 0
+  training_iteration: 100
+  trial_id: 1fc231f8
+  warmup_time: 0.004148244857788086
+  
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Result for objective_1fc3b668:
+  date: 2022-07-22_15-18-29
+  done: true
+  experiment_id: 5cdd489afb0e43b7a44aa4484765dc92
+  experiment_tag: 3_activation=relu_tanh,height=49.7608,steps=100,width=12.6730
+  hostname: Kais-MacBook-Pro.local
+  iterations: 99
+  iterations_since_restore: 100
+  mean_loss: 6.055152568795227
+  neg_mean_loss: -6.055152568795227
+  node_ip: 127.0.0.1
+  pid: 45810
+  time_since_restore: 11.73720097541809
+  time_this_iter_s: 0.10816287994384766
+  time_total_s: 11.73720097541809
+  timestamp: 1658499509
+  timesteps_since_restore: 0
+  training_iteration: 100
+  trial_id: 1fc3b668
+  warmup_time: 0.002666950225830078
+  
+Result for objective_28587494:
+  date: 2022-07-22_15-18-31
+  done: false
+  experiment_id: 750bd707fda147f0bd615c32243d64e5
+  hostname: Kais-MacBook-Pro.local
+  iterations: 0
+  iterations_since_restore: 1
+  mean_loss: 2.766796283480206
+  neg_mean_loss: -2.766796283480206
+  node_ip: 127.0.0.1
+  pid: 45842
+  time_since_restore: 0.10265803337097168
+  time_this_iter_s: 0.10265803337097168
+  time_total_s: 0.10265803337097168
+  timestamp: 1658499511
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: &#39;28587494&#39;
+  warmup_time: 0.0028159618377685547
+  
+Result for objective_28682bfa:
+  date: 2022-07-22_15-18-31
+  done: false
+  experiment_id: 5487e6a1cf70423096cf6285197fb824
+  hostname: Kais-MacBook-Pro.local
+  iterations: 0
+  iterations_since_restore: 1
+  mean_loss: 1.5022935169945555
+  neg_mean_loss: -1.5022935169945555
+  node_ip: 127.0.0.1
+  pid: 45845
+  time_since_restore: 0.10289216041564941
+  time_this_iter_s: 0.10289216041564941
+  time_total_s: 0.10289216041564941
+  timestamp: 1658499511
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: 28682bfa
+  warmup_time: 0.003072023391723633
+  
+Result for objective_28788388:
+  date: 2022-07-22_15-18-31
+  done: false
+  experiment_id: e959dae493a240c489a3193352c46f3a
+  hostname: Kais-MacBook-Pro.local
+  iterations: 0
+  iterations_since_restore: 1
+  mean_loss: 20.067866923898734
+  neg_mean_loss: -20.067866923898734
+  node_ip: 127.0.0.1
+  pid: 45848
+  time_since_restore: 0.1038503646850586
+  time_this_iter_s: 0.1038503646850586
+  time_total_s: 0.1038503646850586
+  timestamp: 1658499511
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: &#39;28788388&#39;
+  warmup_time: 0.0027070045471191406
+  
+Result for objective_265c09ee:
+  date: 2022-07-22_15-18-33
+  done: false
+  experiment_id: a7543e8d696745edbfe36a6f4ebe4071
+  hostname: Kais-MacBook-Pro.local
+  iterations: 47
+  iterations_since_restore: 48
+  mean_loss: 6.720352557756592
+  neg_mean_loss: -6.720352557756592
+  node_ip: 127.0.0.1
+  pid: 45837
+  time_since_restore: 5.148331165313721
+  time_this_iter_s: 0.10472607612609863
+  time_total_s: 5.148331165313721
+  timestamp: 1658499513
+  timesteps_since_restore: 0
+  training_iteration: 48
+  trial_id: 265c09ee
+  warmup_time: 0.0026078224182128906
+  
+Result for objective_28587494:
+  date: 2022-07-22_15-18-36
+  done: false
+  experiment_id: 750bd707fda147f0bd615c32243d64e5
+  hostname: Kais-MacBook-Pro.local
+  iterations: 47
+  iterations_since_restore: 48
+  mean_loss: -6.641362320132167
+  neg_mean_loss: 6.641362320132167
+  node_ip: 127.0.0.1
+  pid: 45842
+  time_since_restore: 5.175055980682373
+  time_this_iter_s: 0.10797286033630371
+  time_total_s: 5.175055980682373
+  timestamp: 1658499516
+  timesteps_since_restore: 0
+  training_iteration: 48
+  trial_id: &#39;28587494&#39;
+  warmup_time: 0.0028159618377685547
+  
+Result for objective_28682bfa:
+  date: 2022-07-22_15-18-36
+  done: false
+  experiment_id: 5487e6a1cf70423096cf6285197fb824
+  hostname: Kais-MacBook-Pro.local
+  iterations: 47
+  iterations_since_restore: 48
+  mean_loss: -8.378801379858526
+  neg_mean_loss: 8.378801379858526
+  node_ip: 127.0.0.1
+  pid: 45845
+  time_since_restore: 5.192234039306641
+  time_this_iter_s: 0.10880398750305176
+  time_total_s: 5.192234039306641
+  timestamp: 1658499516
+  timesteps_since_restore: 0
+  training_iteration: 48
+  trial_id: 28682bfa
+  warmup_time: 0.003072023391723633
+  
+Result for objective_28788388:
+  date: 2022-07-22_15-18-36
+  done: false
+  experiment_id: e959dae493a240c489a3193352c46f3a
+  hostname: Kais-MacBook-Pro.local
+  iterations: 47
+  iterations_since_restore: 48
+  mean_loss: 10.22071644495505
+  neg_mean_loss: -10.22071644495505
+  node_ip: 127.0.0.1
+  pid: 45848
+  time_since_restore: 5.175441265106201
+  time_this_iter_s: 0.10689902305603027
+  time_total_s: 5.175441265106201
+  timestamp: 1658499516
+  timesteps_since_restore: 0
+  training_iteration: 48
+  trial_id: &#39;28788388&#39;
+  warmup_time: 0.0027070045471191406
+  
+Result for objective_265c09ee:
+  date: 2022-07-22_15-18-38
+  done: false
+  experiment_id: a7543e8d696745edbfe36a6f4ebe4071
+  hostname: Kais-MacBook-Pro.local
+  iterations: 94
+  iterations_since_restore: 95
+  mean_loss: 6.472149118155721
+  neg_mean_loss: -6.472149118155721
+  node_ip: 127.0.0.1
+  pid: 45837
+  time_since_restore: 10.2187819480896
+  time_this_iter_s: 0.10822892189025879
+  time_total_s: 10.2187819480896
+  timestamp: 1658499518
+  timesteps_since_restore: 0
+  training_iteration: 95
+  trial_id: 265c09ee
+  warmup_time: 0.0026078224182128906
+  
+Result for objective_265c09ee:
+  date: 2022-07-22_15-18-38
+  done: true
+  experiment_id: a7543e8d696745edbfe36a6f4ebe4071
+  experiment_tag: 5_activation=relu_tanh,height=52.1061,steps=100,width=3.9613
+  hostname: Kais-MacBook-Pro.local
+  iterations: 99
+  iterations_since_restore: 100
+  mean_loss: 6.459268729660066
+  neg_mean_loss: -6.459268729660066
+  node_ip: 127.0.0.1
+  pid: 45837
+  time_since_restore: 10.753926277160645
+  time_this_iter_s: 0.10714435577392578
+  time_total_s: 10.753926277160645
+  timestamp: 1658499518
+  timesteps_since_restore: 0
+  training_iteration: 100
+  trial_id: 265c09ee
+  warmup_time: 0.0026078224182128906
+  
+Result for objective_2e3cd63e:
+  date: 2022-07-22_15-18-41
+  done: false
+  experiment_id: a2f52d042c5d43bcbb59c6a16249fdb9
+  hostname: Kais-MacBook-Pro.local
+  iterations: 0
+  iterations_since_restore: 1
+  mean_loss: 11.243845267715532
+  neg_mean_loss: -11.243845267715532
+  node_ip: 127.0.0.1
+  pid: 45864
+  time_since_restore: 0.10467910766601562
+  time_this_iter_s: 0.10467910766601562
+  time_total_s: 0.10467910766601562
+  timestamp: 1658499521
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: 2e3cd63e
+  warmup_time: 0.002730131149291992
+  
+Result for objective_28587494:
+  date: 2022-07-22_15-18-41
+  done: false
+  experiment_id: 750bd707fda147f0bd615c32243d64e5
+  hostname: Kais-MacBook-Pro.local
+  iterations: 94
+  iterations_since_restore: 95
+  mean_loss: -6.928259075209273
+  neg_mean_loss: 6.928259075209273
+  node_ip: 127.0.0.1
+  pid: 45842
+  time_since_restore: 10.179664850234985
+  time_this_iter_s: 0.10827279090881348
+  time_total_s: 10.179664850234985
+  timestamp: 1658499521
+  timesteps_since_restore: 0
+  training_iteration: 95
+  trial_id: &#39;28587494&#39;
+  warmup_time: 0.0028159618377685547
+  
+Result for objective_28682bfa:
+  date: 2022-07-22_15-18-41
+  done: false
+  experiment_id: 5487e6a1cf70423096cf6285197fb824
+  hostname: Kais-MacBook-Pro.local
+  iterations: 94
+  iterations_since_restore: 95
+  mean_loss: -8.437898356861577
+  neg_mean_loss: 8.437898356861577
+  node_ip: 127.0.0.1
+  pid: 45845
+  time_since_restore: 10.208577156066895
+  time_this_iter_s: 0.10761713981628418
+  time_total_s: 10.208577156066895
+  timestamp: 1658499521
+  timesteps_since_restore: 0
+  training_iteration: 95
+  trial_id: 28682bfa
+  warmup_time: 0.003072023391723633
+  
+Result for objective_28788388:
+  date: 2022-07-22_15-18-41
+  done: false
+  experiment_id: e959dae493a240c489a3193352c46f3a
+  hostname: Kais-MacBook-Pro.local
+  iterations: 94
+  iterations_since_restore: 95
+  mean_loss: 10.144880256980718
+  neg_mean_loss: -10.144880256980718
+  node_ip: 127.0.0.1
+  pid: 45848
+  time_since_restore: 10.215306997299194
+  time_this_iter_s: 0.10723686218261719
+  time_total_s: 10.215306997299194
+  timestamp: 1658499521
+  timesteps_since_restore: 0
+  training_iteration: 95
+  trial_id: &#39;28788388&#39;
+  warmup_time: 0.0027070045471191406
+  
+Result for objective_28587494:
+  date: 2022-07-22_15-18-42
+  done: true
+  experiment_id: 750bd707fda147f0bd615c32243d64e5
+  experiment_tag: 6_activation=relu_tanh,height=-82.3320,steps=100,width=3.3822
+  hostname: Kais-MacBook-Pro.local
+  iterations: 99
+  iterations_since_restore: 100
+  mean_loss: -6.943213699003365
+  neg_mean_loss: 6.943213699003365
+  node_ip: 127.0.0.1
+  pid: 45842
+  time_since_restore: 10.711625099182129
+  time_this_iter_s: 0.10703706741333008
+  time_total_s: 10.711625099182129
+  timestamp: 1658499522
+  timesteps_since_restore: 0
+  training_iteration: 100
+  trial_id: &#39;28587494&#39;
+  warmup_time: 0.0028159618377685547
+  
+Result for objective_28682bfa:
+  date: 2022-07-22_15-18-42
+  done: true
+  experiment_id: 5487e6a1cf70423096cf6285197fb824
+  experiment_tag: 7_activation=relu_tanh,height=-94.9771,steps=100,width=17.6810
+  hostname: Kais-MacBook-Pro.local
+  iterations: 99
+  iterations_since_restore: 100
+  mean_loss: -8.440901810803183
+  neg_mean_loss: 8.440901810803183
+  node_ip: 127.0.0.1
+  pid: 45845
+  time_since_restore: 10.747072219848633
+  time_this_iter_s: 0.1084749698638916
+  time_total_s: 10.747072219848633
+  timestamp: 1658499522
+  timesteps_since_restore: 0
+  training_iteration: 100
+  trial_id: 28682bfa
+  warmup_time: 0.003072023391723633
+  
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Result for objective_28788388:
+  date: 2022-07-22_15-18-42
+  done: true
+  experiment_id: e959dae493a240c489a3193352c46f3a
+  experiment_tag: 8_activation=relu_tanh,height=90.6787,steps=100,width=13.7072
+  hostname: Kais-MacBook-Pro.local
+  iterations: 99
+  iterations_since_restore: 100
+  mean_loss: 10.141019147716873
+  neg_mean_loss: -10.141019147716873
+  node_ip: 127.0.0.1
+  pid: 45848
+  time_since_restore: 10.752525091171265
+  time_this_iter_s: 0.10643196105957031
+  time_total_s: 10.752525091171265
+  timestamp: 1658499522
+  timesteps_since_restore: 0
+  training_iteration: 100
+  trial_id: &#39;28788388&#39;
+  warmup_time: 0.0027070045471191406
+  
+Result for objective_3046455a:
+  date: 2022-07-22_15-18-44
+  done: false
+  experiment_id: f282080699d848f69c4b8626bd4c2d91
+  hostname: Kais-MacBook-Pro.local
+  iterations: 0
+  iterations_since_restore: 1
+  mean_loss: 13.250521336587763
+  neg_mean_loss: -13.250521336587763
+  node_ip: 127.0.0.1
+  pid: 45869
+  time_since_restore: 0.10329103469848633
+  time_this_iter_s: 0.10329103469848633
+  time_total_s: 0.10329103469848633
+  timestamp: 1658499524
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: 3046455a
+  warmup_time: 0.0027010440826416016
+  
+Result for objective_2e3cd63e:
+  date: 2022-07-22_15-18-46
+  done: false
+  experiment_id: a2f52d042c5d43bcbb59c6a16249fdb9
+  hostname: Kais-MacBook-Pro.local
+  iterations: 47
+  iterations_since_restore: 48
+  mean_loss: 8.5370623175226
+  neg_mean_loss: -8.5370623175226
+  node_ip: 127.0.0.1
+  pid: 45864
+  time_since_restore: 5.129793882369995
+  time_this_iter_s: 0.10869097709655762
+  time_total_s: 5.129793882369995
+  timestamp: 1658499526
+  timesteps_since_restore: 0
+  training_iteration: 48
+  trial_id: 2e3cd63e
+  warmup_time: 0.002730131149291992
+  
+Result for objective_3046455a:
+  date: 2022-07-22_15-18-49
+  done: false
+  experiment_id: f282080699d848f69c4b8626bd4c2d91
+  hostname: Kais-MacBook-Pro.local
+  iterations: 47
+  iterations_since_restore: 48
+  mean_loss: 3.3797430580474837
+  neg_mean_loss: -3.3797430580474837
+  node_ip: 127.0.0.1
+  pid: 45869
+  time_since_restore: 5.139970064163208
+  time_this_iter_s: 0.10870695114135742
+  time_total_s: 5.139970064163208
+  timestamp: 1658499529
+  timesteps_since_restore: 0
+  training_iteration: 48
+  trial_id: 3046455a
+  warmup_time: 0.0027010440826416016
+  
+Result for objective_2e3cd63e:
+  date: 2022-07-22_15-18-51
+  done: false
+  experiment_id: a2f52d042c5d43bcbb59c6a16249fdb9
+  hostname: Kais-MacBook-Pro.local
+  iterations: 94
+  iterations_since_restore: 95
+  mean_loss: 6.983470378488619
+  neg_mean_loss: -6.983470378488619
+  node_ip: 127.0.0.1
+  pid: 45864
+  time_since_restore: 10.16285490989685
+  time_this_iter_s: 0.1078939437866211
+  time_total_s: 10.16285490989685
+  timestamp: 1658499531
+  timesteps_since_restore: 0
+  training_iteration: 95
+  trial_id: 2e3cd63e
+  warmup_time: 0.002730131149291992
+  
+Result for objective_2e3cd63e:
+  date: 2022-07-22_15-18-51
+  done: true
+  experiment_id: a2f52d042c5d43bcbb59c6a16249fdb9
+  experiment_tag: 9_activation=relu_tanh,height=2.4385,steps=100,width=0.0790
+  hostname: Kais-MacBook-Pro.local
+  iterations: 99
+  iterations_since_restore: 100
+  mean_loss: 6.8562837197212945
+  neg_mean_loss: -6.8562837197212945
+  node_ip: 127.0.0.1
+  pid: 45864
+  time_since_restore: 10.700610876083374
+  time_this_iter_s: 0.10786271095275879
+  time_total_s: 10.700610876083374
+  timestamp: 1658499531
+  timesteps_since_restore: 0
+  training_iteration: 100
+  trial_id: 2e3cd63e
+  warmup_time: 0.002730131149291992
+  
+Result for objective_3046455a:
+  date: 2022-07-22_15-18-54
+  done: false
+  experiment_id: f282080699d848f69c4b8626bd4c2d91
+  hostname: Kais-MacBook-Pro.local
+  iterations: 94
+  iterations_since_restore: 95
+  mean_loss: 3.315552368411653
+  neg_mean_loss: -3.315552368411653
+  node_ip: 127.0.0.1
+  pid: 45869
+  time_since_restore: 10.18196415901184
+  time_this_iter_s: 0.10727214813232422
+  time_total_s: 10.18196415901184
+  timestamp: 1658499534
+  timesteps_since_restore: 0
+  training_iteration: 95
+  trial_id: 3046455a
+  warmup_time: 0.0027010440826416016
+  
+Result for objective_3046455a:
+  date: 2022-07-22_15-18-55
+  done: true
+  experiment_id: f282080699d848f69c4b8626bd4c2d91
+  experiment_tag: 10_activation=relu_tanh,height=22.5052,steps=100,width=16.2524
+  hostname: Kais-MacBook-Pro.local
+  iterations: 99
+  iterations_since_restore: 100
+  mean_loss: 3.3122882595656677
+  neg_mean_loss: -3.3122882595656677
+  node_ip: 127.0.0.1
+  pid: 45869
+  time_since_restore: 10.717580080032349
+  time_this_iter_s: 0.1054232120513916
+  time_total_s: 10.717580080032349
+  timestamp: 1658499535
+  timesteps_since_restore: 0
+  training_iteration: 100
+  trial_id: 3046455a
+  warmup_time: 0.0027010440826416016
+  
+</pre></div>
+</div>
+</div>
+</div>
+<p>Here are the hyperparamters found to minimize the mean loss of the defined objective.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Best hyperparameters found were: &quot;</span><span class="p">,</span> <span class="n">results</span><span class="o">.</span><span class="n">get_best_result</span><span class="p">()</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Best hyperparameters found were:  {&#39;steps&#39;: 100, &#39;width&#39;: 15.42641286533492, &#39;height&#39;: -95.8496101281197, &#39;activation&#39;: &#39;relu, tanh&#39;}
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="incorporating-a-time-budget-to-the-experiment">
+<h2>Incorporating a time budget to the experiment<a class="headerlink" href="flaml_example.html#incorporating-a-time-budget-to-the-experiment" title="Permalink to this headline">#</a></h2>
+<p>Define the time budget in seconds:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">time_budget_s</span> <span class="o">=</span> <span class="mi">30</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Similarly we define a search space, but this time we feed it as an argument to
+<code class="docutils literal notranslate"><span class="pre">BlendSearch</span></code> rather than <code class="docutils literal notranslate"><span class="pre">Tuner()</span></code>’s <code class="docutils literal notranslate"><span class="pre">param_space</span></code> argument.</p>
+<p>We next define the time budget via <code class="docutils literal notranslate"><span class="pre">set_search_properties</span></code>.
+And once again include the <code class="docutils literal notranslate"><span class="pre">ConcurrencyLimiter</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">algo</span> <span class="o">=</span> <span class="n">BlendSearch</span><span class="p">(</span>
+    <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;mean_loss&quot;</span><span class="p">,</span>
+    <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;min&quot;</span><span class="p">,</span>
+    <span class="n">space</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span>
+        <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
+        <span class="s2">&quot;activation&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="s2">&quot;relu&quot;</span><span class="p">,</span> <span class="s2">&quot;tanh&quot;</span><span class="p">]),</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+<span class="n">algo</span><span class="o">.</span><span class="n">set_search_properties</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;time_budget_s&quot;</span><span class="p">:</span> <span class="n">time_budget_s</span><span class="p">})</span>
+<span class="n">algo</span> <span class="o">=</span> <span class="n">ConcurrencyLimiter</span><span class="p">(</span><span class="n">algo</span><span class="p">,</span> <span class="n">max_concurrent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>You passed a `space` parameter to OptunaSearch that contained unresolved search space definitions. OptunaSearch should however be instantiated with fully configured search spaces only. To use Ray Tune&#39;s automatic search space conversion, pass the space definition as part of the `param_space` argument to `Tuner()` instead.
+<span class=" -Color -Color-Green">[I 2022-07-22 15:18:55,531]</span> A new study created in memory with name: optuna
+</pre></div>
+</div>
+</div>
+</div>
+<p>Now we run the experiment, this time with the <code class="docutils literal notranslate"><span class="pre">time_budget</span></code> included as an argument.
+Note: We allow for virtually infinite <code class="docutils literal notranslate"><span class="pre">num_samples</span></code> by passing <code class="docutils literal notranslate"><span class="pre">-1</span></code>, so that the
+experiment is stopped according to the time budget rather than a sample limit.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
+    <span class="n">objective</span><span class="p">,</span>
+    <span class="n">tune_config</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">TuneConfig</span><span class="p">(</span>
+        <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;mean_loss&quot;</span><span class="p">,</span>
+        <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;min&quot;</span><span class="p">,</span>
+        <span class="n">search_alg</span><span class="o">=</span><span class="n">algo</span><span class="p">,</span>
+        <span class="n">num_samples</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">time_budget_s</span><span class="o">=</span><span class="n">time_budget_s</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">param_space</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;steps&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">},</span>
+<span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html">== Status ==<br>Current time: 2022-07-22 15:19:27 (running for 00:00:32.42)<br>Memory usage on this node: 10.2/16.0 GiB<br>Using FIFO scheduling algorithm.<br>Resources requested: 0/16 CPUs, 0/0 GPUs, 0.0/4.69 GiB heap, 0.0/2.0 GiB objects<br>Current best trial: 421d81ee with mean_loss=-8.596112689018389 and parameters={'steps': 100, 'width': 13.171830039895717, 'height': -96.72215542618497, 'activation': 'tanh'}<br>Result logdir: /Users/kai/ray_results/blendsearch_exp<br>Number of trials: 12/infinite (12 TERMINATED)<br><table>
+<thead>
+<tr><th>Trial name        </th><th>status    </th><th>loc            </th><th>activation  </th><th style="text-align: right;">    height</th><th style="text-align: right;">  steps</th><th style="text-align: right;">     width</th><th style="text-align: right;">     loss</th><th style="text-align: right;">  iter</th><th style="text-align: right;">  total time (s)</th><th style="text-align: right;">  iterations</th><th style="text-align: right;">  neg_mean_loss</th></tr>
+</thead>
+<tbody>
+<tr><td>objective_38449df6</td><td>TERMINATED</td><td>127.0.0.1:45883</td><td>relu        </td><td style="text-align: right;">  29.4532 </td><td style="text-align: right;">    100</td><td style="text-align: right;"> 1.94864  </td><td style="text-align: right;">13.4381  </td><td style="text-align: right;">   100</td><td style="text-align: right;">        10.6555 </td><td style="text-align: right;">          99</td><td style="text-align: right;">     -13.4381  </td></tr>
+<tr><td>objective_39d44fea</td><td>TERMINATED</td><td>127.0.0.1:45889</td><td>tanh        </td><td style="text-align: right;"> -95.8496 </td><td style="text-align: right;">    100</td><td style="text-align: right;">15.4264   </td><td style="text-align: right;">-8.51991 </td><td style="text-align: right;">   100</td><td style="text-align: right;">        11.2945 </td><td style="text-align: right;">          99</td><td style="text-align: right;">       8.51991 </td></tr>
+<tr><td>objective_39d5c046</td><td>TERMINATED</td><td>127.0.0.1:45890</td><td>tanh        </td><td style="text-align: right;"> -55.0407 </td><td style="text-align: right;">    100</td><td style="text-align: right;"> 9.97014  </td><td style="text-align: right;">-4.40377 </td><td style="text-align: right;">   100</td><td style="text-align: right;">        11.169  </td><td style="text-align: right;">          99</td><td style="text-align: right;">       4.40377 </td></tr>
+<tr><td>objective_39d71608</td><td>TERMINATED</td><td>127.0.0.1:45891</td><td>tanh        </td><td style="text-align: right;"> -82.332  </td><td style="text-align: right;">    100</td><td style="text-align: right;"> 3.38222  </td><td style="text-align: right;">-6.94321 </td><td style="text-align: right;">   100</td><td style="text-align: right;">        11.3021 </td><td style="text-align: right;">          99</td><td style="text-align: right;">       6.94321 </td></tr>
+<tr><td>objective_402f9534</td><td>TERMINATED</td><td>127.0.0.1:45909</td><td>relu        </td><td style="text-align: right;">   2.43845</td><td style="text-align: right;">    100</td><td style="text-align: right;"> 0.0789653</td><td style="text-align: right;">15.8563  </td><td style="text-align: right;">   100</td><td style="text-align: right;">        10.7275 </td><td style="text-align: right;">          99</td><td style="text-align: right;">     -15.8563  </td></tr>
+<tr><td>objective_4208c6aa</td><td>TERMINATED</td><td>127.0.0.1:45914</td><td>relu        </td><td style="text-align: right;"> -41.6248 </td><td style="text-align: right;">    100</td><td style="text-align: right;">14.4351   </td><td style="text-align: right;"> 5.90701 </td><td style="text-align: right;">   100</td><td style="text-align: right;">        10.811  </td><td style="text-align: right;">          99</td><td style="text-align: right;">      -5.90701 </td></tr>
+<tr><td>objective_421aeb64</td><td>TERMINATED</td><td>127.0.0.1:45917</td><td>relu        </td><td style="text-align: right;"> -94.9771 </td><td style="text-align: right;">    100</td><td style="text-align: right;">17.681    </td><td style="text-align: right;"> 0.559098</td><td style="text-align: right;">   100</td><td style="text-align: right;">        10.8502 </td><td style="text-align: right;">          99</td><td style="text-align: right;">      -0.559098</td></tr>
+<tr><td>objective_421d81ee</td><td>TERMINATED</td><td>127.0.0.1:45918</td><td>tanh        </td><td style="text-align: right;"> -96.7222 </td><td style="text-align: right;">    100</td><td style="text-align: right;">13.1718   </td><td style="text-align: right;">-8.59611 </td><td style="text-align: right;">   100</td><td style="text-align: right;">        10.8456 </td><td style="text-align: right;">          99</td><td style="text-align: right;">       8.59611 </td></tr>
+<tr><td>objective_481b0de6</td><td>TERMINATED</td><td>127.0.0.1:45933</td><td>relu        </td><td style="text-align: right;"> -81.3401 </td><td style="text-align: right;">    100</td><td style="text-align: right;">15.2514   </td><td style="text-align: right;"> 2.48132 </td><td style="text-align: right;">    11</td><td style="text-align: right;">         1.17882</td><td style="text-align: right;">          10</td><td style="text-align: right;">      -2.48132 </td></tr>
+<tr><td>objective_4a00fc10</td><td>TERMINATED</td><td>127.0.0.1:45940</td><td>tanh        </td><td style="text-align: right;">-100      </td><td style="text-align: right;">    100</td><td style="text-align: right;">11.0922   </td><td style="text-align: right;">         </td><td style="text-align: right;">      </td><td style="text-align: right;">                </td><td style="text-align: right;">            </td><td style="text-align: right;">               </td></tr>
+<tr><td>objective_4a167946</td><td>TERMINATED</td><td>127.0.0.1:45945</td><td>tanh        </td><td style="text-align: right;"> -71.566  </td><td style="text-align: right;">    100</td><td style="text-align: right;">10.8509   </td><td style="text-align: right;">         </td><td style="text-align: right;">      </td><td style="text-align: right;">                </td><td style="text-align: right;">            </td><td style="text-align: right;">               </td></tr>
+<tr><td>objective_4a1908a0</td><td>TERMINATED</td><td>127.0.0.1:45946</td><td>relu        </td><td style="text-align: right;">-100      </td><td style="text-align: right;">    100</td><td style="text-align: right;">12.4575   </td><td style="text-align: right;">         </td><td style="text-align: right;">      </td><td style="text-align: right;">                </td><td style="text-align: right;">            </td><td style="text-align: right;">               </td></tr>
+</tbody>
+</table><br><br></div><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Result for objective_38449df6:
+  date: 2022-07-22_15-18-58
+  done: false
+  experiment_id: 22ed7d2e0f154e3d89fddc8f7f0b743f
+  hostname: Kais-MacBook-Pro.local
+  iterations: 0
+  iterations_since_restore: 1
+  mean_loss: 22.945321626643842
+  neg_mean_loss: -22.945321626643842
+  node_ip: 127.0.0.1
+  pid: 45883
+  time_since_restore: 0.1004023551940918
+  time_this_iter_s: 0.1004023551940918
+  time_total_s: 0.1004023551940918
+  timestamp: 1658499538
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: 38449df6
+  warmup_time: 0.0025548934936523438
+  
+Result for objective_39d5c046:
+  date: 2022-07-22_15-19-00
+  done: false
+  experiment_id: faa00d9b1a2b4014bf01bab455bf9dbc
+  hostname: Kais-MacBook-Pro.local
+  iterations: 0
+  iterations_since_restore: 1
+  mean_loss: 5.495932910616953
+  neg_mean_loss: -5.495932910616953
+  node_ip: 127.0.0.1
+  pid: 45890
+  time_since_restore: 0.10018515586853027
+  time_this_iter_s: 0.10018515586853027
+  time_total_s: 0.10018515586853027
+  timestamp: 1658499540
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: 39d5c046
+  warmup_time: 0.0029740333557128906
+  
+Result for objective_39d71608:
+  date: 2022-07-22_15-19-00
+  done: false
+  experiment_id: 43ea2d3839fb42cabf83009ddd82acbd
+  hostname: Kais-MacBook-Pro.local
+  iterations: 0
+  iterations_since_restore: 1
+  mean_loss: 2.766796283480206
+  neg_mean_loss: -2.766796283480206
+  node_ip: 127.0.0.1
+  pid: 45891
+  time_since_restore: 0.10022497177124023
+  time_this_iter_s: 0.10022497177124023
+  time_total_s: 0.10022497177124023
+  timestamp: 1658499540
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: 39d71608
+  warmup_time: 0.003571033477783203
+  
+Result for objective_39d44fea:
+  date: 2022-07-22_15-19-00
+  done: false
+  experiment_id: d45c2138630140c3915a785b0e544a10
+  hostname: Kais-MacBook-Pro.local
+  iterations: 0
+  iterations_since_restore: 1
+  mean_loss: 1.4150389871880282
+  neg_mean_loss: -1.4150389871880282
+  node_ip: 127.0.0.1
+  pid: 45889
+  time_since_restore: 0.10021686553955078
+  time_this_iter_s: 0.10021686553955078
+  time_total_s: 0.10021686553955078
+  timestamp: 1658499540
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: 39d44fea
+  warmup_time: 0.003281831741333008
+  
+Result for objective_38449df6:
+  date: 2022-07-22_15-19-03
+  done: false
+  experiment_id: 22ed7d2e0f154e3d89fddc8f7f0b743f
+  hostname: Kais-MacBook-Pro.local
+  iterations: 48
+  iterations_since_restore: 49
+  mean_loss: 13.91118054261762
+  neg_mean_loss: -13.91118054261762
+  node_ip: 127.0.0.1
+  pid: 45883
+  time_since_restore: 5.199498176574707
+  time_this_iter_s: 0.10724401473999023
+  time_total_s: 5.199498176574707
+  timestamp: 1658499543
+  timesteps_since_restore: 0
+  training_iteration: 49
+  trial_id: 38449df6
+  warmup_time: 0.0025548934936523438
+  
+Result for objective_39d5c046:
+  date: 2022-07-22_15-19-05
+  done: false
+  experiment_id: faa00d9b1a2b4014bf01bab455bf9dbc
+  hostname: Kais-MacBook-Pro.local
+  iterations: 47
+  iterations_since_restore: 48
+  mean_loss: -4.295122851662673
+  neg_mean_loss: 4.295122851662673
+  node_ip: 127.0.0.1
+  pid: 45890
+  time_since_restore: 5.137373924255371
+  time_this_iter_s: 0.1063838005065918
+  time_total_s: 5.137373924255371
+  timestamp: 1658499545
+  timesteps_since_restore: 0
+  training_iteration: 48
+  trial_id: 39d5c046
+  warmup_time: 0.0029740333557128906
+  
+Result for objective_39d44fea:
+  date: 2022-07-22_15-19-05
+  done: false
+  experiment_id: d45c2138630140c3915a785b0e544a10
+  hostname: Kais-MacBook-Pro.local
+  iterations: 47
+  iterations_since_restore: 48
+  mean_loss: -8.44891425494968
+  neg_mean_loss: 8.44891425494968
+  node_ip: 127.0.0.1
+  pid: 45889
+  time_since_restore: 5.140375852584839
+  time_this_iter_s: 0.10918521881103516
+  time_total_s: 5.140375852584839
+  timestamp: 1658499545
+  timesteps_since_restore: 0
+  training_iteration: 48
+  trial_id: 39d44fea
+  warmup_time: 0.003281831741333008
+  
+Result for objective_39d71608:
+  date: 2022-07-22_15-19-05
+  done: false
+  experiment_id: 43ea2d3839fb42cabf83009ddd82acbd
+  hostname: Kais-MacBook-Pro.local
+  iterations: 47
+  iterations_since_restore: 48
+  mean_loss: -6.641362320132167
+  neg_mean_loss: 6.641362320132167
+  node_ip: 127.0.0.1
+  pid: 45891
+  time_since_restore: 5.144212007522583
+  time_this_iter_s: 0.1064291000366211
+  time_total_s: 5.144212007522583
+  timestamp: 1658499545
+  timesteps_since_restore: 0
+  training_iteration: 48
+  trial_id: 39d71608
+  warmup_time: 0.003571033477783203
+  
+Result for objective_38449df6:
+  date: 2022-07-22_15-19-08
+  done: false
+  experiment_id: 22ed7d2e0f154e3d89fddc8f7f0b743f
+  hostname: Kais-MacBook-Pro.local
+  iterations: 95
+  iterations_since_restore: 96
+  mean_loss: 13.457824286707531
+  neg_mean_loss: -13.457824286707531
+  node_ip: 127.0.0.1
+  pid: 45883
+  time_since_restore: 10.220572233200073
+  time_this_iter_s: 0.10792016983032227
+  time_total_s: 10.220572233200073
+  timestamp: 1658499548
+  timesteps_since_restore: 0
+  training_iteration: 96
+  trial_id: 38449df6
+  warmup_time: 0.0025548934936523438
+  
+Result for objective_38449df6:
+  date: 2022-07-22_15-19-08
+  done: true
+  experiment_id: 22ed7d2e0f154e3d89fddc8f7f0b743f
+  experiment_tag: 1_activation=relu,height=29.4532,steps=100,width=1.9486
+  hostname: Kais-MacBook-Pro.local
+  iterations: 99
+  iterations_since_restore: 100
+  mean_loss: 13.43813759132241
+  neg_mean_loss: -13.43813759132241
+  node_ip: 127.0.0.1
+  pid: 45883
+  time_since_restore: 10.655535221099854
+  time_this_iter_s: 0.10872602462768555
+  time_total_s: 10.655535221099854
+  timestamp: 1658499548
+  timesteps_since_restore: 0
+  training_iteration: 100
+  trial_id: 38449df6
+  warmup_time: 0.0025548934936523438
+  
+Result for objective_39d5c046:
+  date: 2022-07-22_15-19-10
+  done: false
+  experiment_id: faa00d9b1a2b4014bf01bab455bf9dbc
+  hostname: Kais-MacBook-Pro.local
+  iterations: 94
+  iterations_since_restore: 95
+  mean_loss: -4.398492005249027
+  neg_mean_loss: 4.398492005249027
+  node_ip: 127.0.0.1
+  pid: 45890
+  time_since_restore: 10.1424720287323
+  time_this_iter_s: 0.10685110092163086
+  time_total_s: 10.1424720287323
+  timestamp: 1658499550
+  timesteps_since_restore: 0
+  training_iteration: 95
+  trial_id: 39d5c046
+  warmup_time: 0.0029740333557128906
+  
+Result for objective_39d44fea:
+  date: 2022-07-22_15-19-10
+  done: false
+  experiment_id: d45c2138630140c3915a785b0e544a10
+  hostname: Kais-MacBook-Pro.local
+  iterations: 93
+  iterations_since_restore: 94
+  mean_loss: -8.515740400738455
+  neg_mean_loss: 8.515740400738455
+  node_ip: 127.0.0.1
+  pid: 45889
+  time_since_restore: 10.051257848739624
+  time_this_iter_s: 0.10633492469787598
+  time_total_s: 10.051257848739624
+  timestamp: 1658499550
+  timesteps_since_restore: 0
+  training_iteration: 94
+  trial_id: 39d44fea
+  warmup_time: 0.003281831741333008
+  
+Result for objective_39d71608:
+  date: 2022-07-22_15-19-10
+  done: false
+  experiment_id: 43ea2d3839fb42cabf83009ddd82acbd
+  hostname: Kais-MacBook-Pro.local
+  iterations: 93
+  iterations_since_restore: 94
+  mean_loss: -6.925081133185133
+  neg_mean_loss: 6.925081133185133
+  node_ip: 127.0.0.1
+  pid: 45891
+  time_since_restore: 10.069098949432373
+  time_this_iter_s: 0.10451602935791016
+  time_total_s: 10.069098949432373
+  timestamp: 1658499550
+  timesteps_since_restore: 0
+  training_iteration: 94
+  trial_id: 39d71608
+  warmup_time: 0.003571033477783203
+  
+Result for objective_402f9534:
+  date: 2022-07-22_15-19-11
+  done: false
+  experiment_id: 66af4092dc134e049ed47a56532133ce
+  hostname: Kais-MacBook-Pro.local
+  iterations: 0
+  iterations_since_restore: 1
+  mean_loss: 20.243845267715532
+  neg_mean_loss: -20.243845267715532
+  node_ip: 127.0.0.1
+  pid: 45909
+  time_since_restore: 0.10260891914367676
+  time_this_iter_s: 0.10260891914367676
+  time_total_s: 0.10260891914367676
+  timestamp: 1658499551
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: 402f9534
+  warmup_time: 0.0026721954345703125
+  
+Result for objective_39d5c046:
+  date: 2022-07-22_15-19-11
+  done: true
+  experiment_id: faa00d9b1a2b4014bf01bab455bf9dbc
+  experiment_tag: 3_activation=tanh,height=-55.0407,steps=100,width=9.9701
+  hostname: Kais-MacBook-Pro.local
+  iterations: 99
+  iterations_since_restore: 100
+  mean_loss: -4.403770601366095
+  neg_mean_loss: 4.403770601366095
+  node_ip: 127.0.0.1
+  pid: 45890
+  time_since_restore: 11.169048070907593
+  time_this_iter_s: 0.1081700325012207
+  time_total_s: 11.169048070907593
+  timestamp: 1658499551
+  timesteps_since_restore: 0
+  training_iteration: 100
+  trial_id: 39d5c046
+  warmup_time: 0.0029740333557128906
+  
+Result for objective_39d44fea:
+  date: 2022-07-22_15-19-12
+  done: true
+  experiment_id: d45c2138630140c3915a785b0e544a10
+  experiment_tag: 2_activation=tanh,height=-95.8496,steps=100,width=15.4264
+  hostname: Kais-MacBook-Pro.local
+  iterations: 99
+  iterations_since_restore: 100
+  mean_loss: -8.519908298508359
+  neg_mean_loss: 8.519908298508359
+  node_ip: 127.0.0.1
+  pid: 45889
+  time_since_restore: 11.29450273513794
+  time_this_iter_s: 0.1167898178100586
+  time_total_s: 11.29450273513794
+  timestamp: 1658499552
+  timesteps_since_restore: 0
+  training_iteration: 100
+  trial_id: 39d44fea
+  warmup_time: 0.003281831741333008
+  
+Result for objective_39d71608:
+  date: 2022-07-22_15-19-12
+  done: true
+  experiment_id: 43ea2d3839fb42cabf83009ddd82acbd
+  experiment_tag: 4_activation=tanh,height=-82.3320,steps=100,width=3.3822
+  hostname: Kais-MacBook-Pro.local
+  iterations: 99
+  iterations_since_restore: 100
+  mean_loss: -6.943213699003365
+  neg_mean_loss: 6.943213699003365
+  node_ip: 127.0.0.1
+  pid: 45891
+  time_since_restore: 11.302148818969727
+  time_this_iter_s: 0.12157797813415527
+  time_total_s: 11.302148818969727
+  timestamp: 1658499552
+  timesteps_since_restore: 0
+  training_iteration: 100
+  trial_id: 39d71608
+  warmup_time: 0.003571033477783203
+  
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Result for objective_4208c6aa:
+  date: 2022-07-22_15-19-14
+  done: false
+  experiment_id: ce292c59f7c74e1ab42de6004eb3d846
+  hostname: Kais-MacBook-Pro.local
+  iterations: 0
+  iterations_since_restore: 1
+  mean_loss: 15.837521363412662
+  neg_mean_loss: -15.837521363412662
+  node_ip: 127.0.0.1
+  pid: 45914
+  time_since_restore: 0.10442900657653809
+  time_this_iter_s: 0.10442900657653809
+  time_total_s: 0.10442900657653809
+  timestamp: 1658499554
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: 4208c6aa
+  warmup_time: 0.002707958221435547
+  
+Result for objective_421aeb64:
+  date: 2022-07-22_15-19-14
+  done: false
+  experiment_id: a4b264c05660423ea645cef7a9cd38bb
+  hostname: Kais-MacBook-Pro.local
+  iterations: 0
+  iterations_since_restore: 1
+  mean_loss: 10.502293516994555
+  neg_mean_loss: -10.502293516994555
+  node_ip: 127.0.0.1
+  pid: 45917
+  time_since_restore: 0.1030268669128418
+  time_this_iter_s: 0.1030268669128418
+  time_total_s: 0.1030268669128418
+  timestamp: 1658499554
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: 421aeb64
+  warmup_time: 0.0031020641326904297
+  
+Result for objective_421d81ee:
+  date: 2022-07-22_15-19-14
+  done: false
+  experiment_id: 836a62c82d6c467fb232414586872fd0
+  hostname: Kais-MacBook-Pro.local
+  iterations: 0
+  iterations_since_restore: 1
+  mean_loss: 1.3277844573815027
+  neg_mean_loss: -1.3277844573815027
+  node_ip: 127.0.0.1
+  pid: 45918
+  time_since_restore: 0.10497617721557617
+  time_this_iter_s: 0.10497617721557617
+  time_total_s: 0.10497617721557617
+  timestamp: 1658499554
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: 421d81ee
+  warmup_time: 0.002989053726196289
+  
+Result for objective_402f9534:
+  date: 2022-07-22_15-19-16
+  done: false
+  experiment_id: 66af4092dc134e049ed47a56532133ce
+  hostname: Kais-MacBook-Pro.local
+  iterations: 47
+  iterations_since_restore: 48
+  mean_loss: 17.5370623175226
+  neg_mean_loss: -17.5370623175226
+  node_ip: 127.0.0.1
+  pid: 45909
+  time_since_restore: 5.13571572303772
+  time_this_iter_s: 0.1079568862915039
+  time_total_s: 5.13571572303772
+  timestamp: 1658499556
+  timesteps_since_restore: 0
+  training_iteration: 48
+  trial_id: 402f9534
+  warmup_time: 0.0026721954345703125
+  
+Result for objective_4208c6aa:
+  date: 2022-07-22_15-19-19
+  done: false
+  experiment_id: ce292c59f7c74e1ab42de6004eb3d846
+  hostname: Kais-MacBook-Pro.local
+  iterations: 46
+  iterations_since_restore: 47
+  mean_loss: 5.98588603781584
+  neg_mean_loss: -5.98588603781584
+  node_ip: 127.0.0.1
+  pid: 45914
+  time_since_restore: 5.11784291267395
+  time_this_iter_s: 0.106842041015625
+  time_total_s: 5.11784291267395
+  timestamp: 1658499559
+  timesteps_since_restore: 0
+  training_iteration: 47
+  trial_id: 4208c6aa
+  warmup_time: 0.002707958221435547
+  
+Result for objective_421aeb64:
+  date: 2022-07-22_15-19-19
+  done: false
+  experiment_id: a4b264c05660423ea645cef7a9cd38bb
+  hostname: Kais-MacBook-Pro.local
+  iterations: 46
+  iterations_since_restore: 47
+  mean_loss: 0.6237521179327707
+  neg_mean_loss: -0.6237521179327707
+  node_ip: 127.0.0.1
+  pid: 45917
+  time_since_restore: 5.119860887527466
+  time_this_iter_s: 0.10904288291931152
+  time_total_s: 5.119860887527466
+  timestamp: 1658499559
+  timesteps_since_restore: 0
+  training_iteration: 47
+  trial_id: 421aeb64
+  warmup_time: 0.0031020641326904297
+  
+Result for objective_421d81ee:
+  date: 2022-07-22_15-19-19
+  done: false
+  experiment_id: 836a62c82d6c467fb232414586872fd0
+  hostname: Kais-MacBook-Pro.local
+  iterations: 46
+  iterations_since_restore: 47
+  mean_loss: -8.509852624896407
+  neg_mean_loss: 8.509852624896407
+  node_ip: 127.0.0.1
+  pid: 45918
+  time_since_restore: 5.103626012802124
+  time_this_iter_s: 0.10568881034851074
+  time_total_s: 5.103626012802124
+  timestamp: 1658499559
+  timesteps_since_restore: 0
+  training_iteration: 47
+  trial_id: 421d81ee
+  warmup_time: 0.002989053726196289
+  
+Result for objective_402f9534:
+  date: 2022-07-22_15-19-21
+  done: false
+  experiment_id: 66af4092dc134e049ed47a56532133ce
+  hostname: Kais-MacBook-Pro.local
+  iterations: 94
+  iterations_since_restore: 95
+  mean_loss: 15.983470378488619
+  neg_mean_loss: -15.983470378488619
+  node_ip: 127.0.0.1
+  pid: 45909
+  time_since_restore: 10.194732666015625
+  time_this_iter_s: 0.11167168617248535
+  time_total_s: 10.194732666015625
+  timestamp: 1658499561
+  timesteps_since_restore: 0
+  training_iteration: 95
+  trial_id: 402f9534
+  warmup_time: 0.0026721954345703125
+  
+Result for objective_402f9534:
+  date: 2022-07-22_15-19-22
+  done: true
+  experiment_id: 66af4092dc134e049ed47a56532133ce
+  experiment_tag: 5_activation=relu,height=2.4385,steps=100,width=0.0790
+  hostname: Kais-MacBook-Pro.local
+  iterations: 99
+  iterations_since_restore: 100
+  mean_loss: 15.856283719721294
+  neg_mean_loss: -15.856283719721294
+  node_ip: 127.0.0.1
+  pid: 45909
+  time_since_restore: 10.727468013763428
+  time_this_iter_s: 0.10604405403137207
+  time_total_s: 10.727468013763428
+  timestamp: 1658499562
+  timesteps_since_restore: 0
+  training_iteration: 100
+  trial_id: 402f9534
+  warmup_time: 0.0026721954345703125
+  
+Result for objective_4208c6aa:
+  date: 2022-07-22_15-19-24
+  done: false
+  experiment_id: ce292c59f7c74e1ab42de6004eb3d846
+  hostname: Kais-MacBook-Pro.local
+  iterations: 93
+  iterations_since_restore: 94
+  mean_loss: 5.911460436218253
+  neg_mean_loss: -5.911460436218253
+  node_ip: 127.0.0.1
+  pid: 45914
+  time_since_restore: 10.168487071990967
+  time_this_iter_s: 0.10619020462036133
+  time_total_s: 10.168487071990967
+  timestamp: 1658499564
+  timesteps_since_restore: 0
+  training_iteration: 94
+  trial_id: 4208c6aa
+  warmup_time: 0.002707958221435547
+  
+Result for objective_481b0de6:
+  date: 2022-07-22_15-19-24
+  done: false
+  experiment_id: ceafc8f530054af6bc676fd081f84c46
+  hostname: Kais-MacBook-Pro.local
+  iterations: 0
+  iterations_since_restore: 1
+  mean_loss: 11.865986796947288
+  neg_mean_loss: -11.865986796947288
+  node_ip: 127.0.0.1
+  pid: 45933
+  time_since_restore: 0.10329604148864746
+  time_this_iter_s: 0.10329604148864746
+  time_total_s: 0.10329604148864746
+  timestamp: 1658499564
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: 481b0de6
+  warmup_time: 0.0028421878814697266
+  
+Result for objective_421aeb64:
+  date: 2022-07-22_15-19-24
+  done: false
+  experiment_id: a4b264c05660423ea645cef7a9cd38bb
+  hostname: Kais-MacBook-Pro.local
+  iterations: 93
+  iterations_since_restore: 94
+  mean_loss: 0.5627408539120644
+  neg_mean_loss: -0.5627408539120644
+  node_ip: 127.0.0.1
+  pid: 45917
+  time_since_restore: 10.207238912582397
+  time_this_iter_s: 0.1081080436706543
+  time_total_s: 10.207238912582397
+  timestamp: 1658499564
+  timesteps_since_restore: 0
+  training_iteration: 94
+  trial_id: 421aeb64
+  warmup_time: 0.0031020641326904297
+  
+Result for objective_421d81ee:
+  date: 2022-07-22_15-19-24
+  done: false
+  experiment_id: 836a62c82d6c467fb232414586872fd0
+  hostname: Kais-MacBook-Pro.local
+  iterations: 93
+  iterations_since_restore: 94
+  mean_loss: -8.591242584097142
+  neg_mean_loss: 8.591242584097142
+  node_ip: 127.0.0.1
+  pid: 45918
+  time_since_restore: 10.2047119140625
+  time_this_iter_s: 0.1085958480834961
+  time_total_s: 10.2047119140625
+  timestamp: 1658499564
+  timesteps_since_restore: 0
+  training_iteration: 94
+  trial_id: 421d81ee
+  warmup_time: 0.002989053726196289
+  
+Result for objective_4208c6aa:
+  date: 2022-07-22_15-19-25
+  done: true
+  experiment_id: ce292c59f7c74e1ab42de6004eb3d846
+  experiment_tag: 6_activation=relu,height=-41.6248,steps=100,width=14.4351
+  hostname: Kais-MacBook-Pro.local
+  iterations: 99
+  iterations_since_restore: 100
+  mean_loss: 5.907010419420164
+  neg_mean_loss: -5.907010419420164
+  node_ip: 127.0.0.1
+  pid: 45914
+  time_since_restore: 10.811041831970215
+  time_this_iter_s: 0.10398101806640625
+  time_total_s: 10.811041831970215
+  timestamp: 1658499565
+  timesteps_since_restore: 0
+  training_iteration: 100
+  trial_id: 4208c6aa
+  warmup_time: 0.002707958221435547
+  
+Result for objective_421aeb64:
+  date: 2022-07-22_15-19-25
+  done: true
+  experiment_id: a4b264c05660423ea645cef7a9cd38bb
+  experiment_tag: 7_activation=relu,height=-94.9771,steps=100,width=17.6810
+  hostname: Kais-MacBook-Pro.local
+  iterations: 99
+  iterations_since_restore: 100
+  mean_loss: 0.559098189196817
+  neg_mean_loss: -0.559098189196817
+  node_ip: 127.0.0.1
+  pid: 45917
+  time_since_restore: 10.850210905075073
+  time_this_iter_s: 0.10677385330200195
+  time_total_s: 10.850210905075073
+  timestamp: 1658499565
+  timesteps_since_restore: 0
+  training_iteration: 100
+  trial_id: 421aeb64
+  warmup_time: 0.0031020641326904297
+  
+Result for objective_421d81ee:
+  date: 2022-07-22_15-19-25
+  done: true
+  experiment_id: 836a62c82d6c467fb232414586872fd0
+  experiment_tag: 8_activation=tanh,height=-96.7222,steps=100,width=13.1718
+  hostname: Kais-MacBook-Pro.local
+  iterations: 99
+  iterations_since_restore: 100
+  mean_loss: -8.596112689018389
+  neg_mean_loss: 8.596112689018389
+  node_ip: 127.0.0.1
+  pid: 45918
+  time_since_restore: 10.845621109008789
+  time_this_iter_s: 0.10427713394165039
+  time_total_s: 10.845621109008789
+  timestamp: 1658499565
+  timesteps_since_restore: 0
+  training_iteration: 100
+  trial_id: 421d81ee
+  warmup_time: 0.002989053726196289
+  
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Best hyperparameters found were: &quot;</span><span class="p">,</span> <span class="n">results</span><span class="o">.</span><span class="n">get_best_result</span><span class="p">()</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Best hyperparameters found were:  {&#39;steps&#39;: 100, &#39;width&#39;: 13.171830039895717, &#39;height&#39;: -96.72215542618497, &#39;activation&#39;: &#39;tanh&#39;}
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="running-tune-experiments-with-cfo">
+<h2>Running Tune experiments with CFO<a class="headerlink" href="flaml_example.html#running-tune-experiments-with-cfo" title="Permalink to this headline">#</a></h2>
+<p>This example demonstrates the usage of Frugal Optimization for Cost-related
+Hyperparameters (CFO) with Ray Tune.</p>
+<p>We now define the search algorithm as built from <code class="docutils literal notranslate"><span class="pre">CFO</span></code>, constrained to a maximum of <code class="docutils literal notranslate"><span class="pre">4</span></code>
+concurrent trials with a <code class="docutils literal notranslate"><span class="pre">ConcurrencyLimiter</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">algo</span> <span class="o">=</span> <span class="n">CFO</span><span class="p">()</span>
+<span class="n">algo</span> <span class="o">=</span> <span class="n">ConcurrencyLimiter</span><span class="p">(</span><span class="n">algo</span><span class="p">,</span> <span class="n">max_concurrent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The number of samples is the number of hyperparameter combinations that will be
+tried out. This Tune run is set to <code class="docutils literal notranslate"><span class="pre">1000</span></code> samples.
+(you can decrease this if it takes too long on your machine).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">num_samples</span> <span class="o">=</span> <span class="mi">1000</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Next we define a search space. The critical assumption is that the optimal
+hyperparameters live within this space. Yet, if the space is very large, then
+those hyperparameters may be difficult to find in a short amount of time.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">search_config</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;steps&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+    <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span>
+    <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
+    <span class="s2">&quot;activation&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="s2">&quot;relu, tanh&quot;</span><span class="p">])</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Finally, we run the experiment to <code class="docutils literal notranslate"><span class="pre">&quot;min&quot;</span></code>imize the “mean_loss” of the <code class="docutils literal notranslate"><span class="pre">objective</span></code>
+by searching <code class="docutils literal notranslate"><span class="pre">search_config</span></code> via <code class="docutils literal notranslate"><span class="pre">algo</span></code>, <code class="docutils literal notranslate"><span class="pre">num_samples</span></code> times. This previous sentence
+is fully characterizes the search problem we aim to solve. With this in mind,
+notice how efficient it is to execute <code class="docutils literal notranslate"><span class="pre">tuner.fit()</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
+    <span class="n">objective</span><span class="p">,</span>
+    <span class="n">tune_config</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">TuneConfig</span><span class="p">(</span>
+        <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;mean_loss&quot;</span><span class="p">,</span>
+        <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;min&quot;</span><span class="p">,</span>
+        <span class="n">search_alg</span><span class="o">=</span><span class="n">algo</span><span class="p">,</span>
+        <span class="n">num_samples</span><span class="o">=</span><span class="n">num_samples</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">param_space</span><span class="o">=</span><span class="n">search_config</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html">== Status ==<br>Current time: 2022-07-22 15:20:11 (running for 00:00:43.01)<br>Memory usage on this node: 10.0/16.0 GiB<br>Using FIFO scheduling algorithm.<br>Resources requested: 0/16 CPUs, 0/0 GPUs, 0.0/4.69 GiB heap, 0.0/2.0 GiB objects<br>Current best trial: 4d51b38c with mean_loss=-8.661424748129757 and parameters={'steps': 100, 'width': 15.124213652112319, 'height': -97.27768667042203, 'activation': 'relu, tanh'}<br>Result logdir: /Users/kai/ray_results/cfo_exp<br>Number of trials: 10/10 (10 TERMINATED)<br><table>
+<thead>
+<tr><th>Trial name        </th><th>status    </th><th>loc            </th><th>activation  </th><th style="text-align: right;">  height</th><th style="text-align: right;">  steps</th><th style="text-align: right;">     width</th><th style="text-align: right;">    loss</th><th style="text-align: right;">  iter</th><th style="text-align: right;">  total time (s)</th><th style="text-align: right;">  iterations</th><th style="text-align: right;">  neg_mean_loss</th></tr>
+</thead>
+<tbody>
+<tr><td>objective_4bc281fe</td><td>TERMINATED</td><td>127.0.0.1:45958</td><td>relu, tanh  </td><td style="text-align: right;"> 29.4532</td><td style="text-align: right;">    100</td><td style="text-align: right;"> 1.94864  </td><td style="text-align: right;"> 4.43814</td><td style="text-align: right;">   100</td><td style="text-align: right;">         10.7193</td><td style="text-align: right;">          99</td><td style="text-align: right;">       -4.43814</td></tr>
+<tr><td>objective_4d4ed536</td><td>TERMINATED</td><td>127.0.0.1:45963</td><td>relu, tanh  </td><td style="text-align: right;">-26.2681</td><td style="text-align: right;">    100</td><td style="text-align: right;"> 7.25618  </td><td style="text-align: right;">-1.48952</td><td style="text-align: right;">   100</td><td style="text-align: right;">         11.1932</td><td style="text-align: right;">          99</td><td style="text-align: right;">        1.48952</td></tr>
+<tr><td>objective_4d5064aa</td><td>TERMINATED</td><td>127.0.0.1:45964</td><td>relu, tanh  </td><td style="text-align: right;">-46.7215</td><td style="text-align: right;">    100</td><td style="text-align: right;">15.1097   </td><td style="text-align: right;">-3.60574</td><td style="text-align: right;">   100</td><td style="text-align: right;">         11.1983</td><td style="text-align: right;">          99</td><td style="text-align: right;">        3.60574</td></tr>
+<tr><td>objective_4d51b38c</td><td>TERMINATED</td><td>127.0.0.1:45965</td><td>relu, tanh  </td><td style="text-align: right;">-97.2777</td><td style="text-align: right;">    100</td><td style="text-align: right;">15.1242   </td><td style="text-align: right;">-8.66142</td><td style="text-align: right;">   100</td><td style="text-align: right;">         11.1977</td><td style="text-align: right;">          99</td><td style="text-align: right;">        8.66142</td></tr>
+<tr><td>objective_53b39e84</td><td>TERMINATED</td><td>127.0.0.1:45983</td><td>relu, tanh  </td><td style="text-align: right;"> 25.7812</td><td style="text-align: right;">    100</td><td style="text-align: right;"> 1.77704  </td><td style="text-align: right;"> 4.11597</td><td style="text-align: right;">   100</td><td style="text-align: right;">         10.7964</td><td style="text-align: right;">          99</td><td style="text-align: right;">       -4.11597</td></tr>
+<tr><td>objective_558c6132</td><td>TERMINATED</td><td>127.0.0.1:45990</td><td>relu, tanh  </td><td style="text-align: right;"> 33.1252</td><td style="text-align: right;">    100</td><td style="text-align: right;"> 2.12024  </td><td style="text-align: right;"> 4.76727</td><td style="text-align: right;">   100</td><td style="text-align: right;">         10.7659</td><td style="text-align: right;">          99</td><td style="text-align: right;">       -4.76727</td></tr>
+<tr><td>objective_558f27aa</td><td>TERMINATED</td><td>127.0.0.1:45991</td><td>relu, tanh  </td><td style="text-align: right;"> 40.929 </td><td style="text-align: right;">    100</td><td style="text-align: right;"> 0.0138032</td><td style="text-align: right;">13.8907 </td><td style="text-align: right;">   100</td><td style="text-align: right;">         10.785 </td><td style="text-align: right;">          99</td><td style="text-align: right;">      -13.8907 </td></tr>
+<tr><td>objective_5592ca68</td><td>TERMINATED</td><td>127.0.0.1:45992</td><td>relu, tanh  </td><td style="text-align: right;"> 17.9775</td><td style="text-align: right;">    100</td><td style="text-align: right;"> 3.88348  </td><td style="text-align: right;"> 3.05125</td><td style="text-align: right;">   100</td><td style="text-align: right;">         10.7802</td><td style="text-align: right;">          99</td><td style="text-align: right;">       -3.05125</td></tr>
+<tr><td>objective_5b999414</td><td>TERMINATED</td><td>127.0.0.1:46011</td><td>relu, tanh  </td><td style="text-align: right;"> 11.0354</td><td style="text-align: right;">    100</td><td style="text-align: right;"> 3.27423  </td><td style="text-align: right;"> 2.40281</td><td style="text-align: right;">   100</td><td style="text-align: right;">         12.6262</td><td style="text-align: right;">          99</td><td style="text-align: right;">       -2.40281</td></tr>
+<tr><td>objective_5d8462c2</td><td>TERMINATED</td><td>127.0.0.1:46018</td><td>relu, tanh  </td><td style="text-align: right;"> 24.9195</td><td style="text-align: right;">    100</td><td style="text-align: right;"> 4.49273  </td><td style="text-align: right;"> 3.71184</td><td style="text-align: right;">   100</td><td style="text-align: right;">         10.7339</td><td style="text-align: right;">          99</td><td style="text-align: right;">       -3.71184</td></tr>
+</tbody>
+</table><br><br></div><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Result for objective_4bc281fe:
+  date: 2022-07-22_15-19-30
+  done: false
+  experiment_id: 129b24a058ee40fd991fb40844988057
+  hostname: Kais-MacBook-Pro.local
+  iterations: 0
+  iterations_since_restore: 1
+  mean_loss: 13.945321626643842
+  neg_mean_loss: -13.945321626643842
+  node_ip: 127.0.0.1
+  pid: 45958
+  time_since_restore: 0.10440444946289062
+  time_this_iter_s: 0.10440444946289062
+  time_total_s: 0.10440444946289062
+  timestamp: 1658499570
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: 4bc281fe
+  warmup_time: 0.003987789154052734
+  
+Result for objective_4d4ed536:
+  date: 2022-07-22_15-19-33
+  done: false
+  experiment_id: 6c18c359d1574792ac99ed37265d5d87
+  hostname: Kais-MacBook-Pro.local
+  iterations: 0
+  iterations_since_restore: 1
+  mean_loss: 8.373189005362395
+  neg_mean_loss: -8.373189005362395
+  node_ip: 127.0.0.1
+  pid: 45963
+  time_since_restore: 0.10463309288024902
+  time_this_iter_s: 0.10463309288024902
+  time_total_s: 0.10463309288024902
+  timestamp: 1658499573
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: 4d4ed536
+  warmup_time: 0.0028281211853027344
+  
+Result for objective_4d51b38c:
+  date: 2022-07-22_15-19-33
+  done: false
+  experiment_id: 5c9cf6fc35c4411b8ec13e0b90b791a4
+  hostname: Kais-MacBook-Pro.local
+  iterations: 0
+  iterations_since_restore: 1
+  mean_loss: 1.2722313329577961
+  neg_mean_loss: -1.2722313329577961
+  node_ip: 127.0.0.1
+  pid: 45965
+  time_since_restore: 0.10346817970275879
+  time_this_iter_s: 0.10346817970275879
+  time_total_s: 0.10346817970275879
+  timestamp: 1658499573
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: 4d51b38c
+  warmup_time: 0.0027761459350585938
+  
+Result for objective_4d5064aa:
+  date: 2022-07-22_15-19-33
+  done: false
+  experiment_id: 93ed3aa2df8c4f71b0b1e9437c062ccf
+  hostname: Kais-MacBook-Pro.local
+  iterations: 0
+  iterations_since_restore: 1
+  mean_loss: 6.327848408616047
+  neg_mean_loss: -6.327848408616047
+  node_ip: 127.0.0.1
+  pid: 45964
+  time_since_restore: 0.10395598411560059
+  time_this_iter_s: 0.10395598411560059
+  time_total_s: 0.10395598411560059
+  timestamp: 1658499573
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: 4d5064aa
+  warmup_time: 0.002546072006225586
+  
+Result for objective_4bc281fe:
+  date: 2022-07-22_15-19-35
+  done: false
+  experiment_id: 129b24a058ee40fd991fb40844988057
+  hostname: Kais-MacBook-Pro.local
+  iterations: 47
+  iterations_since_restore: 48
+  mean_loss: 4.9297078000588614
+  neg_mean_loss: -4.9297078000588614
+  node_ip: 127.0.0.1
+  pid: 45958
+  time_since_restore: 5.122281312942505
+  time_this_iter_s: 0.10893416404724121
+  time_total_s: 5.122281312942505
+  timestamp: 1658499575
+  timesteps_since_restore: 0
+  training_iteration: 48
+  trial_id: 4bc281fe
+  warmup_time: 0.003987789154052734
+  
+Result for objective_4d4ed536:
+  date: 2022-07-22_15-19-38
+  done: false
+  experiment_id: 6c18c359d1574792ac99ed37265d5d87
+  hostname: Kais-MacBook-Pro.local
+  iterations: 47
+  iterations_since_restore: 48
+  mean_loss: -1.3419437208788234
+  neg_mean_loss: 1.3419437208788234
+  node_ip: 127.0.0.1
+  pid: 45963
+  time_since_restore: 5.132510185241699
+  time_this_iter_s: 0.10718894004821777
+  time_total_s: 5.132510185241699
+  timestamp: 1658499578
+  timesteps_since_restore: 0
+  training_iteration: 48
+  trial_id: 4d4ed536
+  warmup_time: 0.0028281211853027344
+  
+Result for objective_4d51b38c:
+  date: 2022-07-22_15-19-38
+  done: false
+  experiment_id: 5c9cf6fc35c4411b8ec13e0b90b791a4
+  hostname: Kais-MacBook-Pro.local
+  iterations: 47
+  iterations_since_restore: 48
+  mean_loss: -8.58904124947806
+  neg_mean_loss: 8.58904124947806
+  node_ip: 127.0.0.1
+  pid: 45965
+  time_since_restore: 5.1296000480651855
+  time_this_iter_s: 0.10642719268798828
+  time_total_s: 5.1296000480651855
+  timestamp: 1658499578
+  timesteps_since_restore: 0
+  training_iteration: 48
+  trial_id: 4d51b38c
+  warmup_time: 0.0027761459350585938
+  
+Result for objective_4d5064aa:
+  date: 2022-07-22_15-19-38
+  done: false
+  experiment_id: 93ed3aa2df8c4f71b0b1e9437c062ccf
+  hostname: Kais-MacBook-Pro.local
+  iterations: 47
+  iterations_since_restore: 48
+  mean_loss: -3.5332931133029772
+  neg_mean_loss: 3.5332931133029772
+  node_ip: 127.0.0.1
+  pid: 45964
+  time_since_restore: 5.1527419090271
+  time_this_iter_s: 0.10794281959533691
+  time_total_s: 5.1527419090271
+  timestamp: 1658499578
+  timesteps_since_restore: 0
+  training_iteration: 48
+  trial_id: 4d5064aa
+  warmup_time: 0.002546072006225586
+  
+Result for objective_4bc281fe:
+  date: 2022-07-22_15-19-41
+  done: false
+  experiment_id: 129b24a058ee40fd991fb40844988057
+  hostname: Kais-MacBook-Pro.local
+  iterations: 94
+  iterations_since_restore: 95
+  mean_loss: 4.462994199505408
+  neg_mean_loss: -4.462994199505408
+  node_ip: 127.0.0.1
+  pid: 45958
+  time_since_restore: 10.180925369262695
+  time_this_iter_s: 0.10581827163696289
+  time_total_s: 10.180925369262695
+  timestamp: 1658499581
+  timesteps_since_restore: 0
+  training_iteration: 95
+  trial_id: 4bc281fe
+  warmup_time: 0.003987789154052734
+  
+Result for objective_4bc281fe:
+  date: 2022-07-22_15-19-41
+  done: true
+  experiment_id: 129b24a058ee40fd991fb40844988057
+  experiment_tag: 1_activation=relu_tanh,height=29.4532,steps=100,width=1.9486
+  hostname: Kais-MacBook-Pro.local
+  iterations: 99
+  iterations_since_restore: 100
+  mean_loss: 4.438137591322411
+  neg_mean_loss: -4.438137591322411
+  node_ip: 127.0.0.1
+  pid: 45958
+  time_since_restore: 10.71930718421936
+  time_this_iter_s: 0.10692596435546875
+  time_total_s: 10.71930718421936
+  timestamp: 1658499581
+  timesteps_since_restore: 0
+  training_iteration: 100
+  trial_id: 4bc281fe
+  warmup_time: 0.003987789154052734
+  
+Result for objective_4d4ed536:
+  date: 2022-07-22_15-19-43
+  done: false
+  experiment_id: 6c18c359d1574792ac99ed37265d5d87
+  hostname: Kais-MacBook-Pro.local
+  iterations: 93
+  iterations_since_restore: 94
+  mean_loss: -1.48078832328251
+  neg_mean_loss: 1.48078832328251
+  node_ip: 127.0.0.1
+  pid: 45963
+  time_since_restore: 10.033550262451172
+  time_this_iter_s: 0.10465312004089355
+  time_total_s: 10.033550262451172
+  timestamp: 1658499583
+  timesteps_since_restore: 0
+  training_iteration: 94
+  trial_id: 4d4ed536
+  warmup_time: 0.0028281211853027344
+  
+Result for objective_4d51b38c:
+  date: 2022-07-22_15-19-43
+  done: false
+  experiment_id: 5c9cf6fc35c4411b8ec13e0b90b791a4
+  hostname: Kais-MacBook-Pro.local
+  iterations: 93
+  iterations_since_restore: 94
+  mean_loss: -8.657174711294605
+  neg_mean_loss: 8.657174711294605
+  node_ip: 127.0.0.1
+  pid: 45965
+  time_since_restore: 10.026285171508789
+  time_this_iter_s: 0.10726714134216309
+  time_total_s: 10.026285171508789
+  timestamp: 1658499583
+  timesteps_since_restore: 0
+  training_iteration: 94
+  trial_id: 4d51b38c
+  warmup_time: 0.0027761459350585938
+  
+Result for objective_4d5064aa:
+  date: 2022-07-22_15-19-43
+  done: false
+  experiment_id: 93ed3aa2df8c4f71b0b1e9437c062ccf
+  hostname: Kais-MacBook-Pro.local
+  iterations: 93
+  iterations_since_restore: 94
+  mean_loss: -3.601490481891755
+  neg_mean_loss: 3.601490481891755
+  node_ip: 127.0.0.1
+  pid: 45964
+  time_since_restore: 10.049538135528564
+  time_this_iter_s: 0.10654830932617188
+  time_total_s: 10.049538135528564
+  timestamp: 1658499583
+  timesteps_since_restore: 0
+  training_iteration: 94
+  trial_id: 4d5064aa
+  warmup_time: 0.002546072006225586
+  
+Result for objective_53b39e84:
+  date: 2022-07-22_15-19-44
+  done: false
+  experiment_id: abfeeaaa7eae4ad798c655bed2d1e223
+  hostname: Kais-MacBook-Pro.local
+  iterations: 0
+  iterations_since_restore: 1
+  mean_loss: 13.57812082128205
+  neg_mean_loss: -13.57812082128205
+  node_ip: 127.0.0.1
+  pid: 45983
+  time_since_restore: 0.10458230972290039
+  time_this_iter_s: 0.10458230972290039
+  time_total_s: 0.10458230972290039
+  timestamp: 1658499584
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: 53b39e84
+  warmup_time: 0.002878904342651367
+  
+Result for objective_4d4ed536:
+  date: 2022-07-22_15-19-44
+  done: true
+  experiment_id: 6c18c359d1574792ac99ed37265d5d87
+  experiment_tag: 2_activation=relu_tanh,height=-26.2681,steps=100,width=7.2562
+  hostname: Kais-MacBook-Pro.local
+  iterations: 99
+  iterations_since_restore: 100
+  mean_loss: -1.489516678620475
+  neg_mean_loss: 1.489516678620475
+  node_ip: 127.0.0.1
+  pid: 45963
+  time_since_restore: 11.193175077438354
+  time_this_iter_s: 0.11231780052185059
+  time_total_s: 11.193175077438354
+  timestamp: 1658499584
+  timesteps_since_restore: 0
+  training_iteration: 100
+  trial_id: 4d4ed536
+  warmup_time: 0.0028281211853027344
+  
+Result for objective_4d51b38c:
+  date: 2022-07-22_15-19-44
+  done: true
+  experiment_id: 5c9cf6fc35c4411b8ec13e0b90b791a4
+  experiment_tag: 4_activation=relu_tanh,height=-97.2777,steps=100,width=15.1242
+  hostname: Kais-MacBook-Pro.local
+  iterations: 99
+  iterations_since_restore: 100
+  mean_loss: -8.661424748129757
+  neg_mean_loss: 8.661424748129757
+  node_ip: 127.0.0.1
+  pid: 45965
+  time_since_restore: 11.19774603843689
+  time_this_iter_s: 0.10802578926086426
+  time_total_s: 11.19774603843689
+  timestamp: 1658499584
+  timesteps_since_restore: 0
+  training_iteration: 100
+  trial_id: 4d51b38c
+  warmup_time: 0.0027761459350585938
+  
+Result for objective_4d5064aa:
+  date: 2022-07-22_15-19-44
+  done: true
+  experiment_id: 93ed3aa2df8c4f71b0b1e9437c062ccf
+  experiment_tag: 3_activation=relu_tanh,height=-46.7215,steps=100,width=15.1097
+  hostname: Kais-MacBook-Pro.local
+  iterations: 99
+  iterations_since_restore: 100
+  mean_loss: -3.6057445346106167
+  neg_mean_loss: 3.6057445346106167
+  node_ip: 127.0.0.1
+  pid: 45964
+  time_since_restore: 11.198285102844238
+  time_this_iter_s: 0.10615801811218262
+  time_total_s: 11.198285102844238
+  timestamp: 1658499584
+  timesteps_since_restore: 0
+  training_iteration: 100
+  trial_id: 4d5064aa
+  warmup_time: 0.002546072006225586
+  
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Result for objective_558c6132:
+  date: 2022-07-22_15-19-47
+  done: false
+  experiment_id: 98df2ca60c5f4a33a3da6870c3d8db4c
+  hostname: Kais-MacBook-Pro.local
+  iterations: 0
+  iterations_since_restore: 1
+  mean_loss: 14.31252243200564
+  neg_mean_loss: -14.31252243200564
+  node_ip: 127.0.0.1
+  pid: 45990
+  time_since_restore: 0.10317206382751465
+  time_this_iter_s: 0.10317206382751465
+  time_total_s: 0.10317206382751465
+  timestamp: 1658499587
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: 558c6132
+  warmup_time: 0.003049135208129883
+  
+Result for objective_558f27aa:
+  date: 2022-07-22_15-19-47
+  done: false
+  experiment_id: 73def1ffc7f443669328b88695453248
+  hostname: Kais-MacBook-Pro.local
+  iterations: 0
+  iterations_since_restore: 1
+  mean_loss: 15.092898207127158
+  neg_mean_loss: -15.092898207127158
+  node_ip: 127.0.0.1
+  pid: 45991
+  time_since_restore: 0.10495114326477051
+  time_this_iter_s: 0.10495114326477051
+  time_total_s: 0.10495114326477051
+  timestamp: 1658499587
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: 558f27aa
+  warmup_time: 0.0029478073120117188
+  
+Result for objective_5592ca68:
+  date: 2022-07-22_15-19-47
+  done: false
+  experiment_id: 1de409fb58a84c3bba522620ec7e1fe4
+  hostname: Kais-MacBook-Pro.local
+  iterations: 0
+  iterations_since_restore: 1
+  mean_loss: 12.79774504616053
+  neg_mean_loss: -12.79774504616053
+  node_ip: 127.0.0.1
+  pid: 45992
+  time_since_restore: 0.10448837280273438
+  time_this_iter_s: 0.10448837280273438
+  time_total_s: 0.10448837280273438
+  timestamp: 1658499587
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: 5592ca68
+  warmup_time: 0.0027618408203125
+  
+Result for objective_53b39e84:
+  date: 2022-07-22_15-19-49
+  done: false
+  experiment_id: abfeeaaa7eae4ad798c655bed2d1e223
+  hostname: Kais-MacBook-Pro.local
+  iterations: 46
+  iterations_since_restore: 47
+  mean_loss: 4.668111815725785
+  neg_mean_loss: -4.668111815725785
+  node_ip: 127.0.0.1
+  pid: 45983
+  time_since_restore: 5.113715171813965
+  time_this_iter_s: 0.10550904273986816
+  time_total_s: 5.113715171813965
+  timestamp: 1658499589
+  timesteps_since_restore: 0
+  training_iteration: 47
+  trial_id: 53b39e84
+  warmup_time: 0.002878904342651367
+  
+Result for objective_558c6132:
+  date: 2022-07-22_15-19-52
+  done: false
+  experiment_id: 98df2ca60c5f4a33a3da6870c3d8db4c
+  hostname: Kais-MacBook-Pro.local
+  iterations: 47
+  iterations_since_restore: 48
+  mean_loss: 5.2245036670526375
+  neg_mean_loss: -5.2245036670526375
+  node_ip: 127.0.0.1
+  pid: 45990
+  time_since_restore: 5.1552488803863525
+  time_this_iter_s: 0.10927176475524902
+  time_total_s: 5.1552488803863525
+  timestamp: 1658499592
+  timesteps_since_restore: 0
+  training_iteration: 48
+  trial_id: 558c6132
+  warmup_time: 0.003049135208129883
+  
+Result for objective_558f27aa:
+  date: 2022-07-22_15-19-52
+  done: false
+  experiment_id: 73def1ffc7f443669328b88695453248
+  hostname: Kais-MacBook-Pro.local
+  iterations: 47
+  iterations_since_restore: 48
+  mean_loss: 14.483670237907232
+  neg_mean_loss: -14.483670237907232
+  node_ip: 127.0.0.1
+  pid: 45991
+  time_since_restore: 5.174212217330933
+  time_this_iter_s: 0.10701107978820801
+  time_total_s: 5.174212217330933
+  timestamp: 1658499592
+  timesteps_since_restore: 0
+  training_iteration: 48
+  trial_id: 558f27aa
+  warmup_time: 0.0029478073120117188
+  
+Result for objective_5592ca68:
+  date: 2022-07-22_15-19-52
+  done: false
+  experiment_id: 1de409fb58a84c3bba522620ec7e1fe4
+  hostname: Kais-MacBook-Pro.local
+  iterations: 47
+  iterations_since_restore: 48
+  mean_loss: 3.3171620341364583
+  neg_mean_loss: -3.3171620341364583
+  node_ip: 127.0.0.1
+  pid: 45992
+  time_since_restore: 5.171269178390503
+  time_this_iter_s: 0.10331320762634277
+  time_total_s: 5.171269178390503
+  timestamp: 1658499592
+  timesteps_since_restore: 0
+  training_iteration: 48
+  trial_id: 5592ca68
+  warmup_time: 0.0027618408203125
+  
+Result for objective_53b39e84:
+  date: 2022-07-22_15-19-54
+  done: false
+  experiment_id: abfeeaaa7eae4ad798c655bed2d1e223
+  hostname: Kais-MacBook-Pro.local
+  iterations: 93
+  iterations_since_restore: 94
+  mean_loss: 4.148686061272061
+  neg_mean_loss: -4.148686061272061
+  node_ip: 127.0.0.1
+  pid: 45983
+  time_since_restore: 10.137071132659912
+  time_this_iter_s: 0.10901093482971191
+  time_total_s: 10.137071132659912
+  timestamp: 1658499594
+  timesteps_since_restore: 0
+  training_iteration: 94
+  trial_id: 53b39e84
+  warmup_time: 0.002878904342651367
+  
+Result for objective_53b39e84:
+  date: 2022-07-22_15-19-54
+  done: true
+  experiment_id: abfeeaaa7eae4ad798c655bed2d1e223
+  experiment_tag: 5_activation=relu_tanh,height=25.7812,steps=100,width=1.7770
+  hostname: Kais-MacBook-Pro.local
+  iterations: 99
+  iterations_since_restore: 100
+  mean_loss: 4.1159662035734215
+  neg_mean_loss: -4.1159662035734215
+  node_ip: 127.0.0.1
+  pid: 45983
+  time_since_restore: 10.796404361724854
+  time_this_iter_s: 0.10543107986450195
+  time_total_s: 10.796404361724854
+  timestamp: 1658499594
+  timesteps_since_restore: 0
+  training_iteration: 100
+  trial_id: 53b39e84
+  warmup_time: 0.002878904342651367
+  
+Result for objective_5b999414:
+  date: 2022-07-22_15-19-57
+  done: false
+  experiment_id: 5548713c4f5046c0a44e1946db840d73
+  hostname: Kais-MacBook-Pro.local
+  iterations: 0
+  iterations_since_restore: 1
+  mean_loss: 12.103540718376786
+  neg_mean_loss: -12.103540718376786
+  node_ip: 127.0.0.1
+  pid: 46011
+  time_since_restore: 0.10435795783996582
+  time_this_iter_s: 0.10435795783996582
+  time_total_s: 0.10435795783996582
+  timestamp: 1658499597
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: 5b999414
+  warmup_time: 0.002862691879272461
+  
+Result for objective_558c6132:
+  date: 2022-07-22_15-19-57
+  done: false
+  experiment_id: 98df2ca60c5f4a33a3da6870c3d8db4c
+  hostname: Kais-MacBook-Pro.local
+  iterations: 94
+  iterations_since_restore: 95
+  mean_loss: 4.790299222921972
+  neg_mean_loss: -4.790299222921972
+  node_ip: 127.0.0.1
+  pid: 45990
+  time_since_restore: 10.228116989135742
+  time_this_iter_s: 0.146165132522583
+  time_total_s: 10.228116989135742
+  timestamp: 1658499597
+  timesteps_since_restore: 0
+  training_iteration: 95
+  trial_id: 558c6132
+  warmup_time: 0.003049135208129883
+  
+Result for objective_558f27aa:
+  date: 2022-07-22_15-19-57
+  done: false
+  experiment_id: 73def1ffc7f443669328b88695453248
+  hostname: Kais-MacBook-Pro.local
+  iterations: 94
+  iterations_since_restore: 95
+  mean_loss: 13.944411303108408
+  neg_mean_loss: -13.944411303108408
+  node_ip: 127.0.0.1
+  pid: 45991
+  time_since_restore: 10.248456001281738
+  time_this_iter_s: 0.13899707794189453
+  time_total_s: 10.248456001281738
+  timestamp: 1658499597
+  timesteps_since_restore: 0
+  training_iteration: 95
+  trial_id: 558f27aa
+  warmup_time: 0.0029478073120117188
+  
+Result for objective_5592ca68:
+  date: 2022-07-22_15-19-57
+  done: false
+  experiment_id: 1de409fb58a84c3bba522620ec7e1fe4
+  hostname: Kais-MacBook-Pro.local
+  iterations: 94
+  iterations_since_restore: 95
+  mean_loss: 3.064378230421662
+  neg_mean_loss: -3.064378230421662
+  node_ip: 127.0.0.1
+  pid: 45992
+  time_since_restore: 10.244185209274292
+  time_this_iter_s: 0.16223502159118652
+  time_total_s: 10.244185209274292
+  timestamp: 1658499597
+  timesteps_since_restore: 0
+  training_iteration: 95
+  trial_id: 5592ca68
+  warmup_time: 0.0027618408203125
+  
+Result for objective_558c6132:
+  date: 2022-07-22_15-19-58
+  done: true
+  experiment_id: 98df2ca60c5f4a33a3da6870c3d8db4c
+  experiment_tag: 6_activation=relu_tanh,height=33.1252,steps=100,width=2.1202
+  hostname: Kais-MacBook-Pro.local
+  iterations: 99
+  iterations_since_restore: 100
+  mean_loss: 4.767266385536331
+  neg_mean_loss: -4.767266385536331
+  node_ip: 127.0.0.1
+  pid: 45990
+  time_since_restore: 10.765881776809692
+  time_this_iter_s: 0.10750794410705566
+  time_total_s: 10.765881776809692
+  timestamp: 1658499598
+  timesteps_since_restore: 0
+  training_iteration: 100
+  trial_id: 558c6132
+  warmup_time: 0.003049135208129883
+  
+Result for objective_558f27aa:
+  date: 2022-07-22_15-19-58
+  done: true
+  experiment_id: 73def1ffc7f443669328b88695453248
+  experiment_tag: 7_activation=relu_tanh,height=40.9290,steps=100,width=0.0138
+  hostname: Kais-MacBook-Pro.local
+  iterations: 99
+  iterations_since_restore: 100
+  mean_loss: 13.890665978269285
+  neg_mean_loss: -13.890665978269285
+  node_ip: 127.0.0.1
+  pid: 45991
+  time_since_restore: 10.784975051879883
+  time_this_iter_s: 0.10729503631591797
+  time_total_s: 10.784975051879883
+  timestamp: 1658499598
+  timesteps_since_restore: 0
+  training_iteration: 100
+  trial_id: 558f27aa
+  warmup_time: 0.0029478073120117188
+  
+Result for objective_5592ca68:
+  date: 2022-07-22_15-19-58
+  done: true
+  experiment_id: 1de409fb58a84c3bba522620ec7e1fe4
+  experiment_tag: 8_activation=relu_tanh,height=17.9775,steps=100,width=3.8835
+  hostname: Kais-MacBook-Pro.local
+  iterations: 99
+  iterations_since_restore: 100
+  mean_loss: 3.0512532903599245
+  neg_mean_loss: -3.0512532903599245
+  node_ip: 127.0.0.1
+  pid: 45992
+  time_since_restore: 10.780152082443237
+  time_this_iter_s: 0.10820770263671875
+  time_total_s: 10.780152082443237
+  timestamp: 1658499598
+  timesteps_since_restore: 0
+  training_iteration: 100
+  trial_id: 5592ca68
+  warmup_time: 0.0027618408203125
+  
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Result for objective_5d8462c2:
+  date: 2022-07-22_15-20-00
+  done: false
+  experiment_id: 37975742a6894daeb580d222effadf3c
+  hostname: Kais-MacBook-Pro.local
+  iterations: 0
+  iterations_since_restore: 1
+  mean_loss: 13.491949373944276
+  neg_mean_loss: -13.491949373944276
+  node_ip: 127.0.0.1
+  pid: 46018
+  time_since_restore: 0.1021728515625
+  time_this_iter_s: 0.1021728515625
+  time_total_s: 0.1021728515625
+  timestamp: 1658499600
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: 5d8462c2
+  warmup_time: 0.0030527114868164062
+  
+Result for objective_5b999414:
+  date: 2022-07-22_15-20-02
+  done: false
+  experiment_id: 5548713c4f5046c0a44e1946db840d73
+  hostname: Kais-MacBook-Pro.local
+  iterations: 29
+  iterations_since_restore: 30
+  mean_loss: 3.0563505542773735
+  neg_mean_loss: -3.0563505542773735
+  node_ip: 127.0.0.1
+  pid: 46011
+  time_since_restore: 5.116016149520874
+  time_this_iter_s: 0.1060340404510498
+  time_total_s: 5.116016149520874
+  timestamp: 1658499602
+  timesteps_since_restore: 0
+  training_iteration: 30
+  trial_id: 5b999414
+  warmup_time: 0.002862691879272461
+  
+Result for objective_5d8462c2:
+  date: 2022-07-22_15-20-05
+  done: false
+  experiment_id: 37975742a6894daeb580d222effadf3c
+  hostname: Kais-MacBook-Pro.local
+  iterations: 47
+  iterations_since_restore: 48
+  mean_loss: 3.9441144421537513
+  neg_mean_loss: -3.9441144421537513
+  node_ip: 127.0.0.1
+  pid: 46018
+  time_since_restore: 5.143904685974121
+  time_this_iter_s: 0.1046457290649414
+  time_total_s: 5.143904685974121
+  timestamp: 1658499605
+  timesteps_since_restore: 0
+  training_iteration: 48
+  trial_id: 5d8462c2
+  warmup_time: 0.0030527114868164062
+  
+Result for objective_5b999414:
+  date: 2022-07-22_15-20-07
+  done: false
+  experiment_id: 5548713c4f5046c0a44e1946db840d73
+  hostname: Kais-MacBook-Pro.local
+  iterations: 76
+  iterations_since_restore: 77
+  mean_loss: 2.4898772989369
+  neg_mean_loss: -2.4898772989369
+  node_ip: 127.0.0.1
+  pid: 46011
+  time_since_restore: 10.162328004837036
+  time_this_iter_s: 0.10597825050354004
+  time_total_s: 10.162328004837036
+  timestamp: 1658499607
+  timesteps_since_restore: 0
+  training_iteration: 77
+  trial_id: 5b999414
+  warmup_time: 0.002862691879272461
+  
+Result for objective_5b999414:
+  date: 2022-07-22_15-20-09
+  done: true
+  experiment_id: 5548713c4f5046c0a44e1946db840d73
+  experiment_tag: 9_activation=relu_tanh,height=11.0354,steps=100,width=3.2742
+  hostname: Kais-MacBook-Pro.local
+  iterations: 99
+  iterations_since_restore: 100
+  mean_loss: 2.4028084118568103
+  neg_mean_loss: -2.4028084118568103
+  node_ip: 127.0.0.1
+  pid: 46011
+  time_since_restore: 12.626188039779663
+  time_this_iter_s: 0.10697293281555176
+  time_total_s: 12.626188039779663
+  timestamp: 1658499609
+  timesteps_since_restore: 0
+  training_iteration: 100
+  trial_id: 5b999414
+  warmup_time: 0.002862691879272461
+  
+Result for objective_5d8462c2:
+  date: 2022-07-22_15-20-10
+  done: false
+  experiment_id: 37975742a6894daeb580d222effadf3c
+  hostname: Kais-MacBook-Pro.local
+  iterations: 94
+  iterations_since_restore: 95
+  mean_loss: 3.723261470545891
+  neg_mean_loss: -3.723261470545891
+  node_ip: 127.0.0.1
+  pid: 46018
+  time_since_restore: 10.198927879333496
+  time_this_iter_s: 0.10776281356811523
+  time_total_s: 10.198927879333496
+  timestamp: 1658499610
+  timesteps_since_restore: 0
+  training_iteration: 95
+  trial_id: 5d8462c2
+  warmup_time: 0.0030527114868164062
+  
+Result for objective_5d8462c2:
+  date: 2022-07-22_15-20-11
+  done: true
+  experiment_id: 37975742a6894daeb580d222effadf3c
+  experiment_tag: 10_activation=relu_tanh,height=24.9195,steps=100,width=4.4927
+  hostname: Kais-MacBook-Pro.local
+  iterations: 99
+  iterations_since_restore: 100
+  mean_loss: 3.711835922326217
+  neg_mean_loss: -3.711835922326217
+  node_ip: 127.0.0.1
+  pid: 46018
+  time_since_restore: 10.733852863311768
+  time_this_iter_s: 0.10374593734741211
+  time_total_s: 10.733852863311768
+  timestamp: 1658499611
+  timesteps_since_restore: 0
+  training_iteration: 100
+  trial_id: 5d8462c2
+  warmup_time: 0.0030527114868164062
+  
+</pre></div>
+</div>
+</div>
+</div>
+<p>Here are the hyperparameters found to minimize the mean loss of the defined objective.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Best hyperparameters found were: &quot;</span><span class="p">,</span> <span class="n">results</span><span class="o">.</span><span class="n">get_best_result</span><span class="p">()</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Best hyperparameters found were:  {&#39;steps&#39;: 100, &#39;width&#39;: 15.124213652112319, &#39;height&#39;: -97.27768667042203, &#39;activation&#39;: &#39;relu, tanh&#39;}
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="bayesopt_example.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Running Tune experiments with BayesOpt</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="bohb_example.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Running Tune experiments with BOHB</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

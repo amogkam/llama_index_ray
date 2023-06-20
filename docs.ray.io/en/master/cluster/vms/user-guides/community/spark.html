@@ -1,0 +1,855 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Deploying on Spark Standalone cluster &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/clipboard.min.js"></script>
+    <script src="../../../../_static/copybutton.js"></script>
+    <script src="../../../../_static/js/versionwarning.js"></script>
+    <script src="../../../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../../../_static/js/docsearch.js"></script>
+    <script src="../../../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../../../_static/js/top-navigation.js"></script>
+    <script src="../../../../_static/js/tags.js"></script>
+    <script src="../../../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/cluster/vms/user-guides/community/spark.html" />
+    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="Examples" href="../../examples/index.html" />
+    <link rel="prev" title="Deploying on LSF" href="lsf.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "cluster/vms/user-guides/community/spark", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".rst", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../tune.html">
+   Ray Tune
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../../../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../kubernetes/index.html">
+     Deploying on Kubernetes
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="../../index.html">
+     Deploying on VMs
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../getting-started.html">
+       Getting Started
+      </a>
+     </li>
+     <li class="toctree-l3 current active has-children">
+      <a class="reference internal" href="../index.html">
+       User Guides
+      </a>
+      <input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+      <label for="toctree-checkbox-3">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul class="current">
+       <li class="toctree-l4">
+        <a class="reference internal" href="../launching-clusters/index.html">
+         Launching Ray Clusters on AWS, GCP, Azure, On-Prem
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../large-cluster-best-practices.html">
+         Best practices for deploying large clusters
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../configuring-autoscaling.html">
+         Configuring Autoscaling
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../logging.html">
+         Log Persistence
+        </a>
+       </li>
+       <li class="toctree-l4 current active">
+        <a class="reference internal" href="index.html">
+         Community Supported Cluster Managers
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../examples/index.html">
+       Examples
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../references/index.html">
+       API References
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../metrics.html">
+     Collecting and monitoring metrics
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../configure-manage-dashboard.html">
+     Configuring and Managing Ray Dashboard
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../running-applications/index.html">
+     Applications Guide
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../faq.html">
+     FAQ
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../package-overview.html">
+     Ray Cluster Management API
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Fcluster/vms/user-guides/community/spark.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/cluster/vms/user-guides/community/spark.rst"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../../../_sources/cluster/vms/user-guides/community/spark.rst.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.rst</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="spark.html#running-a-basic-example">
+   Running a basic example
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="spark.html#creating-a-long-running-ray-cluster-on-spark-cluster">
+   Creating a long running ray cluster on spark cluster
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="spark.html#ray-on-spark-apis">
+   Ray on Spark APIs
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Deploying on Spark Standalone cluster</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="spark.html#running-a-basic-example">
+   Running a basic example
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="spark.html#creating-a-long-running-ray-cluster-on-spark-cluster">
+   Creating a long running ray cluster on spark cluster
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="spark.html#ray-on-spark-apis">
+   Ray on Spark APIs
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section id="deploying-on-spark-standalone-cluster">
+<span id="ray-spark-deploy"></span><h1>Deploying on Spark Standalone cluster<a class="headerlink" href="spark.html#deploying-on-spark-standalone-cluster" title="Permalink to this headline">#</a></h1>
+<p>This document describes a couple high-level steps to run Ray clusters on <a class="reference external" href="https://spark.apache.org/docs/latest/spark-standalone.html">Spark Standalone cluster</a>.</p>
+<section id="running-a-basic-example">
+<h2>Running a basic example<a class="headerlink" href="spark.html#running-a-basic-example" title="Permalink to this headline">#</a></h2>
+<p>This is a spark application example code that starts Ray cluster on spark,
+and then execute ray application code, then shut down initiated ray cluster.</p>
+<p>1) Create a python file that contains a spark application code,
+Assuming the python file name is ‘ray-on-spark-example1.py’.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">SparkSession</span>
+<span class="kn">from</span> <span class="nn">ray.util.spark</span> <span class="kn">import</span> <span class="n">setup_ray_cluster</span><span class="p">,</span> <span class="n">shutdown_ray_cluster</span><span class="p">,</span> <span class="n">MAX_NUM_WORKER_NODES</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">spark</span> <span class="o">=</span> <span class="n">SparkSession</span> \
+        <span class="o">.</span><span class="n">builder</span> \
+        <span class="o">.</span><span class="n">appName</span><span class="p">(</span><span class="s2">&quot;Ray on spark example 1&quot;</span><span class="p">)</span> \
+        <span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s2">&quot;spark.task.cpus&quot;</span><span class="p">,</span> <span class="s2">&quot;4&quot;</span><span class="p">)</span> \
+        <span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
+
+    <span class="c1"># Set up a ray cluster on this spark application, it creates a background</span>
+    <span class="c1"># spark job that each spark task launches one ray worker node.</span>
+    <span class="c1"># ray head node is launched in spark application driver side.</span>
+    <span class="c1"># Resources (CPU / GPU / memory) allocated to each ray worker node is equal</span>
+    <span class="c1"># to resources allocated to the corresponding spark task.</span>
+    <span class="n">setup_ray_cluster</span><span class="p">(</span><span class="n">num_worker_nodes</span><span class="o">=</span><span class="n">MAX_NUM_WORKER_NODES</span><span class="p">)</span>
+
+    <span class="c1"># You can any ray application code here, the ray application will be executed</span>
+    <span class="c1"># on the ray cluster setup above.</span>
+    <span class="c1"># You don&#39;t need to set address for `ray.init`,</span>
+    <span class="c1"># it will connect to the cluster created above automatically.</span>
+    <span class="n">ray</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+    <span class="o">...</span>
+
+    <span class="c1"># Terminate ray cluster explicitly.</span>
+    <span class="c1"># If you don&#39;t call it, when spark application is terminated, the ray cluster</span>
+    <span class="c1"># will also be terminated.</span>
+    <span class="n">shutdown_ray_cluster</span><span class="p">()</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Submit the spark application above to spark standalone cluster.</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+spark-submit <span class="se">\</span>
+  --master spark://<span class="o">{</span>spark_master_IP<span class="o">}</span>:<span class="o">{</span>spark_master_port<span class="o">}</span> <span class="se">\</span>
+  path/to/ray-on-spark-example1.py
+</pre></div>
+</div>
+</section>
+<section id="creating-a-long-running-ray-cluster-on-spark-cluster">
+<h2>Creating a long running ray cluster on spark cluster<a class="headerlink" href="spark.html#creating-a-long-running-ray-cluster-on-spark-cluster" title="Permalink to this headline">#</a></h2>
+<p>This is a spark application example code that starts a long running Ray cluster on spark.
+The created ray cluster can be accessed by remote python processes.</p>
+<p>1) Create a python file that contains a spark application code,
+Assuming the python file name is ‘long-running-ray-cluster-on-spark.py’.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">SparkSession</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">ray.util.spark</span> <span class="kn">import</span> <span class="n">setup_ray_cluster</span><span class="p">,</span> <span class="n">MAX_NUM_WORKER_NODES</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">spark</span> <span class="o">=</span> <span class="n">SparkSession</span> \
+        <span class="o">.</span><span class="n">builder</span> \
+        <span class="o">.</span><span class="n">appName</span><span class="p">(</span><span class="s2">&quot;long running ray cluster on spark&quot;</span><span class="p">)</span> \
+        <span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s2">&quot;spark.task.cpus&quot;</span><span class="p">,</span> <span class="s2">&quot;4&quot;</span><span class="p">)</span> \
+        <span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
+
+    <span class="n">cluster_address</span> <span class="o">=</span> <span class="n">setup_ray_cluster</span><span class="p">(</span>
+        <span class="n">num_worker_nodes</span><span class="o">=</span><span class="n">MAX_NUM_WORKER_NODES</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Ray cluster is set up, you can connect to this ray cluster &quot;</span>
+          <span class="sa">f</span><span class="s2">&quot;via address ray://</span><span class="si">{</span><span class="n">cluster_address</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Sleep forever until the spark application being terminated,</span>
+    <span class="c1"># at that time, the ray cluster will also be terminated.</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Submit the spark application above to spark standalone cluster.</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+spark-submit <span class="se">\</span>
+  --master spark://<span class="o">{</span>spark_master_IP<span class="o">}</span>:<span class="o">{</span>spark_master_port<span class="o">}</span> <span class="se">\</span>
+  path/to/long-running-ray-cluster-on-spark.py
+</pre></div>
+</div>
+</section>
+<section id="ray-on-spark-apis">
+<h2>Ray on Spark APIs<a class="headerlink" href="spark.html#ray-on-spark-apis" title="Permalink to this headline">#</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="ray.util.spark.setup_ray_cluster">
+<span class="sig-prename descclassname"><span class="pre">ray.util.spark.</span></span><span class="sig-name descname"><span class="pre">setup_ray_cluster</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_worker_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_cpus_per_node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_gpus_per_node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object_store_memory_per_node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">head_node_options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">worker_node_options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ray_temp_root_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collect_log_to_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../../../_modules/ray/util/spark/cluster_init.html#setup_ray_cluster"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="spark.html#ray.util.spark.setup_ray_cluster" title="Permalink to this definition">#</a></dt>
+<dd><p>Set up a ray cluster on the spark cluster by starting a ray head node in the
+spark application’s driver side node.
+After creating the head node, a background spark job is created that
+generates an instance of <code class="xref py py-obj docutils literal notranslate"><span class="pre">RayClusterOnSpark</span></code> that contains configuration for the
+ray cluster that will run on the Spark cluster’s worker nodes.
+After a ray cluster is set up, “RAY_ADDRESS” environment variable is set to
+the cluster address, so you can call <a class="reference internal" href="../../../../ray-core/api/doc/ray.init.html#ray.init" title="ray.init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ray.init()</span></code></a> without specifying ray cluster
+address to connect to the cluster. To shut down the cluster you can call
+<a class="reference internal" href="spark.html#ray.util.spark.shutdown_ray_cluster" title="ray.util.spark.shutdown_ray_cluster"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ray.util.spark.shutdown_ray_cluster()</span></code></a>.
+Note: If the active ray cluster haven’t shut down, you cannot create a new ray
+cluster.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_worker_nodes</strong> – This argument represents how many ray worker nodes to start
+for the ray cluster.
+Specifying the <code class="xref py py-obj docutils literal notranslate"><span class="pre">num_worker_nodes</span></code> as <code class="xref py py-obj docutils literal notranslate"><span class="pre">ray.util.spark.MAX_NUM_WORKER_NODES</span></code>
+represents a ray cluster
+configuration that will use all available resources configured for the
+spark application.
+To create a spark application that is intended to exclusively run a
+shared ray cluster, it is recommended to set this argument to
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">ray.util.spark.MAX_NUM_WORKER_NODES</span></code>.</p></li>
+<li><p><strong>num_cpus_per_node</strong> – Number of cpus available to per-ray worker node, if not
+provided, use spark application configuration ‘spark.task.cpus’ instead.
+<strong>Limitation</strong> Only spark version &gt;= 3.4 or Databricks Runtime 12.x
+supports setting this argument.</p></li>
+<li><p><strong>num_gpus_per_node</strong> – Number of gpus available to per-ray worker node, if not
+provided, use spark application configuration
+‘spark.task.resource.gpu.amount’ instead.
+This argument is only available on spark cluster that is configured with
+‘gpu’ resources.
+<strong>Limitation</strong> Only spark version &gt;= 3.4 or Databricks Runtime 12.x
+supports setting this argument.</p></li>
+<li><p><strong>object_store_memory_per_node</strong> – Object store memory available to per-ray worker
+node, but it is capped by
+“dev_shm_available_size * 0.8 / num_tasks_per_spark_worker”.
+The default value equals to
+“0.3 * spark_worker_physical_memory * 0.8 / num_tasks_per_spark_worker”.</p></li>
+<li><p><strong>head_node_options</strong> – A dict representing Ray head node extra options, these
+options will be passed to <code class="xref py py-obj docutils literal notranslate"><span class="pre">ray</span> <span class="pre">start</span></code> script. Note you need to convert
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">ray</span> <span class="pre">start</span></code> options key from <code class="xref py py-obj docutils literal notranslate"><span class="pre">--foo-bar</span></code> format to <code class="xref py py-obj docutils literal notranslate"><span class="pre">foo_bar</span></code> format.
+For flag options (e.g. ‘–disable-usage-stats’), you should set the value
+to None in the option dict, like <code class="xref py py-obj docutils literal notranslate"><span class="pre">{&quot;disable_usage_stats&quot;:</span> <span class="pre">None}</span></code>.
+Note: Short name options (e.g. ‘-v’) are not supported.</p></li>
+<li><p><strong>worker_node_options</strong> – A dict representing Ray worker node extra options,
+these options will be passed to <code class="xref py py-obj docutils literal notranslate"><span class="pre">ray</span> <span class="pre">start</span></code> script. Note you need to
+convert <code class="xref py py-obj docutils literal notranslate"><span class="pre">ray</span> <span class="pre">start</span></code> options key from <code class="xref py py-obj docutils literal notranslate"><span class="pre">--foo-bar</span></code> format to <code class="xref py py-obj docutils literal notranslate"><span class="pre">foo_bar</span></code>
+format.
+For flag options (e.g. ‘–disable-usage-stats’), you should set the value
+to None in the option dict, like <code class="xref py py-obj docutils literal notranslate"><span class="pre">{&quot;disable_usage_stats&quot;:</span> <span class="pre">None}</span></code>.
+Note: Short name options (e.g. ‘-v’) are not supported.</p></li>
+<li><p><strong>ray_temp_root_dir</strong> – A local disk path to store the ray temporary data. The
+created cluster will create a subdirectory
+“ray-{head_port}-{random_suffix}” beneath this path.</p></li>
+<li><p><strong>strict_mode</strong> – Boolean flag to fast-fail initialization of the ray cluster if
+the available spark cluster does not have sufficient resources to fulfill
+the resource allocation for memory, cpu and gpu. When set to true, if the
+requested resources are not available for recommended minimum recommended
+functionality, an exception will be raised that details the inadequate
+spark cluster configuration settings. If overridden as <code class="xref py py-obj docutils literal notranslate"><span class="pre">False</span></code>,
+a warning is raised.</p></li>
+<li><p><strong>collect_log_to_path</strong> – If specified, after ray head / worker nodes terminated,
+collect their logs to the specified path. On Databricks Runtime, we
+recommend you to specify a local path starts with ‘/dbfs/’, because the
+path mounts with a centralized storage device and stored data is persisted
+after Databricks spark cluster terminated.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The address of the initiated Ray cluster on spark.</p>
+</dd>
+</dl>
+<p><strong>PublicAPI (alpha):</strong> This API is in alpha and may change before becoming stable.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ray.util.spark.shutdown_ray_cluster">
+<span class="sig-prename descclassname"><span class="pre">ray.util.spark.</span></span><span class="sig-name descname"><span class="pre">shutdown_ray_cluster</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../../_modules/ray/util/spark/cluster_init.html#shutdown_ray_cluster"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="spark.html#ray.util.spark.shutdown_ray_cluster" title="Permalink to this definition">#</a></dt>
+<dd><blockquote>
+<div><p>Shut down the active ray cluster.</p>
+</div></blockquote>
+<p><strong>PublicAPI (alpha):</strong> This API is in alpha and may change before becoming stable.</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="lsf.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Deploying on LSF</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="../../examples/index.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Examples</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

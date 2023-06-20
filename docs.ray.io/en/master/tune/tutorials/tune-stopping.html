@@ -1,0 +1,981 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>How to Define Stopping Criteria for a Ray Tune Experiment &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/js/versionwarning.js"></script>
+    <script src="../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../_static/js/docsearch.js"></script>
+    <script src="../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../_static/js/top-navigation.js"></script>
+    <script src="../../_static/js/tags.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/tune/tutorials/tune-stopping.html" />
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="How to Save and Load Trial Checkpoints" href="tune-trial-checkpoints.html" />
+    <link rel="prev" title="Working with Tune Search Spaces" href="tune-search-spaces.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "tune/tutorials/tune-stopping", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".rst", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../../tune.html">
+   Ray Tune
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../getting-started.html">
+     Getting Started
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="overview.html">
+     User Guides
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="tune-run.html">
+       Running Basic Experiments
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tune-output.html">
+       Logging and Outputs in Tune
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tune-resources.html">
+       Setting Trial Resources
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tune-search-spaces.html">
+       Using Search Spaces
+      </a>
+     </li>
+     <li class="toctree-l3 current active">
+      <a class="current reference internal" href="tune-stopping.html#">
+       How to Define Stopping Criteria for a Ray Tune Experiment
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tune-trial-checkpoints.html">
+       How to Save and Load Trial Checkpoints
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tune-storage.html">
+       How to Configure Storage Options for a Distributed Tune Experiment
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tune-fault-tolerance.html">
+       How to Enable Fault Tolerance in Ray Tune
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tune-metrics.html">
+       Using Callbacks and Metrics
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tune_get_data_in_and_out.html">
+       Getting Data in and out of Tune
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../examples/tune_analyze_results.html">
+       Analyzing Tune Experiment Results
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../examples/pbt_guide.html">
+       A Guide to Population Based Training with Tune
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tune-distributed.html">
+       Deploying Tune in the Cloud
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tune-lifecycle.html">
+       Tune Architecture
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tune-scalability.html">
+       Scalability Benchmarks
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../examples/index.html">
+     Ray Tune Examples
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../faq.html">
+     Ray Tune FAQ
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/api.html">
+     Ray Tune API
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Ftune/tutorials/tune-stopping.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/tune/tutorials/tune-stopping.rst"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../_sources/tune/tutorials/tune-stopping.rst.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.rst</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-stopping.html#stop-a-tune-experiment-manually">
+   Stop a Tune experiment manually
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-stopping.html#stop-using-metric-based-criteria">
+   Stop using metric-based criteria
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-stopping.html#stop-trials-after-a-certain-amount-of-time">
+   Stop trials after a certain amount of time
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="tune-stopping.html#stop-trials-individually-with-a-timeout">
+     Stop trials individually with a timeout
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="tune-stopping.html#stop-the-experiment-with-a-timeout">
+     Stop the experiment with a timeout
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-stopping.html#stop-on-trial-failures">
+   Stop on trial failures
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-stopping.html#early-stopping-with-tune-schedulers">
+   Early stopping with Tune schedulers
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-stopping.html#summary">
+   Summary
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>How to Define Stopping Criteria for a Ray Tune Experiment</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-stopping.html#stop-a-tune-experiment-manually">
+   Stop a Tune experiment manually
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-stopping.html#stop-using-metric-based-criteria">
+   Stop using metric-based criteria
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-stopping.html#stop-trials-after-a-certain-amount-of-time">
+   Stop trials after a certain amount of time
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="tune-stopping.html#stop-trials-individually-with-a-timeout">
+     Stop trials individually with a timeout
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="tune-stopping.html#stop-the-experiment-with-a-timeout">
+     Stop the experiment with a timeout
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-stopping.html#stop-on-trial-failures">
+   Stop on trial failures
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-stopping.html#early-stopping-with-tune-schedulers">
+   Early stopping with Tune schedulers
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-stopping.html#summary">
+   Summary
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section id="how-to-define-stopping-criteria-for-a-ray-tune-experiment">
+<span id="tune-stopping-ref"></span><span id="tune-stopping-guide"></span><h1>How to Define Stopping Criteria for a Ray Tune Experiment<a class="headerlink" href="tune-stopping.html#how-to-define-stopping-criteria-for-a-ray-tune-experiment" title="Permalink to this headline">#</a></h1>
+<p>When running a Tune experiment, it can be challenging to determine the ideal duration of training beforehand. Stopping criteria in Tune can be useful for terminating training based on specific conditions.</p>
+<p>For instance, one may want to set up the experiment to stop under the following circumstances:</p>
+<ol class="arabic simple">
+<li><p>Set up an experiment to end after <code class="docutils literal notranslate"><span class="pre">N</span></code> epochs or when the reported evaluation score surpasses a particular threshold, whichever occurs first.</p></li>
+<li><p>Stop the experiment after <code class="docutils literal notranslate"><span class="pre">T`</span></code> seconds.</p></li>
+<li><p>Terminate when trials encounter runtime errors.</p></li>
+<li><p>Stop underperforming trials early by utilizing Tune’s early-stopping schedulers.</p></li>
+</ol>
+<p>This user guide will illustrate how to achieve these types of stopping criteria in a Tune experiment.</p>
+<p>For all the code examples, we use the following training function for demonstration:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ray.air</span> <span class="kn">import</span> <span class="n">session</span>
+
+
+<span class="k">def</span> <span class="nf">my_trainable</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="c1"># Do some training...</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Report some metrics for demonstration...</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">report</span><span class="p">({</span><span class="s2">&quot;mean_accuracy&quot;</span><span class="p">:</span> <span class="nb">min</span><span class="p">(</span><span class="n">i</span> <span class="o">/</span> <span class="mi">10</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)})</span>
+        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+<section id="stop-a-tune-experiment-manually">
+<h2>Stop a Tune experiment manually<a class="headerlink" href="tune-stopping.html#stop-a-tune-experiment-manually" title="Permalink to this headline">#</a></h2>
+<p>If you send a <code class="docutils literal notranslate"><span class="pre">SIGINT</span></code> signal to the process running <a class="reference internal" href="../api/doc/ray.tune.Tuner.fit.html#ray.tune.Tuner.fit" title="ray.tune.Tuner.fit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Tuner.fit()</span></code></a>
+(which is usually what happens when you press <code class="docutils literal notranslate"><span class="pre">Ctrl+C</span></code> in the terminal), Ray Tune shuts
+down training gracefully and saves the final experiment state.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Forcefully terminating a Tune experiment, for example, through multiple <code class="docutils literal notranslate"><span class="pre">Ctrl+C</span></code>
+commands, will not give Tune the opportunity to snapshot the experiment state
+one last time. If you resume the experiment in the future, this could result
+in resuming with stale state.</p>
+</div>
+<p>Ray Tune also accepts the <code class="docutils literal notranslate"><span class="pre">SIGUSR1</span></code> signal to interrupt training gracefully. This
+should be used when running Ray Tune in a remote Ray task
+as Ray will filter out <code class="docutils literal notranslate"><span class="pre">SIGINT</span></code> and <code class="docutils literal notranslate"><span class="pre">SIGTERM</span></code> signals per default.</p>
+</section>
+<section id="stop-using-metric-based-criteria">
+<h2>Stop using metric-based criteria<a class="headerlink" href="tune-stopping.html#stop-using-metric-based-criteria" title="Permalink to this headline">#</a></h2>
+<p>In addition to manual stopping, Tune provides several ways to stop experiments programmatically. The simplest way is to use metric-based criteria. These are a fixed set of thresholds that determine when the experiment should stop.</p>
+<p>You can implement the stopping criteria using either a dictionary, a function, or a custom <a class="reference internal" href="../api/doc/ray.tune.stopper.Stopper.html#ray.tune.stopper.Stopper" title="ray.tune.stopper.Stopper"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stopper</span></code></a>.</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
+</input><label class="sd-tab-label" for="sd-tab-item-0">
+Dictionary</label><div class="sd-tab-content docutils">
+<p>If a dictionary is passed in, the keys may be any field in the return result of <code class="docutils literal notranslate"><span class="pre">session.report</span></code> in the
+Function API or <code class="docutils literal notranslate"><span class="pre">step()</span></code> in the Class API.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This includes <a class="reference internal" href="tune-metrics.html#tune-autofilled-metrics"><span class="std std-ref">auto-filled metrics</span></a> such as <code class="docutils literal notranslate"><span class="pre">training_iteration</span></code>.</p>
+</div>
+<p>In the example below, each trial will be stopped either when it completes <code class="docutils literal notranslate"><span class="pre">10</span></code> iterations or when it
+reaches a mean accuracy of <code class="docutils literal notranslate"><span class="pre">0.8</span></code> or more.</p>
+<p>These metrics are assumed to be <strong>increasing</strong>, so the trial will stop once the reported metric has exceeded the threshold specified in the dictionary.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ray</span> <span class="kn">import</span> <span class="n">air</span><span class="p">,</span> <span class="n">tune</span>
+
+<span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
+    <span class="n">my_trainable</span><span class="p">,</span>
+    <span class="n">run_config</span><span class="o">=</span><span class="n">air</span><span class="o">.</span><span class="n">RunConfig</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;training_iteration&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;mean_accuracy&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">}),</span>
+<span class="p">)</span>
+<span class="n">result_grid</span> <span class="o">=</span> <span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
+</input><label class="sd-tab-label" for="sd-tab-item-1">
+User-defined Function</label><div class="sd-tab-content docutils">
+<p>For more flexibility, you can pass in a function instead.
+If a function is passed in, it must take <code class="docutils literal notranslate"><span class="pre">(trial_id:</span> <span class="pre">str,</span> <span class="pre">result:</span> <span class="pre">dict)</span></code> as arguments and return a boolean
+(<code class="docutils literal notranslate"><span class="pre">True</span></code> if trial should be stopped and <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise).</p>
+<p>In the example below, each trial will be stopped either when it completes <code class="docutils literal notranslate"><span class="pre">10</span></code> iterations or when it
+reaches a mean accuracy of <code class="docutils literal notranslate"><span class="pre">0.8</span></code> or more.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ray</span> <span class="kn">import</span> <span class="n">air</span><span class="p">,</span> <span class="n">tune</span>
+
+
+<span class="k">def</span> <span class="nf">stop_fn</span><span class="p">(</span><span class="n">trial_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">result</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;mean_accuracy&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mf">0.8</span> <span class="ow">or</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;training_iteration&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">10</span>
+
+
+<span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span><span class="n">my_trainable</span><span class="p">,</span> <span class="n">run_config</span><span class="o">=</span><span class="n">air</span><span class="o">.</span><span class="n">RunConfig</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_fn</span><span class="p">))</span>
+<span class="n">result_grid</span> <span class="o">=</span> <span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-2" name="sd-tab-set-0" type="radio">
+</input><label class="sd-tab-label" for="sd-tab-item-2">
+Custom Stopper Class</label><div class="sd-tab-content docutils">
+<p>Finally, you can implement the <a class="reference internal" href="../api/doc/ray.tune.stopper.Stopper.html#ray.tune.stopper.Stopper" title="ray.tune.stopper.Stopper"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stopper</span></code></a> interface for
+stopping individual trials or even entire experiments based on custom stopping
+criteria. For example, the following example stops all trials after the criteria
+is achieved by any individual trial and prevents new ones from starting:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ray</span> <span class="kn">import</span> <span class="n">air</span><span class="p">,</span> <span class="n">tune</span>
+<span class="kn">from</span> <span class="nn">ray.tune</span> <span class="kn">import</span> <span class="n">Stopper</span>
+
+
+<span class="k">class</span> <span class="nc">CustomStopper</span><span class="p">(</span><span class="n">Stopper</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">should_stop</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trial_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">result</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">should_stop</span> <span class="ow">and</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;mean_accuracy&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mf">0.8</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">should_stop</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">should_stop</span>
+
+    <span class="k">def</span> <span class="nf">stop_all</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Returns whether to stop trials and prevent new ones from starting.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">should_stop</span>
+
+
+<span class="n">stopper</span> <span class="o">=</span> <span class="n">CustomStopper</span><span class="p">()</span>
+<span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
+    <span class="n">my_trainable</span><span class="p">,</span>
+    <span class="n">run_config</span><span class="o">=</span><span class="n">air</span><span class="o">.</span><span class="n">RunConfig</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stopper</span><span class="p">),</span>
+    <span class="n">tune_config</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">TuneConfig</span><span class="p">(</span><span class="n">num_samples</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">result_grid</span> <span class="o">=</span> <span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>In the example, once any trial reaches a <code class="docutils literal notranslate"><span class="pre">mean_accuracy</span></code> of 0.8 or more, all trials will stop.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When returning <code class="docutils literal notranslate"><span class="pre">True</span></code> from <code class="docutils literal notranslate"><span class="pre">stop_all</span></code>, currently running trials will not stop immediately.
+They will stop after finishing their ongoing training iteration (after <code class="docutils literal notranslate"><span class="pre">session.report</span></code> or <code class="docutils literal notranslate"><span class="pre">step</span></code>).</p>
+</div>
+<p>Ray Tune comes with a set of out-of-the-box stopper classes. See the <a class="reference internal" href="../api/stoppers.html#tune-stoppers"><span class="std std-ref">Stopper</span></a> documentation.</p>
+</div>
+</div>
+</section>
+<section id="stop-trials-after-a-certain-amount-of-time">
+<h2>Stop trials after a certain amount of time<a class="headerlink" href="tune-stopping.html#stop-trials-after-a-certain-amount-of-time" title="Permalink to this headline">#</a></h2>
+<p>There are two choices to stop a Tune experiment based on time: stopping trials individually
+after a specified timeout, or stopping the full experiment after a certain amount of time.</p>
+<section id="stop-trials-individually-with-a-timeout">
+<h3>Stop trials individually with a timeout<a class="headerlink" href="tune-stopping.html#stop-trials-individually-with-a-timeout" title="Permalink to this headline">#</a></h3>
+<p>You can use a dictionary stopping criteria as described above, using the <code class="docutils literal notranslate"><span class="pre">time_total_s</span></code> metric that is auto-filled by Tune.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ray</span> <span class="kn">import</span> <span class="n">air</span><span class="p">,</span> <span class="n">tune</span>
+
+<span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
+    <span class="n">my_trainable</span><span class="p">,</span>
+    <span class="c1"># Stop a trial after it&#39;s run for more than 5 seconds.</span>
+    <span class="n">run_config</span><span class="o">=</span><span class="n">air</span><span class="o">.</span><span class="n">RunConfig</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;time_total_s&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">}),</span>
+<span class="p">)</span>
+<span class="n">result_grid</span> <span class="o">=</span> <span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You need to include some intermediate reporting via <a class="reference internal" href="../../ray-air/api/doc/ray.air.session.report.html#ray.air.session.report" title="ray.air.session.report"><code class="xref py py-meth docutils literal notranslate"><span class="pre">session.report</span></code></a>
+if using the <a class="reference internal" href="../api/trainable.html#tune-function-api"><span class="std std-ref">Function Trainable API</span></a>.
+Each report will automatically record the trial’s <code class="docutils literal notranslate"><span class="pre">time_total_s</span></code>, which allows Tune to stop based on time as a metric.</p>
+<p>If the training loop hangs somewhere, Tune will not be able to intercept the training and stop the trial for you.
+In this case, you can explicitly implement timeout logic in the training loop.</p>
+</div>
+</section>
+<section id="stop-the-experiment-with-a-timeout">
+<h3>Stop the experiment with a timeout<a class="headerlink" href="tune-stopping.html#stop-the-experiment-with-a-timeout" title="Permalink to this headline">#</a></h3>
+<p>Use the <code class="docutils literal notranslate"><span class="pre">TuneConfig(time_budget_s)</span></code> configuration to tell Tune to stop the experiment after <code class="docutils literal notranslate"><span class="pre">time_budget_s</span></code> seconds.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ray</span> <span class="kn">import</span> <span class="n">air</span><span class="p">,</span> <span class="n">tune</span>
+
+<span class="c1"># Stop the entire experiment after ANY trial has run for more than 5 seconds.</span>
+<span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span><span class="n">my_trainable</span><span class="p">,</span> <span class="n">tune_config</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">TuneConfig</span><span class="p">(</span><span class="n">time_budget_s</span><span class="o">=</span><span class="mf">5.0</span><span class="p">))</span>
+<span class="n">result_grid</span> <span class="o">=</span> <span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You need to include some intermediate reporting via <a class="reference internal" href="../../ray-air/api/doc/ray.air.session.report.html#ray.air.session.report" title="ray.air.session.report"><code class="xref py py-meth docutils literal notranslate"><span class="pre">session.report</span></code></a>
+if using the <a class="reference internal" href="../api/trainable.html#tune-function-api"><span class="std std-ref">Function Trainable API</span></a>, for the same reason as above.</p>
+</div>
+</section>
+</section>
+<section id="stop-on-trial-failures">
+<h2>Stop on trial failures<a class="headerlink" href="tune-stopping.html#stop-on-trial-failures" title="Permalink to this headline">#</a></h2>
+<p>In addition to stopping trials based on their performance, you can also stop the entire experiment if any trial encounters a runtime error. To do this, you can use the <a class="reference internal" href="../../ray-air/api/doc/ray.air.FailureConfig.html#ray.air.FailureConfig" title="ray.air.config.FailureConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">ray.air.config.FailureConfig</span></code></a> class.</p>
+<p>With this configuration, if any trial encounters an error, the entire experiment will stop immediately.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ray</span> <span class="kn">import</span> <span class="n">air</span><span class="p">,</span> <span class="n">tune</span>
+<span class="kn">from</span> <span class="nn">ray.air</span> <span class="kn">import</span> <span class="n">session</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+
+<span class="k">def</span> <span class="nf">my_failing_trainable</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;should_fail&quot;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Failing (on purpose)!&quot;</span><span class="p">)</span>
+    <span class="c1"># Do some training...</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">session</span><span class="o">.</span><span class="n">report</span><span class="p">({</span><span class="s2">&quot;mean_accuracy&quot;</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">})</span>
+
+
+<span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
+    <span class="n">my_failing_trainable</span><span class="p">,</span>
+    <span class="n">param_space</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;should_fail&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">grid_search</span><span class="p">([</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">])},</span>
+    <span class="n">run_config</span><span class="o">=</span><span class="n">air</span><span class="o">.</span><span class="n">RunConfig</span><span class="p">(</span><span class="n">failure_config</span><span class="o">=</span><span class="n">air</span><span class="o">.</span><span class="n">FailureConfig</span><span class="p">(</span><span class="n">fail_fast</span><span class="o">=</span><span class="kc">True</span><span class="p">)),</span>
+<span class="p">)</span>
+<span class="n">result_grid</span> <span class="o">=</span> <span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This is useful when you are debugging a Tune experiment with many trials.</p>
+</section>
+<section id="early-stopping-with-tune-schedulers">
+<h2>Early stopping with Tune schedulers<a class="headerlink" href="tune-stopping.html#early-stopping-with-tune-schedulers" title="Permalink to this headline">#</a></h2>
+<p>Another way to stop Tune experiments is to use early stopping schedulers.
+These schedulers monitor the performance of trials and stop them early if they are not making sufficient progress.</p>
+<p><a class="reference internal" href="../api/doc/ray.tune.schedulers.AsyncHyperBandScheduler.html#ray.tune.schedulers.AsyncHyperBandScheduler" title="ray.tune.schedulers.AsyncHyperBandScheduler"><code class="xref py py-class docutils literal notranslate"><span class="pre">AsyncHyperBandScheduler</span></code></a> and <a class="reference internal" href="../api/doc/ray.tune.schedulers.HyperBandForBOHB.html#ray.tune.schedulers.HyperBandForBOHB" title="ray.tune.schedulers.HyperBandForBOHB"><code class="xref py py-class docutils literal notranslate"><span class="pre">HyperBandForBOHB</span></code></a> are examples of early stopping schedulers built into Tune.
+See <a class="reference internal" href="../api/schedulers.html#tune-schedulers"><span class="std std-ref">the Tune scheduler API reference</span></a> for a full list, as well as more realistic examples.</p>
+<p>In the following example, we use both a dictionary stopping criteria along with an early-stopping criteria:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ray</span> <span class="kn">import</span> <span class="n">air</span><span class="p">,</span> <span class="n">tune</span>
+<span class="kn">from</span> <span class="nn">ray.tune.schedulers</span> <span class="kn">import</span> <span class="n">AsyncHyperBandScheduler</span>
+
+
+<span class="n">scheduler</span> <span class="o">=</span> <span class="n">AsyncHyperBandScheduler</span><span class="p">(</span><span class="n">time_attr</span><span class="o">=</span><span class="s2">&quot;training_iteration&quot;</span><span class="p">)</span>
+
+<span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
+    <span class="n">my_trainable</span><span class="p">,</span>
+    <span class="n">run_config</span><span class="o">=</span><span class="n">air</span><span class="o">.</span><span class="n">RunConfig</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;training_iteration&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">}),</span>
+    <span class="n">tune_config</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">TuneConfig</span><span class="p">(</span>
+        <span class="n">scheduler</span><span class="o">=</span><span class="n">scheduler</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;mean_accuracy&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;max&quot;</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+<span class="n">result_grid</span> <span class="o">=</span> <span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="tune-stopping.html#summary" title="Permalink to this headline">#</a></h2>
+<p>In this user guide, we learned how to stop Tune experiments using metrics, trial errors,
+and early stopping schedulers.</p>
+<p>See the following resources for more information:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../api/stoppers.html#tune-stoppers"><span class="std std-ref">Tune Stopper API reference</span></a></p></li>
+<li><p>For an experiment that was manually interrupted or the cluster dies unexpectedly while trials are still running, it’s possible to resume the experiment. See <a class="reference internal" href="tune-fault-tolerance.html#tune-fault-tolerance-ref"><span class="std std-ref">How to Enable Fault Tolerance in Ray Tune</span></a>.</p></li>
+</ul>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="tune-search-spaces.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Working with Tune Search Spaces</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="tune-trial-checkpoints.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">How to Save and Load Trial Checkpoints</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

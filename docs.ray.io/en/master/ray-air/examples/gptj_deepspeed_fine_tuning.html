@@ -1,0 +1,1668 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>GPT-J-6B Fine-Tuning with Ray AIR and DeepSpeed &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/js/versionwarning.js"></script>
+    <script src="../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../_static/js/docsearch.js"></script>
+    <script src="../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../_static/js/top-navigation.js"></script>
+    <script src="../../_static/js/tags.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/ray-air/examples/gptj_deepspeed_fine_tuning.html" />
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="GPT-J-6B Batch Prediction with Ray AIR" href="gptj_batch_prediction.html" />
+    <link rel="prev" title="Stable Diffusion Batch Prediction with Ray AIR" href="stablediffusion_batch_prediction.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "ray-air/examples/gptj_deepspeed_fine_tuning", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".ipynb", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../user-guides.html">
+     User Guides
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="index.html">
+     Examples
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="opt_deepspeed_batch_inference.html">
+       Batch Inference with OPT 30B and Ray Data
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="torch_image_example.html">
+       Training a Torch Image Classifier
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="torch_detection.html">
+       Fine-tuning a Torch object detection model
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="convert_existing_pytorch_code_to_ray_air.html">
+       Convert existing PyTorch code to Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="convert_existing_tf_code_to_ray_air.html">
+       Convert existing Tensorflow/Keras code to Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tfx_tabular_train_to_serve.html">
+       Tabular data training and serving with Keras and Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="huggingface_text_classification.html">
+       Fine-tune a 🤗 Transformers model
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="sklearn_example.html">
+       Training a model with Sklearn
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="xgboost_example.html">
+       Training a model with distributed XGBoost
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="analyze_tuning_results.html">
+       Hyperparameter tuning with XGBoostTrainer
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="lightgbm_example.html">
+       Training a model with distributed LightGBM
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="torch_incremental_learning.html">
+       Incremental Learning with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rl_serving_example.html">
+       Serving reinforcement learning policy models
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rl_online_example.html">
+       Online reinforcement learning with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rl_offline_example.html">
+       Offline reinforcement learning with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="upload_to_comet_ml.html">
+       Logging results and uploading models to Comet ML
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="upload_to_wandb.html">
+       Logging results and uploading models to Weights &amp; Biases
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="feast_example.html">
+       Integrate Ray AIR with Feast feature store
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="automl_with_ray_air.html">
+       AutoML for time series forecasting with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="batch_tuning.html">
+       Batch training &amp; tuning on Ray Tune
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="batch_forecasting.html">
+       Parallel demand forecasting at scale using Ray Tune
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="stablediffusion_batch_prediction.html">
+       Stable Diffusion Batch Prediction with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3 current active">
+      <a class="current reference internal" href="gptj_deepspeed_fine_tuning.html#">
+       GPT-J-6B Fine-Tuning with Ray AIR and DeepSpeed
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gptj_batch_prediction.html">
+       GPT-J-6B Batch Prediction with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gptj_serving.html">
+       GPT-J-6B Serving with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="dreambooth_finetuning.html">
+       Fine-tuning DreamBooth with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="dolly_lightning_fsdp_finetuning.html">
+       Fine-tune
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         dolly-v2-7b
+        </span>
+       </code>
+       with Ray AIR LightningTrainer and FSDP
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/api.html">
+     Ray AIR API
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../benchmarks.html">
+     Benchmarks
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tune.html">
+   Ray Tune
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Fray-air/examples/gptj_deepspeed_fine_tuning.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/ray-air/examples/gptj_deepspeed_fine_tuning.ipynb"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../_sources/ray-air/examples/gptj_deepspeed_fine_tuning.ipynb.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.ipynb</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="gptj_deepspeed_fine_tuning.html#set-up-ray-a-name-setup-a">
+   Set up Ray
+   <a name="setup">
+   </a>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="gptj_deepspeed_fine_tuning.html#loading-the-dataset-a-name-load-a">
+   Loading the dataset
+   <a name="load">
+   </a>
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="gptj_deepspeed_fine_tuning.html#fine-tuning-the-model-with-ray-air-a-name-train-a">
+     Fine-tuning the model with Ray AIR
+     <a name="train">
+     </a>
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="gptj_deepspeed_fine_tuning.html#training-speed">
+       Training speed
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="gptj_deepspeed_fine_tuning.html#generate-text-from-prompt">
+     Generate text from prompt
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>GPT-J-6B Fine-Tuning with Ray AIR and DeepSpeed</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="gptj_deepspeed_fine_tuning.html#set-up-ray-a-name-setup-a">
+   Set up Ray
+   <a name="setup">
+   </a>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="gptj_deepspeed_fine_tuning.html#loading-the-dataset-a-name-load-a">
+   Loading the dataset
+   <a name="load">
+   </a>
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="gptj_deepspeed_fine_tuning.html#fine-tuning-the-model-with-ray-air-a-name-train-a">
+     Fine-tuning the model with Ray AIR
+     <a name="train">
+     </a>
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="gptj_deepspeed_fine_tuning.html#training-speed">
+       Training speed
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="gptj_deepspeed_fine_tuning.html#generate-text-from-prompt">
+     Generate text from prompt
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section class="tex2jax_ignore mathjax_ignore" id="gpt-j-6b-fine-tuning-with-ray-air-and-deepspeed">
+<span id="gptj-deepspeed-finetune"></span><h1>GPT-J-6B Fine-Tuning with Ray AIR and DeepSpeed<a class="headerlink" href="gptj_deepspeed_fine_tuning.html#gpt-j-6b-fine-tuning-with-ray-air-and-deepspeed" title="Permalink to this headline">#</a></h1>
+<p>In this example, we will showcase how to use the Ray AIR for <strong>GPT-J fine-tuning</strong>. GPT-J is a GPT-2-like causal language model trained on the Pile dataset. This particular model has 6 billion parameters. For more information on GPT-J, click <a class="reference external" href="https://huggingface.co/docs/transformers/model_doc/gptj">here</a>.</p>
+<p>We will use Ray AIR (with the 🤗 Transformers integration) and a pretrained model from Hugging Face hub. Note that you can easily adapt this example to use other similar models.</p>
+<p>This example focuses more on the performance and distributed computing aspects of Ray AIR. If you are looking for a more beginner-friendly introduction to Ray AIR 🤗 Transformers integration, see <a class="reference internal" href="huggingface_text_classification.html"><span class="doc">this example</span></a>.</p>
+<p>It is highly recommended to read <a class="reference internal" href="../key-concepts.html#air-key-concepts"><span class="std std-ref">Ray AIR Key Concepts</span></a> and <a class="reference internal" href="../../data/key-concepts.html#data-key-concepts"><span class="std std-ref">Ray Data Key Concepts</span></a> before starting this example.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To run this example, make sure your Ray cluster has access to at least one GPU with 16 or more GBs of memory. The required amount of memory depends on the model. This notebook is tested with 16 g4dn.4xlarge instances (including the head node). If you wish to use a CPU head node, turn on <a class="reference internal" href="../../tune/tutorials/tune-storage.html#tune-cloud-checkpointing"><span class="std std-ref">cloud checkpointing</span></a> to avoid OOM errors that may happen due to the default behavior of syncing the checkpoint files to the head node.</p>
+</div>
+<p>In this notebook, we will:</p>
+<ol class="simple">
+<li><p><a class="reference external" href="gptj_deepspeed_fine_tuning.html#setup">Set up Ray</a></p></li>
+<li><p><a class="reference external" href="gptj_deepspeed_fine_tuning.html#load">Load the dataset</a></p></li>
+<li><p><a class="reference external" href="gptj_deepspeed_fine_tuning.html#preprocess">Preprocess the dataset with Ray AIR</a></p></li>
+<li><p><a class="reference external" href="gptj_deepspeed_fine_tuning.html#train">Run the training with Ray AIR</a></p></li>
+<li><p><a class="reference external" href="gptj_deepspeed_fine_tuning.html#predict">Generate text from prompt with Ray AIR</a></p></li>
+</ol>
+<p>Uncomment and run the following line in order to install all the necessary dependencies (this notebook is being tested with <code class="docutils literal notranslate"><span class="pre">transformers==4.26.0</span></code>):</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="ch">#! pip install &quot;datasets&quot; &quot;evaluate&quot; &quot;accelerate==0.18.0&quot; &quot;transformers&gt;=4.26.0&quot; &quot;torch&gt;=1.12.0&quot; &quot;deepspeed==0.8.3&quot;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">os</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="set-up-ray-a-name-setup-a">
+<h2>Set up Ray <a name="setup"></a><a class="headerlink" href="gptj_deepspeed_fine_tuning.html#set-up-ray-a-name-setup-a" title="Permalink to this headline">#</a></h2>
+<p>First, let’s set some global variables. We will use 16 workers, each being assigned 1 GPU and 8 CPUs.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_name</span> <span class="o">=</span> <span class="s2">&quot;EleutherAI/gpt-j-6B&quot;</span>
+<span class="n">use_gpu</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">num_workers</span> <span class="o">=</span> <span class="mi">16</span>
+<span class="n">cpus_per_worker</span> <span class="o">=</span> <span class="mi">8</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We will use <code class="docutils literal notranslate"><span class="pre">ray.init()</span></code> to initialize a local cluster. By default, this cluster will be comprised of only the machine you are running this notebook on. You can also run this notebook on an Anyscale cluster.</p>
+<p>We define a <a class="reference internal" href="../../ray-core/handling-dependencies.html#runtime-environments"><span class="std std-ref">runtime environment</span></a> to ensure that the Ray workers have access to all the necessary packages. You can omit the <code class="docutils literal notranslate"><span class="pre">runtime_env</span></code> argument if you have all of the packages already installed on each node in your cluster.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ray</span>
+
+<span class="n">ray</span><span class="o">.</span><span class="n">init</span><span class="p">(</span>
+    <span class="n">runtime_env</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;pip&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;datasets&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;evaluate&quot;</span><span class="p">,</span>
+            <span class="c1"># Latest combination of accelerate==0.19.0 and transformers==4.29.0</span>
+            <span class="c1"># seems to have issues with DeepSpeed process group initialization,</span>
+            <span class="c1"># and will result in a batch_size validation problem.</span>
+            <span class="c1"># TODO(jungong) : get rid of the pins once the issue is fixed.</span>
+            <span class="s2">&quot;accelerate==0.16.0&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;transformers==4.26.0&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;torch&gt;=1.12.0&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;deepspeed==0.9.2&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+    <div style="margin-left: 50px;display: flex;flex-direction: row;align-items: center">
+        <h3 style="color: var(--jp-ui-font-color0)">Ray</h3>
+        <svg version="1.1" id="ray" width="3em" viewBox="0 0 144.5 144.6" style="margin-left: 3em;margin-right: 3em">
+            <g id="layer-1">
+                <path fill="#00a2e9" class="st0" d="M97.3,77.2c-3.8-1.1-6.2,0.9-8.3,5.1c-3.5,6.8-9.9,9.9-17.4,9.6S58,88.1,54.8,81.2c-1.4-3-3-4-6.3-4.1
+                    c-5.6-0.1-9.9,0.1-13.1,6.4c-3.8,7.6-13.6,10.2-21.8,7.6C5.2,88.4-0.4,80.5,0,71.7c0.1-8.4,5.7-15.8,13.8-18.2
+                    c8.4-2.6,17.5,0.7,22.3,8c1.3,1.9,1.3,5.2,3.6,5.6c3.9,0.6,8,0.2,12,0.2c1.8,0,1.9-1.6,2.4-2.8c3.5-7.8,9.7-11.8,18-11.9
+                    c8.2-0.1,14.4,3.9,17.8,11.4c1.3,2.8,2.9,3.6,5.7,3.3c1-0.1,2,0.1,3,0c2.8-0.5,6.4,1.7,8.1-2.7s-2.3-5.5-4.1-7.5
+                    c-5.1-5.7-10.9-10.8-16.1-16.3C84,38,81.9,37.1,78,38.3C66.7,42,56.2,35.7,53,24.1C50.3,14,57.3,2.8,67.7,0.5
+                    C78.4-2,89,4.7,91.5,15.3c0.1,0.3,0.1,0.5,0.2,0.8c0.7,3.4,0.7,6.9-0.8,9.8c-1.7,3.2-0.8,5,1.5,7.2c6.7,6.5,13.3,13,19.8,19.7
+                    c1.8,1.8,3,2.1,5.5,1.2c9.1-3.4,17.9-0.6,23.4,7c4.8,6.9,4.6,16.1-0.4,22.9c-5.4,7.2-14.2,9.9-23.1,6.5c-2.3-0.9-3.5-0.6-5.1,1.1
+                    c-6.7,6.9-13.6,13.7-20.5,20.4c-1.8,1.8-2.5,3.2-1.4,5.9c3.5,8.7,0.3,18.6-7.7,23.6c-7.9,5-18.2,3.8-24.8-2.9
+                    c-6.4-6.4-7.4-16.2-2.5-24.3c4.9-7.8,14.5-11,23.1-7.8c3,1.1,4.7,0.5,6.9-1.7C91.7,98.4,98,92.3,104.2,86c1.6-1.6,4.1-2.7,2.6-6.2
+                    c-1.4-3.3-3.8-2.5-6.2-2.6C99.8,77.2,98.9,77.2,97.3,77.2z M72.1,29.7c5.5,0.1,9.9-4.3,10-9.8c0-0.1,0-0.2,0-0.3
+                    C81.8,14,77,9.8,71.5,10.2c-5,0.3-9,4.2-9.3,9.2c-0.2,5.5,4,10.1,9.5,10.3C71.8,29.7,72,29.7,72.1,29.7z M72.3,62.3
+                    c-5.4-0.1-9.9,4.2-10.1,9.7c0,0.2,0,0.3,0,0.5c0.2,5.4,4.5,9.7,9.9,10c5.1,0.1,9.9-4.7,10.1-9.8c0.2-5.5-4-10-9.5-10.3
+                    C72.6,62.3,72.4,62.3,72.3,62.3z M115,72.5c0.1,5.4,4.5,9.7,9.8,9.9c5.6-0.2,10-4.8,10-10.4c-0.2-5.4-4.6-9.7-10-9.7
+                    c-5.3-0.1-9.8,4.2-9.9,9.5C115,72.1,115,72.3,115,72.5z M19.5,62.3c-5.4,0.1-9.8,4.4-10,9.8c-0.1,5.1,5.2,10.4,10.2,10.3
+                    c5.6-0.2,10-4.9,9.8-10.5c-0.1-5.4-4.5-9.7-9.9-9.6C19.6,62.3,19.5,62.3,19.5,62.3z M71.8,134.6c5.9,0.2,10.3-3.9,10.4-9.6
+                    c0.5-5.5-3.6-10.4-9.1-10.8c-5.5-0.5-10.4,3.6-10.8,9.1c0,0.5,0,0.9,0,1.4c-0.2,5.3,4,9.8,9.3,10
+                    C71.6,134.6,71.7,134.6,71.8,134.6z"/>
+            </g>
+        </svg>
+        <table>
+            <tr>
+                <td style="text-align: left"><b>Python version:</b></td>
+                <td style="text-align: left"><b>3.8.16</b></td>
+            </tr>
+            <tr>
+                <td style="text-align: left"><b>Ray version:</b></td>
+                <td style="text-align: left"><b> 3.0.0.dev0</b></td>
+            </tr>
+            <tr>
+    <td style="text-align: left"><b>Dashboard:</b></td>
+    <td style="text-align: left"><b><a href="http://console.anyscale-staging.com/api/v2/sessions/ses_sedlspnpy16naa5lm9kf2cmi2y/services?redirect_to=dashboard" target="_blank">http://console.anyscale-staging.com/api/v2/sessions/ses_sedlspnpy16naa5lm9kf2cmi2y/services?redirect_to=dashboard</a></b></td>
+</tr>
+
+        </table>
+    </div>
+</div>
+</div></div>
+</div>
+<div class="cell tag_hide-cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># THIS SHOULD BE HIDDEN IN DOCS AND ONLY RAN IN CI</span>
+<span class="c1"># Download the model from our S3 mirror as it&#39;s faster</span>
+
+<span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">ray.util.scheduling_strategies</span>
+
+
+<span class="k">def</span> <span class="nf">force_on_node</span><span class="p">(</span><span class="n">node_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">remote_func_or_actor_class</span><span class="p">):</span>
+    <span class="n">scheduling_strategy</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">scheduling_strategies</span><span class="o">.</span><span class="n">NodeAffinitySchedulingStrategy</span><span class="p">(</span>
+        <span class="n">node_id</span><span class="o">=</span><span class="n">node_id</span><span class="p">,</span> <span class="n">soft</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+    <span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;scheduling_strategy&quot;</span><span class="p">:</span> <span class="n">scheduling_strategy</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">remote_func_or_actor_class</span><span class="o">.</span><span class="n">options</span><span class="p">(</span><span class="o">**</span><span class="n">options</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">run_on_every_node</span><span class="p">(</span><span class="n">remote_func_or_actor_class</span><span class="p">,</span> <span class="o">**</span><span class="n">remote_kwargs</span><span class="p">):</span>
+    <span class="n">refs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">ray</span><span class="o">.</span><span class="n">nodes</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;Alive&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;Resources&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GPU&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="n">refs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">force_on_node</span><span class="p">(</span><span class="n">node</span><span class="p">[</span><span class="s2">&quot;NodeID&quot;</span><span class="p">],</span> <span class="n">remote_func_or_actor_class</span><span class="p">)</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span>
+                    <span class="o">**</span><span class="n">remote_kwargs</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+    <span class="k">return</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">refs</span><span class="p">)</span>
+
+
+<span class="nd">@ray</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">num_gpus</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">download_model</span><span class="p">():</span>
+    <span class="kn">from</span> <span class="nn">transformers.utils.hub</span> <span class="kn">import</span> <span class="n">TRANSFORMERS_CACHE</span>
+
+    <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">TRANSFORMERS_CACHE</span><span class="p">,</span> <span class="s2">&quot;models--EleutherAI--gpt-j-6B&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;mkdir&quot;</span><span class="p">,</span> <span class="s2">&quot;-p&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;snapshots&quot;</span><span class="p">,</span> <span class="s2">&quot;main&quot;</span><span class="p">)])</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;mkdir&quot;</span><span class="p">,</span> <span class="s2">&quot;-p&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;refs&quot;</span><span class="p">)])</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;refs&quot;</span><span class="p">,</span> <span class="s2">&quot;main&quot;</span><span class="p">)):</span>
+        <span class="k">return</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;aws&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;s3&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sync&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--no-sign-request&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;s3://large-dl-models-mirror/models--EleutherAI--gpt-j-6B/main/&quot;</span><span class="p">,</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;snapshots&quot;</span><span class="p">,</span> <span class="s2">&quot;main&quot;</span><span class="p">),</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;snapshots&quot;</span><span class="p">,</span> <span class="s2">&quot;main&quot;</span><span class="p">,</span> <span class="s2">&quot;hash&quot;</span><span class="p">),</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f_hash</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;refs&quot;</span><span class="p">,</span> <span class="s2">&quot;main&quot;</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f_hash</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;snapshots&quot;</span><span class="p">,</span> <span class="s2">&quot;main&quot;</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;snapshots&quot;</span><span class="p">,</span> <span class="n">f_hash</span><span class="p">)</span>
+    <span class="p">)</span>
+
+
+<span class="n">_</span> <span class="o">=</span> <span class="n">run_on_every_node</span><span class="p">(</span><span class="n">download_model</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="loading-the-dataset-a-name-load-a">
+<h2>Loading the dataset <a name="load"></a><a class="headerlink" href="gptj_deepspeed_fine_tuning.html#loading-the-dataset-a-name-load-a" title="Permalink to this headline">#</a></h2>
+<p>We will be fine-tuning the model on the <a class="reference external" href="https://huggingface.co/datasets/tiny_shakespeare"><code class="docutils literal notranslate"><span class="pre">tiny_shakespeare</span></code> dataset</a>, comprised of 40,000 lines of Shakespeare from a variety of Shakespeare’s plays. The aim will be to make the GPT-J model better at generating text in the style of Shakespeare.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">datasets</span> <span class="kn">import</span> <span class="n">load_dataset</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Loading tiny_shakespeare dataset&quot;</span><span class="p">)</span>
+<span class="n">current_dataset</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;tiny_shakespeare&quot;</span><span class="p">)</span>
+<span class="n">current_dataset</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Loading tiny_shakespeare dataset
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Found cached dataset tiny_shakespeare (/home/ray/.cache/huggingface/datasets/tiny_shakespeare/default/1.0.0/b5b13969f09fe8707337f6cb296314fbe06960bd9a868dca39e713e163d27b5e)
+</pre></div>
+</div>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "65894225f3b84e5caa117c4d08d9f99d", "version_major": 2, "version_minor": 0}
+</script><div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>DatasetDict({
+    train: Dataset({
+        features: [&#39;text&#39;],
+        num_rows: 1
+    })
+    validation: Dataset({
+        features: [&#39;text&#39;],
+        num_rows: 1
+    })
+    test: Dataset({
+        features: [&#39;text&#39;],
+        num_rows: 1
+    })
+})
+</pre></div>
+</div>
+</div>
+</div>
+<p>We will use <a class="reference internal" href="../../data/data.html#data"><span class="std std-ref">Ray Data</span></a> for distributed preprocessing and data ingestion. We can easily convert the dataset obtained from Hugging Face Hub to Ray Data by using <a class="reference internal" href="../../data/api/doc/ray.data.from_huggingface.html#ray.data.from_huggingface" title="ray.data.from_huggingface"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ray.data.from_huggingface()</span></code></a>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ray.data</span>
+
+<span class="n">ray_datasets</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">from_huggingface</span><span class="p">(</span><span class="n">current_dataset</span><span class="p">)</span>
+<span class="n">ray_datasets</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;train&#39;: Dataset(num_blocks=1, num_rows=1, schema={text: string}),
+ &#39;validation&#39;: Dataset(num_blocks=1, num_rows=1, schema={text: string}),
+ &#39;test&#39;: Dataset(num_blocks=1, num_rows=1, schema={text: string})}
+</pre></div>
+</div>
+</div>
+</div>
+<p>Because the dataset is represented by a single large string, we will need to do some preprocessing. For that, we will define two <a class="reference internal" href="../preprocessors.html#air-preprocessors"><span class="std std-ref">Ray AIR Preprocessors</span></a> using the <a class="reference internal" href="../api/doc/ray.data.preprocessors.BatchMapper.html#ray.data.preprocessors.BatchMapper" title="ray.data.preprocessors.BatchMapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">BatchMapper</span></code></a> API, allowing us to define functions that will be applied on batches of data.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">split_text</span></code> function will take the single string and split it into separate lines, removing empty lines and character names ending with ‘:’ (eg. ‘ROMEO:’). The <code class="docutils literal notranslate"><span class="pre">tokenize</span></code> function will take the lines and tokenize them using the 🤗 Tokenizer associated with the model, ensuring each entry has the same length (<code class="docutils literal notranslate"><span class="pre">block_size</span></code>) by padding and truncating. This is necessary for training.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This preprocessing can be done in other ways. A common pattern is to tokenize first, and then split the obtained tokens into equally-sized blocks.</p>
+</div>
+<p>We will use the <code class="docutils literal notranslate"><span class="pre">splitter</span></code> and <code class="docutils literal notranslate"><span class="pre">tokenizer</span></code> Preprocessors below.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">block_size</span> <span class="o">=</span> <span class="mi">512</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">AutoTokenizer</span>
+
+<span class="kn">from</span> <span class="nn">ray.data.preprocessors</span> <span class="kn">import</span> <span class="n">BatchMapper</span>
+
+
+<span class="k">def</span> <span class="nf">split_text</span><span class="p">(</span><span class="n">batch</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">])</span>
+    <span class="n">flat_text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="n">split_text</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">flat_text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;:&quot;</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">split_text</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">])</span>
+
+
+<span class="k">def</span> <span class="nf">tokenize</span><span class="p">(</span><span class="n">batch</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="n">tokenizer</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">use_fast</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">tokenizer</span><span class="o">.</span><span class="n">pad_token</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">eos_token</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="p">(</span>
+        <span class="nb">list</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">]),</span>
+        <span class="n">truncation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="n">block_size</span><span class="p">,</span>
+        <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;max_length&quot;</span><span class="p">,</span>
+        <span class="n">return_tensors</span><span class="o">=</span><span class="s2">&quot;np&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;labels&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;input_ids&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
+
+
+<span class="n">splitter</span> <span class="o">=</span> <span class="n">BatchMapper</span><span class="p">(</span><span class="n">split_text</span><span class="p">,</span> <span class="n">batch_format</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span><span class="p">)</span>
+<span class="n">tokenizer</span> <span class="o">=</span> <span class="n">BatchMapper</span><span class="p">(</span><span class="n">tokenize</span><span class="p">,</span> <span class="n">batch_format</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="fine-tuning-the-model-with-ray-air-a-name-train-a">
+<h3>Fine-tuning the model with Ray AIR <a name="train"></a><a class="headerlink" href="gptj_deepspeed_fine_tuning.html#fine-tuning-the-model-with-ray-air-a-name-train-a" title="Permalink to this headline">#</a></h3>
+<p>We can now configure Ray AIR’s <a class="reference internal" href="../../train/api/doc/ray.train.huggingface.TransformersTrainer.html#ray.train.huggingface.TransformersTrainer" title="ray.train.huggingface.TransformersTrainer"><code class="xref py py-class docutils literal notranslate"><span class="pre">TransformersTrainer</span></code></a> to perform distributed fine-tuning of the model. In order to do that, we specify a <code class="docutils literal notranslate"><span class="pre">trainer_init_per_worker</span></code> function, which creates a 🤗 Transformers <code class="docutils literal notranslate"><span class="pre">Trainer</span></code> that will be distributed by Ray using Distributed Data Parallelism (using PyTorch Distributed backend internally). This means that each worker will have its own copy of the model, but operate on different data, At the end of each step, all the workers will sync gradients.</p>
+<p>Because GPT-J is a relatively large model, it may not be possible to fit it on smaller GPU types (&lt;=16 GB GRAM). To deal with that issue, we can use <a class="reference external" href="https://github.com/microsoft/DeepSpeed">DeepSpeed</a>, a library to optimize the training process and allow us to (among other things) offload and partition optimizer and parameter states, reducing GRAM usage. Furthermore, DeepSpeed ZeRO Stage 3 allows us to load large models without running out of memory.</p>
+<p>🤗 Transformers and Ray AIR’s integration (<a class="reference internal" href="../../train/api/doc/ray.train.huggingface.TransformersTrainer.html#ray.train.huggingface.TransformersTrainer" title="ray.train.huggingface.TransformersTrainer"><code class="xref py py-class docutils literal notranslate"><span class="pre">TransformersTrainer</span></code></a>) allow you to easily configure and use DDP and DeepSpeed. All you need to do is specify the DeepSpeed configuration in the <a class="reference external" href="https://huggingface.co/docs/transformers/en/main_classes/trainer#transformers.TrainingArguments"><code class="docutils literal notranslate"><span class="pre">TrainingArguments</span></code></a> object.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>There are many DeepSpeed settings that allow you to trade-off speed for memory usage. The settings used below are tailored to the cluster setup used (16 g4dn.4xlarge nodes) and per device batch size of 16. Some things to keep in mind:</p>
+<ul class="simple">
+<li><p>If your GPUs support bfloat16, use that instead of float16 mixed precision to get better performance and prevent overflows. Replace <code class="docutils literal notranslate"><span class="pre">fp16=True</span></code> with <code class="docutils literal notranslate"><span class="pre">bf16=True</span></code> in <code class="docutils literal notranslate"><span class="pre">TrainingArguments</span></code>.</p></li>
+<li><p>If you are running out of GRAM: try reducing batch size (defined in the cell below the next one), set <code class="docutils literal notranslate"><span class="pre">&quot;overlap_comm&quot;:</span> <span class="pre">False</span></code> in DeepSpeed config.</p></li>
+<li><p>If you are running out of RAM, add more nodes to your cluster, use nodes with more RAM, set <code class="docutils literal notranslate"><span class="pre">&quot;pin_memory&quot;:</span> <span class="pre">False</span></code> in the DeepSpeed config, reduce the batch size, and remove <code class="docutils literal notranslate"><span class="pre">&quot;offload_param&quot;</span></code> from the DeepSpeed config.</p></li>
+</ul>
+<p>For more information on DeepSpeed configuration, refer to <a class="reference external" href="https://huggingface.co/docs/transformers/main_classes/deepspeed">Hugging Face documentation</a> and <a class="reference external" href="https://www.deepspeed.ai/docs/config-json/">DeepSpeed documentation</a>.</p>
+<p>Additionally, if you prefer a lower-level API, the logic below can be expressed as an <a class="reference external" href="https://github.com/huggingface/accelerate/blob/main/examples/by_feature/deepspeed_with_config_support.py">Accelerate training loop</a> distributed by a Ray AIR <a class="reference internal" href="../../train/api/doc/ray.train.torch.TorchTrainer.html#ray.train.torch.TorchTrainer" title="ray.train.torch.torch_trainer.TorchTrainer"><code class="xref py py-class docutils literal notranslate"><span class="pre">TorchTrainer</span></code></a>.</p>
+</div>
+<section id="training-speed">
+<h4>Training speed<a class="headerlink" href="gptj_deepspeed_fine_tuning.html#training-speed" title="Permalink to this headline">#</a></h4>
+<p>As we are using data parallelism, each worker operates on its own shard of the data. The batch size set in <code class="docutils literal notranslate"><span class="pre">TrainingArguments</span></code> is the <strong>per device batch size</strong> (per worker batch size). By changing the number of workers, we can change the <strong>effective batch size</strong> and thus the time needed for training to complete. The effective batch size is then calculated as <code class="docutils literal notranslate"><span class="pre">per</span> <span class="pre">device</span> <span class="pre">batch</span> <span class="pre">size</span> <span class="pre">*</span> <span class="pre">number</span> <span class="pre">of</span> <span class="pre">workers</span> <span class="pre">*</span> <span class="pre">number</span> <span class="pre">of</span> <span class="pre">gradient</span> <span class="pre">accumulation</span> <span class="pre">steps</span></code>. As we add more workers, the effective batch size rises and thus we need less time to complete a full epoch. While the speedup is not exactly linear due to extra communication overheads, in many cases it can be close to linear.</p>
+<p>The preprocessed dataset has 1348 examples. We have set per device batch size to 16.</p>
+<ul class="simple">
+<li><p>With 16 g4dn.4xlarge nodes, the effective batch size was 256, which equals to 85 steps per epoch. One epoch took <strong>~2440 seconds</strong> (including initialization time).</p></li>
+<li><p>With 32 g4dn.4xlarge nodes, the effective batch size was 512, which equals to 43 steps per epoch. One epoch took <strong>~1280 seconds</strong> (including initialization time).</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">evaluate</span>
+<span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">Trainer</span><span class="p">,</span> <span class="n">TrainingArguments</span>
+<span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">GPTJForCausalLM</span><span class="p">,</span>
+    <span class="n">AutoTokenizer</span><span class="p">,</span>
+    <span class="n">default_data_collator</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">transformers.utils.logging</span> <span class="kn">import</span> <span class="n">disable_progress_bar</span><span class="p">,</span> <span class="n">enable_progress_bar</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="kn">from</span> <span class="nn">ray.air</span> <span class="kn">import</span> <span class="n">session</span>
+
+
+<span class="k">def</span> <span class="nf">trainer_init_per_worker</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">,</span> <span class="n">eval_dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">config</span><span class="p">):</span>
+    <span class="c1"># Use the actual number of CPUs assigned by Ray</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OMP_NUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">get_trial_resources</span><span class="p">()</span><span class="o">.</span><span class="n">bundles</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;CPU&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="c1"># Enable tf32 for better performance</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">matmul</span><span class="o">.</span><span class="n">allow_tf32</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="n">batch_size</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;batch_size&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="n">epochs</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;epochs&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">warmup_steps</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;warmup_steps&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">learning_rate</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;learning_rate&quot;</span><span class="p">,</span> <span class="mf">0.00002</span><span class="p">)</span>
+    <span class="n">weight_decay</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;weight_decay&quot;</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
+
+    <span class="n">deepspeed</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;fp16&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;enabled&quot;</span><span class="p">:</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;initial_scale_power&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;bf16&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enabled&quot;</span><span class="p">:</span> <span class="s2">&quot;auto&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;optimizer&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;AdamW&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;lr&quot;</span><span class="p">:</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;betas&quot;</span><span class="p">:</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;eps&quot;</span><span class="p">:</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;zero_optimization&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;stage&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+            <span class="s2">&quot;offload_optimizer&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;device&quot;</span><span class="p">:</span> <span class="s2">&quot;cpu&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;pin_memory&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;offload_param&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;device&quot;</span><span class="p">:</span> <span class="s2">&quot;cpu&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;pin_memory&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;overlap_comm&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;contiguous_gradients&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;reduce_bucket_size&quot;</span><span class="p">:</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;stage3_prefetch_bucket_size&quot;</span><span class="p">:</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;stage3_param_persistence_threshold&quot;</span><span class="p">:</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;gather_16bit_weights_on_model_save&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;round_robin_gradients&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;gradient_accumulation_steps&quot;</span><span class="p">:</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;gradient_clipping&quot;</span><span class="p">:</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;steps_per_print&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="s2">&quot;train_batch_size&quot;</span><span class="p">:</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;train_micro_batch_size_per_gpu&quot;</span><span class="p">:</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;wall_clock_breakdown&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Preparing training arguments&quot;</span><span class="p">)</span>
+    <span class="n">training_args</span> <span class="o">=</span> <span class="n">TrainingArguments</span><span class="p">(</span>
+        <span class="s2">&quot;output&quot;</span><span class="p">,</span>
+        <span class="n">per_device_train_batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+        <span class="n">logging_steps</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">save_strategy</span><span class="o">=</span><span class="s2">&quot;no&quot;</span><span class="p">,</span>
+        <span class="n">per_device_eval_batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+        <span class="n">learning_rate</span><span class="o">=</span><span class="n">learning_rate</span><span class="p">,</span>
+        <span class="n">weight_decay</span><span class="o">=</span><span class="n">weight_decay</span><span class="p">,</span>
+        <span class="n">warmup_steps</span><span class="o">=</span><span class="n">warmup_steps</span><span class="p">,</span>
+        <span class="n">label_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;input_ids&quot;</span><span class="p">,</span> <span class="s2">&quot;attention_mask&quot;</span><span class="p">],</span>
+        <span class="n">num_train_epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span>
+        <span class="n">push_to_hub</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">disable_tqdm</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># declutter the output a little</span>
+        <span class="n">fp16</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">gradient_checkpointing</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">deepspeed</span><span class="o">=</span><span class="n">deepspeed</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">disable_progress_bar</span><span class="p">()</span>
+
+    <span class="n">tokenizer</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
+    <span class="n">tokenizer</span><span class="o">.</span><span class="n">pad_token</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">eos_token</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Loading model&quot;</span><span class="p">)</span>
+
+    <span class="n">model</span> <span class="o">=</span> <span class="n">GPTJForCausalLM</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">use_cache</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">resize_token_embeddings</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tokenizer</span><span class="p">))</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Model loaded&quot;</span><span class="p">)</span>
+
+    <span class="n">enable_progress_bar</span><span class="p">()</span>
+
+    <span class="n">metric</span> <span class="o">=</span> <span class="n">evaluate</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;accuracy&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">compute_metrics</span><span class="p">(</span><span class="n">eval_pred</span><span class="p">):</span>
+        <span class="n">logits</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">eval_pred</span>
+        <span class="n">predictions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">metric</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">predictions</span><span class="o">=</span><span class="n">predictions</span><span class="p">,</span> <span class="n">references</span><span class="o">=</span><span class="n">labels</span><span class="p">)</span>
+
+    <span class="n">trainer</span> <span class="o">=</span> <span class="n">Trainer</span><span class="p">(</span>
+        <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+        <span class="n">args</span><span class="o">=</span><span class="n">training_args</span><span class="p">,</span>
+        <span class="n">train_dataset</span><span class="o">=</span><span class="n">train_dataset</span><span class="p">,</span>
+        <span class="n">eval_dataset</span><span class="o">=</span><span class="n">eval_dataset</span><span class="p">,</span>
+        <span class="n">compute_metrics</span><span class="o">=</span><span class="n">compute_metrics</span><span class="p">,</span>
+        <span class="n">tokenizer</span><span class="o">=</span><span class="n">tokenizer</span><span class="p">,</span>
+        <span class="n">data_collator</span><span class="o">=</span><span class="n">default_data_collator</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">trainer</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>With our <code class="docutils literal notranslate"><span class="pre">trainer_init_per_worker</span></code> complete, we can now instantiate the <a class="reference internal" href="../../train/api/doc/ray.train.huggingface.TransformersTrainer.html#ray.train.huggingface.TransformersTrainer" title="ray.train.huggingface.TransformersTrainer"><code class="xref py py-class docutils literal notranslate"><span class="pre">TransformersTrainer</span></code></a>. Aside from the function, we set the <code class="docutils literal notranslate"><span class="pre">scaling_config</span></code>, controlling the amount of workers and resources used, and the <code class="docutils literal notranslate"><span class="pre">datasets</span></code> we will use for training and evaluation.</p>
+<p>We pass the preprocessors we have defined earlier as an argument, wrapped in a <a class="reference internal" href="../api/doc/ray.data.preprocessors.Chain.html#ray.data.preprocessors.Chain" title="ray.data.preprocessors.chain.Chain"><code class="xref py py-class docutils literal notranslate"><span class="pre">Chain</span></code></a>. The preprocessor will be included with the returned <a class="reference internal" href="../api/doc/ray.air.checkpoint.Checkpoint.html#ray.air.checkpoint.Checkpoint" title="ray.air.checkpoint.Checkpoint"><code class="xref py py-class docutils literal notranslate"><span class="pre">Checkpoint</span></code></a>, meaning it will also be applied during inference.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you want to upload checkpoints to cloud storage (eg. S3), set <a class="reference internal" href="../api/doc/ray.air.RunConfig.html#ray.air.RunConfig" title="ray.air.RunConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">air.RunConfig(storage_path)</span></code></a>. See <a class="reference internal" href="../../train/config_guide.html#train-run-config"><span class="std std-ref">Run Configuration in Train (RunConfig)</span></a> for an example. Using cloud storage is highly recommended, especially for production.</p>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ray.train.huggingface</span> <span class="kn">import</span> <span class="n">TransformersTrainer</span>
+<span class="kn">from</span> <span class="nn">ray.air.config</span> <span class="kn">import</span> <span class="n">ScalingConfig</span>
+<span class="kn">from</span> <span class="nn">ray.data.preprocessors</span> <span class="kn">import</span> <span class="n">Chain</span>
+
+
+<span class="n">trainer</span> <span class="o">=</span> <span class="n">TransformersTrainer</span><span class="p">(</span>
+    <span class="n">trainer_init_per_worker</span><span class="o">=</span><span class="n">trainer_init_per_worker</span><span class="p">,</span>
+    <span class="n">trainer_init_config</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>  <span class="c1"># per device</span>
+        <span class="s2">&quot;epochs&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="n">scaling_config</span><span class="o">=</span><span class="n">ScalingConfig</span><span class="p">(</span>
+        <span class="n">num_workers</span><span class="o">=</span><span class="n">num_workers</span><span class="p">,</span>
+        <span class="n">use_gpu</span><span class="o">=</span><span class="n">use_gpu</span><span class="p">,</span>
+        <span class="n">resources_per_worker</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;GPU&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;CPU&quot;</span><span class="p">:</span> <span class="n">cpus_per_worker</span><span class="p">},</span>
+    <span class="p">),</span>
+    <span class="n">datasets</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;train&quot;</span><span class="p">:</span> <span class="n">ray_datasets</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">],</span> <span class="s2">&quot;evaluation&quot;</span><span class="p">:</span> <span class="n">ray_datasets</span><span class="p">[</span><span class="s2">&quot;validation&quot;</span><span class="p">]},</span>
+    <span class="n">preprocessor</span><span class="o">=</span><span class="n">Chain</span><span class="p">(</span><span class="n">splitter</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Finally, we call the <a class="reference internal" href="../../train/api/doc/ray.train.huggingface.TransformersTrainer.fit.html#ray.train.huggingface.TransformersTrainer.fit" title="ray.train.huggingface.TransformersTrainer.fit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fit()</span></code></a> method to start training with Ray AIR. We will save the <a class="reference internal" href="../../tune/api/doc/ray.air.Result.html#ray.air.Result" title="ray.air.Result"><code class="xref py py-class docutils literal notranslate"><span class="pre">Result</span></code></a> object to a variable so we can access metrics and checkpoints.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div class="tuneStatus">
+  <div style="display: flex;flex-direction: row">
+    <div style="display: flex;flex-direction: column;">
+      <h3>Tune Status</h3>
+      <table>
+<tbody>
+<tr><td>Current time:</td><td>2023-03-06 17:18:41</td></tr>
+<tr><td>Running for: </td><td>00:43:11.46        </td></tr>
+<tr><td>Memory:      </td><td>31.9/62.0 GiB      </td></tr>
+</tbody>
+</table>
+    </div>
+    <div class="vDivider"></div>
+    <div class="systemInfo">
+      <h3>System Info</h3>
+      Using FIFO scheduling algorithm.<br>Resources requested: 0/256 CPUs, 0/16 GPUs, 0.0/675.29 GiB heap, 0.0/291.99 GiB objects (0.0/16.0 accelerator_type:T4)
+    </div>
+
+  </div>
+  <div class="hDivider"></div>
+  <div class="trialStatus">
+    <h3>Trial Status</h3>
+    <table>
+<thead>
+<tr><th>Trial name                    </th><th>status    </th><th>loc              </th><th style="text-align: right;">  iter</th><th style="text-align: right;">  total time (s)</th><th style="text-align: right;">  loss</th><th style="text-align: right;">  learning_rate</th><th style="text-align: right;">  epoch</th></tr>
+</thead>
+<tbody>
+<tr><td>TransformersTrainer_f623d_00000</td><td>TERMINATED</td><td>10.0.30.196:30861</td><td style="text-align: right;">    85</td><td style="text-align: right;">          2579.3</td><td style="text-align: right;">0.0715</td><td style="text-align: right;">    4.70588e-07</td><td style="text-align: right;">      1</td></tr>
+</tbody>
+</table>
+  </div>
+</div>
+<style>
+.tuneStatus {
+  color: var(--jp-ui-font-color1);
+}
+.tuneStatus .systemInfo {
+  display: flex;
+  flex-direction: column;
+}
+.tuneStatus td {
+  white-space: nowrap;
+}
+.tuneStatus .trialStatus {
+  display: flex;
+  flex-direction: column;
+}
+.tuneStatus h3 {
+  font-weight: bold;
+}
+.tuneStatus .hDivider {
+  border-bottom-width: var(--jp-border-width);
+  border-bottom-color: var(--jp-border-color0);
+  border-bottom-style: solid;
+}
+.tuneStatus .vDivider {
+  border-left-width: var(--jp-border-width);
+  border-left-color: var(--jp-border-color0);
+  border-left-style: solid;
+  margin: 0.5em 1em 0.5em 1em;
+}
+</style>
+</div><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(RayTrainWorker pid=31281) 2023-03-06 16:36:00,447	INFO bulk_executor.py:41 -- Executing DAG InputDataBuffer[Input] -&gt; TaskPoolMapOperator[BatchMapper]
+(RayTrainWorker pid=1964, ip=10.0.26.83) /tmp/ray/session_2023-03-06_15-55-37_997701_162/runtime_resources/py_modules_files/_ray_pkg_f864ba6869d6802c/ray/train/_internal/dataset_iterator.py:64: UserWarning: session.get_dataset_shard returns a ray.data.DataIterator instead of a Dataset/DatasetPipeline as of Ray v2.3. Use iter_torch_batches(), to_tf(), or iter_batches() to iterate over one epoch. See https://docs.ray.io/en/latest/data/api/dataset_iterator.html for full DataIterator docs.
+(RayTrainWorker pid=1964, ip=10.0.26.83)   warnings.warn(
+(RayTrainWorker pid=1964, ip=10.0.26.83) 2023-03-06 16:36:00,453	INFO bulk_executor.py:41 -- Executing DAG InputDataBuffer[Input] -&gt; TaskPoolMapOperator[BatchMapper]
+(RayTrainWorker pid=1963, ip=10.0.54.163) /tmp/ray/session_2023-03-06_15-55-37_997701_162/runtime_resources/py_modules_files/_ray_pkg_f864ba6869d6802c/ray/train/_internal/dataset_iterator.py:64: UserWarning: session.get_dataset_shard returns a ray.data.DataIterator instead of a Dataset/DatasetPipeline as of Ray v2.3. Use iter_torch_batches(), to_tf(), or iter_batches() to iterate over one epoch. See https://docs.ray.io/en/latest/data/api/dataset_iterator.html for full DataIterator docs.
+(RayTrainWorker pid=1963, ip=10.0.54.163)   warnings.warn(
+(RayTrainWorker pid=1963, ip=10.0.54.163) 2023-03-06 16:36:00,452	INFO bulk_executor.py:41 -- Executing DAG InputDataBuffer[Input] -&gt; TaskPoolMapOperator[BatchMapper]
+(RayTrainWorker pid=1954, ip=10.0.15.115) /tmp/ray/session_2023-03-06_15-55-37_997701_162/runtime_resources/py_modules_files/_ray_pkg_f864ba6869d6802c/ray/train/_internal/dataset_iterator.py:64: UserWarning: session.get_dataset_shard returns a ray.data.DataIterator instead of a Dataset/DatasetPipeline as of Ray v2.3. Use iter_torch_batches(), to_tf(), or iter_batches() to iterate over one epoch. See https://docs.ray.io/en/latest/data/api/dataset_iterator.html for full DataIterator docs.
+(RayTrainWorker pid=1954, ip=10.0.15.115)   warnings.warn(
+(RayTrainWorker pid=1954, ip=10.0.15.115) 2023-03-06 16:36:00,452	INFO bulk_executor.py:41 -- Executing DAG InputDataBuffer[Input] -&gt; TaskPoolMapOperator[BatchMapper]
+(RayTrainWorker pid=1955, ip=10.0.58.255) /tmp/ray/session_2023-03-06_15-55-37_997701_162/runtime_resources/py_modules_files/_ray_pkg_f864ba6869d6802c/ray/train/_internal/dataset_iterator.py:64: UserWarning: session.get_dataset_shard returns a ray.data.DataIterator instead of a Dataset/DatasetPipeline as of Ray v2.3. Use iter_torch_batches(), to_tf(), or iter_batches() to iterate over one epoch. See https://docs.ray.io/en/latest/data/api/dataset_iterator.html for full DataIterator docs.
+(RayTrainWorker pid=1955, ip=10.0.58.255)   warnings.warn(
+(RayTrainWorker pid=1955, ip=10.0.58.255) 2023-03-06 16:36:00,453	INFO bulk_executor.py:41 -- Executing DAG InputDataBuffer[Input] -&gt; TaskPoolMapOperator[BatchMapper]
+(RayTrainWorker pid=1942, ip=10.0.57.85) 2023-03-06 16:36:00,452	INFO bulk_executor.py:41 -- Executing DAG InputDataBuffer[Input] -&gt; TaskPoolMapOperator[BatchMapper]
+(RayTrainWorker pid=1963, ip=10.0.29.205) 2023-03-06 16:36:00,452	INFO bulk_executor.py:41 -- Executing DAG InputDataBuffer[Input] -&gt; TaskPoolMapOperator[BatchMapper]
+(RayTrainWorker pid=1942, ip=10.0.51.113) 2023-03-06 16:36:00,454	INFO bulk_executor.py:41 -- Executing DAG InputDataBuffer[Input] -&gt; TaskPoolMapOperator[BatchMapper]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(RayTrainWorker pid=31281) Preparing training arguments
+(RayTrainWorker pid=31281) Loading model
+(RayTrainWorker pid=31281) [2023-03-06 16:37:21,252] [INFO] [partition_parameters.py:415:__exit__] finished initializing model with 6.05B parameters
+(RayTrainWorker pid=31281) Model loaded
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(RayTrainWorker pid=31281) Using cuda_amp half precision backend
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(RayTrainWorker pid=31281) [2023-03-06 16:38:03,431] [INFO] [logging.py:75:log_dist] [Rank 0] DeepSpeed info: version=0.8.1, git-hash=unknown, git-branch=unknown
+(RayTrainWorker pid=31281) [2023-03-06 16:38:03,450] [INFO] [logging.py:75:log_dist] [Rank 0] DeepSpeed Flops Profiler Enabled: False
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(RayTrainWorker pid=31281) ***** Running training *****
+(RayTrainWorker pid=31281)   Num examples = 1348
+(RayTrainWorker pid=31281)   Num Epochs = 1
+(RayTrainWorker pid=31281)   Instantaneous batch size per device = 16
+(RayTrainWorker pid=31281)   Total train batch size (w. parallel, distributed &amp; accumulation) = 256
+(RayTrainWorker pid=31281)   Gradient Accumulation steps = 1
+(RayTrainWorker pid=31281)   Total optimization steps = 85
+(RayTrainWorker pid=31281)   Number of trainable parameters = 0
+(RayTrainWorker pid=31281) /home/ray/anaconda3/lib/python3.8/site-packages/torch/distributed/distributed_c10d.py:2387: UserWarning: torch.distributed._all_gather_base is a private function and will be deprecated. Please use torch.distributed.all_gather_into_tensor instead.
+(RayTrainWorker pid=31281)   warnings.warn(
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(RayTrainWorker pid=31281) [2023-03-06 16:38:25,024] [INFO] [logging.py:75:log_dist] [Rank 0] DeepSpeed Final Optimizer = adamw
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,024] [INFO] [logging.py:75:log_dist] [Rank 0] DeepSpeed using client callable to create LR scheduler
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,025] [INFO] [logging.py:75:log_dist] [Rank 0] DeepSpeed LR Scheduler = &lt;torch.optim.lr_scheduler.LambdaLR object at 0x7f10a01d7ee0&gt;
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,025] [INFO] [logging.py:75:log_dist] [Rank 0] step=0, skipped=0, lr=[2e-05], mom=[[0.9, 0.999]]
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,025] [INFO] [config.py:1009:print] DeepSpeedEngine configuration:
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,026] [INFO] [config.py:1013:print]   activation_checkpointing_config  {
+(RayTrainWorker pid=31281)     &quot;partition_activations&quot;: false, 
+(RayTrainWorker pid=31281)     &quot;contiguous_memory_optimization&quot;: false, 
+(RayTrainWorker pid=31281)     &quot;cpu_checkpointing&quot;: false, 
+(RayTrainWorker pid=31281)     &quot;number_checkpoints&quot;: null, 
+(RayTrainWorker pid=31281)     &quot;synchronize_checkpoint_boundary&quot;: false, 
+(RayTrainWorker pid=31281)     &quot;profile&quot;: false
+(RayTrainWorker pid=31281) }
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,026] [INFO] [config.py:1013:print]   aio_config ................... {&#39;block_size&#39;: 1048576, &#39;queue_depth&#39;: 8, &#39;thread_count&#39;: 1, &#39;single_submit&#39;: False, &#39;overlap_events&#39;: True}
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,026] [INFO] [config.py:1013:print]   amp_enabled .................. False
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,026] [INFO] [config.py:1013:print]   amp_params ................... False
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,027] [INFO] [config.py:1013:print]   autotuning_config ............ {
+(RayTrainWorker pid=31281)     &quot;enabled&quot;: false, 
+(RayTrainWorker pid=31281)     &quot;start_step&quot;: null, 
+(RayTrainWorker pid=31281)     &quot;end_step&quot;: null, 
+(RayTrainWorker pid=31281)     &quot;metric_path&quot;: null, 
+(RayTrainWorker pid=31281)     &quot;arg_mappings&quot;: null, 
+(RayTrainWorker pid=31281)     &quot;metric&quot;: &quot;throughput&quot;, 
+(RayTrainWorker pid=31281)     &quot;model_info&quot;: null, 
+(RayTrainWorker pid=31281)     &quot;results_dir&quot;: &quot;autotuning_results&quot;, 
+(RayTrainWorker pid=31281)     &quot;exps_dir&quot;: &quot;autotuning_exps&quot;, 
+(RayTrainWorker pid=31281)     &quot;overwrite&quot;: true, 
+(RayTrainWorker pid=31281)     &quot;fast&quot;: true, 
+(RayTrainWorker pid=31281)     &quot;start_profile_step&quot;: 3, 
+(RayTrainWorker pid=31281)     &quot;end_profile_step&quot;: 5, 
+(RayTrainWorker pid=31281)     &quot;tuner_type&quot;: &quot;gridsearch&quot;, 
+(RayTrainWorker pid=31281)     &quot;tuner_early_stopping&quot;: 5, 
+(RayTrainWorker pid=31281)     &quot;tuner_num_trials&quot;: 50, 
+(RayTrainWorker pid=31281)     &quot;model_info_path&quot;: null, 
+(RayTrainWorker pid=31281)     &quot;mp_size&quot;: 1, 
+(RayTrainWorker pid=31281)     &quot;max_train_batch_size&quot;: null, 
+(RayTrainWorker pid=31281)     &quot;min_train_batch_size&quot;: 1, 
+(RayTrainWorker pid=31281)     &quot;max_train_micro_batch_size_per_gpu&quot;: 1.024000e+03, 
+(RayTrainWorker pid=31281)     &quot;min_train_micro_batch_size_per_gpu&quot;: 1, 
+(RayTrainWorker pid=31281)     &quot;num_tuning_micro_batch_sizes&quot;: 3
+(RayTrainWorker pid=31281) }
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,027] [INFO] [config.py:1013:print]   bfloat16_enabled ............. False
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,027] [INFO] [config.py:1013:print]   checkpoint_parallel_write_pipeline  False
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,027] [INFO] [config.py:1013:print]   checkpoint_tag_validation_enabled  True
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,027] [INFO] [config.py:1013:print]   checkpoint_tag_validation_fail  False
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,027] [INFO] [config.py:1013:print]   comms_config ................. &lt;deepspeed.comm.config.DeepSpeedCommsConfig object at 0x7f1102c55910&gt;
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,027] [INFO] [config.py:1013:print]   communication_data_type ...... None
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,027] [INFO] [config.py:1013:print]   compression_config ........... {&#39;weight_quantization&#39;: {&#39;shared_parameters&#39;: {&#39;enabled&#39;: False, &#39;quantizer_kernel&#39;: False, &#39;schedule_offset&#39;: 0, &#39;quantize_groups&#39;: 1, &#39;quantize_verbose&#39;: False, &#39;quantization_type&#39;: &#39;symmetric&#39;, &#39;quantize_weight_in_forward&#39;: False, &#39;rounding&#39;: &#39;nearest&#39;, &#39;fp16_mixed_quantize&#39;: False, &#39;quantize_change_ratio&#39;: 0.001}, &#39;different_groups&#39;: {}}, &#39;activation_quantization&#39;: {&#39;shared_parameters&#39;: {&#39;enabled&#39;: False, &#39;quantization_type&#39;: &#39;symmetric&#39;, &#39;range_calibration&#39;: &#39;dynamic&#39;, &#39;schedule_offset&#39;: 1000}, &#39;different_groups&#39;: {}}, &#39;sparse_pruning&#39;: {&#39;shared_parameters&#39;: {&#39;enabled&#39;: False, &#39;method&#39;: &#39;l1&#39;, &#39;schedule_offset&#39;: 1000}, &#39;different_groups&#39;: {}}, &#39;row_pruning&#39;: {&#39;shared_parameters&#39;: {&#39;enabled&#39;: False, &#39;method&#39;: &#39;l1&#39;, &#39;schedule_offset&#39;: 1000}, &#39;different_groups&#39;: {}}, &#39;head_pruning&#39;: {&#39;shared_parameters&#39;: {&#39;enabled&#39;: False, &#39;method&#39;: &#39;topk&#39;, &#39;schedule_offset&#39;: 1000}, &#39;different_groups&#39;: {}}, &#39;channel_pruning&#39;: {&#39;shared_parameters&#39;: {&#39;enabled&#39;: False, &#39;method&#39;: &#39;l1&#39;, &#39;schedule_offset&#39;: 1000}, &#39;different_groups&#39;: {}}, &#39;layer_reduction&#39;: {&#39;enabled&#39;: False}}
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,027] [INFO] [config.py:1013:print]   curriculum_enabled_legacy .... False
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,027] [INFO] [config.py:1013:print]   curriculum_params_legacy ..... False
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,027] [INFO] [config.py:1013:print]   data_efficiency_config ....... {&#39;enabled&#39;: False, &#39;seed&#39;: 1234, &#39;data_sampling&#39;: {&#39;enabled&#39;: False, &#39;num_epochs&#39;: 1000, &#39;num_workers&#39;: 0, &#39;curriculum_learning&#39;: {&#39;enabled&#39;: False}}, &#39;data_routing&#39;: {&#39;enabled&#39;: False, &#39;random_ltd&#39;: {&#39;enabled&#39;: False, &#39;layer_token_lr_schedule&#39;: {&#39;enabled&#39;: False}}}}
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,027] [INFO] [config.py:1013:print]   data_efficiency_enabled ...... False
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,027] [INFO] [config.py:1013:print]   dataloader_drop_last ......... False
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,027] [INFO] [config.py:1013:print]   disable_allgather ............ False
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,027] [INFO] [config.py:1013:print]   dump_state ................... False
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,027] [INFO] [config.py:1013:print]   dynamic_loss_scale_args ...... {&#39;init_scale&#39;: 256, &#39;scale_window&#39;: 1000, &#39;delayed_shift&#39;: 2, &#39;min_scale&#39;: 1}
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,027] [INFO] [config.py:1013:print]   eigenvalue_enabled ........... False
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,027] [INFO] [config.py:1013:print]   eigenvalue_gas_boundary_resolution  1
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,027] [INFO] [config.py:1013:print]   eigenvalue_layer_name ........ bert.encoder.layer
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,027] [INFO] [config.py:1013:print]   eigenvalue_layer_num ......... 0
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,027] [INFO] [config.py:1013:print]   eigenvalue_max_iter .......... 100
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,027] [INFO] [config.py:1013:print]   eigenvalue_stability ......... 1e-06
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,027] [INFO] [config.py:1013:print]   eigenvalue_tol ............... 0.01
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,027] [INFO] [config.py:1013:print]   eigenvalue_verbose ........... False
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,027] [INFO] [config.py:1013:print]   elasticity_enabled ........... False
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,027] [INFO] [config.py:1013:print]   flops_profiler_config ........ {
+(RayTrainWorker pid=31281)     &quot;enabled&quot;: false, 
+(RayTrainWorker pid=31281)     &quot;profile_step&quot;: 1, 
+(RayTrainWorker pid=31281)     &quot;module_depth&quot;: -1, 
+(RayTrainWorker pid=31281)     &quot;top_modules&quot;: 1, 
+(RayTrainWorker pid=31281)     &quot;detailed&quot;: true, 
+(RayTrainWorker pid=31281)     &quot;output_file&quot;: null
+(RayTrainWorker pid=31281) }
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,027] [INFO] [config.py:1013:print]   fp16_auto_cast ............... False
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,027] [INFO] [config.py:1013:print]   fp16_enabled ................. True
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,027] [INFO] [config.py:1013:print]   fp16_master_weights_and_gradients  False
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,027] [INFO] [config.py:1013:print]   global_rank .................. 0
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,027] [INFO] [config.py:1013:print]   grad_accum_dtype ............. None
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,027] [INFO] [config.py:1013:print]   gradient_accumulation_steps .. 1
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,028] [INFO] [config.py:1013:print]   gradient_clipping ............ 1.0
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,028] [INFO] [config.py:1013:print]   gradient_predivide_factor .... 1.0
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,028] [INFO] [config.py:1013:print]   initial_dynamic_scale ........ 256
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,028] [INFO] [config.py:1013:print]   load_universal_checkpoint .... False
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,028] [INFO] [config.py:1013:print]   loss_scale ................... 0
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,028] [INFO] [config.py:1013:print]   memory_breakdown ............. False
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,028] [INFO] [config.py:1013:print]   monitor_config ............... tensorboard=TensorBoardConfig(enabled=False, output_path=&#39;&#39;, job_name=&#39;DeepSpeedJobName&#39;) wandb=WandbConfig(enabled=False, group=None, team=None, project=&#39;deepspeed&#39;) csv_monitor=CSVConfig(enabled=False, output_path=&#39;&#39;, job_name=&#39;DeepSpeedJobName&#39;) enabled=False
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,028] [INFO] [config.py:1013:print]   nebula_config ................ {
+(RayTrainWorker pid=31281)     &quot;enabled&quot;: false, 
+(RayTrainWorker pid=31281)     &quot;persistent_storage_path&quot;: null, 
+(RayTrainWorker pid=31281)     &quot;persistent_time_interval&quot;: 100, 
+(RayTrainWorker pid=31281)     &quot;num_of_version_in_retention&quot;: 2, 
+(RayTrainWorker pid=31281)     &quot;enable_nebula_load&quot;: true, 
+(RayTrainWorker pid=31281)     &quot;load_path&quot;: null
+(RayTrainWorker pid=31281) }
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,028] [INFO] [config.py:1013:print]   optimizer_legacy_fusion ...... False
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,028] [INFO] [config.py:1013:print]   optimizer_name ............... adamw
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,028] [INFO] [config.py:1013:print]   optimizer_params ............. {&#39;lr&#39;: 2e-05, &#39;betas&#39;: [0.9, 0.999], &#39;eps&#39;: 1e-08}
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,028] [INFO] [config.py:1013:print]   pipeline ..................... {&#39;stages&#39;: &#39;auto&#39;, &#39;partition&#39;: &#39;best&#39;, &#39;seed_layers&#39;: False, &#39;activation_checkpoint_interval&#39;: 0}
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,028] [INFO] [config.py:1013:print]   pld_enabled .................. False
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,028] [INFO] [config.py:1013:print]   pld_params ................... False
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,028] [INFO] [config.py:1013:print]   prescale_gradients ........... False
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,028] [INFO] [config.py:1013:print]   scheduler_name ............... None
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,028] [INFO] [config.py:1013:print]   scheduler_params ............. None
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,028] [INFO] [config.py:1013:print]   sparse_attention ............. None
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,028] [INFO] [config.py:1013:print]   sparse_gradients_enabled ..... False
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,028] [INFO] [config.py:1013:print]   steps_per_print .............. 10
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,028] [INFO] [config.py:1013:print]   train_batch_size ............. 256
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,028] [INFO] [config.py:1013:print]   train_micro_batch_size_per_gpu  16
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,028] [INFO] [config.py:1013:print]   use_node_local_storage ....... False
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,028] [INFO] [config.py:1013:print]   wall_clock_breakdown ......... False
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,028] [INFO] [config.py:1013:print]   world_size ................... 16
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,028] [INFO] [config.py:1013:print]   zero_allow_untested_optimizer  False
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,028] [INFO] [config.py:1013:print]   zero_config .................. stage=3 contiguous_gradients=True reduce_scatter=True reduce_bucket_size=16777216 allgather_partitions=True allgather_bucket_size=500,000,000 overlap_comm=True load_from_fp32_weights=True elastic_checkpoint=False offload_param=DeepSpeedZeroOffloadParamConfig(device=&#39;cpu&#39;, nvme_path=None, buffer_count=5, buffer_size=100,000,000, max_in_cpu=1,000,000,000, pin_memory=True) offload_optimizer=DeepSpeedZeroOffloadOptimizerConfig(device=&#39;cpu&#39;, nvme_path=None, buffer_count=4, pin_memory=True, pipeline=False, pipeline_read=False, pipeline_write=False, fast_init=False) sub_group_size=1,000,000,000 cpu_offload_param=None cpu_offload_use_pin_memory=None cpu_offload=None prefetch_bucket_size=15099494 param_persistence_threshold=40960 model_persistence_threshold=sys.maxsize max_live_parameters=1,000,000,000 max_reuse_distance=1,000,000,000 gather_16bit_weights_on_model_save=True stage3_gather_fp16_weights_on_model_save=False ignore_unused_parameters=True legacy_stage1=False round_robin_gradients=True
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,028] [INFO] [config.py:1013:print]   zero_enabled ................. True
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,028] [INFO] [config.py:1013:print]   zero_optimization_stage ...... 3
+(RayTrainWorker pid=31281) [2023-03-06 16:38:25,029] [INFO] [config.py:998:print_user_config]   json = {
+(RayTrainWorker pid=31281)     &quot;fp16&quot;: {
+(RayTrainWorker pid=31281)         &quot;enabled&quot;: true, 
+(RayTrainWorker pid=31281)         &quot;initial_scale_power&quot;: 8
+(RayTrainWorker pid=31281)     }, 
+(RayTrainWorker pid=31281)     &quot;bf16&quot;: {
+(RayTrainWorker pid=31281)         &quot;enabled&quot;: false
+(RayTrainWorker pid=31281)     }, 
+(RayTrainWorker pid=31281)     &quot;optimizer&quot;: {
+(RayTrainWorker pid=31281)         &quot;type&quot;: &quot;AdamW&quot;, 
+(RayTrainWorker pid=31281)         &quot;params&quot;: {
+(RayTrainWorker pid=31281)             &quot;lr&quot;: 2e-05, 
+(RayTrainWorker pid=31281)             &quot;betas&quot;: [0.9, 0.999], 
+(RayTrainWorker pid=31281)             &quot;eps&quot;: 1e-08
+(RayTrainWorker pid=31281)         }
+(RayTrainWorker pid=31281)     }, 
+(RayTrainWorker pid=31281)     &quot;zero_optimization&quot;: {
+(RayTrainWorker pid=31281)         &quot;stage&quot;: 3, 
+(RayTrainWorker pid=31281)         &quot;offload_optimizer&quot;: {
+(RayTrainWorker pid=31281)             &quot;device&quot;: &quot;cpu&quot;, 
+(RayTrainWorker pid=31281)             &quot;pin_memory&quot;: true
+(RayTrainWorker pid=31281)         }, 
+(RayTrainWorker pid=31281)         &quot;offload_param&quot;: {
+(RayTrainWorker pid=31281)             &quot;device&quot;: &quot;cpu&quot;, 
+(RayTrainWorker pid=31281)             &quot;pin_memory&quot;: true
+(RayTrainWorker pid=31281)         }, 
+(RayTrainWorker pid=31281)         &quot;overlap_comm&quot;: true, 
+(RayTrainWorker pid=31281)         &quot;contiguous_gradients&quot;: true, 
+(RayTrainWorker pid=31281)         &quot;reduce_bucket_size&quot;: 1.677722e+07, 
+(RayTrainWorker pid=31281)         &quot;stage3_prefetch_bucket_size&quot;: 1.509949e+07, 
+(RayTrainWorker pid=31281)         &quot;stage3_param_persistence_threshold&quot;: 4.096000e+04, 
+(RayTrainWorker pid=31281)         &quot;gather_16bit_weights_on_model_save&quot;: true, 
+(RayTrainWorker pid=31281)         &quot;round_robin_gradients&quot;: true
+(RayTrainWorker pid=31281)     }, 
+(RayTrainWorker pid=31281)     &quot;gradient_accumulation_steps&quot;: 1, 
+(RayTrainWorker pid=31281)     &quot;gradient_clipping&quot;: 1.0, 
+(RayTrainWorker pid=31281)     &quot;steps_per_print&quot;: 10, 
+(RayTrainWorker pid=31281)     &quot;train_batch_size&quot;: 256, 
+(RayTrainWorker pid=31281)     &quot;train_micro_batch_size_per_gpu&quot;: 16, 
+(RayTrainWorker pid=31281)     &quot;wall_clock_breakdown&quot;: false
+(RayTrainWorker pid=31281) }
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(RayTrainWorker pid=31281) Model weights saved in output/checkpoint-85/pytorch_model.bin
+(RayTrainWorker pid=31281) tokenizer config file saved in output/checkpoint-85/tokenizer_config.json
+(RayTrainWorker pid=31281) Special tokens file saved in output/checkpoint-85/special_tokens_map.json
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(RayTrainWorker pid=31281) [2023-03-06 17:18:13,320] [INFO] [engine.py:3516:save_16bit_model] Saving model weights to output/checkpoint-85/pytorch_model.bin
+(RayTrainWorker pid=31281) [2023-03-06 17:18:13,320] [INFO] [torch_checkpoint_engine.py:15:save] [Torch] Saving output/checkpoint-85/pytorch_model.bin...
+(RayTrainWorker pid=31281) [2023-03-06 17:18:29,075] [INFO] [torch_checkpoint_engine.py:17:save] [Torch] Saved output/checkpoint-85/pytorch_model.bin.
+(RayTrainWorker pid=31281) [2023-03-06 17:18:29,087] [INFO] [logging.py:75:log_dist] [Rank 0] [Torch] Checkpoint global_step85 is begin to save!
+(RayTrainWorker pid=31281) [2023-03-06 17:18:29,109] [INFO] [logging.py:75:log_dist] [Rank 0] Saving model checkpoint: output/checkpoint-85/global_step85/zero_pp_rank_0_mp_rank_00_model_states.pt
+(RayTrainWorker pid=31281) [2023-03-06 17:18:29,109] [INFO] [torch_checkpoint_engine.py:15:save] [Torch] Saving output/checkpoint-85/global_step85/zero_pp_rank_0_mp_rank_00_model_states.pt...
+(RayTrainWorker pid=31281) [2023-03-06 17:18:37,982] [INFO] [torch_checkpoint_engine.py:17:save] [Torch] Saved output/checkpoint-85/global_step85/zero_pp_rank_0_mp_rank_00_optim_states.pt.
+(RayTrainWorker pid=31281) [2023-03-06 17:18:37,984] [INFO] [engine.py:3407:_save_zero_checkpoint] zero checkpoint saved output/checkpoint-85/global_step85/zero_pp_rank_0_mp_rank_00_optim_states.pt
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(RayTrainWorker pid=31281) 
+(RayTrainWorker pid=31281) 
+(RayTrainWorker pid=31281) Training completed. Do not forget to share your model on huggingface.co/models =)
+(RayTrainWorker pid=31281) 
+(RayTrainWorker pid=31281) 
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(RayTrainWorker pid=31281) [2023-03-06 17:18:38,143] [INFO] [torch_checkpoint_engine.py:27:commit] [Torch] Checkpoint global_step85 is ready now!
+(RayTrainWorker pid=31281) {&#39;train_runtime&#39;: 2413.1243, &#39;train_samples_per_second&#39;: 0.559, &#39;train_steps_per_second&#39;: 0.035, &#39;train_loss&#39;: 0.32492108064539293, &#39;epoch&#39;: 1.0}
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-03-06 17:18:41,018	INFO tune.py:825 -- Total run time: 2591.59 seconds (2591.46 seconds for the tuning loop).
+</pre></div>
+</div>
+</div>
+</div>
+<p>You can use the returned <a class="reference internal" href="../../tune/api/doc/ray.air.Result.html#ray.air.Result" title="ray.air.Result"><code class="xref py py-class docutils literal notranslate"><span class="pre">Result</span></code></a> object to access metrics and the Ray AIR <a class="reference internal" href="../api/doc/ray.air.checkpoint.Checkpoint.html#ray.air.checkpoint.Checkpoint" title="ray.air.checkpoint.Checkpoint"><code class="xref py py-class docutils literal notranslate"><span class="pre">Checkpoint</span></code></a> associated with the last iteration.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">checkpoint</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">checkpoint</span>
+<span class="n">checkpoint</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>TransformersCheckpoint(local_path=/home/ray/ray_results/TransformersTrainer_2023-03-06_16-35-29/TransformersTrainer_f623d_00000_0_2023-03-06_16-35-30/checkpoint_000000)
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="generate-text-from-prompt">
+<h3>Generate text from prompt<a class="headerlink" href="gptj_deepspeed_fine_tuning.html#generate-text-from-prompt" title="Permalink to this headline">#</a></h3>
+<p>We can use the <code class="xref py py-class docutils literal notranslate"><span class="pre">TransformersPredictor</span></code> to generate predictions from our fine-tuned model.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>For large scale batch inference, consider configuring cloud checkpointing and then pass the cloud-backed <a class="reference internal" href="../api/doc/ray.air.checkpoint.Checkpoint.html#ray.air.checkpoint.Checkpoint" title="ray.air.checkpoint.Checkpoint"><code class="xref py py-class docutils literal notranslate"><span class="pre">Checkpoint</span></code></a> to <a class="reference internal" href="../api/doc/ray.train.batch_predictor.BatchPredictor.html#ray.train.batch_predictor.BatchPredictor" title="ray.train.batch_predictor.BatchPredictor"><code class="xref py py-class docutils literal notranslate"><span class="pre">BatchPredictor</span></code></a>. More information <a class="reference internal" href="../predictors.html#air-predictors"><span class="std std-ref">here</span></a>.</p>
+</div>
+<p>Because the <code class="xref py py-class docutils literal notranslate"><span class="pre">TransformersPredictor</span></code> uses a 🤗 Transformers <a class="reference external" href="https://huggingface.co/docs/transformers/en/main_classes/pipelines"><code class="docutils literal notranslate"><span class="pre">pipeline</span></code></a> under the hood, we disable the tokenizer AIR Preprocessor we have used for training and let the <code class="docutils literal notranslate"><span class="pre">pipeline</span></code> to tokenize the data itself.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">checkpoint</span><span class="o">.</span><span class="n">set_preprocessor</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We also set <code class="docutils literal notranslate"><span class="pre">device_map=&quot;auto&quot;</span></code> so that the model is automatically placed on the right device and set the <code class="docutils literal notranslate"><span class="pre">task</span></code> to <code class="docutils literal notranslate"><span class="pre">&quot;text-generation&quot;</span></code>. The <code class="docutils literal notranslate"><span class="pre">predict</span></code> method passes the arguments to a 🤗 Transformers <code class="docutils literal notranslate"><span class="pre">pipeline</span></code> call.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ray.train.huggingface</span> <span class="kn">import</span> <span class="n">TransformersPredictor</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="n">prompts</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="s2">&quot;Romeo and Juliet&quot;</span><span class="p">,</span> <span class="s2">&quot;Romeo&quot;</span><span class="p">,</span> <span class="s2">&quot;Juliet&quot;</span><span class="p">],</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">])</span>
+
+<span class="c1"># Predict on the head node.</span>
+<span class="n">predictor</span> <span class="o">=</span> <span class="n">TransformersPredictor</span><span class="o">.</span><span class="n">from_checkpoint</span><span class="p">(</span>
+    <span class="n">checkpoint</span><span class="o">=</span><span class="n">checkpoint</span><span class="p">,</span>
+    <span class="n">task</span><span class="o">=</span><span class="s2">&quot;text-generation&quot;</span><span class="p">,</span>
+    <span class="n">torch_dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float16</span> <span class="k">if</span> <span class="n">use_gpu</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">device_map</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+    <span class="n">use_gpu</span><span class="o">=</span><span class="n">use_gpu</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">prediction</span> <span class="o">=</span> <span class="n">predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span>
+    <span class="n">prompts</span><span class="p">,</span>
+    <span class="n">do_sample</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">temperature</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+    <span class="n">min_length</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+    <span class="n">max_length</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">prediction</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>generated_text</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Romeo and Juliet, they are married: and it is ...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Romeo, thou art Romeo and a Montague; for only...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Juliet's name; but I do not sound an ear to na...</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="stablediffusion_batch_prediction.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Stable Diffusion Batch Prediction with Ray AIR</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="gptj_batch_prediction.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">GPT-J-6B Batch Prediction with Ray AIR</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

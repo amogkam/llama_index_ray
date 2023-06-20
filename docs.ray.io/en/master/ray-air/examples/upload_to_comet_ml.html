@@ -1,0 +1,965 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Logging results and uploading models to Comet ML &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/js/versionwarning.js"></script>
+    <script src="../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../_static/js/docsearch.js"></script>
+    <script src="../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../_static/js/top-navigation.js"></script>
+    <script src="../../_static/js/tags.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/ray-air/examples/upload_to_comet_ml.html" />
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Logging results and uploading models to Weights &amp; Biases" href="upload_to_wandb.html" />
+    <link rel="prev" title="Offline reinforcement learning with Ray AIR" href="rl_offline_example.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "ray-air/examples/upload_to_comet_ml", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".ipynb", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../user-guides.html">
+     User Guides
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="index.html">
+     Examples
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="opt_deepspeed_batch_inference.html">
+       Batch Inference with OPT 30B and Ray Data
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="torch_image_example.html">
+       Training a Torch Image Classifier
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="torch_detection.html">
+       Fine-tuning a Torch object detection model
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="convert_existing_pytorch_code_to_ray_air.html">
+       Convert existing PyTorch code to Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="convert_existing_tf_code_to_ray_air.html">
+       Convert existing Tensorflow/Keras code to Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="tfx_tabular_train_to_serve.html">
+       Tabular data training and serving with Keras and Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="huggingface_text_classification.html">
+       Fine-tune a 🤗 Transformers model
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="sklearn_example.html">
+       Training a model with Sklearn
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="xgboost_example.html">
+       Training a model with distributed XGBoost
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="analyze_tuning_results.html">
+       Hyperparameter tuning with XGBoostTrainer
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="lightgbm_example.html">
+       Training a model with distributed LightGBM
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="torch_incremental_learning.html">
+       Incremental Learning with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rl_serving_example.html">
+       Serving reinforcement learning policy models
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rl_online_example.html">
+       Online reinforcement learning with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rl_offline_example.html">
+       Offline reinforcement learning with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3 current active">
+      <a class="current reference internal" href="upload_to_comet_ml.html#">
+       Logging results and uploading models to Comet ML
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="upload_to_wandb.html">
+       Logging results and uploading models to Weights &amp; Biases
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="feast_example.html">
+       Integrate Ray AIR with Feast feature store
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="automl_with_ray_air.html">
+       AutoML for time series forecasting with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="batch_tuning.html">
+       Batch training &amp; tuning on Ray Tune
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="batch_forecasting.html">
+       Parallel demand forecasting at scale using Ray Tune
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="stablediffusion_batch_prediction.html">
+       Stable Diffusion Batch Prediction with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gptj_deepspeed_fine_tuning.html">
+       GPT-J-6B Fine-Tuning with Ray AIR and DeepSpeed
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gptj_batch_prediction.html">
+       GPT-J-6B Batch Prediction with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gptj_serving.html">
+       GPT-J-6B Serving with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="dreambooth_finetuning.html">
+       Fine-tuning DreamBooth with Ray AIR
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="dolly_lightning_fsdp_finetuning.html">
+       Fine-tune
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         dolly-v2-7b
+        </span>
+       </code>
+       with Ray AIR LightningTrainer and FSDP
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/api.html">
+     Ray AIR API
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../benchmarks.html">
+     Benchmarks
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tune.html">
+   Ray Tune
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Fray-air/examples/upload_to_comet_ml.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/ray-air/examples/upload_to_comet_ml.ipynb"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../_sources/ray-air/examples/upload_to_comet_ml.ipynb.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.ipynb</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Logging results and uploading models to Comet ML</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section class="tex2jax_ignore mathjax_ignore" id="logging-results-and-uploading-models-to-comet-ml">
+<h1>Logging results and uploading models to Comet ML<a class="headerlink" href="upload_to_comet_ml.html#logging-results-and-uploading-models-to-comet-ml" title="Permalink to this headline">#</a></h1>
+<p>In this example, we train a simple XGBoost model and log the training
+results to Comet ML. We also save the resulting model checkpoints
+as artifacts.</p>
+<p>Let’s start with installing our dependencies:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>pip install -qU <span class="s2">&quot;ray[tune]&quot;</span> scikit-learn xgboost_ray comet_ml
+</pre></div>
+</div>
+</div>
+</div>
+<p>Then we need some imports:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ray</span>
+
+<span class="kn">from</span> <span class="nn">ray.air.config</span> <span class="kn">import</span> <span class="n">RunConfig</span><span class="p">,</span> <span class="n">ScalingConfig</span>
+<span class="kn">from</span> <span class="nn">ray.air.result</span> <span class="kn">import</span> <span class="n">Result</span>
+<span class="kn">from</span> <span class="nn">ray.train.xgboost</span> <span class="kn">import</span> <span class="n">XGBoostTrainer</span>
+<span class="kn">from</span> <span class="nn">ray.air.integrations.comet</span> <span class="kn">import</span> <span class="n">CometLoggerCallback</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We define a simple function that returns our training dataset as a Dataset:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_train_dataset</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">ray</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;s3://anonymous@air-example-data/breast_cancer.csv&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dataset</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Now we define a simple training function. All the magic happens within the <code class="docutils literal notranslate"><span class="pre">CometLoggerCallback</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">CometLoggerCallback</span><span class="p">(</span>
+    <span class="n">project_name</span><span class="o">=</span><span class="n">comet_project</span><span class="p">,</span>
+    <span class="n">save_checkpoints</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>It will automatically log all results to Comet ML and upload the checkpoints as artifacts. It assumes you’re logged in into Comet via an API key or your <code class="docutils literal notranslate"><span class="pre">~./.comet.config</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">train_model</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">:</span> <span class="n">ray</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">comet_project</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Result</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Train a simple XGBoost model and return the result.&quot;&quot;&quot;</span>
+    <span class="n">trainer</span> <span class="o">=</span> <span class="n">XGBoostTrainer</span><span class="p">(</span>
+        <span class="n">scaling_config</span><span class="o">=</span><span class="n">ScalingConfig</span><span class="p">(</span><span class="n">num_workers</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
+        <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;tree_method&quot;</span><span class="p">:</span> <span class="s2">&quot;auto&quot;</span><span class="p">},</span>
+        <span class="n">label_column</span><span class="o">=</span><span class="s2">&quot;target&quot;</span><span class="p">,</span>
+        <span class="n">datasets</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;train&quot;</span><span class="p">:</span> <span class="n">train_dataset</span><span class="p">},</span>
+        <span class="n">num_boost_round</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="n">run_config</span><span class="o">=</span><span class="n">RunConfig</span><span class="p">(</span>
+            <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span>
+                <span class="c1"># This is the part needed to enable logging to Comet ML.</span>
+                <span class="c1"># It assumes Comet ML can find a valid API (e.g. by setting</span>
+                <span class="c1"># the ``COMET_API_KEY`` environment variable).</span>
+                <span class="n">CometLoggerCallback</span><span class="p">(</span>
+                    <span class="n">project_name</span><span class="o">=</span><span class="n">comet_project</span><span class="p">,</span>
+                    <span class="n">save_checkpoints</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">]</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">result</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Let’s kick off a run:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">comet_project</span> <span class="o">=</span> <span class="s2">&quot;ray_air_example&quot;</span>
+
+<span class="n">train_dataset</span> <span class="o">=</span> <span class="n">get_train_dataset</span><span class="p">()</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">train_model</span><span class="p">(</span><span class="n">train_dataset</span><span class="o">=</span><span class="n">train_dataset</span><span class="p">,</span> <span class="n">comet_project</span><span class="o">=</span><span class="n">comet_project</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2022-05-19 15:19:17,237	INFO services.py:1483 -- View the Ray dashboard at <span class=" -Color -Color-Bold -Color-Bold-Green">http://127.0.0.1:8265</span>
+</pre></div>
+</div>
+<div class="output text_html">== Status ==<br>Current time: 2022-05-19 15:19:35 (running for 00:00:14.95)<br>Memory usage on this node: 10.2/16.0 GiB<br>Using FIFO scheduling algorithm.<br>Resources requested: 0/16 CPUs, 0/0 GPUs, 0.0/5.12 GiB heap, 0.0/2.0 GiB objects<br>Result logdir: /Users/kai/ray_results/XGBoostTrainer_2022-05-19_15-19-19<br>Number of trials: 1/1 (1 TERMINATED)<br><table>
+<thead>
+<tr><th>Trial name                </th><th>status    </th><th>loc            </th><th style="text-align: right;">  iter</th><th style="text-align: right;">  total time (s)</th><th style="text-align: right;">  train-rmse</th></tr>
+</thead>
+<tbody>
+<tr><td>XGBoostTrainer_ac544_00000</td><td>TERMINATED</td><td>127.0.0.1:19852</td><td style="text-align: right;">    10</td><td style="text-align: right;">          9.7203</td><td style="text-align: right;">    0.030717</td></tr>
+</tbody>
+</table><br><br></div><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>COMET WARNING: As you are running in a Jupyter environment, you will need to call `experiment.end()` when finished to ensure all metrics and code are logged before exiting.
+<span class=" -Color -Color-Faint -Color-Faint-Yellow">(raylet)</span> 2022-05-19 15:19:21,584	INFO context.py:70 -- Exec&#39;ing worker with command: exec /Users/kai/.pyenv/versions/3.7.7/bin/python3.7 /Users/kai/coding/ray/python/ray/workers/default_worker.py --node-ip-address=127.0.0.1 --node-manager-port=61222 --object-store-name=/tmp/ray/session_2022-05-19_15-19-14_632568_19778/sockets/plasma_store --raylet-name=/tmp/ray/session_2022-05-19_15-19-14_632568_19778/sockets/raylet --redis-address=None --storage=None --temp-dir=/tmp/ray --metrics-agent-port=62873 --logging-rotate-bytes=536870912 --logging-rotate-backup-count=5 --gcs-address=127.0.0.1:61938 --redis-password=5241590000000000 --startup-token=16 --runtime-env-hash=-2010331134
+COMET INFO: Experiment is live on comet.ml https://www.comet.ml/krfricke/ray-air-example/ecd3726ca127497ba7386003a249fad6
+
+COMET WARNING: Failed to add tag(s) None to the experiment
+
+COMET WARNING: Empty mapping given to log_params({}); ignoring
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(GBDTTrainable pid=19852)</span> UserWarning: Dataset &#39;train&#39; has 1 blocks, which is less than the `num_workers` 2. This dataset will be automatically repartitioned to 2 blocks.
+<span class=" -Color -Color-Faint -Color-Faint-Yellow">(raylet)</span> 2022-05-19 15:19:24,628	INFO context.py:70 -- Exec&#39;ing worker with command: exec /Users/kai/.pyenv/versions/3.7.7/bin/python3.7 /Users/kai/coding/ray/python/ray/workers/default_worker.py --node-ip-address=127.0.0.1 --node-manager-port=61222 --object-store-name=/tmp/ray/session_2022-05-19_15-19-14_632568_19778/sockets/plasma_store --raylet-name=/tmp/ray/session_2022-05-19_15-19-14_632568_19778/sockets/raylet --redis-address=None --storage=None --temp-dir=/tmp/ray --metrics-agent-port=62873 --logging-rotate-bytes=536870912 --logging-rotate-backup-count=5 --gcs-address=127.0.0.1:61938 --redis-password=5241590000000000 --startup-token=17 --runtime-env-hash=-2010331069
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(GBDTTrainable pid=19852)</span> 2022-05-19 15:19:25,961	INFO main.py:980 -- [RayXGBoost] Created 2 new actors (2 total actors). Waiting until actors are ready for training.
+<span class=" -Color -Color-Faint -Color-Faint-Yellow">(raylet)</span> 2022-05-19 15:19:26,830	INFO context.py:70 -- Exec&#39;ing worker with command: exec /Users/kai/.pyenv/versions/3.7.7/bin/python3.7 /Users/kai/coding/ray/python/ray/workers/default_worker.py --node-ip-address=127.0.0.1 --node-manager-port=61222 --object-store-name=/tmp/ray/session_2022-05-19_15-19-14_632568_19778/sockets/plasma_store --raylet-name=/tmp/ray/session_2022-05-19_15-19-14_632568_19778/sockets/raylet --redis-address=None --storage=None --temp-dir=/tmp/ray --metrics-agent-port=62873 --logging-rotate-bytes=536870912 --logging-rotate-backup-count=5 --gcs-address=127.0.0.1:61938 --redis-password=5241590000000000 --startup-token=18 --runtime-env-hash=-2010331069
+<span class=" -Color -Color-Faint -Color-Faint-Yellow">(raylet)</span> 2022-05-19 15:19:26,918	INFO context.py:70 -- Exec&#39;ing worker with command: exec /Users/kai/.pyenv/versions/3.7.7/bin/python3.7 /Users/kai/coding/ray/python/ray/workers/default_worker.py --node-ip-address=127.0.0.1 --node-manager-port=61222 --object-store-name=/tmp/ray/session_2022-05-19_15-19-14_632568_19778/sockets/plasma_store --raylet-name=/tmp/ray/session_2022-05-19_15-19-14_632568_19778/sockets/raylet --redis-address=None --storage=None --temp-dir=/tmp/ray --metrics-agent-port=62873 --logging-rotate-bytes=536870912 --logging-rotate-backup-count=5 --gcs-address=127.0.0.1:61938 --redis-password=5241590000000000 --startup-token=20 --runtime-env-hash=-2010331134
+<span class=" -Color -Color-Faint -Color-Faint-Yellow">(raylet)</span> 2022-05-19 15:19:26,922	INFO context.py:70 -- Exec&#39;ing worker with command: exec /Users/kai/.pyenv/versions/3.7.7/bin/python3.7 /Users/kai/coding/ray/python/ray/workers/default_worker.py --node-ip-address=127.0.0.1 --node-manager-port=61222 --object-store-name=/tmp/ray/session_2022-05-19_15-19-14_632568_19778/sockets/plasma_store --raylet-name=/tmp/ray/session_2022-05-19_15-19-14_632568_19778/sockets/raylet --redis-address=None --storage=None --temp-dir=/tmp/ray --metrics-agent-port=62873 --logging-rotate-bytes=536870912 --logging-rotate-backup-count=5 --gcs-address=127.0.0.1:61938 --redis-password=5241590000000000 --startup-token=21 --runtime-env-hash=-2010331134
+<span class=" -Color -Color-Faint -Color-Faint-Yellow">(raylet)</span> 2022-05-19 15:19:26,922	INFO context.py:70 -- Exec&#39;ing worker with command: exec /Users/kai/.pyenv/versions/3.7.7/bin/python3.7 /Users/kai/coding/ray/python/ray/workers/default_worker.py --node-ip-address=127.0.0.1 --node-manager-port=61222 --object-store-name=/tmp/ray/session_2022-05-19_15-19-14_632568_19778/sockets/plasma_store --raylet-name=/tmp/ray/session_2022-05-19_15-19-14_632568_19778/sockets/raylet --redis-address=None --storage=None --temp-dir=/tmp/ray --metrics-agent-port=62873 --logging-rotate-bytes=536870912 --logging-rotate-backup-count=5 --gcs-address=127.0.0.1:61938 --redis-password=5241590000000000 --startup-token=22 --runtime-env-hash=-2010331134
+<span class=" -Color -Color-Faint -Color-Faint-Yellow">(raylet)</span> 2022-05-19 15:19:26,923	INFO context.py:70 -- Exec&#39;ing worker with command: exec /Users/kai/.pyenv/versions/3.7.7/bin/python3.7 /Users/kai/coding/ray/python/ray/workers/default_worker.py --node-ip-address=127.0.0.1 --node-manager-port=61222 --object-store-name=/tmp/ray/session_2022-05-19_15-19-14_632568_19778/sockets/plasma_store --raylet-name=/tmp/ray/session_2022-05-19_15-19-14_632568_19778/sockets/raylet --redis-address=None --storage=None --temp-dir=/tmp/ray --metrics-agent-port=62873 --logging-rotate-bytes=536870912 --logging-rotate-backup-count=5 --gcs-address=127.0.0.1:61938 --redis-password=5241590000000000 --startup-token=19 --runtime-env-hash=-2010331134
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(GBDTTrainable pid=19852)</span> 2022-05-19 15:19:29,272	INFO main.py:1025 -- [RayXGBoost] Starting XGBoost training.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(_RemoteRayXGBoostActor pid=19876)</span> [15:19:29] task [xgboost.ray]:4505889744 got new rank 1
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(_RemoteRayXGBoostActor pid=19875)</span> [15:19:29] task [xgboost.ray]:6941849424 got new rank 0
+COMET WARNING: The given value of the metric episodes_total was None; ignoring
+COMET WARNING: The given value of the metric timesteps_total was None; ignoring
+COMET INFO: Artifact &#39;checkpoint_XGBoostTrainer_ac544_00000&#39; version 1.0.0 created
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Result for XGBoostTrainer_ac544_00000:
+  date: 2022-05-19_15-19-30
+  done: false
+  experiment_id: d3007bd6a2734b328fd90385485c5a8d
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  node_ip: 127.0.0.1
+  pid: 19852
+  should_checkpoint: true
+  time_since_restore: 6.529659032821655
+  time_this_iter_s: 6.529659032821655
+  time_total_s: 6.529659032821655
+  timestamp: 1652969970
+  timesteps_since_restore: 0
+  train-rmse: 0.357284
+  training_iteration: 1
+  trial_id: ac544_00000
+  warmup_time: 0.003961086273193359
+  
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>COMET INFO: Scheduling the upload of 3 assets for a size of 2.48 KB, this can take some time
+COMET INFO: Artifact &#39;krfricke/checkpoint_XGBoostTrainer_ac544_00000:1.0.0&#39; has started uploading asynchronously
+COMET WARNING: The given value of the metric episodes_total was None; ignoring
+COMET WARNING: The given value of the metric timesteps_total was None; ignoring
+COMET INFO: Artifact &#39;checkpoint_XGBoostTrainer_ac544_00000&#39; version 2.0.0 created (previous was: 1.0.0)
+COMET INFO: Scheduling the upload of 3 assets for a size of 3.86 KB, this can take some time
+COMET INFO: Artifact &#39;krfricke/checkpoint_XGBoostTrainer_ac544_00000:2.0.0&#39; has started uploading asynchronously
+COMET WARNING: The given value of the metric episodes_total was None; ignoring
+COMET WARNING: The given value of the metric timesteps_total was None; ignoring
+COMET INFO: Artifact &#39;checkpoint_XGBoostTrainer_ac544_00000&#39; version 3.0.0 created (previous was: 2.0.0)
+COMET INFO: Artifact &#39;krfricke/checkpoint_XGBoostTrainer_ac544_00000:1.0.0&#39; has been fully uploaded successfully
+COMET INFO: Scheduling the upload of 3 assets for a size of 5.31 KB, this can take some time
+COMET INFO: Artifact &#39;krfricke/checkpoint_XGBoostTrainer_ac544_00000:3.0.0&#39; has started uploading asynchronously
+COMET WARNING: The given value of the metric episodes_total was None; ignoring
+COMET WARNING: The given value of the metric timesteps_total was None; ignoring
+COMET INFO: Artifact &#39;checkpoint_XGBoostTrainer_ac544_00000&#39; version 4.0.0 created (previous was: 3.0.0)
+COMET INFO: Artifact &#39;krfricke/checkpoint_XGBoostTrainer_ac544_00000:2.0.0&#39; has been fully uploaded successfully
+COMET INFO: Scheduling the upload of 3 assets for a size of 6.76 KB, this can take some time
+COMET INFO: Artifact &#39;krfricke/checkpoint_XGBoostTrainer_ac544_00000:4.0.0&#39; has started uploading asynchronously
+COMET WARNING: The given value of the metric episodes_total was None; ignoring
+COMET WARNING: The given value of the metric timesteps_total was None; ignoring
+COMET INFO: Artifact &#39;checkpoint_XGBoostTrainer_ac544_00000&#39; version 5.0.0 created (previous was: 4.0.0)
+COMET INFO: Scheduling the upload of 3 assets for a size of 8.21 KB, this can take some time
+COMET INFO: Artifact &#39;krfricke/checkpoint_XGBoostTrainer_ac544_00000:3.0.0&#39; has been fully uploaded successfully
+COMET INFO: Artifact &#39;krfricke/checkpoint_XGBoostTrainer_ac544_00000:5.0.0&#39; has started uploading asynchronously
+COMET WARNING: The given value of the metric episodes_total was None; ignoring
+COMET WARNING: The given value of the metric timesteps_total was None; ignoring
+COMET INFO: Artifact &#39;krfricke/checkpoint_XGBoostTrainer_ac544_00000:4.0.0&#39; has been fully uploaded successfully
+COMET INFO: Artifact &#39;checkpoint_XGBoostTrainer_ac544_00000&#39; version 6.0.0 created (previous was: 5.0.0)
+COMET INFO: Scheduling the upload of 3 assets for a size of 9.87 KB, this can take some time
+COMET INFO: Artifact &#39;krfricke/checkpoint_XGBoostTrainer_ac544_00000:6.0.0&#39; has started uploading asynchronously
+COMET WARNING: The given value of the metric episodes_total was None; ignoring
+COMET WARNING: The given value of the metric timesteps_total was None; ignoring
+COMET INFO: Artifact &#39;krfricke/checkpoint_XGBoostTrainer_ac544_00000:5.0.0&#39; has been fully uploaded successfully
+COMET INFO: Artifact &#39;checkpoint_XGBoostTrainer_ac544_00000&#39; version 7.0.0 created (previous was: 6.0.0)
+COMET INFO: Scheduling the upload of 3 assets for a size of 11.46 KB, this can take some time
+COMET INFO: Artifact &#39;krfricke/checkpoint_XGBoostTrainer_ac544_00000:7.0.0&#39; has started uploading asynchronously
+COMET WARNING: The given value of the metric episodes_total was None; ignoring
+COMET WARNING: The given value of the metric timesteps_total was None; ignoring
+COMET INFO: Artifact &#39;krfricke/checkpoint_XGBoostTrainer_ac544_00000:6.0.0&#39; has been fully uploaded successfully
+COMET INFO: Artifact &#39;checkpoint_XGBoostTrainer_ac544_00000&#39; version 8.0.0 created (previous was: 7.0.0)
+COMET INFO: Scheduling the upload of 3 assets for a size of 12.84 KB, this can take some time
+COMET INFO: Artifact &#39;krfricke/checkpoint_XGBoostTrainer_ac544_00000:8.0.0&#39; has started uploading asynchronously
+COMET WARNING: The given value of the metric episodes_total was None; ignoring
+COMET WARNING: The given value of the metric timesteps_total was None; ignoring
+COMET INFO: Artifact &#39;krfricke/checkpoint_XGBoostTrainer_ac544_00000:7.0.0&#39; has been fully uploaded successfully
+COMET INFO: Artifact &#39;checkpoint_XGBoostTrainer_ac544_00000&#39; version 9.0.0 created (previous was: 8.0.0)
+COMET INFO: Scheduling the upload of 3 assets for a size of 14.36 KB, this can take some time
+COMET INFO: Artifact &#39;krfricke/checkpoint_XGBoostTrainer_ac544_00000:9.0.0&#39; has started uploading asynchronously
+COMET WARNING: The given value of the metric episodes_total was None; ignoring
+COMET WARNING: The given value of the metric timesteps_total was None; ignoring
+COMET INFO: Artifact &#39;krfricke/checkpoint_XGBoostTrainer_ac544_00000:8.0.0&#39; has been fully uploaded successfully
+COMET INFO: Artifact &#39;checkpoint_XGBoostTrainer_ac544_00000&#39; version 10.0.0 created (previous was: 9.0.0)
+COMET INFO: Scheduling the upload of 3 assets for a size of 16.37 KB, this can take some time
+COMET INFO: Artifact &#39;krfricke/checkpoint_XGBoostTrainer_ac544_00000:10.0.0&#39; has started uploading asynchronously
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(GBDTTrainable pid=19852)</span> 2022-05-19 15:19:33,890	INFO main.py:1519 -- [RayXGBoost] Finished XGBoost training on training data with total N=569 in 7.96 seconds (4.61 pure XGBoost training time).
+COMET INFO: Artifact &#39;krfricke/checkpoint_XGBoostTrainer_ac544_00000:9.0.0&#39; has been fully uploaded successfully
+COMET INFO: Artifact &#39;checkpoint_XGBoostTrainer_ac544_00000&#39; version 11.0.0 created (previous was: 10.0.0)
+COMET INFO: Scheduling the upload of 3 assets for a size of 16.39 KB, this can take some time
+COMET INFO: Artifact &#39;krfricke/checkpoint_XGBoostTrainer_ac544_00000:11.0.0&#39; has started uploading asynchronously
+COMET INFO: ---------------------------
+COMET INFO: Comet.ml Experiment Summary
+COMET INFO: ---------------------------
+COMET INFO:   Data:
+COMET INFO:     display_summary_level : 1
+COMET INFO:     url                   : https://www.comet.ml/krfricke/ray-air-example/ecd3726ca127497ba7386003a249fad6
+COMET INFO:   Metrics [count] (min, max):
+COMET INFO:     iterations_since_restore [10] : (1, 10)
+COMET INFO:     time_since_restore [10]       : (6.529659032821655, 9.720295906066895)
+COMET INFO:     time_this_iter_s [10]         : (0.3124058246612549, 6.529659032821655)
+COMET INFO:     time_total_s [10]             : (6.529659032821655, 9.720295906066895)
+COMET INFO:     timestamp [10]                : (1652969970, 1652969973)
+COMET INFO:     timesteps_since_restore       : 0
+COMET INFO:     train-rmse [10]               : (0.030717, 0.357284)
+COMET INFO:     training_iteration [10]       : (1, 10)
+COMET INFO:     warmup_time                   : 0.003961086273193359
+COMET INFO:   Others:
+COMET INFO:     Created from  : Ray
+COMET INFO:     Name          : XGBoostTrainer_ac544_00000
+COMET INFO:     experiment_id : d3007bd6a2734b328fd90385485c5a8d
+COMET INFO:     trial_id      : ac544_00000
+COMET INFO:   System Information:
+COMET INFO:     date     : 2022-05-19_15-19-33
+COMET INFO:     hostname : Kais-MacBook-Pro.local
+COMET INFO:     node_ip  : 127.0.0.1
+COMET INFO:     pid      : 19852
+COMET INFO:   Uploads:
+COMET INFO:     artifact assets     : 33 (107.92 KB)
+COMET INFO:     artifacts           : 11
+COMET INFO:     environment details : 1
+COMET INFO:     filename            : 1
+COMET INFO:     installed packages  : 1
+COMET INFO:     notebook            : 1
+COMET INFO:     source_code         : 1
+COMET INFO: ---------------------------
+COMET INFO: Uploading metrics, params, and assets to Comet before program termination (may take several seconds)
+COMET INFO: The Python SDK has 3600 seconds to finish before aborting...
+COMET INFO: Waiting for completion of the file uploads (may take several seconds)
+COMET INFO: The Python SDK has 10800 seconds to finish before aborting...
+COMET INFO: Still uploading 6 file(s), remaining 21.05 KB/116.69 KB
+COMET INFO: Artifact &#39;krfricke/checkpoint_XGBoostTrainer_ac544_00000:10.0.0&#39; has been fully uploaded successfully
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>COMET INFO: Artifact &#39;krfricke/checkpoint_XGBoostTrainer_ac544_00000:11.0.0&#39; has been fully uploaded successfully
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Result for XGBoostTrainer_ac544_00000:
+  date: 2022-05-19_15-19-33
+  done: true
+  experiment_id: d3007bd6a2734b328fd90385485c5a8d
+  experiment_tag: &#39;0&#39;
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 10
+  node_ip: 127.0.0.1
+  pid: 19852
+  should_checkpoint: true
+  time_since_restore: 9.720295906066895
+  time_this_iter_s: 0.39761900901794434
+  time_total_s: 9.720295906066895
+  timestamp: 1652969973
+  timesteps_since_restore: 0
+  train-rmse: 0.030717
+  training_iteration: 10
+  trial_id: ac544_00000
+  warmup_time: 0.003961086273193359
+  
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2022-05-19 15:19:35,621	INFO tune.py:753 -- Total run time: 15.75 seconds (14.94 seconds for the tuning loop).
+</pre></div>
+</div>
+</div>
+</div>
+<p>Check out your <a class="reference external" href="https://www.comet.ml/">Comet ML</a> project to see the results!</p>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="rl_offline_example.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Offline reinforcement learning with Ray AIR</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="upload_to_wandb.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Logging results and uploading models to Weights &amp; Biases</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

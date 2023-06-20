@@ -1,0 +1,1905 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Tuning XGBoost hyperparameters with Ray Tune &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/js/versionwarning.js"></script>
+    <script src="../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../_static/js/docsearch.js"></script>
+    <script src="../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../_static/js/top-navigation.js"></script>
+    <script src="../../_static/js/tags.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script async="async" src="../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/tune/examples/tune-xgboost.html" />
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Using LightGBM with Tune" href="lightgbm_example.html" />
+    <link rel="prev" title="Using RLlib with Tune" href="pbt_ppo_example.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "tune/examples/tune-xgboost", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".ipynb", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../../tune.html">
+   Ray Tune
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../getting-started.html">
+     Getting Started
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../tutorials/overview.html">
+     User Guides
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="index.html">
+     Ray Tune Examples
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3 current active has-children">
+      <a class="reference internal" href="ml-frameworks.html">
+       Examples using Ray Tune with ML Frameworks
+      </a>
+      <input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+      <label for="toctree-checkbox-3">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul class="current">
+       <li class="toctree-l4">
+        <a class="reference internal" href="tune-sklearn.html">
+         Scikit-Learn Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="tune_mnist_keras.html">
+         Keras Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="tune-pytorch-cifar.html">
+         PyTorch Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="tune-pytorch-lightning.html">
+         PyTorch Lightning Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="mxnet_example.html">
+         MXNet Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="tune-serve-integration-mnist.html">
+         Ray Serve Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="pbt_ppo_example.html">
+         Ray RLlib Example
+        </a>
+       </li>
+       <li class="toctree-l4 current active">
+        <a class="current reference internal" href="tune-xgboost.html#">
+         XGBoost Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="lightgbm_example.html">
+         LightGBM Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="horovod_simple.html">
+         Horovod Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="pbt_transformers.html">
+         Hugging Face Transformers Example
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="experiment-tracking.html">
+       Tune Experiment Tracking Examples
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="hpo-frameworks.html">
+       Tune Hyperparameter Optimization Framework Examples
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="other-examples.html">
+       Other Examples
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="exercises.html">
+       Exercises
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../faq.html">
+     Ray Tune FAQ
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/api.html">
+     Ray Tune API
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Ftune/examples/tune-xgboost.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/tune/examples/tune-xgboost.ipynb"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../_sources/tune/examples/tune-xgboost.ipynb.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.ipynb</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-xgboost.html#what-is-xgboost">
+   What is XGBoost
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-xgboost.html#training-a-simple-xgboost-classifier">
+   Training a simple XGBoost classifier
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-xgboost.html#xgboost-hyperparameters">
+   XGBoost Hyperparameters
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="tune-xgboost.html#maximum-tree-depth">
+     Maximum tree depth
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="tune-xgboost.html#minimum-child-weight">
+     Minimum child weight
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="tune-xgboost.html#subsample-size">
+     Subsample size
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="tune-xgboost.html#learning-rate-eta">
+     Learning rate / Eta
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="tune-xgboost.html#number-of-boost-rounds">
+     Number of boost rounds
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="tune-xgboost.html#putting-it-together">
+     Putting it together
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-xgboost.html#tuning-the-configuration-parameters">
+   Tuning the configuration parameters
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-xgboost.html#early-stopping">
+   Early stopping
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-xgboost.html#using-fractional-gpus">
+   Using fractional GPUs
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-xgboost.html#conclusion">
+   Conclusion
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-xgboost.html#more-xgboost-examples">
+   More XGBoost Examples
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-xgboost.html#learn-more">
+   Learn More
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Tuning XGBoost hyperparameters with Ray Tune</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-xgboost.html#what-is-xgboost">
+   What is XGBoost
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-xgboost.html#training-a-simple-xgboost-classifier">
+   Training a simple XGBoost classifier
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-xgboost.html#xgboost-hyperparameters">
+   XGBoost Hyperparameters
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="tune-xgboost.html#maximum-tree-depth">
+     Maximum tree depth
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="tune-xgboost.html#minimum-child-weight">
+     Minimum child weight
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="tune-xgboost.html#subsample-size">
+     Subsample size
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="tune-xgboost.html#learning-rate-eta">
+     Learning rate / Eta
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="tune-xgboost.html#number-of-boost-rounds">
+     Number of boost rounds
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="tune-xgboost.html#putting-it-together">
+     Putting it together
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-xgboost.html#tuning-the-configuration-parameters">
+   Tuning the configuration parameters
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-xgboost.html#early-stopping">
+   Early stopping
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-xgboost.html#using-fractional-gpus">
+   Using fractional GPUs
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-xgboost.html#conclusion">
+   Conclusion
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-xgboost.html#more-xgboost-examples">
+   More XGBoost Examples
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-xgboost.html#learn-more">
+   Learn More
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section class="tex2jax_ignore mathjax_ignore" id="tuning-xgboost-hyperparameters-with-ray-tune">
+<h1><a class="toc-backref" href="tune-xgboost.html#id4">Tuning XGBoost hyperparameters with Ray Tune</a><a class="headerlink" href="tune-xgboost.html#tuning-xgboost-hyperparameters-with-ray-tune" title="Permalink to this headline">#</a></h1>
+<p id="tune-xgboost-ref">XGBoost is currently one of the most popular machine learning algorithms. It performs
+very well on a large selection of tasks, and was the key to success in many Kaggle
+competitions.</p>
+<a class="reference external image-reference" href="https://xgboost.readthedocs.io/en/latest/"><img alt="XGBoost" class="align-center" src="../../_images/xgboost_logo.png" style="width: 200px;" /></a>
+<p>This tutorial will give you a quick introduction to XGBoost, show you how
+to train an XGBoost model, and then guide you on how to optimize XGBoost
+parameters using Tune to get the best performance. We tackle the following topics:</p>
+<div class="contents topic" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="tune-xgboost.html#tuning-xgboost-hyperparameters-with-ray-tune" id="id4">Tuning XGBoost hyperparameters with Ray Tune</a></p>
+<ul>
+<li><p><a class="reference internal" href="tune-xgboost.html#what-is-xgboost" id="id5">What is XGBoost</a></p></li>
+<li><p><a class="reference internal" href="tune-xgboost.html#training-a-simple-xgboost-classifier" id="id6">Training a simple XGBoost classifier</a></p></li>
+<li><p><a class="reference internal" href="tune-xgboost.html#xgboost-hyperparameters" id="id7">XGBoost Hyperparameters</a></p></li>
+<li><p><a class="reference internal" href="tune-xgboost.html#tuning-the-configuration-parameters" id="id8">Tuning the configuration parameters</a></p></li>
+<li><p><a class="reference internal" href="tune-xgboost.html#early-stopping" id="id9">Early stopping</a></p></li>
+<li><p><a class="reference internal" href="tune-xgboost.html#using-fractional-gpus" id="id10">Using fractional GPUs</a></p></li>
+<li><p><a class="reference internal" href="tune-xgboost.html#conclusion" id="id11">Conclusion</a></p></li>
+<li><p><a class="reference internal" href="tune-xgboost.html#more-xgboost-examples" id="id12">More XGBoost Examples</a></p></li>
+<li><p><a class="reference internal" href="tune-xgboost.html#learn-more" id="id13">Learn More</a></p></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To run this tutorial, you will need to install the following:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pip install xgboost
+</pre></div>
+</div>
+</div>
+<section id="what-is-xgboost">
+<h2><a class="toc-backref" href="tune-xgboost.html#id5">What is XGBoost</a><a class="headerlink" href="tune-xgboost.html#what-is-xgboost" title="Permalink to this headline">#</a></h2>
+<p>XGBoost is an acronym for e<strong>X</strong>treme <strong>G</strong>radient <strong>Boost</strong>ing. Internally,
+XGBoost uses <a class="reference external" href="https://en.wikipedia.org/wiki/Decision_tree">decision trees</a>. Instead
+of training just one large decision tree, XGBoost and other related algorithms train
+many small decision trees. The intuition behind this is that even though single
+decision trees can be inaccurate and suffer from high variance,
+combining the output of a large number of these weak learners can actually lead to
+strong learner, resulting in better predictions and less variance.</p>
+<figure class="align-default" id="id1">
+<img alt="Single vs. ensemble learning" src="../../_images/tune-xgboost-ensemble.svg" /><figcaption>
+<p><span class="caption-text">A single decision tree (left) might be able to get to an accuracy of 70%
+for a binary classification task. By combining the output of several small
+decision trees, an ensemble learner (right) might end up with a higher accuracy
+of 90%.</span><a class="headerlink" href="tune-xgboost.html#id1" title="Permalink to this image">#</a></p>
+</figcaption>
+</figure>
+<p>Boosting algorithms start with a single small decision tree and evaluate how well
+it predicts the given examples. When building the next tree, those samples that have
+been misclassified before have a higher chance of being used to generate the tree.
+This is useful because it avoids overfitting to samples that can be easily classified
+and instead tries to come up with models that are able to classify hard examples, too.
+Please see <a class="reference external" href="https://towardsdatascience.com/ensemble-methods-bagging-boosting-and-stacking-c9214a10a205">here for a more thorough introduction to bagging and boosting algorithms</a>.</p>
+<p>There are many boosting algorithms. In their core, they are all very similar. XGBoost
+uses second-level derivatives to find splits that maximize the <em>gain</em> (the inverse of
+the <em>loss</em>) - hence the name. In practice, there really is no drawback in using
+XGBoost over other boosting algorithms - in fact, it usually shows the best performance.</p>
+</section>
+<section id="training-a-simple-xgboost-classifier">
+<h2><a class="toc-backref" href="tune-xgboost.html#id6">Training a simple XGBoost classifier</a><a class="headerlink" href="tune-xgboost.html#training-a-simple-xgboost-classifier" title="Permalink to this headline">#</a></h2>
+<p>Let’s first see how a simple XGBoost classifier can be trained. We’ll use the
+<code class="docutils literal notranslate"><span class="pre">breast_cancer</span></code>-Dataset included in the <code class="docutils literal notranslate"><span class="pre">sklearn</span></code> dataset collection. This is
+a binary classification dataset. Given 30 different input features, our task is to
+learn to identify subjects with breast cancer and those without.</p>
+<p>Here is the full code to train a simple XGBoost model:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sklearn.datasets</span>
+<span class="kn">import</span> <span class="nn">sklearn.metrics</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">import</span> <span class="nn">xgboost</span> <span class="k">as</span> <span class="nn">xgb</span>
+
+
+<span class="k">def</span> <span class="nf">train_breast_cancer</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="c1"># Load dataset</span>
+    <span class="n">data</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">load_breast_cancer</span><span class="p">(</span><span class="n">return_X_y</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># Split into train and test set</span>
+    <span class="n">train_x</span><span class="p">,</span> <span class="n">test_x</span><span class="p">,</span> <span class="n">train_y</span><span class="p">,</span> <span class="n">test_y</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
+    <span class="c1"># Build input matrices for XGBoost</span>
+    <span class="n">train_set</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">DMatrix</span><span class="p">(</span><span class="n">train_x</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">train_y</span><span class="p">)</span>
+    <span class="n">test_set</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">DMatrix</span><span class="p">(</span><span class="n">test_x</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">test_y</span><span class="p">)</span>
+    <span class="c1"># Train the classifier</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">bst</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">train</span><span class="p">(</span>
+        <span class="n">config</span><span class="p">,</span>
+        <span class="n">train_set</span><span class="p">,</span>
+        <span class="n">evals</span><span class="o">=</span><span class="p">[(</span><span class="n">test_set</span><span class="p">,</span> <span class="s2">&quot;eval&quot;</span><span class="p">)],</span>
+        <span class="n">evals_result</span><span class="o">=</span><span class="n">results</span><span class="p">,</span>
+        <span class="n">verbose_eval</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">results</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">train_breast_cancer</span><span class="p">(</span>
+        <span class="p">{</span><span class="s2">&quot;objective&quot;</span><span class="p">:</span> <span class="s2">&quot;binary:logistic&quot;</span><span class="p">,</span> <span class="s2">&quot;eval_metric&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;logloss&quot;</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">]}</span>
+    <span class="p">)</span>
+    <span class="n">accuracy</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">results</span><span class="p">[</span><span class="s2">&quot;eval&quot;</span><span class="p">][</span><span class="s2">&quot;error&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Accuracy: </span><span class="si">{</span><span class="n">accuracy</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Accuracy: 0.9650
+</pre></div>
+</div>
+</div>
+</div>
+<p>As you can see, the code is quite simple. First, the dataset is loaded and split
+into a <code class="docutils literal notranslate"><span class="pre">test</span></code> and <code class="docutils literal notranslate"><span class="pre">train</span></code> set. The XGBoost model is trained with <code class="docutils literal notranslate"><span class="pre">xgb.train()</span></code>.
+XGBoost automatically evaluates metrics we specified on the test set. In our case
+it calculates the <em>logloss</em> and the prediction <em>error</em>, which is the percentage of
+misclassified examples. To calculate the accuracy, we just have to subtract the error
+from <code class="docutils literal notranslate"><span class="pre">1.0</span></code>. Even in this simple example, most runs result
+in a good accuracy of over <code class="docutils literal notranslate"><span class="pre">0.90</span></code>.</p>
+<p>Maybe you have noticed the <code class="docutils literal notranslate"><span class="pre">config</span></code> parameter we pass to the XGBoost algorithm. This
+is a <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code> in which you can specify parameters for the XGBoost algorithm. In this
+simple example, the only parameters we passed are the <code class="docutils literal notranslate"><span class="pre">objective</span></code> and <code class="docutils literal notranslate"><span class="pre">eval_metric</span></code> parameters.
+The value <code class="docutils literal notranslate"><span class="pre">binary:logistic</span></code> tells XGBoost that we aim to train a logistic regression model for
+a binary classification task. You can find an overview over all valid objectives
+<a class="reference external" href="https://xgboost.readthedocs.io/en/latest/parameter.html#learning-task-parameters">here in the XGBoost documentation</a>.</p>
+</section>
+<section id="xgboost-hyperparameters">
+<h2><a class="toc-backref" href="tune-xgboost.html#id7">XGBoost Hyperparameters</a><a class="headerlink" href="tune-xgboost.html#xgboost-hyperparameters" title="Permalink to this headline">#</a></h2>
+<p>Even with the default settings, XGBoost was able to get to a good accuracy on the
+breast cancer dataset. However, as in many machine learning algorithms, there are
+many knobs to tune which might lead to even better performance. Let’s explore some of
+them below.</p>
+<section id="maximum-tree-depth">
+<h3>Maximum tree depth<a class="headerlink" href="tune-xgboost.html#maximum-tree-depth" title="Permalink to this headline">#</a></h3>
+<p>Remember that XGBoost internally uses many decision tree models to come up with
+predictions. When training a decision tree, we need to tell the algorithm how
+large the tree may get. The parameter for this is called the tree <em>depth</em>.</p>
+<figure class="align-center" id="id2">
+<img alt="Decision tree depth" src="../../_images/tune-xgboost-depth.svg" /><figcaption>
+<p><span class="caption-text">In this image, the left tree has a depth of 2, and the right tree a depth of 3.
+Note that with each level, <span class="math notranslate nohighlight">\(2^{(d-1)}\)</span> splits are added, where <em>d</em> is the depth
+of the tree.</span><a class="headerlink" href="tune-xgboost.html#id2" title="Permalink to this image">#</a></p>
+</figcaption>
+</figure>
+<p>Tree depth is a property that concerns the model complexity. If you only allow short
+trees, the models are likely not very precise - they underfit the data. If you allow
+very large trees, the single models are likely to overfit to the data. In practice,
+a number between <code class="docutils literal notranslate"><span class="pre">2</span></code> and <code class="docutils literal notranslate"><span class="pre">6</span></code> is often a good starting point for this parameter.</p>
+<p>XGBoost’s default value is <code class="docutils literal notranslate"><span class="pre">3</span></code>.</p>
+</section>
+<section id="minimum-child-weight">
+<h3>Minimum child weight<a class="headerlink" href="tune-xgboost.html#minimum-child-weight" title="Permalink to this headline">#</a></h3>
+<p>When a decision tree creates new leaves, it splits up the remaining data at one node
+into two groups. If there are only few samples in one of these groups, it often
+doesn’t make sense to split it further. One of the reasons for this is that the
+model is harder to train when we have fewer samples.</p>
+<figure class="align-center" id="id3">
+<img alt="Minimum child weight" src="../../_images/tune-xgboost-weight.svg" /><figcaption>
+<p><span class="caption-text">In this example, we start with 100 examples. At the first node, they are split
+into 4 and 96 samples, respectively. In the next step, our model might find
+that it doesn’t make sense to split the 4 examples more. It thus only continues
+to add leaves on the right side.</span><a class="headerlink" href="tune-xgboost.html#id3" title="Permalink to this image">#</a></p>
+</figcaption>
+</figure>
+<p>The parameter used by the model to decide if it makes sense to split a node is called
+the <em>minimum child weight</em>. In the case of linear regression, this is just the absolute
+number of nodes requried in each child. In other objectives, this value is determined
+using the weights of the examples, hence the name.</p>
+<p>The larger the value, the more constrained the trees are and the less deep they will be.
+This parameter thus also affects the model complexity. Values can range between 0
+and infinity and are dependent on the sample size. For our ca. 500 examples in the
+breast cancer dataset, values between <code class="docutils literal notranslate"><span class="pre">0</span></code> and <code class="docutils literal notranslate"><span class="pre">10</span></code> should be sensible.</p>
+<p>XGBoost’s default value is <code class="docutils literal notranslate"><span class="pre">1</span></code>.</p>
+</section>
+<section id="subsample-size">
+<h3>Subsample size<a class="headerlink" href="tune-xgboost.html#subsample-size" title="Permalink to this headline">#</a></h3>
+<p>Each decision tree we add is trained on a subsample of the total training dataset.
+The probabilities for the samples are weighted according to the XGBoost algorithm,
+but we can decide on which fraction of the samples we want to train each decision
+tree on.</p>
+<p>Setting this value to <code class="docutils literal notranslate"><span class="pre">0.7</span></code> would mean that we randomly sample <code class="docutils literal notranslate"><span class="pre">70%</span></code> of the
+training dataset before each training iteration.</p>
+<p>XGBoost’s default value is <code class="docutils literal notranslate"><span class="pre">1</span></code>.</p>
+</section>
+<section id="learning-rate-eta">
+<h3>Learning rate / Eta<a class="headerlink" href="tune-xgboost.html#learning-rate-eta" title="Permalink to this headline">#</a></h3>
+<p>Remember that XGBoost sequentially trains many decision trees, and that later trees
+are more likely trained on data that has been misclassified by prior trees. In effect
+this means that earlier trees make decisions for easy samples (i.e. those samples that
+can easily be classified) and later trees make decisions for harder samples. It is then
+sensible to assume that the later trees are less accurate than earlier trees.</p>
+<p>To address this fact, XGBoost uses a parameter called <em>Eta</em>, which is sometimes called
+the <em>learning rate</em>. Don’t confuse this with learning rates from gradient descent!
+The original <a class="reference external" href="https://www.researchgate.net/publication/222573328_Stochastic_Gradient_Boosting">paper on stochastic gradient boosting</a>
+introduces this parameter like so:</p>
+<div class="math notranslate nohighlight">
+\[
+F_m(x) = F_{m-1}(x) + \eta \cdot \gamma_{lm} \textbf{1}(x \in R_{lm})
+\]</div>
+<p>This is just a complicated way to say that when we train we new decision tree,
+represented by <span class="math notranslate nohighlight">\(\gamma_{lm} \textbf{1}(x \in R_{lm})\)</span>, we want to dampen
+its effect on the previous prediction <span class="math notranslate nohighlight">\(F_{m-1}(x)\)</span> with a factor
+<span class="math notranslate nohighlight">\(\eta\)</span>.</p>
+<p>Typical values for this parameter are between <code class="docutils literal notranslate"><span class="pre">0.01</span></code> and <code class="docutils literal notranslate"><span class="pre">0.3`</span></code>.</p>
+<p>XGBoost’s default value is <code class="docutils literal notranslate"><span class="pre">0.3</span></code>.</p>
+</section>
+<section id="number-of-boost-rounds">
+<h3>Number of boost rounds<a class="headerlink" href="tune-xgboost.html#number-of-boost-rounds" title="Permalink to this headline">#</a></h3>
+<p>Lastly, we can decide on how many boosting rounds we perform, which means how
+many decision trees we ultimately train. When we do heavy subsampling or use small
+learning rate, it might make sense to increase the number of boosting rounds.</p>
+<p>XGBoost’s default value is <code class="docutils literal notranslate"><span class="pre">10</span></code>.</p>
+</section>
+<section id="putting-it-together">
+<h3>Putting it together<a class="headerlink" href="tune-xgboost.html#putting-it-together" title="Permalink to this headline">#</a></h3>
+<p>Let’s see how this looks like in code! We just need to adjust our <code class="docutils literal notranslate"><span class="pre">config</span></code> dict:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;objective&quot;</span><span class="p">:</span> <span class="s2">&quot;binary:logistic&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;eval_metric&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;logloss&quot;</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;max_depth&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="s2">&quot;min_child_weight&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">&quot;subsample&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>
+        <span class="s2">&quot;eta&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">train_breast_cancer</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">accuracy</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">results</span><span class="p">[</span><span class="s2">&quot;eval&quot;</span><span class="p">][</span><span class="s2">&quot;error&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Accuracy: </span><span class="si">{</span><span class="n">accuracy</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Accuracy: 0.9790
+</pre></div>
+</div>
+</div>
+</div>
+<p>The rest stays the same. Please note that we do not adjust the <code class="docutils literal notranslate"><span class="pre">num_boost_rounds</span></code> here.
+The result should also show a high accuracy of over 90%.</p>
+</section>
+</section>
+<section id="tuning-the-configuration-parameters">
+<h2><a class="toc-backref" href="tune-xgboost.html#id8">Tuning the configuration parameters</a><a class="headerlink" href="tune-xgboost.html#tuning-the-configuration-parameters" title="Permalink to this headline">#</a></h2>
+<p>XGBoosts default parameters already lead to a good accuracy, and even our guesses in the
+last section should result in accuracies well above 90%. However, our guesses were
+just that: guesses. Often we do not know what combination of parameters would actually
+lead to the best results on a machine learning task.</p>
+<p>Unfortunately, there are infinitely many combinations of hyperparameters we could try
+out. Should we combine <code class="docutils literal notranslate"><span class="pre">max_depth=3</span></code> with <code class="docutils literal notranslate"><span class="pre">subsample=0.8</span></code> or with <code class="docutils literal notranslate"><span class="pre">subsample=0.9</span></code>?
+What about the other parameters?</p>
+<p>This is where hyperparameter tuning comes into play. By using tuning libraries such as
+Ray Tune we can try out combinations of hyperparameters. Using sophisticated search
+strategies, these parameters can be selected so that they are likely to lead to good
+results (avoiding an expensive <em>exhaustive search</em>). Also, trials that do not perform
+well can be preemptively stopped to reduce waste of computing resources. Lastly, Ray Tune
+also takes care of training these runs in parallel, greatly increasing search speed.</p>
+<p>Let’s start with a basic example on how to use Tune for this. We just need to make
+a few changes to our code-block:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sklearn.datasets</span>
+<span class="kn">import</span> <span class="nn">sklearn.metrics</span>
+
+<span class="kn">from</span> <span class="nn">ray</span> <span class="kn">import</span> <span class="n">air</span><span class="p">,</span> <span class="n">tune</span>
+<span class="kn">from</span> <span class="nn">ray.air</span> <span class="kn">import</span> <span class="n">session</span>
+
+
+<span class="k">def</span> <span class="nf">train_breast_cancer</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="c1"># Load dataset</span>
+    <span class="n">data</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">load_breast_cancer</span><span class="p">(</span><span class="n">return_X_y</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># Split into train and test set</span>
+    <span class="n">train_x</span><span class="p">,</span> <span class="n">test_x</span><span class="p">,</span> <span class="n">train_y</span><span class="p">,</span> <span class="n">test_y</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
+    <span class="c1"># Build input matrices for XGBoost</span>
+    <span class="n">train_set</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">DMatrix</span><span class="p">(</span><span class="n">train_x</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">train_y</span><span class="p">)</span>
+    <span class="n">test_set</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">DMatrix</span><span class="p">(</span><span class="n">test_x</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">test_y</span><span class="p">)</span>
+    <span class="c1"># Train the classifier</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">xgb</span><span class="o">.</span><span class="n">train</span><span class="p">(</span>
+        <span class="n">config</span><span class="p">,</span>
+        <span class="n">train_set</span><span class="p">,</span>
+        <span class="n">evals</span><span class="o">=</span><span class="p">[(</span><span class="n">test_set</span><span class="p">,</span> <span class="s2">&quot;eval&quot;</span><span class="p">)],</span>
+        <span class="n">evals_result</span><span class="o">=</span><span class="n">results</span><span class="p">,</span>
+        <span class="n">verbose_eval</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># Return prediction accuracy</span>
+    <span class="n">accuracy</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">results</span><span class="p">[</span><span class="s2">&quot;eval&quot;</span><span class="p">][</span><span class="s2">&quot;error&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">session</span><span class="o">.</span><span class="n">report</span><span class="p">({</span><span class="s2">&quot;mean_accuracy&quot;</span><span class="p">:</span> <span class="n">accuracy</span><span class="p">,</span> <span class="s2">&quot;done&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;objective&quot;</span><span class="p">:</span> <span class="s2">&quot;binary:logistic&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;eval_metric&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;logloss&quot;</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;max_depth&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">9</span><span class="p">),</span>
+        <span class="s2">&quot;min_child_weight&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]),</span>
+        <span class="s2">&quot;subsample&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+        <span class="s2">&quot;eta&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">loguniform</span><span class="p">(</span><span class="mf">1e-4</span><span class="p">,</span> <span class="mf">1e-1</span><span class="p">),</span>
+    <span class="p">}</span>
+    <span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
+        <span class="n">train_breast_cancer</span><span class="p">,</span>
+        <span class="n">tune_config</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">TuneConfig</span><span class="p">(</span>
+            <span class="n">num_samples</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">param_space</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2022-07-22 15:52:52,004	INFO services.py:1483 -- View the Ray dashboard at <span class=" -Color -Color-Bold -Color-Bold-Green">http://127.0.0.1:8268</span>
+2022-07-22 15:52:55,858	WARNING function_trainable.py:619 -- Function checkpointing is disabled. This may result in unexpected behavior when using checkpointing features or certain schedulers. To enable, set the train function arguments to be `func(config, checkpoint_dir=None)`.
+</pre></div>
+</div>
+<div class="output text_html">== Status ==<br>Current time: 2022-07-22 15:53:04 (running for 00:00:07.77)<br>Memory usage on this node: 10.5/16.0 GiB<br>Using FIFO scheduling algorithm.<br>Resources requested: 0/16 CPUs, 0/0 GPUs, 0.0/4.57 GiB heap, 0.0/2.0 GiB objects<br>Result logdir: /Users/kai/ray_results/train_breast_cancer_2022-07-22_15-52-48<br>Number of trials: 10/10 (10 TERMINATED)<br><table>
+<thead>
+<tr><th>Trial name                     </th><th>status    </th><th>loc            </th><th style="text-align: right;">        eta</th><th style="text-align: right;">  max_depth</th><th style="text-align: right;">  min_child_weight</th><th style="text-align: right;">  subsample</th><th style="text-align: right;">     acc</th><th style="text-align: right;">  iter</th><th style="text-align: right;">  total time (s)</th></tr>
+</thead>
+<tbody>
+<tr><td>train_breast_cancer_f8669_00000</td><td>TERMINATED</td><td>127.0.0.1:48852</td><td style="text-align: right;">0.0069356  </td><td style="text-align: right;">          5</td><td style="text-align: right;">                 3</td><td style="text-align: right;">   0.823504</td><td style="text-align: right;">0.944056</td><td style="text-align: right;">     1</td><td style="text-align: right;">       0.0316169</td></tr>
+<tr><td>train_breast_cancer_f8669_00001</td><td>TERMINATED</td><td>127.0.0.1:48857</td><td style="text-align: right;">0.00145619 </td><td style="text-align: right;">          6</td><td style="text-align: right;">                 3</td><td style="text-align: right;">   0.832947</td><td style="text-align: right;">0.958042</td><td style="text-align: right;">     1</td><td style="text-align: right;">       0.0328588</td></tr>
+<tr><td>train_breast_cancer_f8669_00002</td><td>TERMINATED</td><td>127.0.0.1:48858</td><td style="text-align: right;">0.00108208 </td><td style="text-align: right;">          7</td><td style="text-align: right;">                 3</td><td style="text-align: right;">   0.987319</td><td style="text-align: right;">0.944056</td><td style="text-align: right;">     1</td><td style="text-align: right;">       0.0319381</td></tr>
+<tr><td>train_breast_cancer_f8669_00003</td><td>TERMINATED</td><td>127.0.0.1:48859</td><td style="text-align: right;">0.00530429 </td><td style="text-align: right;">          8</td><td style="text-align: right;">                 2</td><td style="text-align: right;">   0.615691</td><td style="text-align: right;">0.923077</td><td style="text-align: right;">     1</td><td style="text-align: right;">       0.028388 </td></tr>
+<tr><td>train_breast_cancer_f8669_00004</td><td>TERMINATED</td><td>127.0.0.1:48860</td><td style="text-align: right;">0.000721843</td><td style="text-align: right;">          8</td><td style="text-align: right;">                 1</td><td style="text-align: right;">   0.650973</td><td style="text-align: right;">0.958042</td><td style="text-align: right;">     1</td><td style="text-align: right;">       0.0299618</td></tr>
+<tr><td>train_breast_cancer_f8669_00005</td><td>TERMINATED</td><td>127.0.0.1:48861</td><td style="text-align: right;">0.0074509  </td><td style="text-align: right;">          1</td><td style="text-align: right;">                 1</td><td style="text-align: right;">   0.738341</td><td style="text-align: right;">0.874126</td><td style="text-align: right;">     1</td><td style="text-align: right;">       0.0193682</td></tr>
+<tr><td>train_breast_cancer_f8669_00006</td><td>TERMINATED</td><td>127.0.0.1:48862</td><td style="text-align: right;">0.0879882  </td><td style="text-align: right;">          8</td><td style="text-align: right;">                 2</td><td style="text-align: right;">   0.671576</td><td style="text-align: right;">0.944056</td><td style="text-align: right;">     1</td><td style="text-align: right;">       0.0267372</td></tr>
+<tr><td>train_breast_cancer_f8669_00007</td><td>TERMINATED</td><td>127.0.0.1:48863</td><td style="text-align: right;">0.0765404  </td><td style="text-align: right;">          7</td><td style="text-align: right;">                 2</td><td style="text-align: right;">   0.708157</td><td style="text-align: right;">0.965035</td><td style="text-align: right;">     1</td><td style="text-align: right;">       0.0276129</td></tr>
+<tr><td>train_breast_cancer_f8669_00008</td><td>TERMINATED</td><td>127.0.0.1:48864</td><td style="text-align: right;">0.000627649</td><td style="text-align: right;">          6</td><td style="text-align: right;">                 1</td><td style="text-align: right;">   0.81121 </td><td style="text-align: right;">0.951049</td><td style="text-align: right;">     1</td><td style="text-align: right;">       0.0310998</td></tr>
+<tr><td>train_breast_cancer_f8669_00009</td><td>TERMINATED</td><td>127.0.0.1:48865</td><td style="text-align: right;">0.000383711</td><td style="text-align: right;">          2</td><td style="text-align: right;">                 3</td><td style="text-align: right;">   0.990579</td><td style="text-align: right;">0.93007 </td><td style="text-align: right;">     1</td><td style="text-align: right;">       0.0274954</td></tr>
+</tbody>
+</table><br><br></div><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2022-07-22 15:52:57,385	INFO plugin_schema_manager.py:52 -- Loading the default runtime env schemas: [&#39;/Users/kai/coding/ray/python/ray/_private/runtime_env/../../runtime_env/schemas/working_dir_schema.json&#39;, &#39;/Users/kai/coding/ray/python/ray/_private/runtime_env/../../runtime_env/schemas/pip_schema.json&#39;].
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Result for train_breast_cancer_f8669_00000:
+  date: 2022-07-22_15-53-00
+  done: true
+  experiment_id: 07d10c5f31e74133b53272b7ccf9c528
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  mean_accuracy: 0.9440559440559441
+  node_ip: 127.0.0.1
+  pid: 48852
+  time_since_restore: 0.031616926193237305
+  time_this_iter_s: 0.031616926193237305
+  time_total_s: 0.031616926193237305
+  timestamp: 1658501580
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: f8669_00000
+  warmup_time: 0.0027849674224853516
+  
+Result for train_breast_cancer_f8669_00009:
+  date: 2022-07-22_15-53-04
+  done: true
+  experiment_id: bc0d5dd2d079432b859faac8a18928f0
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  mean_accuracy: 0.9300699300699301
+  node_ip: 127.0.0.1
+  pid: 48865
+  time_since_restore: 0.027495384216308594
+  time_this_iter_s: 0.027495384216308594
+  time_total_s: 0.027495384216308594
+  timestamp: 1658501584
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: f8669_00009
+  warmup_time: 0.005235910415649414
+  
+Result for train_breast_cancer_f8669_00001:
+  date: 2022-07-22_15-53-04
+  done: true
+  experiment_id: 4b10d350d4374a0d9e7d0c3b1d4e3203
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  mean_accuracy: 0.958041958041958
+  node_ip: 127.0.0.1
+  pid: 48857
+  time_since_restore: 0.032858848571777344
+  time_this_iter_s: 0.032858848571777344
+  time_total_s: 0.032858848571777344
+  timestamp: 1658501584
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: f8669_00001
+  warmup_time: 0.004731178283691406
+  
+Result for train_breast_cancer_f8669_00008:
+  date: 2022-07-22_15-53-04
+  done: true
+  experiment_id: 91c25cbbeb6f409d93e1d6537cb8e1ee
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  mean_accuracy: 0.951048951048951
+  node_ip: 127.0.0.1
+  pid: 48864
+  time_since_restore: 0.031099796295166016
+  time_this_iter_s: 0.031099796295166016
+  time_total_s: 0.031099796295166016
+  timestamp: 1658501584
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: f8669_00008
+  warmup_time: 0.003270864486694336
+  
+Result for train_breast_cancer_f8669_00005:
+  date: 2022-07-22_15-53-04
+  done: true
+  experiment_id: d225b0fb59e14da7adba952456ccf1d5
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  mean_accuracy: 0.8741258741258742
+  node_ip: 127.0.0.1
+  pid: 48861
+  time_since_restore: 0.01936817169189453
+  time_this_iter_s: 0.01936817169189453
+  time_total_s: 0.01936817169189453
+  timestamp: 1658501584
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: f8669_00005
+  warmup_time: 0.003901958465576172
+  
+Result for train_breast_cancer_f8669_00004:
+  date: 2022-07-22_15-53-04
+  done: true
+  experiment_id: 322484af6ea5422f8aaf8ff6a91af4f7
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  mean_accuracy: 0.958041958041958
+  node_ip: 127.0.0.1
+  pid: 48860
+  time_since_restore: 0.029961824417114258
+  time_this_iter_s: 0.029961824417114258
+  time_total_s: 0.029961824417114258
+  timestamp: 1658501584
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: f8669_00004
+  warmup_time: 0.003547191619873047
+  
+Result for train_breast_cancer_f8669_00002:
+  date: 2022-07-22_15-53-04
+  done: true
+  experiment_id: 3f588954160b42ce8ce200f68127ebcd
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  mean_accuracy: 0.9440559440559441
+  node_ip: 127.0.0.1
+  pid: 48858
+  time_since_restore: 0.03193807601928711
+  time_this_iter_s: 0.03193807601928711
+  time_total_s: 0.03193807601928711
+  timestamp: 1658501584
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: f8669_00002
+  warmup_time: 0.003523111343383789
+  
+Result for train_breast_cancer_f8669_00003:
+  date: 2022-07-22_15-53-04
+  done: true
+  experiment_id: a39ea777ce2d4ebca51b3d7a4179dae5
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  mean_accuracy: 0.9230769230769231
+  node_ip: 127.0.0.1
+  pid: 48859
+  time_since_restore: 0.028388023376464844
+  time_this_iter_s: 0.028388023376464844
+  time_total_s: 0.028388023376464844
+  timestamp: 1658501584
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: f8669_00003
+  warmup_time: 0.0035560131072998047
+  
+Result for train_breast_cancer_f8669_00006:
+  date: 2022-07-22_15-53-04
+  done: true
+  experiment_id: f97c6b9674854f8d89ec26ba58cc1618
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  mean_accuracy: 0.9440559440559441
+  node_ip: 127.0.0.1
+  pid: 48862
+  time_since_restore: 0.026737213134765625
+  time_this_iter_s: 0.026737213134765625
+  time_total_s: 0.026737213134765625
+  timestamp: 1658501584
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: f8669_00006
+  warmup_time: 0.003425121307373047
+  
+Result for train_breast_cancer_f8669_00007:
+  date: 2022-07-22_15-53-04
+  done: true
+  experiment_id: ff172037065a4d55998ed72f51bdc5df
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  mean_accuracy: 0.965034965034965
+  node_ip: 127.0.0.1
+  pid: 48863
+  time_since_restore: 0.027612924575805664
+  time_this_iter_s: 0.027612924575805664
+  time_total_s: 0.027612924575805664
+  timestamp: 1658501584
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: f8669_00007
+  warmup_time: 0.0031311511993408203
+  
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2022-07-22 15:53:04,846	INFO tune.py:738 -- Total run time: 8.99 seconds (7.74 seconds for the tuning loop).
+</pre></div>
+</div>
+</div>
+</div>
+<p>As you can see, the changes in the actual training function are minimal. Instead of
+returning the accuracy value, we report it back to Tune using <code class="docutils literal notranslate"><span class="pre">session.report()</span></code>.
+Our <code class="docutils literal notranslate"><span class="pre">config</span></code> dictionary only changed slightly. Instead of passing hard-coded
+parameters, we tell Tune to choose values from a range of valid options. There are
+a number of options we have here, all of which are explained in
+<a class="reference internal" href="../api/search_space.html#tune-search-space"><span class="std std-ref">the Tune docs</span></a>.</p>
+<p>For a brief explanation, this is what they do:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">tune.randint(min,</span> <span class="pre">max)</span></code> chooses a random integer value between <em>min</em> and <em>max</em>.
+Note that <em>max</em> is exclusive, so it will not be sampled.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tune.choice([a,</span> <span class="pre">b,</span> <span class="pre">c])</span></code> chooses one of the items of the list at random. Each item
+has the same chance to be sampled.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tune.uniform(min,</span> <span class="pre">max)</span></code> samples a floating point number between <em>min</em> and <em>max</em>.
+Note that <em>max</em> is exclusive here, too.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tune.loguniform(min,</span> <span class="pre">max,</span> <span class="pre">base=10)</span></code> samples a floating point number between <em>min</em> and <em>max</em>,
+but applies a logarithmic transformation to these boundaries first. Thus, this makes
+it easy to sample values from different orders of magnitude.</p></li>
+</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">num_samples=10</span></code> option we pass to the <code class="docutils literal notranslate"><span class="pre">TuneConfig()</span></code> means that we sample 10 different
+hyperparameter configurations from this search space.</p>
+<p>The output of our training run coud look like this:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span> Number of trials: <span class="m">10</span>/10 <span class="o">(</span><span class="m">10</span> TERMINATED<span class="o">)</span>
+ +---------------------------------+------------+-------+-------------+-------------+--------------------+-------------+----------+--------+------------------+
+ <span class="p">|</span> Trial name                      <span class="p">|</span> status     <span class="p">|</span> loc   <span class="p">|</span>         eta <span class="p">|</span>   max_depth <span class="p">|</span>   min_child_weight <span class="p">|</span>   subsample <span class="p">|</span>      acc <span class="p">|</span>   iter <span class="p">|</span>   total <span class="nb">time</span> <span class="o">(</span>s<span class="o">)</span> <span class="p">|</span>
+ <span class="p">|</span>---------------------------------+------------+-------+-------------+-------------+--------------------+-------------+----------+--------+------------------<span class="p">|</span>
+ <span class="p">|</span> train_breast_cancer_b63aa_00000 <span class="p">|</span> TERMINATED <span class="p">|</span>       <span class="p">|</span> <span class="m">0</span>.000117625 <span class="p">|</span>           <span class="m">2</span> <span class="p">|</span>                  <span class="m">2</span> <span class="p">|</span>    <span class="m">0</span>.616347 <span class="p">|</span> <span class="m">0</span>.916084 <span class="p">|</span>      <span class="m">1</span> <span class="p">|</span>        <span class="m">0</span>.0306492 <span class="p">|</span>
+ <span class="p">|</span> train_breast_cancer_b63aa_00001 <span class="p">|</span> TERMINATED <span class="p">|</span>       <span class="p">|</span> <span class="m">0</span>.0382954   <span class="p">|</span>           <span class="m">8</span> <span class="p">|</span>                  <span class="m">2</span> <span class="p">|</span>    <span class="m">0</span>.581549 <span class="p">|</span> <span class="m">0</span>.937063 <span class="p">|</span>      <span class="m">1</span> <span class="p">|</span>        <span class="m">0</span>.0357082 <span class="p">|</span>
+ <span class="p">|</span> train_breast_cancer_b63aa_00002 <span class="p">|</span> TERMINATED <span class="p">|</span>       <span class="p">|</span> <span class="m">0</span>.000217926 <span class="p">|</span>           <span class="m">1</span> <span class="p">|</span>                  <span class="m">3</span> <span class="p">|</span>    <span class="m">0</span>.528428 <span class="p">|</span> <span class="m">0</span>.874126 <span class="p">|</span>      <span class="m">1</span> <span class="p">|</span>        <span class="m">0</span>.0264609 <span class="p">|</span>
+ <span class="p">|</span> train_breast_cancer_b63aa_00003 <span class="p">|</span> TERMINATED <span class="p">|</span>       <span class="p">|</span> <span class="m">0</span>.000120929 <span class="p">|</span>           <span class="m">8</span> <span class="p">|</span>                  <span class="m">1</span> <span class="p">|</span>    <span class="m">0</span>.634508 <span class="p">|</span> <span class="m">0</span>.958042 <span class="p">|</span>      <span class="m">1</span> <span class="p">|</span>        <span class="m">0</span>.036406  <span class="p">|</span>
+ <span class="p">|</span> train_breast_cancer_b63aa_00004 <span class="p">|</span> TERMINATED <span class="p">|</span>       <span class="p">|</span> <span class="m">0</span>.00839715  <span class="p">|</span>           <span class="m">5</span> <span class="p">|</span>                  <span class="m">1</span> <span class="p">|</span>    <span class="m">0</span>.730624 <span class="p">|</span> <span class="m">0</span>.958042 <span class="p">|</span>      <span class="m">1</span> <span class="p">|</span>        <span class="m">0</span>.0389378 <span class="p">|</span>
+ <span class="p">|</span> train_breast_cancer_b63aa_00005 <span class="p">|</span> TERMINATED <span class="p">|</span>       <span class="p">|</span> <span class="m">0</span>.000732948 <span class="p">|</span>           <span class="m">8</span> <span class="p">|</span>                  <span class="m">2</span> <span class="p">|</span>    <span class="m">0</span>.915863 <span class="p">|</span> <span class="m">0</span>.958042 <span class="p">|</span>      <span class="m">1</span> <span class="p">|</span>        <span class="m">0</span>.0382841 <span class="p">|</span>
+ <span class="p">|</span> train_breast_cancer_b63aa_00006 <span class="p">|</span> TERMINATED <span class="p">|</span>       <span class="p">|</span> <span class="m">0</span>.000856226 <span class="p">|</span>           <span class="m">4</span> <span class="p">|</span>                  <span class="m">1</span> <span class="p">|</span>    <span class="m">0</span>.645209 <span class="p">|</span> <span class="m">0</span>.916084 <span class="p">|</span>      <span class="m">1</span> <span class="p">|</span>        <span class="m">0</span>.0357089 <span class="p">|</span>
+ <span class="p">|</span> train_breast_cancer_b63aa_00007 <span class="p">|</span> TERMINATED <span class="p">|</span>       <span class="p">|</span> <span class="m">0</span>.00769908  <span class="p">|</span>           <span class="m">7</span> <span class="p">|</span>                  <span class="m">1</span> <span class="p">|</span>    <span class="m">0</span>.729443 <span class="p">|</span> <span class="m">0</span>.909091 <span class="p">|</span>      <span class="m">1</span> <span class="p">|</span>        <span class="m">0</span>.0390737 <span class="p">|</span>
+ <span class="p">|</span> train_breast_cancer_b63aa_00008 <span class="p">|</span> TERMINATED <span class="p">|</span>       <span class="p">|</span> <span class="m">0</span>.00186339  <span class="p">|</span>           <span class="m">5</span> <span class="p">|</span>                  <span class="m">3</span> <span class="p">|</span>    <span class="m">0</span>.595744 <span class="p">|</span> <span class="m">0</span>.944056 <span class="p">|</span>      <span class="m">1</span> <span class="p">|</span>        <span class="m">0</span>.0343912 <span class="p">|</span>
+<span class="hll"> <span class="p">|</span> train_breast_cancer_b63aa_00009 <span class="p">|</span> TERMINATED <span class="p">|</span>       <span class="p">|</span> <span class="m">0</span>.000950272 <span class="p">|</span>           <span class="m">3</span> <span class="p">|</span>                  <span class="m">2</span> <span class="p">|</span>    <span class="m">0</span>.835504 <span class="p">|</span> <span class="m">0</span>.965035 <span class="p">|</span>      <span class="m">1</span> <span class="p">|</span>        <span class="m">0</span>.0348201 <span class="p">|</span>
+</span> +---------------------------------+------------+-------+-------------+-------------+--------------------+-------------+----------+--------+------------------+
+</pre></div>
+</div>
+<p>The best configuration we found used <code class="docutils literal notranslate"><span class="pre">eta=0.000950272</span></code>, <code class="docutils literal notranslate"><span class="pre">max_depth=3</span></code>,
+<code class="docutils literal notranslate"><span class="pre">min_child_weight=2</span></code>, <code class="docutils literal notranslate"><span class="pre">subsample=0.835504</span></code> and reached an accuracy of
+<code class="docutils literal notranslate"><span class="pre">0.965035</span></code>.</p>
+</section>
+<section id="early-stopping">
+<h2><a class="toc-backref" href="tune-xgboost.html#id9">Early stopping</a><a class="headerlink" href="tune-xgboost.html#early-stopping" title="Permalink to this headline">#</a></h2>
+<p>Currently, Tune samples 10 different hyperparameter configurations and trains a full
+XGBoost on all of them. In our small example, training is very fast. However,
+if training takes longer, a significant amount of computer resources is spent on trials
+that will eventually show a bad performance, e.g. a low accuracy. It would be good
+if we could identify these trials early and stop them, so we don’t waste any resources.</p>
+<p>This is where Tune’s <em>Schedulers</em> shine. A Tune <code class="docutils literal notranslate"><span class="pre">TrialScheduler</span></code> is responsible
+for starting and stopping trials. Tune implements a number of different schedulers, each
+described <a class="reference internal" href="../api/schedulers.html#tune-schedulers"><span class="std std-ref">in the Tune documentation</span></a>.
+For our example, we will use the <code class="docutils literal notranslate"><span class="pre">AsyncHyperBandScheduler</span></code> or <code class="docutils literal notranslate"><span class="pre">ASHAScheduler</span></code>.</p>
+<p>The basic idea of this scheduler: We sample a number of hyperparameter configurations.
+Each of these configurations is trained for a specific number of iterations.
+After these iterations, only the best performing hyperparameters are retained. These
+are selected according to some loss metric, usually an evaluation loss. This cycle is
+repeated until we end up with the best configuration.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">ASHAScheduler</span></code> needs to know three things:</p>
+<ol class="simple">
+<li><p>Which metric should be used to identify badly performing trials?</p></li>
+<li><p>Should this metric be maximized or minimized?</p></li>
+<li><p>How many iterations does each trial train for?</p></li>
+</ol>
+<p>There are more parameters, which are explained in the
+<a class="reference internal" href="../api/schedulers.html#tune-scheduler-hyperband"><span class="std std-ref">documentation</span></a>.</p>
+<p>Lastly, we have to report the loss metric to Tune. We do this with a <code class="docutils literal notranslate"><span class="pre">Callback</span></code> that
+XGBoost accepts and calls after each evaluation round. Ray Tune comes
+with <a class="reference internal" href="../api/integration.html#tune-integration-xgboost"><span class="std std-ref">two XGBoost callbacks</span></a>
+we can use for this. The <code class="docutils literal notranslate"><span class="pre">TuneReportCallback</span></code> just reports the evaluation
+metrics back to Tune. The <code class="docutils literal notranslate"><span class="pre">TuneReportCheckpointCallback</span></code> also saves
+checkpoints after each evaluation round. We will just use the latter in this
+example so that we can retrieve the saved model later.</p>
+<p>These parameters from the <code class="docutils literal notranslate"><span class="pre">eval_metrics</span></code> configuration setting are then automatically
+reported to Tune via the callback. Here, the raw error will be reported, not the accuracy.
+To display the best reached accuracy, we will inverse it later.</p>
+<p>We will also load the best checkpointed model so that we can use it for predictions.
+The best model is selected with respect to the <code class="docutils literal notranslate"><span class="pre">metric</span></code> and <code class="docutils literal notranslate"><span class="pre">mode</span></code> parameters we
+pass to the <code class="docutils literal notranslate"><span class="pre">TunerConfig()</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sklearn.datasets</span>
+<span class="kn">import</span> <span class="nn">sklearn.metrics</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">ray.tune.schedulers</span> <span class="kn">import</span> <span class="n">ASHAScheduler</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">import</span> <span class="nn">xgboost</span> <span class="k">as</span> <span class="nn">xgb</span>
+
+<span class="kn">from</span> <span class="nn">ray</span> <span class="kn">import</span> <span class="n">air</span><span class="p">,</span> <span class="n">tune</span>
+<span class="kn">from</span> <span class="nn">ray.air</span> <span class="kn">import</span> <span class="n">session</span>
+<span class="kn">from</span> <span class="nn">ray.tune.integration.xgboost</span> <span class="kn">import</span> <span class="n">TuneReportCheckpointCallback</span>
+
+
+<span class="k">def</span> <span class="nf">train_breast_cancer</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+    <span class="c1"># This is a simple training function to be passed into Tune</span>
+    <span class="c1"># Load dataset</span>
+    <span class="n">data</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">load_breast_cancer</span><span class="p">(</span><span class="n">return_X_y</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># Split into train and test set</span>
+    <span class="n">train_x</span><span class="p">,</span> <span class="n">test_x</span><span class="p">,</span> <span class="n">train_y</span><span class="p">,</span> <span class="n">test_y</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
+    <span class="c1"># Build input matrices for XGBoost</span>
+    <span class="n">train_set</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">DMatrix</span><span class="p">(</span><span class="n">train_x</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">train_y</span><span class="p">)</span>
+    <span class="n">test_set</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">DMatrix</span><span class="p">(</span><span class="n">test_x</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">test_y</span><span class="p">)</span>
+    <span class="c1"># Train the classifier, using the Tune callback</span>
+    <span class="n">xgb</span><span class="o">.</span><span class="n">train</span><span class="p">(</span>
+        <span class="n">config</span><span class="p">,</span>
+        <span class="n">train_set</span><span class="p">,</span>
+        <span class="n">evals</span><span class="o">=</span><span class="p">[(</span><span class="n">test_set</span><span class="p">,</span> <span class="s2">&quot;eval&quot;</span><span class="p">)],</span>
+        <span class="n">verbose_eval</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span><span class="n">TuneReportCheckpointCallback</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;model.xgb&quot;</span><span class="p">)],</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">get_best_model_checkpoint</span><span class="p">(</span><span class="n">results</span><span class="p">):</span>
+    <span class="n">best_bst</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">Booster</span><span class="p">()</span>
+    <span class="n">best_result</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">get_best_result</span><span class="p">()</span>
+
+    <span class="k">with</span> <span class="n">best_result</span><span class="o">.</span><span class="n">checkpoint</span><span class="o">.</span><span class="n">as_directory</span><span class="p">()</span> <span class="k">as</span> <span class="n">best_checkpoint_dir</span><span class="p">:</span>
+        <span class="n">best_bst</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">best_checkpoint_dir</span><span class="p">,</span> <span class="s2">&quot;model.xgb&quot;</span><span class="p">))</span>
+    <span class="n">accuracy</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">best_result</span><span class="o">.</span><span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;eval-error&quot;</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Best model parameters: </span><span class="si">{</span><span class="n">best_result</span><span class="o">.</span><span class="n">config</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Best model total accuracy: </span><span class="si">{</span><span class="n">accuracy</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">best_bst</span>
+
+
+<span class="k">def</span> <span class="nf">tune_xgboost</span><span class="p">(</span><span class="n">smoke_test</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">search_space</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="c1"># You can mix constants with search space objects.</span>
+        <span class="s2">&quot;objective&quot;</span><span class="p">:</span> <span class="s2">&quot;binary:logistic&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;eval_metric&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;logloss&quot;</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;max_depth&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">9</span><span class="p">),</span>
+        <span class="s2">&quot;min_child_weight&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]),</span>
+        <span class="s2">&quot;subsample&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+        <span class="s2">&quot;eta&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">loguniform</span><span class="p">(</span><span class="mf">1e-4</span><span class="p">,</span> <span class="mf">1e-1</span><span class="p">),</span>
+    <span class="p">}</span>
+    <span class="c1"># This will enable aggressive early stopping of bad trials.</span>
+    <span class="n">scheduler</span> <span class="o">=</span> <span class="n">ASHAScheduler</span><span class="p">(</span>
+        <span class="n">max_t</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">grace_period</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">reduction_factor</span><span class="o">=</span><span class="mi">2</span>  <span class="c1"># 10 training iterations</span>
+    <span class="p">)</span>
+
+    <span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
+        <span class="n">train_breast_cancer</span><span class="p">,</span>
+        <span class="n">tune_config</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">TuneConfig</span><span class="p">(</span>
+            <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;eval-logloss&quot;</span><span class="p">,</span>
+            <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;min&quot;</span><span class="p">,</span>
+            <span class="n">scheduler</span><span class="o">=</span><span class="n">scheduler</span><span class="p">,</span>
+            <span class="n">num_samples</span><span class="o">=</span><span class="mi">1</span> <span class="k">if</span> <span class="n">smoke_test</span> <span class="k">else</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">param_space</span><span class="o">=</span><span class="n">search_space</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">results</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">argparse</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--smoke-test&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Finish quickly for testing&quot;</span>
+    <span class="p">)</span>
+    <span class="n">args</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_known_args</span><span class="p">()</span>
+
+    <span class="n">results</span> <span class="o">=</span> <span class="n">tune_xgboost</span><span class="p">(</span><span class="n">smoke_test</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">smoke_test</span><span class="p">)</span>
+
+    <span class="c1"># Load the best model checkpoint.</span>
+    <span class="n">best_bst</span> <span class="o">=</span> <span class="n">get_best_model_checkpoint</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+
+    <span class="c1"># You could now do further predictions with</span>
+    <span class="c1"># best_bst.predict(...)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html">== Status ==<br>Current time: 2022-07-22 16:56:01 (running for 00:00:10.38)<br>Memory usage on this node: 10.3/16.0 GiB<br>Using AsyncHyperBand: num_stopped=10
+Bracket: Iter 8.000: -0.5107275277792991 | Iter 4.000: -0.5876629346317344 | Iter 2.000: -0.6544494184997531 | Iter 1.000: -0.6859214191253369<br>Resources requested: 0/16 CPUs, 0/0 GPUs, 0.0/4.57 GiB heap, 0.0/2.0 GiB objects<br>Current best trial: c28a3_00003 with eval-logloss=0.38665050018083796 and parameters={'objective': 'binary:logistic', 'eval_metric': ['logloss', 'error'], 'max_depth': 2, 'min_child_weight': 3, 'subsample': 0.782626252548841, 'eta': 0.06385952388342125}<br>Result logdir: /Users/kai/ray_results/train_breast_cancer_2022-07-22_16-55-50<br>Number of trials: 10/10 (10 TERMINATED)<br><table>
+<thead>
+<tr><th>Trial name                     </th><th>status    </th><th>loc            </th><th style="text-align: right;">        eta</th><th style="text-align: right;">  max_depth</th><th style="text-align: right;">  min_child_weight</th><th style="text-align: right;">  subsample</th><th style="text-align: right;">  iter</th><th style="text-align: right;">  total time (s)</th><th style="text-align: right;">  eval-logloss</th><th style="text-align: right;">  eval-error</th></tr>
+</thead>
+<tbody>
+<tr><td>train_breast_cancer_c28a3_00000</td><td>TERMINATED</td><td>127.0.0.1:54416</td><td style="text-align: right;">0.0186954  </td><td style="text-align: right;">          2</td><td style="text-align: right;">                 2</td><td style="text-align: right;">   0.516916</td><td style="text-align: right;">    10</td><td style="text-align: right;">       0.22218  </td><td style="text-align: right;">      0.571496</td><td style="text-align: right;">   0.0629371</td></tr>
+<tr><td>train_breast_cancer_c28a3_00001</td><td>TERMINATED</td><td>127.0.0.1:54440</td><td style="text-align: right;">0.0304404  </td><td style="text-align: right;">          8</td><td style="text-align: right;">                 2</td><td style="text-align: right;">   0.745969</td><td style="text-align: right;">     2</td><td style="text-align: right;">       0.135674 </td><td style="text-align: right;">      0.650353</td><td style="text-align: right;">   0.0629371</td></tr>
+<tr><td>train_breast_cancer_c28a3_00002</td><td>TERMINATED</td><td>127.0.0.1:54441</td><td style="text-align: right;">0.0217157  </td><td style="text-align: right;">          8</td><td style="text-align: right;">                 3</td><td style="text-align: right;">   0.764138</td><td style="text-align: right;">     2</td><td style="text-align: right;">       0.173076 </td><td style="text-align: right;">      0.658545</td><td style="text-align: right;">   0.041958 </td></tr>
+<tr><td>train_breast_cancer_c28a3_00003</td><td>TERMINATED</td><td>127.0.0.1:54442</td><td style="text-align: right;">0.0638595  </td><td style="text-align: right;">          2</td><td style="text-align: right;">                 3</td><td style="text-align: right;">   0.782626</td><td style="text-align: right;">    10</td><td style="text-align: right;">       0.281865 </td><td style="text-align: right;">      0.386651</td><td style="text-align: right;">   0.041958 </td></tr>
+<tr><td>train_breast_cancer_c28a3_00004</td><td>TERMINATED</td><td>127.0.0.1:54443</td><td style="text-align: right;">0.00442794 </td><td style="text-align: right;">          7</td><td style="text-align: right;">                 2</td><td style="text-align: right;">   0.792359</td><td style="text-align: right;">     1</td><td style="text-align: right;">       0.0270212</td><td style="text-align: right;">      0.689577</td><td style="text-align: right;">   0.0699301</td></tr>
+<tr><td>train_breast_cancer_c28a3_00005</td><td>TERMINATED</td><td>127.0.0.1:54444</td><td style="text-align: right;">0.00222624 </td><td style="text-align: right;">          3</td><td style="text-align: right;">                 1</td><td style="text-align: right;">   0.536331</td><td style="text-align: right;">     1</td><td style="text-align: right;">       0.0238512</td><td style="text-align: right;">      0.691446</td><td style="text-align: right;">   0.0839161</td></tr>
+<tr><td>train_breast_cancer_c28a3_00006</td><td>TERMINATED</td><td>127.0.0.1:54445</td><td style="text-align: right;">0.000825129</td><td style="text-align: right;">          1</td><td style="text-align: right;">                 1</td><td style="text-align: right;">   0.82472 </td><td style="text-align: right;">     1</td><td style="text-align: right;">       0.015312 </td><td style="text-align: right;">      0.692624</td><td style="text-align: right;">   0.118881 </td></tr>
+<tr><td>train_breast_cancer_c28a3_00007</td><td>TERMINATED</td><td>127.0.0.1:54446</td><td style="text-align: right;">0.000770826</td><td style="text-align: right;">          7</td><td style="text-align: right;">                 2</td><td style="text-align: right;">   0.947268</td><td style="text-align: right;">     1</td><td style="text-align: right;">       0.0175898</td><td style="text-align: right;">      0.692598</td><td style="text-align: right;">   0.132867 </td></tr>
+<tr><td>train_breast_cancer_c28a3_00008</td><td>TERMINATED</td><td>127.0.0.1:54447</td><td style="text-align: right;">0.000429759</td><td style="text-align: right;">          7</td><td style="text-align: right;">                 1</td><td style="text-align: right;">   0.88524 </td><td style="text-align: right;">     1</td><td style="text-align: right;">       0.0193739</td><td style="text-align: right;">      0.692785</td><td style="text-align: right;">   0.0559441</td></tr>
+<tr><td>train_breast_cancer_c28a3_00009</td><td>TERMINATED</td><td>127.0.0.1:54448</td><td style="text-align: right;">0.0149863  </td><td style="text-align: right;">          2</td><td style="text-align: right;">                 1</td><td style="text-align: right;">   0.722738</td><td style="text-align: right;">     1</td><td style="text-align: right;">       0.0165932</td><td style="text-align: right;">      0.682266</td><td style="text-align: right;">   0.111888 </td></tr>
+</tbody>
+</table><br><br></div><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Result for train_breast_cancer_c28a3_00000:
+  date: 2022-07-22_16-55-55
+  done: false
+  eval-error: 0.08391608391608392
+  eval-logloss: 0.6790360066440556
+  experiment_id: 2a3189442db341519836a07fb2d65dd9
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  node_ip: 127.0.0.1
+  pid: 54416
+  time_since_restore: 0.01624011993408203
+  time_this_iter_s: 0.01624011993408203
+  time_total_s: 0.01624011993408203
+  timestamp: 1658505355
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: c28a3_00000
+  warmup_time: 0.0035409927368164062
+  
+Result for train_breast_cancer_c28a3_00000:
+  date: 2022-07-22_16-55-56
+  done: true
+  eval-error: 0.06293706293706294
+  eval-logloss: 0.5714958122560194
+  experiment_id: 2a3189442db341519836a07fb2d65dd9
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 10
+  node_ip: 127.0.0.1
+  pid: 54416
+  time_since_restore: 0.22218012809753418
+  time_this_iter_s: 0.007044076919555664
+  time_total_s: 0.22218012809753418
+  timestamp: 1658505356
+  timesteps_since_restore: 0
+  training_iteration: 10
+  trial_id: c28a3_00000
+  warmup_time: 0.0035409927368164062
+  
+Result for train_breast_cancer_c28a3_00003:
+  date: 2022-07-22_16-56-01
+  done: false
+  eval-error: 0.08391608391608392
+  eval-logloss: 0.6472820101918041
+  experiment_id: 7ff6133237404b4ea4755b9f8cd114f2
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  node_ip: 127.0.0.1
+  pid: 54442
+  time_since_restore: 0.023206233978271484
+  time_this_iter_s: 0.023206233978271484
+  time_total_s: 0.023206233978271484
+  timestamp: 1658505361
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: c28a3_00003
+  warmup_time: 0.006722211837768555
+  
+Result for train_breast_cancer_c28a3_00005:
+  date: 2022-07-22_16-56-01
+  done: true
+  eval-error: 0.08391608391608392
+  eval-logloss: 0.6914464114429234
+  experiment_id: 344762ab6d574b63a9374e19526d0510
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  node_ip: 127.0.0.1
+  pid: 54444
+  time_since_restore: 0.02385115623474121
+  time_this_iter_s: 0.02385115623474121
+  time_total_s: 0.02385115623474121
+  timestamp: 1658505361
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: c28a3_00005
+  warmup_time: 0.008936882019042969
+  
+Result for train_breast_cancer_c28a3_00009:
+  date: 2022-07-22_16-56-01
+  done: true
+  eval-error: 0.11188811188811189
+  eval-logloss: 0.6822656309688008
+  experiment_id: 133901655fa64bf79f2dcc4e8e5e41b1
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  node_ip: 127.0.0.1
+  pid: 54448
+  time_since_restore: 0.016593217849731445
+  time_this_iter_s: 0.016593217849731445
+  time_total_s: 0.016593217849731445
+  timestamp: 1658505361
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: c28a3_00009
+  warmup_time: 0.004940032958984375
+  
+Result for train_breast_cancer_c28a3_00007:
+  date: 2022-07-22_16-56-01
+  done: true
+  eval-error: 0.13286713286713286
+  eval-logloss: 0.6925980357023386
+  experiment_id: b4331027cbaf442ab905b2e51797dbbd
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  node_ip: 127.0.0.1
+  pid: 54446
+  time_since_restore: 0.017589807510375977
+  time_this_iter_s: 0.017589807510375977
+  time_total_s: 0.017589807510375977
+  timestamp: 1658505361
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: c28a3_00007
+  warmup_time: 0.003782033920288086
+  
+Result for train_breast_cancer_c28a3_00006:
+  date: 2022-07-22_16-56-01
+  done: true
+  eval-error: 0.11888111888111888
+  eval-logloss: 0.6926244418104212
+  experiment_id: d3906de5943a4e05a4cc782382f67d24
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  node_ip: 127.0.0.1
+  pid: 54445
+  time_since_restore: 0.015311956405639648
+  time_this_iter_s: 0.015311956405639648
+  time_total_s: 0.015311956405639648
+  timestamp: 1658505361
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: c28a3_00006
+  warmup_time: 0.005506038665771484
+  
+Result for train_breast_cancer_c28a3_00002:
+  date: 2022-07-22_16-56-01
+  done: false
+  eval-error: 0.04895104895104895
+  eval-logloss: 0.6752762102580571
+  experiment_id: a3645fc2d43145d88a1f5b7cc94df703
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  node_ip: 127.0.0.1
+  pid: 54441
+  time_since_restore: 0.027367830276489258
+  time_this_iter_s: 0.027367830276489258
+  time_total_s: 0.027367830276489258
+  timestamp: 1658505361
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: c28a3_00002
+  warmup_time: 0.0062830448150634766
+  
+Result for train_breast_cancer_c28a3_00001:
+  date: 2022-07-22_16-56-01
+  done: false
+  eval-error: 0.07692307692307693
+  eval-logloss: 0.6698804135089154
+  experiment_id: 85766fe4d9fa482a91e396a8fd509a19
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  node_ip: 127.0.0.1
+  pid: 54440
+  time_since_restore: 0.017169952392578125
+  time_this_iter_s: 0.017169952392578125
+  time_total_s: 0.017169952392578125
+  timestamp: 1658505361
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: c28a3_00001
+  warmup_time: 0.006204843521118164
+  
+Result for train_breast_cancer_c28a3_00008:
+  date: 2022-07-22_16-56-01
+  done: true
+  eval-error: 0.05594405594405594
+  eval-logloss: 0.692784742458717
+  experiment_id: 2c7d8bc38ad04536b1dec76819a2b3bf
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  node_ip: 127.0.0.1
+  pid: 54447
+  time_since_restore: 0.01937389373779297
+  time_this_iter_s: 0.01937389373779297
+  time_total_s: 0.01937389373779297
+  timestamp: 1658505361
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: c28a3_00008
+  warmup_time: 0.004342079162597656
+  
+Result for train_breast_cancer_c28a3_00001:
+  date: 2022-07-22_16-56-01
+  done: true
+  eval-error: 0.06293706293706294
+  eval-logloss: 0.6503534216980834
+  experiment_id: 85766fe4d9fa482a91e396a8fd509a19
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 2
+  node_ip: 127.0.0.1
+  pid: 54440
+  time_since_restore: 0.13567376136779785
+  time_this_iter_s: 0.11850380897521973
+  time_total_s: 0.13567376136779785
+  timestamp: 1658505361
+  timesteps_since_restore: 0
+  training_iteration: 2
+  trial_id: c28a3_00001
+  warmup_time: 0.006204843521118164
+  
+Result for train_breast_cancer_c28a3_00004:
+  date: 2022-07-22_16-56-01
+  done: true
+  eval-error: 0.06993006993006994
+  eval-logloss: 0.689577207281873
+  experiment_id: ef4fdc645c444112985b4957ab8a84e9
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 1
+  node_ip: 127.0.0.1
+  pid: 54443
+  time_since_restore: 0.027021169662475586
+  time_this_iter_s: 0.027021169662475586
+  time_total_s: 0.027021169662475586
+  timestamp: 1658505361
+  timesteps_since_restore: 0
+  training_iteration: 1
+  trial_id: c28a3_00004
+  warmup_time: 0.0063669681549072266
+  
+Result for train_breast_cancer_c28a3_00002:
+  date: 2022-07-22_16-56-01
+  done: true
+  eval-error: 0.04195804195804196
+  eval-logloss: 0.658545415301423
+  experiment_id: a3645fc2d43145d88a1f5b7cc94df703
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 2
+  node_ip: 127.0.0.1
+  pid: 54441
+  time_since_restore: 0.17307591438293457
+  time_this_iter_s: 0.1457080841064453
+  time_total_s: 0.17307591438293457
+  timestamp: 1658505361
+  timesteps_since_restore: 0
+  training_iteration: 2
+  trial_id: c28a3_00002
+  warmup_time: 0.0062830448150634766
+  
+Result for train_breast_cancer_c28a3_00003:
+  date: 2022-07-22_16-56-01
+  done: true
+  eval-error: 0.04195804195804196
+  eval-logloss: 0.38665050018083796
+  experiment_id: 7ff6133237404b4ea4755b9f8cd114f2
+  hostname: Kais-MacBook-Pro.local
+  iterations_since_restore: 10
+  node_ip: 127.0.0.1
+  pid: 54442
+  time_since_restore: 0.28186488151550293
+  time_this_iter_s: 0.03063178062438965
+  time_total_s: 0.28186488151550293
+  timestamp: 1658505361
+  timesteps_since_restore: 0
+  training_iteration: 10
+  trial_id: c28a3_00003
+  warmup_time: 0.006722211837768555
+  
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2022-07-22 16:56:01,498	INFO tune.py:738 -- Total run time: 10.53 seconds (10.37 seconds for the tuning loop).
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Best model parameters: {&#39;objective&#39;: &#39;binary:logistic&#39;, &#39;eval_metric&#39;: [&#39;logloss&#39;, &#39;error&#39;], &#39;max_depth&#39;: 2, &#39;min_child_weight&#39;: 3, &#39;subsample&#39;: 0.782626252548841, &#39;eta&#39;: 0.06385952388342125}
+Best model total accuracy: 0.9580
+</pre></div>
+</div>
+</div>
+</div>
+<p>The output of our run could look like this:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span> Number of trials: <span class="m">10</span>/10 <span class="o">(</span><span class="m">10</span> TERMINATED<span class="o">)</span>
+ +---------------------------------+------------+-------+-------------+-------------+--------------------+-------------+--------+------------------+----------------+--------------+
+ <span class="p">|</span> Trial name                      <span class="p">|</span> status     <span class="p">|</span> loc   <span class="p">|</span>         eta <span class="p">|</span>   max_depth <span class="p">|</span>   min_child_weight <span class="p">|</span>   subsample <span class="p">|</span>   iter <span class="p">|</span>   total <span class="nb">time</span> <span class="o">(</span>s<span class="o">)</span> <span class="p">|</span>   eval-logloss <span class="p">|</span>   eval-error <span class="p">|</span>
+ <span class="p">|</span>---------------------------------+------------+-------+-------------+-------------+--------------------+-------------+--------+------------------+----------------+--------------<span class="p">|</span>
+ <span class="p">|</span> train_breast_cancer_ba275_00000 <span class="p">|</span> TERMINATED <span class="p">|</span>       <span class="p">|</span> <span class="m">0</span>.00205087  <span class="p">|</span>           <span class="m">2</span> <span class="p">|</span>                  <span class="m">1</span> <span class="p">|</span>    <span class="m">0</span>.898391 <span class="p">|</span>     <span class="m">10</span> <span class="p">|</span>        <span class="m">0</span>.380619  <span class="p">|</span>       <span class="m">0</span>.678039 <span class="p">|</span>     <span class="m">0</span>.090909 <span class="p">|</span>
+ <span class="p">|</span> train_breast_cancer_ba275_00001 <span class="p">|</span> TERMINATED <span class="p">|</span>       <span class="p">|</span> <span class="m">0</span>.000183834 <span class="p">|</span>           <span class="m">4</span> <span class="p">|</span>                  <span class="m">3</span> <span class="p">|</span>    <span class="m">0</span>.924939 <span class="p">|</span>      <span class="m">1</span> <span class="p">|</span>        <span class="m">0</span>.0228798 <span class="p">|</span>       <span class="m">0</span>.693009 <span class="p">|</span>     <span class="m">0</span>.111888 <span class="p">|</span>
+<span class="hll"> <span class="p">|</span> train_breast_cancer_ba275_00002 <span class="p">|</span> TERMINATED <span class="p">|</span>       <span class="p">|</span> <span class="m">0</span>.0242721   <span class="p">|</span>           <span class="m">7</span> <span class="p">|</span>                  <span class="m">2</span> <span class="p">|</span>    <span class="m">0</span>.501551 <span class="p">|</span>     <span class="m">10</span> <span class="p">|</span>        <span class="m">0</span>.376154  <span class="p">|</span>       <span class="m">0</span>.54472  <span class="p">|</span>     <span class="m">0</span>.06993  <span class="p">|</span>
+</span> <span class="p">|</span> train_breast_cancer_ba275_00003 <span class="p">|</span> TERMINATED <span class="p">|</span>       <span class="p">|</span> <span class="m">0</span>.000449692 <span class="p">|</span>           <span class="m">5</span> <span class="p">|</span>                  <span class="m">3</span> <span class="p">|</span>    <span class="m">0</span>.890212 <span class="p">|</span>      <span class="m">1</span> <span class="p">|</span>        <span class="m">0</span>.0234981 <span class="p">|</span>       <span class="m">0</span>.692811 <span class="p">|</span>     <span class="m">0</span>.090909 <span class="p">|</span>
+ <span class="p">|</span> train_breast_cancer_ba275_00004 <span class="p">|</span> TERMINATED <span class="p">|</span>       <span class="p">|</span> <span class="m">0</span>.000376393 <span class="p">|</span>           <span class="m">7</span> <span class="p">|</span>                  <span class="m">2</span> <span class="p">|</span>    <span class="m">0</span>.883609 <span class="p">|</span>      <span class="m">1</span> <span class="p">|</span>        <span class="m">0</span>.0231569 <span class="p">|</span>       <span class="m">0</span>.692847 <span class="p">|</span>     <span class="m">0</span>.062937 <span class="p">|</span>
+ <span class="p">|</span> train_breast_cancer_ba275_00005 <span class="p">|</span> TERMINATED <span class="p">|</span>       <span class="p">|</span> <span class="m">0</span>.00231942  <span class="p">|</span>           <span class="m">3</span> <span class="p">|</span>                  <span class="m">3</span> <span class="p">|</span>    <span class="m">0</span>.877464 <span class="p">|</span>      <span class="m">2</span> <span class="p">|</span>        <span class="m">0</span>.104867  <span class="p">|</span>       <span class="m">0</span>.689541 <span class="p">|</span>     <span class="m">0</span>.083916 <span class="p">|</span>
+ <span class="p">|</span> train_breast_cancer_ba275_00006 <span class="p">|</span> TERMINATED <span class="p">|</span>       <span class="p">|</span> <span class="m">0</span>.000542326 <span class="p">|</span>           <span class="m">1</span> <span class="p">|</span>                  <span class="m">2</span> <span class="p">|</span>    <span class="m">0</span>.578584 <span class="p">|</span>      <span class="m">1</span> <span class="p">|</span>        <span class="m">0</span>.0213971 <span class="p">|</span>       <span class="m">0</span>.692765 <span class="p">|</span>     <span class="m">0</span>.083916 <span class="p">|</span>
+ <span class="p">|</span> train_breast_cancer_ba275_00007 <span class="p">|</span> TERMINATED <span class="p">|</span>       <span class="p">|</span> <span class="m">0</span>.0016801   <span class="p">|</span>           <span class="m">1</span> <span class="p">|</span>                  <span class="m">2</span> <span class="p">|</span>    <span class="m">0</span>.975302 <span class="p">|</span>      <span class="m">1</span> <span class="p">|</span>        <span class="m">0</span>.02226   <span class="p">|</span>       <span class="m">0</span>.691999 <span class="p">|</span>     <span class="m">0</span>.083916 <span class="p">|</span>
+ <span class="p">|</span> train_breast_cancer_ba275_00008 <span class="p">|</span> TERMINATED <span class="p">|</span>       <span class="p">|</span> <span class="m">0</span>.000595756 <span class="p">|</span>           <span class="m">8</span> <span class="p">|</span>                  <span class="m">3</span> <span class="p">|</span>    <span class="m">0</span>.58429  <span class="p">|</span>      <span class="m">1</span> <span class="p">|</span>        <span class="m">0</span>.0221152 <span class="p">|</span>       <span class="m">0</span>.692657 <span class="p">|</span>     <span class="m">0</span>.06993  <span class="p">|</span>
+ <span class="p">|</span> train_breast_cancer_ba275_00009 <span class="p">|</span> TERMINATED <span class="p">|</span>       <span class="p">|</span> <span class="m">0</span>.000357845 <span class="p">|</span>           <span class="m">8</span> <span class="p">|</span>                  <span class="m">1</span> <span class="p">|</span>    <span class="m">0</span>.637776 <span class="p">|</span>      <span class="m">1</span> <span class="p">|</span>        <span class="m">0</span>.022635  <span class="p">|</span>       <span class="m">0</span>.692859 <span class="p">|</span>     <span class="m">0</span>.090909 <span class="p">|</span>
+ +---------------------------------+------------+-------+-------------+-------------+--------------------+-------------+--------+------------------+----------------+--------------+
+
+
+ Best model parameters: <span class="o">{</span><span class="s1">&#39;objective&#39;</span>: <span class="s1">&#39;binary:logistic&#39;</span>, <span class="s1">&#39;eval_metric&#39;</span>: <span class="o">[</span><span class="s1">&#39;logloss&#39;</span>, <span class="s1">&#39;error&#39;</span><span class="o">]</span>, <span class="s1">&#39;max_depth&#39;</span>: <span class="m">7</span>, <span class="s1">&#39;min_child_weight&#39;</span>: <span class="m">2</span>, <span class="s1">&#39;subsample&#39;</span>: <span class="m">0</span>.5015513240240503, <span class="s1">&#39;eta&#39;</span>: <span class="m">0</span>.024272050872920895<span class="o">}</span>
+ Best model total accuracy: <span class="m">0</span>.9301
+</pre></div>
+</div>
+<p>As you can see, most trials have been stopped only after a few iterations. Only the
+two most promising trials were run for the full 10 iterations.</p>
+<p>You can also ensure that all available resources are being used as the scheduler
+terminates trials, freeing them up. This can be done through the
+<code class="docutils literal notranslate"><span class="pre">ResourceChangingScheduler</span></code>. An example of this can be found here:
+<a class="reference internal" href="includes/xgboost_dynamic_resources_example.html"><span class="doc">XGBoost Dynamic Resources Example</span></a>.</p>
+</section>
+<section id="using-fractional-gpus">
+<h2><a class="toc-backref" href="tune-xgboost.html#id10">Using fractional GPUs</a><a class="headerlink" href="tune-xgboost.html#using-fractional-gpus" title="Permalink to this headline">#</a></h2>
+<p>You can often accelerate your training by using GPUs in addition to CPUs. However,
+you usually don’t have as many GPUs as you have trials to run. For instance, if you
+run 10 Tune trials in parallel, you usually don’t have access to 10 separate GPUs.</p>
+<p>Tune supports <em>fractional GPUs</em>. This means that each task is assigned a fraction
+of the GPU memory for training. For 10 tasks, this could look like this:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;objective&quot;</span><span class="p">:</span> <span class="s2">&quot;binary:logistic&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;eval_metric&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;logloss&quot;</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;tree_method&quot;</span><span class="p">:</span> <span class="s2">&quot;gpu_hist&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;max_depth&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">9</span><span class="p">),</span>
+    <span class="s2">&quot;min_child_weight&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]),</span>
+    <span class="s2">&quot;subsample&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+    <span class="s2">&quot;eta&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">loguniform</span><span class="p">(</span><span class="mf">1e-4</span><span class="p">,</span> <span class="mf">1e-1</span><span class="p">),</span>
+<span class="p">}</span>
+
+<span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
+    <span class="n">tune</span><span class="o">.</span><span class="n">with_resources</span><span class="p">(</span><span class="n">train_breast_cancer</span><span class="p">,</span> <span class="n">resources</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;cpu&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;gpu&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">}),</span>
+    <span class="n">tune_config</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">TuneConfig</span><span class="p">(</span>
+        <span class="n">num_samples</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">param_space</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Each task thus works with 10% of the available GPU memory. You also have to tell
+XGBoost to use the <code class="docutils literal notranslate"><span class="pre">gpu_hist</span></code> tree method, so it knows it should use the GPU.</p>
+</section>
+<section id="conclusion">
+<h2><a class="toc-backref" href="tune-xgboost.html#id11">Conclusion</a><a class="headerlink" href="tune-xgboost.html#conclusion" title="Permalink to this headline">#</a></h2>
+<p>You should now have a basic understanding on how to train XGBoost models and on how
+to tune the hyperparameters to yield the best results. In our simple example,
+Tuning the parameters didn’t make a huge difference for the accuracy.
+But in larger applications, intelligent hyperparameter tuning can make the
+difference between a model that doesn’t seem to learn at all, and a model
+that outperforms all the other ones.</p>
+</section>
+<section id="more-xgboost-examples">
+<h2><a class="toc-backref" href="tune-xgboost.html#id12">More XGBoost Examples</a><a class="headerlink" href="tune-xgboost.html#more-xgboost-examples" title="Permalink to this headline">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="includes/xgboost_dynamic_resources_example.html"><span class="doc">XGBoost Dynamic Resources Example</span></a>:
+Trains a basic XGBoost model with Tune with the class-based API and a ResourceChangingScheduler, ensuring all resources are being used at all time.</p></li>
+</ul>
+</section>
+<section id="learn-more">
+<h2><a class="toc-backref" href="tune-xgboost.html#id13">Learn More</a><a class="headerlink" href="tune-xgboost.html#learn-more" title="Permalink to this headline">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://kevinvecmanis.io/machine%20learning/hyperparameter%20tuning/dataviz/python/2019/05/11/XGBoost-Tuning-Visual-Guide.html">XGBoost Hyperparameter Tuning - A Visual Guide</a></p></li>
+<li><p><a class="reference external" href="https://xgboost.readthedocs.io/en/latest/tutorials/param_tuning.html">Notes on XGBoost Parameter Tuning</a></p></li>
+<li><p><a class="reference external" href="https://towardsdatascience.com/doing-xgboost-hyper-parameter-tuning-the-smart-way-part-1-of-2-f6d255a45dde">Doing XGBoost Hyperparameter Tuning the smart way</a></p></li>
+</ul>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="pbt_ppo_example.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Using RLlib with Tune</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="lightgbm_example.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Using LightGBM with Tune</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

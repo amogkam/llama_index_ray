@@ -1,0 +1,1309 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Using Weights &amp; Biases with Tune &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/js/versionwarning.js"></script>
+    <script src="../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../_static/js/docsearch.js"></script>
+    <script src="../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../_static/js/top-navigation.js"></script>
+    <script src="../../_static/js/tags.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/tune/examples/tune-wandb.html" />
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Using MLflow with Tune" href="tune-mlflow.html" />
+    <link rel="prev" title="Tune Experiment Tracking Examples" href="experiment-tracking.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "tune/examples/tune-wandb", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".ipynb", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../../tune.html">
+   Ray Tune
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../getting-started.html">
+     Getting Started
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../tutorials/overview.html">
+     User Guides
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="index.html">
+     Ray Tune Examples
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="ml-frameworks.html">
+       Examples using Ray Tune with ML Frameworks
+      </a>
+     </li>
+     <li class="toctree-l3 current active has-children">
+      <a class="reference internal" href="experiment-tracking.html">
+       Tune Experiment Tracking Examples
+      </a>
+      <input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+      <label for="toctree-checkbox-3">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul class="current">
+       <li class="toctree-l4 current active">
+        <a class="current reference internal" href="tune-wandb.html#">
+         Weights &amp; Biases Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="tune-mlflow.html">
+         MLflow Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="tune-aim.html">
+         Aim Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="tune-comet.html">
+         Comet Example
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="hpo-frameworks.html">
+       Tune Hyperparameter Optimization Framework Examples
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="other-examples.html">
+       Other Examples
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="exercises.html">
+       Exercises
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../faq.html">
+     Ray Tune FAQ
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/api.html">
+     Ray Tune API
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Ftune/examples/tune-wandb.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/tune/examples/tune-wandb.ipynb"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../_sources/tune/examples/tune-wandb.ipynb.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.ipynb</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-wandb.html#running-a-weights-biases-example">
+   Running A Weights &amp; Biases Example
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-wandb.html#tune-wandb-api-reference">
+   Tune Wandb API Reference
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="tune-wandb.html#wandbloggercallback">
+     WandbLoggerCallback
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="tune-wandb.html#setup-wandb">
+     setup_wandb
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Using Weights & Biases with Tune</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-wandb.html#running-a-weights-biases-example">
+   Running A Weights &amp; Biases Example
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-wandb.html#tune-wandb-api-reference">
+   Tune Wandb API Reference
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="tune-wandb.html#wandbloggercallback">
+     WandbLoggerCallback
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="tune-wandb.html#setup-wandb">
+     setup_wandb
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section class="tex2jax_ignore mathjax_ignore" id="using-weights-biases-with-tune">
+<h1>Using Weights &amp; Biases with Tune<a class="headerlink" href="tune-wandb.html#using-weights-biases-with-tune" title="Permalink to this headline">#</a></h1>
+<p id="tune-wandb-ref"><a class="reference external" href="https://www.wandb.ai/">Weights &amp; Biases</a> (Wandb) is a tool for experiment
+tracking, model optimizaton, and dataset versioning. It is very popular
+in the machine learning and data science community for its superb visualization
+tools.</p>
+<a class="reference external image-reference" href="https://www.wandb.ai/"><img alt="Weights &amp; Biases" class="align-center" src="../../_images/wandb_logo_full.png" style="height: 80px;" /></a>
+<p>Ray Tune currently offers two lightweight integrations for Weights &amp; Biases.
+One is the <a class="reference internal" href="tune-wandb.html#air-wandb-logger"><span class="std std-ref">WandbLoggerCallback</span></a>, which automatically logs
+metrics reported to Tune to the Wandb API.</p>
+<p>The other one is the <a class="reference internal" href="tune-wandb.html#air-wandb-setup"><span class="std std-ref">setup_wandb()</span></a> function, which can be
+used with the function API. It automatically
+initializes the Wandb API with Tune’s training information. You can just use the
+Wandb API like you would normally do, e.g. using <code class="docutils literal notranslate"><span class="pre">wandb.log()</span></code> to log your training
+process.</p>
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="tune-wandb.html#running-a-weights-biases-example" id="id1">Running A Weights &amp; Biases Example</a></p></li>
+<li><p><a class="reference internal" href="tune-wandb.html#tune-wandb-api-reference" id="id2">Tune Wandb API Reference</a></p>
+<ul>
+<li><p><a class="reference internal" href="tune-wandb.html#wandbloggercallback" id="id3">WandbLoggerCallback</a></p></li>
+<li><p><a class="reference internal" href="tune-wandb.html#setup-wandb" id="id4">setup_wandb</a></p></li>
+</ul>
+</li>
+</ul>
+</div>
+<section id="running-a-weights-biases-example">
+<h2>Running A Weights &amp; Biases Example<a class="headerlink" href="tune-wandb.html#running-a-weights-biases-example" title="Permalink to this headline">#</a></h2>
+<p>In the following example we’re going to use both of the above methods, namely the <code class="docutils literal notranslate"><span class="pre">WandbLoggerCallback</span></code> and
+the <code class="docutils literal notranslate"><span class="pre">setup_wandb</span></code> function to log metrics.</p>
+<p>As the very first step, make sure you’re logged in into wandb on all machines you’re running your training on:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>wandb login
+</pre></div>
+</div>
+<p>We can then start with a few crucial imports:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">from</span> <span class="nn">ray</span> <span class="kn">import</span> <span class="n">air</span><span class="p">,</span> <span class="n">tune</span>
+<span class="kn">from</span> <span class="nn">ray.air</span> <span class="kn">import</span> <span class="n">session</span>
+<span class="kn">from</span> <span class="nn">ray.air.integrations.wandb</span> <span class="kn">import</span> <span class="n">WandbLoggerCallback</span><span class="p">,</span> <span class="n">setup_wandb</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Next, let’s define an easy <code class="docutils literal notranslate"><span class="pre">train_function</span></code> function (a Tune <code class="docutils literal notranslate"><span class="pre">Trainable</span></code>) that reports a random loss to Tune.
+The objective function itself is not important for this example, since we want to focus on the Weights &amp; Biases
+integration primarily.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">train_function</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">30</span><span class="p">):</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;mean&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;sd&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">()</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">report</span><span class="p">({</span><span class="s2">&quot;loss&quot;</span><span class="p">:</span> <span class="n">loss</span><span class="p">})</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>You can define a
+simple grid-search Tune run using the <code class="docutils literal notranslate"><span class="pre">WandbLoggerCallback</span></code> as follows:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">tune_with_callback</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Example for using a WandbLoggerCallback with the function API&quot;&quot;&quot;</span>
+    <span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
+        <span class="n">train_function</span><span class="p">,</span>
+        <span class="n">tune_config</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">TuneConfig</span><span class="p">(</span>
+            <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;loss&quot;</span><span class="p">,</span>
+            <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;min&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">run_config</span><span class="o">=</span><span class="n">air</span><span class="o">.</span><span class="n">RunConfig</span><span class="p">(</span>
+            <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span><span class="n">WandbLoggerCallback</span><span class="p">(</span><span class="n">project</span><span class="o">=</span><span class="s2">&quot;Wandb_example&quot;</span><span class="p">)]</span>
+        <span class="p">),</span>
+        <span class="n">param_space</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;mean&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">grid_search</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">]),</span>
+            <span class="s2">&quot;sd&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">),</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>To use the <code class="docutils literal notranslate"><span class="pre">setup_wandb</span></code> utility, you simply call this function in your objective.
+Note that we also use <code class="docutils literal notranslate"><span class="pre">wandb.log(...)</span></code> to log the <code class="docutils literal notranslate"><span class="pre">loss</span></code> to Weights &amp; Biases as a dictionary.
+Otherwise, this version of our objective is identical to its original.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">train_function_wandb</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="n">wandb</span> <span class="o">=</span> <span class="n">setup_wandb</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="s2">&quot;Wandb_example&quot;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">30</span><span class="p">):</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;mean&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;sd&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">()</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">report</span><span class="p">({</span><span class="s2">&quot;loss&quot;</span><span class="p">:</span> <span class="n">loss</span><span class="p">})</span>
+        <span class="n">wandb</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>With the <code class="docutils literal notranslate"><span class="pre">train_function_wandb</span></code> defined, your Tune experiment will set up <code class="docutils literal notranslate"><span class="pre">wandb</span></code> in each trial once it starts!</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">tune_with_setup</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Example for using the setup_wandb utility with the function API&quot;&quot;&quot;</span>
+    <span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
+        <span class="n">train_function_wandb</span><span class="p">,</span>
+        <span class="n">tune_config</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">TuneConfig</span><span class="p">(</span>
+            <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;loss&quot;</span><span class="p">,</span>
+            <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;min&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">param_space</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;mean&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">grid_search</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">]),</span>
+            <span class="s2">&quot;sd&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">),</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Finally, you can also define a class-based Tune <code class="docutils literal notranslate"><span class="pre">Trainable</span></code> by using the <code class="docutils literal notranslate"><span class="pre">setup_wandb</span></code> in the <code class="docutils literal notranslate"><span class="pre">setup()</span></code> method and storing the run object as an attribute. Please note that with the class trainable, you have to pass the trial id, name, and group separately:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">WandbTrainable</span><span class="p">(</span><span class="n">tune</span><span class="o">.</span><span class="n">Trainable</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wandb</span> <span class="o">=</span> <span class="n">setup_wandb</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span>
+            <span class="n">trial_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">trial_id</span><span class="p">,</span>
+            <span class="n">trial_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">trial_name</span><span class="p">,</span>
+            <span class="n">group</span><span class="o">=</span><span class="s2">&quot;Example&quot;</span><span class="p">,</span>
+            <span class="n">project</span><span class="o">=</span><span class="s2">&quot;Wandb_example&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">30</span><span class="p">):</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;mean&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;sd&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wandb</span><span class="o">.</span><span class="n">log</span><span class="p">({</span><span class="s2">&quot;loss&quot;</span><span class="p">:</span> <span class="n">loss</span><span class="p">})</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;loss&quot;</span><span class="p">:</span> <span class="n">loss</span><span class="p">,</span> <span class="s2">&quot;done&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">save_checkpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">checkpoint_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">load_checkpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">checkpoint_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">pass</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Running Tune with this <code class="docutils literal notranslate"><span class="pre">WandbTrainable</span></code> works exactly the same as with the function API.
+The below <code class="docutils literal notranslate"><span class="pre">tune_trainable</span></code> function differs from <code class="docutils literal notranslate"><span class="pre">tune_decorated</span></code> above only in the first argument we pass to
+<code class="docutils literal notranslate"><span class="pre">Tuner()</span></code>:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">tune_trainable</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Example for using a WandTrainableMixin with the class API&quot;&quot;&quot;</span>
+    <span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
+        <span class="n">WandbTrainable</span><span class="p">,</span>
+        <span class="n">tune_config</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">TuneConfig</span><span class="p">(</span>
+            <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;loss&quot;</span><span class="p">,</span>
+            <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;min&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">param_space</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;mean&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">grid_search</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">]),</span>
+            <span class="s2">&quot;sd&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">),</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">results</span><span class="o">.</span><span class="n">get_best_result</span><span class="p">()</span><span class="o">.</span><span class="n">config</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Since you may not have an API key for Wandb, we can <em>mock</em> the Wandb logger and test all three of our training
+functions as follows.
+If you are logged in into wandb, you can set <code class="docutils literal notranslate"><span class="pre">mock_api</span> <span class="pre">=</span> <span class="pre">False</span></code> to actually upload your results to Weights &amp; Biases.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">mock_api</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="k">if</span> <span class="n">mock_api</span><span class="p">:</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;WANDB_MODE&quot;</span><span class="p">,</span> <span class="s2">&quot;disabled&quot;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;WANDB_API_KEY&quot;</span><span class="p">,</span> <span class="s2">&quot;abcd&quot;</span><span class="p">)</span>
+    <span class="n">ray</span><span class="o">.</span><span class="n">init</span><span class="p">(</span>
+        <span class="n">runtime_env</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;env_vars&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;WANDB_MODE&quot;</span><span class="p">:</span> <span class="s2">&quot;disabled&quot;</span><span class="p">,</span> <span class="s2">&quot;WANDB_API_KEY&quot;</span><span class="p">:</span> <span class="s2">&quot;abcd&quot;</span><span class="p">}}</span>
+    <span class="p">)</span>
+
+<span class="n">tune_with_callback</span><span class="p">()</span>
+<span class="n">tune_with_setup</span><span class="p">()</span>
+<span class="n">tune_trainable</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2022-11-02 16:02:45,355	INFO worker.py:1534 -- Started a local Ray instance. View the dashboard at <span class=" -Color -Color-Bold -Color-Bold-Green">http://127.0.0.1:8266 </span>
+2022-11-02 16:02:46,513	INFO wandb.py:282 -- Already logged into W&amp;B.
+</pre></div>
+</div>
+<div class="output text_html"><div class="tuneStatus">
+  <div style="display: flex;flex-direction: row">
+    <div style="display: flex;flex-direction: column;">
+      <h3>Tune Status</h3>
+      <table>
+<tbody>
+<tr><td>Current time:</td><td>2022-11-02 16:03:13</td></tr>
+<tr><td>Running for: </td><td>00:00:27.28        </td></tr>
+<tr><td>Memory:      </td><td>10.8/16.0 GiB      </td></tr>
+</tbody>
+</table>
+    </div>
+    <div class="vDivider"></div>
+    <div class="systemInfo">
+      <h3>System Info</h3>
+      Using FIFO scheduling algorithm.<br>Resources requested: 0/16 CPUs, 0/0 GPUs, 0.0/3.44 GiB heap, 0.0/1.72 GiB objects
+    </div>
+
+  </div>
+  <div class="hDivider"></div>
+  <div class="trialStatus">
+    <h3>Trial Status</h3>
+    <table>
+<thead>
+<tr><th>Trial name                </th><th>status    </th><th>loc            </th><th style="text-align: right;">  mean</th><th style="text-align: right;">      sd</th><th style="text-align: right;">  iter</th><th style="text-align: right;">  total time (s)</th><th style="text-align: right;">    loss</th></tr>
+</thead>
+<tbody>
+<tr><td>train_function_7676d_00000</td><td>TERMINATED</td><td>127.0.0.1:14578</td><td style="text-align: right;">     1</td><td style="text-align: right;">0.411212</td><td style="text-align: right;">    30</td><td style="text-align: right;">        0.236137</td><td style="text-align: right;">0.828527</td></tr>
+<tr><td>train_function_7676d_00001</td><td>TERMINATED</td><td>127.0.0.1:14591</td><td style="text-align: right;">     2</td><td style="text-align: right;">0.756339</td><td style="text-align: right;">    30</td><td style="text-align: right;">        5.57185 </td><td style="text-align: right;">3.13156 </td></tr>
+<tr><td>train_function_7676d_00002</td><td>TERMINATED</td><td>127.0.0.1:14593</td><td style="text-align: right;">     3</td><td style="text-align: right;">0.436643</td><td style="text-align: right;">    30</td><td style="text-align: right;">        5.50237 </td><td style="text-align: right;">3.26679 </td></tr>
+<tr><td>train_function_7676d_00003</td><td>TERMINATED</td><td>127.0.0.1:14595</td><td style="text-align: right;">     4</td><td style="text-align: right;">0.295929</td><td style="text-align: right;">    30</td><td style="text-align: right;">        5.60986 </td><td style="text-align: right;">3.70388 </td></tr>
+<tr><td>train_function_7676d_00004</td><td>TERMINATED</td><td>127.0.0.1:14596</td><td style="text-align: right;">     5</td><td style="text-align: right;">0.335292</td><td style="text-align: right;">    30</td><td style="text-align: right;">        5.61385 </td><td style="text-align: right;">4.74294 </td></tr>
+</tbody>
+</table>
+  </div>
+</div>
+<style>
+.tuneStatus {
+  color: var(--jp-ui-font-color1);
+}
+.tuneStatus .systemInfo {
+  display: flex;
+  flex-direction: column;
+}
+.tuneStatus td {
+  white-space: nowrap;
+}
+.tuneStatus .trialStatus {
+  display: flex;
+  flex-direction: column;
+}
+.tuneStatus h3 {
+  font-weight: bold;
+}
+.tuneStatus .hDivider {
+  border-bottom-width: var(--jp-border-width);
+  border-bottom-color: var(--jp-border-color0);
+  border-bottom-style: solid;
+}
+.tuneStatus .vDivider {
+  border-left-width: var(--jp-border-width);
+  border-left-color: var(--jp-border-color0);
+  border-left-style: solid;
+  margin: 0.5em 1em 0.5em 1em;
+}
+</style>
+</div><div class="output text_html"><div class="trialProgress">
+  <h3>Trial Progress</h3>
+  <table>
+<thead>
+<tr><th>Trial name                </th><th>date               </th><th>done  </th><th>episodes_total  </th><th>experiment_id                   </th><th>experiment_tag    </th><th>hostname            </th><th style="text-align: right;">  iterations_since_restore</th><th style="text-align: right;">    loss</th><th>node_ip  </th><th style="text-align: right;">  pid</th><th style="text-align: right;">  time_since_restore</th><th style="text-align: right;">  time_this_iter_s</th><th style="text-align: right;">  time_total_s</th><th style="text-align: right;">  timestamp</th><th style="text-align: right;">  timesteps_since_restore</th><th>timesteps_total  </th><th style="text-align: right;">  training_iteration</th><th>trial_id   </th><th style="text-align: right;">  warmup_time</th></tr>
+</thead>
+<tbody>
+<tr><td>train_function_7676d_00000</td><td>2022-11-02_16-02-53</td><td>True  </td><td>                </td><td>a9f242fa70184d9dadd8952b16fb0ecc</td><td>0_mean=1,sd=0.4112</td><td>Kais-MBP.local.meter</td><td style="text-align: right;">                        30</td><td style="text-align: right;">0.828527</td><td>127.0.0.1</td><td style="text-align: right;">14578</td><td style="text-align: right;">            0.236137</td><td style="text-align: right;">        0.00381589</td><td style="text-align: right;">      0.236137</td><td style="text-align: right;"> 1667430173</td><td style="text-align: right;">                        0</td><td>                 </td><td style="text-align: right;">                  30</td><td>7676d_00000</td><td style="text-align: right;">   0.00366998</td></tr>
+<tr><td>train_function_7676d_00001</td><td>2022-11-02_16-03-03</td><td>True  </td><td>                </td><td>f57118365bcb4c229fe41c5911f05ad6</td><td>1_mean=2,sd=0.7563</td><td>Kais-MBP.local.meter</td><td style="text-align: right;">                        30</td><td style="text-align: right;">3.13156 </td><td>127.0.0.1</td><td style="text-align: right;">14591</td><td style="text-align: right;">            5.57185 </td><td style="text-align: right;">        0.00627518</td><td style="text-align: right;">      5.57185 </td><td style="text-align: right;"> 1667430183</td><td style="text-align: right;">                        0</td><td>                 </td><td style="text-align: right;">                  30</td><td>7676d_00001</td><td style="text-align: right;">   0.0027349 </td></tr>
+<tr><td>train_function_7676d_00002</td><td>2022-11-02_16-03-03</td><td>True  </td><td>                </td><td>394021d4515d4616bae7126668f73b2b</td><td>2_mean=3,sd=0.4366</td><td>Kais-MBP.local.meter</td><td style="text-align: right;">                        30</td><td style="text-align: right;">3.26679 </td><td>127.0.0.1</td><td style="text-align: right;">14593</td><td style="text-align: right;">            5.50237 </td><td style="text-align: right;">        0.00494576</td><td style="text-align: right;">      5.50237 </td><td style="text-align: right;"> 1667430183</td><td style="text-align: right;">                        0</td><td>                 </td><td style="text-align: right;">                  30</td><td>7676d_00002</td><td style="text-align: right;">   0.00286222</td></tr>
+<tr><td>train_function_7676d_00003</td><td>2022-11-02_16-03-03</td><td>True  </td><td>                </td><td>a575e79c9d95485fa37deaa86267aea4</td><td>3_mean=4,sd=0.2959</td><td>Kais-MBP.local.meter</td><td style="text-align: right;">                        30</td><td style="text-align: right;">3.70388 </td><td>127.0.0.1</td><td style="text-align: right;">14595</td><td style="text-align: right;">            5.60986 </td><td style="text-align: right;">        0.00689816</td><td style="text-align: right;">      5.60986 </td><td style="text-align: right;"> 1667430183</td><td style="text-align: right;">                        0</td><td>                 </td><td style="text-align: right;">                  30</td><td>7676d_00003</td><td style="text-align: right;">   0.00299597</td></tr>
+<tr><td>train_function_7676d_00004</td><td>2022-11-02_16-03-03</td><td>True  </td><td>                </td><td>91ce57dcdbb54536b1874666b711350d</td><td>4_mean=5,sd=0.3353</td><td>Kais-MBP.local.meter</td><td style="text-align: right;">                        30</td><td style="text-align: right;">4.74294 </td><td>127.0.0.1</td><td style="text-align: right;">14596</td><td style="text-align: right;">            5.61385 </td><td style="text-align: right;">        0.00672579</td><td style="text-align: right;">      5.61385 </td><td style="text-align: right;"> 1667430183</td><td style="text-align: right;">                        0</td><td>                 </td><td style="text-align: right;">                  30</td><td>7676d_00004</td><td style="text-align: right;">   0.00323987</td></tr>
+</tbody>
+</table>
+</div>
+<style>
+.trialProgress {
+  display: flex;
+  flex-direction: column;
+  color: var(--jp-ui-font-color1);
+}
+.trialProgress h3 {
+  font-weight: bold;
+}
+.trialProgress td {
+  white-space: nowrap;
+}
+</style>
+</div><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2022-11-02 16:03:13,913	INFO tune.py:788 -- Total run time: 28.53 seconds (27.28 seconds for the tuning loop).
+</pre></div>
+</div>
+<div class="output text_html"><div class="tuneStatus">
+  <div style="display: flex;flex-direction: row">
+    <div style="display: flex;flex-direction: column;">
+      <h3>Tune Status</h3>
+      <table>
+<tbody>
+<tr><td>Current time:</td><td>2022-11-02 16:03:22</td></tr>
+<tr><td>Running for: </td><td>00:00:08.49        </td></tr>
+<tr><td>Memory:      </td><td>9.9/16.0 GiB       </td></tr>
+</tbody>
+</table>
+    </div>
+    <div class="vDivider"></div>
+    <div class="systemInfo">
+      <h3>System Info</h3>
+      Using FIFO scheduling algorithm.<br>Resources requested: 0/16 CPUs, 0/0 GPUs, 0.0/3.44 GiB heap, 0.0/1.72 GiB objects
+    </div>
+
+  </div>
+  <div class="hDivider"></div>
+  <div class="trialStatus">
+    <h3>Trial Status</h3>
+    <table>
+<thead>
+<tr><th>Trial name                      </th><th>status    </th><th>loc            </th><th style="text-align: right;">  mean</th><th style="text-align: right;">      sd</th><th style="text-align: right;">  iter</th><th style="text-align: right;">  total time (s)</th><th style="text-align: right;">    loss</th></tr>
+</thead>
+<tbody>
+<tr><td>train_function_wandb_877eb_00000</td><td>TERMINATED</td><td>127.0.0.1:14647</td><td style="text-align: right;">     1</td><td style="text-align: right;">0.738281</td><td style="text-align: right;">    30</td><td style="text-align: right;">         1.61319</td><td style="text-align: right;">0.555153</td></tr>
+<tr><td>train_function_wandb_877eb_00001</td><td>TERMINATED</td><td>127.0.0.1:14660</td><td style="text-align: right;">     2</td><td style="text-align: right;">0.321178</td><td style="text-align: right;">    30</td><td style="text-align: right;">         1.72447</td><td style="text-align: right;">2.52109 </td></tr>
+<tr><td>train_function_wandb_877eb_00002</td><td>TERMINATED</td><td>127.0.0.1:14661</td><td style="text-align: right;">     3</td><td style="text-align: right;">0.202487</td><td style="text-align: right;">    30</td><td style="text-align: right;">         1.8159 </td><td style="text-align: right;">2.45412 </td></tr>
+<tr><td>train_function_wandb_877eb_00003</td><td>TERMINATED</td><td>127.0.0.1:14662</td><td style="text-align: right;">     4</td><td style="text-align: right;">0.515434</td><td style="text-align: right;">    30</td><td style="text-align: right;">         1.715  </td><td style="text-align: right;">4.51413 </td></tr>
+<tr><td>train_function_wandb_877eb_00004</td><td>TERMINATED</td><td>127.0.0.1:14663</td><td style="text-align: right;">     5</td><td style="text-align: right;">0.216098</td><td style="text-align: right;">    30</td><td style="text-align: right;">         1.72827</td><td style="text-align: right;">5.2814  </td></tr>
+</tbody>
+</table>
+  </div>
+</div>
+<style>
+.tuneStatus {
+  color: var(--jp-ui-font-color1);
+}
+.tuneStatus .systemInfo {
+  display: flex;
+  flex-direction: column;
+}
+.tuneStatus td {
+  white-space: nowrap;
+}
+.tuneStatus .trialStatus {
+  display: flex;
+  flex-direction: column;
+}
+.tuneStatus h3 {
+  font-weight: bold;
+}
+.tuneStatus .hDivider {
+  border-bottom-width: var(--jp-border-width);
+  border-bottom-color: var(--jp-border-color0);
+  border-bottom-style: solid;
+}
+.tuneStatus .vDivider {
+  border-left-width: var(--jp-border-width);
+  border-left-color: var(--jp-border-color0);
+  border-left-style: solid;
+  margin: 0.5em 1em 0.5em 1em;
+}
+</style>
+</div><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_function_wandb pid=14647)</span> 2022-11-02 16:03:17,149	INFO wandb.py:282 -- Already logged into W&amp;B.
+</pre></div>
+</div>
+<div class="output text_html"><div class="trialProgress">
+  <h3>Trial Progress</h3>
+  <table>
+<thead>
+<tr><th>Trial name                      </th><th>date               </th><th>done  </th><th>episodes_total  </th><th>experiment_id                   </th><th>experiment_tag    </th><th>hostname            </th><th style="text-align: right;">  iterations_since_restore</th><th style="text-align: right;">    loss</th><th>node_ip  </th><th style="text-align: right;">  pid</th><th style="text-align: right;">  time_since_restore</th><th style="text-align: right;">  time_this_iter_s</th><th style="text-align: right;">  time_total_s</th><th style="text-align: right;">  timestamp</th><th style="text-align: right;">  timesteps_since_restore</th><th>timesteps_total  </th><th style="text-align: right;">  training_iteration</th><th>trial_id   </th><th style="text-align: right;">  warmup_time</th></tr>
+</thead>
+<tbody>
+<tr><td>train_function_wandb_877eb_00000</td><td>2022-11-02_16-03-18</td><td>True  </td><td>                </td><td>7b250c9f31ab484dad1a1fd29823afdf</td><td>0_mean=1,sd=0.7383</td><td>Kais-MBP.local.meter</td><td style="text-align: right;">                        30</td><td style="text-align: right;">0.555153</td><td>127.0.0.1</td><td style="text-align: right;">14647</td><td style="text-align: right;">             1.61319</td><td style="text-align: right;">        0.00232315</td><td style="text-align: right;">       1.61319</td><td style="text-align: right;"> 1667430198</td><td style="text-align: right;">                        0</td><td>                 </td><td style="text-align: right;">                  30</td><td>877eb_00000</td><td style="text-align: right;">   0.00391102</td></tr>
+<tr><td>train_function_wandb_877eb_00001</td><td>2022-11-02_16-03-22</td><td>True  </td><td>                </td><td>5172868368074557a3044ea3a9146673</td><td>1_mean=2,sd=0.3212</td><td>Kais-MBP.local.meter</td><td style="text-align: right;">                        30</td><td style="text-align: right;">2.52109 </td><td>127.0.0.1</td><td style="text-align: right;">14660</td><td style="text-align: right;">             1.72447</td><td style="text-align: right;">        0.0152011 </td><td style="text-align: right;">       1.72447</td><td style="text-align: right;"> 1667430202</td><td style="text-align: right;">                        0</td><td>                 </td><td style="text-align: right;">                  30</td><td>877eb_00001</td><td style="text-align: right;">   0.00901699</td></tr>
+<tr><td>train_function_wandb_877eb_00002</td><td>2022-11-02_16-03-22</td><td>True  </td><td>                </td><td>b13d9bccb1964b4b95e1a858a3ea64c7</td><td>2_mean=3,sd=0.2025</td><td>Kais-MBP.local.meter</td><td style="text-align: right;">                        30</td><td style="text-align: right;">2.45412 </td><td>127.0.0.1</td><td style="text-align: right;">14661</td><td style="text-align: right;">             1.8159 </td><td style="text-align: right;">        0.00437403</td><td style="text-align: right;">       1.8159 </td><td style="text-align: right;"> 1667430202</td><td style="text-align: right;">                        0</td><td>                 </td><td style="text-align: right;">                  30</td><td>877eb_00002</td><td style="text-align: right;">   0.00844812</td></tr>
+<tr><td>train_function_wandb_877eb_00003</td><td>2022-11-02_16-03-22</td><td>True  </td><td>                </td><td>869d7ec7a3544a8387985103e626818f</td><td>3_mean=4,sd=0.5154</td><td>Kais-MBP.local.meter</td><td style="text-align: right;">                        30</td><td style="text-align: right;">4.51413 </td><td>127.0.0.1</td><td style="text-align: right;">14662</td><td style="text-align: right;">             1.715  </td><td style="text-align: right;">        0.00247812</td><td style="text-align: right;">       1.715  </td><td style="text-align: right;"> 1667430202</td><td style="text-align: right;">                        0</td><td>                 </td><td style="text-align: right;">                  30</td><td>877eb_00003</td><td style="text-align: right;">   0.00282907</td></tr>
+<tr><td>train_function_wandb_877eb_00004</td><td>2022-11-02_16-03-22</td><td>True  </td><td>                </td><td>84d3112d66f64325bc469e44b8447ef5</td><td>4_mean=5,sd=0.2161</td><td>Kais-MBP.local.meter</td><td style="text-align: right;">                        30</td><td style="text-align: right;">5.2814  </td><td>127.0.0.1</td><td style="text-align: right;">14663</td><td style="text-align: right;">             1.72827</td><td style="text-align: right;">        0.00517201</td><td style="text-align: right;">       1.72827</td><td style="text-align: right;"> 1667430202</td><td style="text-align: right;">                        0</td><td>                 </td><td style="text-align: right;">                  30</td><td>877eb_00004</td><td style="text-align: right;">   0.00272107</td></tr>
+</tbody>
+</table>
+</div>
+<style>
+.trialProgress {
+  display: flex;
+  flex-direction: column;
+  color: var(--jp-ui-font-color1);
+}
+.trialProgress h3 {
+  font-weight: bold;
+}
+.trialProgress td {
+  white-space: nowrap;
+}
+</style>
+</div><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_function_wandb pid=14660)</span> 2022-11-02 16:03:20,600	INFO wandb.py:282 -- Already logged into W&amp;B.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_function_wandb pid=14661)</span> 2022-11-02 16:03:20,600	INFO wandb.py:282 -- Already logged into W&amp;B.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_function_wandb pid=14663)</span> 2022-11-02 16:03:20,628	INFO wandb.py:282 -- Already logged into W&amp;B.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(train_function_wandb pid=14662)</span> 2022-11-02 16:03:20,723	INFO wandb.py:282 -- Already logged into W&amp;B.
+2022-11-02 16:03:22,565	INFO tune.py:788 -- Total run time: 8.60 seconds (8.48 seconds for the tuning loop).
+</pre></div>
+</div>
+<div class="output text_html"><div class="tuneStatus">
+  <div style="display: flex;flex-direction: row">
+    <div style="display: flex;flex-direction: column;">
+      <h3>Tune Status</h3>
+      <table>
+<tbody>
+<tr><td>Current time:</td><td>2022-11-02 16:03:31</td></tr>
+<tr><td>Running for: </td><td>00:00:09.28        </td></tr>
+<tr><td>Memory:      </td><td>9.9/16.0 GiB       </td></tr>
+</tbody>
+</table>
+    </div>
+    <div class="vDivider"></div>
+    <div class="systemInfo">
+      <h3>System Info</h3>
+      Using FIFO scheduling algorithm.<br>Resources requested: 0/16 CPUs, 0/0 GPUs, 0.0/3.44 GiB heap, 0.0/1.72 GiB objects
+    </div>
+
+  </div>
+  <div class="hDivider"></div>
+  <div class="trialStatus">
+    <h3>Trial Status</h3>
+    <table>
+<thead>
+<tr><th>Trial name                </th><th>status    </th><th>loc            </th><th style="text-align: right;">  mean</th><th style="text-align: right;">      sd</th><th style="text-align: right;">  iter</th><th style="text-align: right;">  total time (s)</th><th style="text-align: right;">    loss</th></tr>
+</thead>
+<tbody>
+<tr><td>WandbTrainable_8ca33_00000</td><td>TERMINATED</td><td>127.0.0.1:14718</td><td style="text-align: right;">     1</td><td style="text-align: right;">0.397894</td><td style="text-align: right;">     1</td><td style="text-align: right;">     0.000187159</td><td style="text-align: right;">0.742345</td></tr>
+<tr><td>WandbTrainable_8ca33_00001</td><td>TERMINATED</td><td>127.0.0.1:14737</td><td style="text-align: right;">     2</td><td style="text-align: right;">0.386883</td><td style="text-align: right;">     1</td><td style="text-align: right;">     0.000151873</td><td style="text-align: right;">2.5709  </td></tr>
+<tr><td>WandbTrainable_8ca33_00002</td><td>TERMINATED</td><td>127.0.0.1:14738</td><td style="text-align: right;">     3</td><td style="text-align: right;">0.290693</td><td style="text-align: right;">     1</td><td style="text-align: right;">     0.00014019 </td><td style="text-align: right;">2.99601 </td></tr>
+<tr><td>WandbTrainable_8ca33_00003</td><td>TERMINATED</td><td>127.0.0.1:14739</td><td style="text-align: right;">     4</td><td style="text-align: right;">0.33333 </td><td style="text-align: right;">     1</td><td style="text-align: right;">     0.00015831 </td><td style="text-align: right;">3.91276 </td></tr>
+<tr><td>WandbTrainable_8ca33_00004</td><td>TERMINATED</td><td>127.0.0.1:14740</td><td style="text-align: right;">     5</td><td style="text-align: right;">0.645479</td><td style="text-align: right;">     1</td><td style="text-align: right;">     0.000150919</td><td style="text-align: right;">5.47779 </td></tr>
+</tbody>
+</table>
+  </div>
+</div>
+<style>
+.tuneStatus {
+  color: var(--jp-ui-font-color1);
+}
+.tuneStatus .systemInfo {
+  display: flex;
+  flex-direction: column;
+}
+.tuneStatus td {
+  white-space: nowrap;
+}
+.tuneStatus .trialStatus {
+  display: flex;
+  flex-direction: column;
+}
+.tuneStatus h3 {
+  font-weight: bold;
+}
+.tuneStatus .hDivider {
+  border-bottom-width: var(--jp-border-width);
+  border-bottom-color: var(--jp-border-color0);
+  border-bottom-style: solid;
+}
+.tuneStatus .vDivider {
+  border-left-width: var(--jp-border-width);
+  border-left-color: var(--jp-border-color0);
+  border-left-style: solid;
+  margin: 0.5em 1em 0.5em 1em;
+}
+</style>
+</div><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Faint -Color-Faint-Cyan">(WandbTrainable pid=14718)</span> 2022-11-02 16:03:25,742	INFO wandb.py:282 -- Already logged into W&amp;B.
+</pre></div>
+</div>
+<div class="output text_html"><div class="trialProgress">
+  <h3>Trial Progress</h3>
+  <table>
+<thead>
+<tr><th>Trial name                </th><th>date               </th><th>done  </th><th>episodes_total  </th><th>experiment_id                   </th><th>hostname            </th><th style="text-align: right;">  iterations_since_restore</th><th style="text-align: right;">    loss</th><th>node_ip  </th><th style="text-align: right;">  pid</th><th style="text-align: right;">  time_since_restore</th><th style="text-align: right;">  time_this_iter_s</th><th style="text-align: right;">  time_total_s</th><th style="text-align: right;">  timestamp</th><th style="text-align: right;">  timesteps_since_restore</th><th>timesteps_total  </th><th style="text-align: right;">  training_iteration</th><th>trial_id   </th><th style="text-align: right;">  warmup_time</th></tr>
+</thead>
+<tbody>
+<tr><td>WandbTrainable_8ca33_00000</td><td>2022-11-02_16-03-27</td><td>True  </td><td>                </td><td>3adb4d0ae0d74d1c9ddd07924b5653b0</td><td>Kais-MBP.local.meter</td><td style="text-align: right;">                         1</td><td style="text-align: right;">0.742345</td><td>127.0.0.1</td><td style="text-align: right;">14718</td><td style="text-align: right;">         0.000187159</td><td style="text-align: right;">       0.000187159</td><td style="text-align: right;">   0.000187159</td><td style="text-align: right;"> 1667430207</td><td style="text-align: right;">                        0</td><td>                 </td><td style="text-align: right;">                   1</td><td>8ca33_00000</td><td style="text-align: right;">      1.31382</td></tr>
+<tr><td>WandbTrainable_8ca33_00001</td><td>2022-11-02_16-03-31</td><td>True  </td><td>                </td><td>f1511cfd51f94b3d9cf192181ccc08a9</td><td>Kais-MBP.local.meter</td><td style="text-align: right;">                         1</td><td style="text-align: right;">2.5709  </td><td>127.0.0.1</td><td style="text-align: right;">14737</td><td style="text-align: right;">         0.000151873</td><td style="text-align: right;">       0.000151873</td><td style="text-align: right;">   0.000151873</td><td style="text-align: right;"> 1667430211</td><td style="text-align: right;">                        0</td><td>                 </td><td style="text-align: right;">                   1</td><td>8ca33_00001</td><td style="text-align: right;">      1.31668</td></tr>
+<tr><td>WandbTrainable_8ca33_00002</td><td>2022-11-02_16-03-31</td><td>True  </td><td>                </td><td>a7528ec6adf74de0b73aa98ebedab66d</td><td>Kais-MBP.local.meter</td><td style="text-align: right;">                         1</td><td style="text-align: right;">2.99601 </td><td>127.0.0.1</td><td style="text-align: right;">14738</td><td style="text-align: right;">         0.00014019 </td><td style="text-align: right;">       0.00014019 </td><td style="text-align: right;">   0.00014019 </td><td style="text-align: right;"> 1667430211</td><td style="text-align: right;">                        0</td><td>                 </td><td style="text-align: right;">                   1</td><td>8ca33_00002</td><td style="text-align: right;">      1.32008</td></tr>
+<tr><td>WandbTrainable_8ca33_00003</td><td>2022-11-02_16-03-31</td><td>True  </td><td>                </td><td>b7af756ca586449ba2d4c44141b53b06</td><td>Kais-MBP.local.meter</td><td style="text-align: right;">                         1</td><td style="text-align: right;">3.91276 </td><td>127.0.0.1</td><td style="text-align: right;">14739</td><td style="text-align: right;">         0.00015831 </td><td style="text-align: right;">       0.00015831 </td><td style="text-align: right;">   0.00015831 </td><td style="text-align: right;"> 1667430211</td><td style="text-align: right;">                        0</td><td>                 </td><td style="text-align: right;">                   1</td><td>8ca33_00003</td><td style="text-align: right;">      1.31879</td></tr>
+<tr><td>WandbTrainable_8ca33_00004</td><td>2022-11-02_16-03-31</td><td>True  </td><td>                </td><td>196624f42bcc45c18a26778573a43a2c</td><td>Kais-MBP.local.meter</td><td style="text-align: right;">                         1</td><td style="text-align: right;">5.47779 </td><td>127.0.0.1</td><td style="text-align: right;">14740</td><td style="text-align: right;">         0.000150919</td><td style="text-align: right;">       0.000150919</td><td style="text-align: right;">   0.000150919</td><td style="text-align: right;"> 1667430211</td><td style="text-align: right;">                        0</td><td>                 </td><td style="text-align: right;">                   1</td><td>8ca33_00004</td><td style="text-align: right;">      1.31945</td></tr>
+</tbody>
+</table>
+</div>
+<style>
+.trialProgress {
+  display: flex;
+  flex-direction: column;
+  color: var(--jp-ui-font-color1);
+}
+.trialProgress h3 {
+  font-weight: bold;
+}
+.trialProgress td {
+  white-space: nowrap;
+}
+</style>
+</div><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Faint -Color-Faint-Cyan">(WandbTrainable pid=14739)</span> 2022-11-02 16:03:30,360	INFO wandb.py:282 -- Already logged into W&amp;B.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(WandbTrainable pid=14740)</span> 2022-11-02 16:03:30,393	INFO wandb.py:282 -- Already logged into W&amp;B.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(WandbTrainable pid=14737)</span> 2022-11-02 16:03:30,454	INFO wandb.py:282 -- Already logged into W&amp;B.
+<span class=" -Color -Color-Faint -Color-Faint-Cyan">(WandbTrainable pid=14738)</span> 2022-11-02 16:03:30,510	INFO wandb.py:282 -- Already logged into W&amp;B.
+2022-11-02 16:03:31,985	INFO tune.py:788 -- Total run time: 9.40 seconds (9.27 seconds for the tuning loop).
+</pre></div>
+</div>
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;mean&#39;: 1, &#39;sd&#39;: 0.3978937765393781, &#39;wandb&#39;: {&#39;project&#39;: &#39;Wandb_example&#39;}}
+</pre></div>
+</div>
+</div>
+</div>
+<p>This completes our Tune and Wandb walk-through.
+In the following sections you can find more details on the API of the Tune-Wandb integration.</p>
+</section>
+<section id="tune-wandb-api-reference">
+<h2>Tune Wandb API Reference<a class="headerlink" href="tune-wandb.html#tune-wandb-api-reference" title="Permalink to this headline">#</a></h2>
+<section id="wandbloggercallback">
+<h3>WandbLoggerCallback<a class="headerlink" href="tune-wandb.html#wandbloggercallback" title="Permalink to this headline">#</a></h3>
+<span class="target" id="air-wandb-logger"></span><dl class="py class">
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ray.air.integrations.wandb.</span></span><span class="sig-name descname"><span class="pre">WandbLoggerCallback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_key_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excludes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upload_checkpoints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_checkpoints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upload_timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1800</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ray/air/integrations/wandb.html#WandbLoggerCallback"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Weights and biases (<a class="reference external" href="https://www.wandb.ai/">https://www.wandb.ai/</a>) is a tool for experiment
+tracking, model optimization, and dataset versioning. This Ray Tune
+<code class="docutils literal notranslate"><span class="pre">LoggerCallback</span></code> sends metrics to Wandb for automatic tracking and
+visualization.</p>
+<p class="rubric">Example</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">random</span>
+
+<span class="kn">from</span> <span class="nn">ray</span> <span class="kn">import</span> <span class="n">tune</span>
+<span class="kn">from</span> <span class="nn">ray.air</span> <span class="kn">import</span> <span class="n">session</span><span class="p">,</span> <span class="n">RunConfig</span>
+<span class="kn">from</span> <span class="nn">ray.air.integrations.wandb</span> <span class="kn">import</span> <span class="n">WandbLoggerCallback</span>
+
+
+<span class="k">def</span> <span class="nf">train_func</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="n">offset</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">/</span> <span class="mi">5</span>
+    <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;epochs&quot;</span><span class="p">]):</span>
+        <span class="n">acc</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="mi">2</span> <span class="o">+</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;lr&quot;</span><span class="p">])</span> <span class="o">**</span> <span class="o">-</span><span class="n">epoch</span> <span class="o">-</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">/</span> <span class="n">epoch</span> <span class="o">-</span> <span class="n">offset</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">+</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;lr&quot;</span><span class="p">])</span> <span class="o">**</span> <span class="o">-</span><span class="n">epoch</span> <span class="o">+</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">/</span> <span class="n">epoch</span> <span class="o">+</span> <span class="n">offset</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">report</span><span class="p">({</span><span class="s2">&quot;acc&quot;</span><span class="p">:</span> <span class="n">acc</span><span class="p">,</span> <span class="s2">&quot;loss&quot;</span><span class="p">:</span> <span class="n">loss</span><span class="p">})</span>
+
+
+<span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
+    <span class="n">train_func</span><span class="p">,</span>
+    <span class="n">param_space</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;lr&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">grid_search</span><span class="p">([</span><span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]),</span>
+        <span class="s2">&quot;epochs&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="n">run_config</span><span class="o">=</span><span class="n">RunConfig</span><span class="p">(</span>
+        <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span><span class="n">WandbLoggerCallback</span><span class="p">(</span><span class="n">project</span><span class="o">=</span><span class="s2">&quot;Optimization_Project&quot;</span><span class="p">)]</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project</strong> – Name of the Wandb project. Mandatory.</p></li>
+<li><p><strong>group</strong> – Name of the Wandb group. Defaults to the trainable
+name.</p></li>
+<li><p><strong>api_key_file</strong> – Path to file containing the Wandb API KEY. This
+file only needs to be present on the node running the Tune script
+if using the WandbLogger.</p></li>
+<li><p><strong>api_key</strong> – Wandb API Key. Alternative to setting <code class="docutils literal notranslate"><span class="pre">api_key_file</span></code>.</p></li>
+<li><p><strong>excludes</strong> – List of metrics and config that should be excluded from
+the log.</p></li>
+<li><p><strong>log_config</strong> – Boolean indicating if the <code class="docutils literal notranslate"><span class="pre">config</span></code> parameter of
+the <code class="docutils literal notranslate"><span class="pre">results</span></code> dict should be logged. This makes sense if
+parameters will change during training, e.g. with
+PopulationBasedTraining. Defaults to False.</p></li>
+<li><p><strong>upload_checkpoints</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, model checkpoints will be uploaded to
+Wandb as artifacts. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>**kwargs</strong> – The keyword arguments will be pased to <code class="docutils literal notranslate"><span class="pre">wandb.init()</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Wandb’s <code class="docutils literal notranslate"><span class="pre">group</span></code>, <code class="docutils literal notranslate"><span class="pre">run_id</span></code> and <code class="docutils literal notranslate"><span class="pre">run_name</span></code> are automatically selected
+by Tune, but can be overwritten by filling out the respective configuration
+values.</p>
+<p>Please see here for all other valid configuration settings:
+<a class="reference external" href="https://docs.wandb.ai/library/init">https://docs.wandb.ai/library/init</a></p>
+</dd></dl>
+
+</section>
+<section id="setup-wandb">
+<h3>setup_wandb<a class="headerlink" href="tune-wandb.html#setup-wandb" title="Permalink to this headline">#</a></h3>
+<span class="target" id="air-wandb-setup"></span><dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">ray.air.integrations.wandb.</span></span><span class="sig-name descname"><span class="pre">setup_wandb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_key_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rank_zero_only</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/ray/air/integrations/wandb.html#setup_wandb"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Set up a Weights &amp; Biases session.</p>
+<p>This function can be used to initialize a Weights &amp; Biases session in a
+(distributed) training or tuning run.</p>
+<p>By default, the run ID is the trial ID, the run name is the trial name, and
+the run group is the experiment name. These settings can be overwritten by
+passing the respective arguments as <code class="docutils literal notranslate"><span class="pre">kwargs</span></code>, which will be passed to
+<code class="docutils literal notranslate"><span class="pre">wandb.init()</span></code>.</p>
+<p>In distributed training with Ray Train, only the zero-rank worker will initialize
+wandb. All other workers will return a disabled run object, so that logging is not
+duplicated in a distributed run. This can be disabled by passing
+<code class="docutils literal notranslate"><span class="pre">rank_zero_only=False</span></code>, which will then initialize wandb in every training
+worker.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">config</span></code> argument will be passed to Weights and Biases and will be logged
+as the run configuration.</p>
+<p>If no API key or key file are passed, wandb will try to authenticate
+using locally stored credentials, created for instance by running <code class="docutils literal notranslate"><span class="pre">wandb</span> <span class="pre">login</span></code>.</p>
+<p>Keyword arguments passed to <code class="docutils literal notranslate"><span class="pre">setup_wandb()</span></code> will be passed to
+<code class="docutils literal notranslate"><span class="pre">wandb.init()</span></code> and take precedence over any potential default settings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> – Configuration dict to be logged to Weights and Biases. Can contain
+arguments for <code class="docutils literal notranslate"><span class="pre">wandb.init()</span></code> as well as authentication information.</p></li>
+<li><p><strong>api_key</strong> – API key to use for authentication with Weights and Biases.</p></li>
+<li><p><strong>api_key_file</strong> – File pointing to API key for with Weights and Biases.</p></li>
+<li><p><strong>rank_zero_only</strong> – If True, will return an initialized session only for the
+rank 0 worker in distributed training. If False, will initialize a
+session for all workers.</p></li>
+<li><p><strong>kwargs</strong> – Passed to <code class="docutils literal notranslate"><span class="pre">wandb.init()</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<p><strong>PublicAPI (alpha):</strong> This API is in alpha and may change before becoming stable.</p>
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="experiment-tracking.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Tune Experiment Tracking Examples</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="tune-mlflow.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Using MLflow with Tune</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

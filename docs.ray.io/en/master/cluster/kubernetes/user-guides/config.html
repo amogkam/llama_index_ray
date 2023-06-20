@@ -1,0 +1,1202 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>RayCluster Configuration &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/js/versionwarning.js"></script>
+    <script src="../../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../../_static/js/docsearch.js"></script>
+    <script src="../../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../../_static/js/top-navigation.js"></script>
+    <script src="../../../_static/js/tags.js"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/cluster/kubernetes/user-guides/config.html" />
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="KubeRay Autoscaling" href="configuring-autoscaling.html" />
+    <link rel="prev" title="Managed Kubernetes services" href="k8s-cluster-setup.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "cluster/kubernetes/user-guides/config", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".md", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../tune.html">
+   Ray Tune
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="../index.html">
+     Deploying on Kubernetes
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="../getting-started.html">
+       Getting Started
+      </a>
+     </li>
+     <li class="toctree-l3 current active has-children">
+      <a class="reference internal" href="../user-guides.html">
+       User Guides
+      </a>
+      <input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+      <label for="toctree-checkbox-3">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul class="current">
+       <li class="toctree-l4">
+        <a class="reference internal" href="k8s-cluster-setup.html">
+         Managed Kubernetes services
+        </a>
+       </li>
+       <li class="toctree-l4 current active">
+        <a class="current reference internal" href="config.html#">
+         RayCluster Configuration
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="configuring-autoscaling.html">
+         KubeRay Autoscaling
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="logging.html">
+         Log Persistence
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="gpu.html">
+         Using GPUs
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="experimental.html">
+         Experimental Features
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="static-ray-cluster-without-kuberay.html">
+         (Advanced) Deploying a static Ray cluster without KubeRay
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../examples.html">
+       Examples
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../references.html">
+       API Reference
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../vms/index.html">
+     Deploying on VMs
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../metrics.html">
+     Collecting and monitoring metrics
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../configure-manage-dashboard.html">
+     Configuring and Managing Ray Dashboard
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../running-applications/index.html">
+     Applications Guide
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../faq.html">
+     FAQ
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../package-overview.html">
+     Ray Cluster Management API
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Fcluster/kubernetes/user-guides/config.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/cluster/kubernetes/user-guides/config.md"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../../_sources/cluster/kubernetes/user-guides/config.md.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.md</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="config.html#introduction">
+   Introduction
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="config.html#the-ray-version">
+   The Ray Version
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="config.html#pod-configuration-headgroupspec-and-workergroupspecs">
+   Pod configuration: headGroupSpec and workerGroupSpecs
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="config.html#pod-templates">
+     Pod templates
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="config.html#containers">
+       containers
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="config.html#resources">
+       resources
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="config.html#nodeselector-and-tolerations">
+       nodeSelector and tolerations
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="config.html#image">
+       image
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="config.html#metadata-name-and-metadata-generatename">
+       metadata.name and metadata.generateName
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="config.html#ray-start-parameters">
+   Ray Start Parameters
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="config.html#dashboard-host">
+     dashboard-host
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="config.html#num-cpus">
+     num-cpus
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="config.html#num-gpus">
+     num-gpus
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="config.html#memory">
+     memory
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="config.html#id1">
+     resources
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="config.html#services-and-networking">
+   Services and Networking
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="config.html#the-ray-head-service">
+     The Ray head service.
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="config.html#servicetype-ingresses">
+     ServiceType, Ingresses
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="config.html#specifying-non-default-ports">
+     Specifying non-default ports.
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="config.html#pod-and-container-lifecyle-prestophook">
+   Pod and container lifecyle: preStopHook
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>RayCluster Configuration</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="config.html#introduction">
+   Introduction
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="config.html#the-ray-version">
+   The Ray Version
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="config.html#pod-configuration-headgroupspec-and-workergroupspecs">
+   Pod configuration: headGroupSpec and workerGroupSpecs
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="config.html#pod-templates">
+     Pod templates
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="config.html#containers">
+       containers
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="config.html#resources">
+       resources
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="config.html#nodeselector-and-tolerations">
+       nodeSelector and tolerations
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="config.html#image">
+       image
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="config.html#metadata-name-and-metadata-generatename">
+       metadata.name and metadata.generateName
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="config.html#ray-start-parameters">
+   Ray Start Parameters
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="config.html#dashboard-host">
+     dashboard-host
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="config.html#num-cpus">
+     num-cpus
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="config.html#num-gpus">
+     num-gpus
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="config.html#memory">
+     memory
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="config.html#id1">
+     resources
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="config.html#services-and-networking">
+   Services and Networking
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="config.html#the-ray-head-service">
+     The Ray head service.
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="config.html#servicetype-ingresses">
+     ServiceType, Ingresses
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="config.html#specifying-non-default-ports">
+     Specifying non-default ports.
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="config.html#pod-and-container-lifecyle-prestophook">
+   Pod and container lifecyle: preStopHook
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section class="tex2jax_ignore mathjax_ignore" id="raycluster-configuration">
+<span id="kuberay-config"></span><h1>RayCluster Configuration<a class="headerlink" href="config.html#raycluster-configuration" title="Permalink to this headline">#</a></h1>
+<p>This guide covers the key aspects of Ray cluster configuration on Kubernetes.</p>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="config.html#introduction" title="Permalink to this headline">#</a></h2>
+<p>Deployments of Ray on Kubernetes follow the <a class="reference external" href="https://kubernetes.io/docs/concepts/extend-kubernetes/operator/">operator pattern</a>. The key players are</p>
+<ul class="simple">
+<li><p>A <a class="reference external" href="https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/">custom resource</a>
+called a <code class="docutils literal notranslate"><span class="pre">RayCluster</span></code> describing the desired state of a Ray cluster.</p></li>
+<li><p>A <a class="reference external" href="https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/#custom-controllers">custom controller</a>,
+the KubeRay operator, which manages Ray pods in order to match the <code class="docutils literal notranslate"><span class="pre">RayCluster</span></code>’s spec.</p></li>
+</ul>
+<p>To deploy a Ray cluster, one creates a <code class="docutils literal notranslate"><span class="pre">RayCluster</span></code> custom resource (CR):</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>kubectl apply -f raycluster.yaml
+</pre></div>
+</div>
+<p>This guide covers the salient features of <code class="docutils literal notranslate"><span class="pre">RayCluster</span></code> CR configuration.</p>
+<p>For reference, here is a condensed example of a <code class="docutils literal notranslate"><span class="pre">RayCluster</span></code> CR in yaml format.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ray.io/v1alpha1</span><span class="w"></span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">RayCluster</span><span class="w"></span>
+<span class="nt">metadata</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">raycluster-complete</span><span class="w"></span>
+<span class="nt">spec</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">rayVersion</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2.3.0&quot;</span><span class="w"></span>
+<span class="w">  </span><span class="nt">enableInTreeAutoscaling</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+<span class="w">  </span><span class="nt">autoscalerOptions</span><span class="p">:</span><span class="w"></span>
+<span class="w">     </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
+<span class="w">  </span><span class="nt">headGroupSpec</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">serviceType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ClusterIP</span><span class="w"> </span><span class="c1"># Options are ClusterIP, NodePort, and LoadBalancer</span><span class="w"></span>
+<span class="w">    </span><span class="nt">rayStartParams</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">dashboard-host</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.0.0.0&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
+<span class="w">    </span><span class="nt">template</span><span class="p">:</span><span class="w"> </span><span class="c1"># Pod template</span><span class="w"></span>
+<span class="w">        </span><span class="nt">metadata</span><span class="p">:</span><span class="w"> </span><span class="c1"># Pod metadata</span><span class="w"></span>
+<span class="w">        </span><span class="nt">spec</span><span class="p">:</span><span class="w"> </span><span class="c1"># Pod spec</span><span class="w"></span>
+<span class="w">            </span><span class="nt">containers</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ray-head</span><span class="w"></span>
+<span class="w">              </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rayproject/ray-ml:2.3.0</span><span class="w"></span>
+<span class="w">              </span><span class="nt">resources</span><span class="p">:</span><span class="w"></span>
+<span class="w">                </span><span class="nt">limits</span><span class="p">:</span><span class="w"></span>
+<span class="w">                  </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">14</span><span class="w"></span>
+<span class="w">                  </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">54Gi</span><span class="w"></span>
+<span class="w">                </span><span class="nt">requests</span><span class="p">:</span><span class="w"></span>
+<span class="w">                  </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">14</span><span class="w"></span>
+<span class="w">                  </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">54Gi</span><span class="w"></span>
+<span class="w">              </span><span class="c1"># Keep this preStop hook in each Ray container config.</span><span class="w"></span>
+<span class="w">              </span><span class="nt">lifecycle</span><span class="p">:</span><span class="w"></span>
+<span class="w">                </span><span class="nt">preStop</span><span class="p">:</span><span class="w"></span>
+<span class="w">                  </span><span class="nt">exec</span><span class="p">:</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;/bin/sh&quot;</span><span class="p p-Indicator">,</span><span class="s">&quot;-c&quot;</span><span class="p p-Indicator">,</span><span class="s">&quot;ray</span><span class="nv"> </span><span class="s">stop&quot;</span><span class="p p-Indicator">]</span><span class="w"></span>
+<span class="w">              </span><span class="nt">ports</span><span class="p">:</span><span class="w"> </span><span class="c1"># Optional service port overrides</span><span class="w"></span>
+<span class="w">              </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">containerPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">6379</span><span class="w"></span>
+<span class="w">                </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gcs</span><span class="w"></span>
+<span class="w">              </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">containerPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8265</span><span class="w"></span>
+<span class="w">                </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dashboard</span><span class="w"></span>
+<span class="w">              </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">containerPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10001</span><span class="w"></span>
+<span class="w">                </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">client</span><span class="w"></span>
+<span class="w">              </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">containerPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8000</span><span class="w"></span>
+<span class="w">                </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">serve</span><span class="w"></span>
+<span class="w">                </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
+<span class="w">  </span><span class="nt">workerGroupSpecs</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">groupName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">small-group</span><span class="w"></span>
+<span class="w">    </span><span class="nt">replicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">    </span><span class="nt">minReplicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">    </span><span class="nt">maxReplicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span><span class="w"></span>
+<span class="w">    </span><span class="nt">rayStartParams</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
+<span class="w">    </span><span class="nt">template</span><span class="p">:</span><span class="w"> </span><span class="c1"># Pod template</span><span class="w"></span>
+<span class="w">      </span><span class="nt">spec</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
+<span class="w">  </span><span class="c1"># Another workerGroup</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">groupName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">medium-group</span><span class="w"></span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
+<span class="w">  </span><span class="c1"># Yet another workerGroup, with access to special hardware perhaps.</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">groupName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gpu-group</span><span class="w"></span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
+</pre></div>
+</div>
+<p>The rest of this guide will discuss the <code class="docutils literal notranslate"><span class="pre">RayCluster</span></code> CR’s config fields.
+See also the <a class="reference internal" href="configuring-autoscaling.html#kuberay-autoscaling-config"><span class="std std-ref">guide</span></a> on configuring Ray autoscaling with KubeRay.</p>
+</section>
+<section id="the-ray-version">
+<span id="kuberay-config-ray-version"></span><h2>The Ray Version<a class="headerlink" href="config.html#the-ray-version" title="Permalink to this headline">#</a></h2>
+<p>The field <code class="docutils literal notranslate"><span class="pre">rayVersion</span></code> specifies the version of Ray used in the Ray cluster.
+The <code class="docutils literal notranslate"><span class="pre">rayVersion</span></code> is used to fill default values for certain config fields.
+The Ray container images specified in the RayCluster CR should carry
+the same Ray version as the CR’s <code class="docutils literal notranslate"><span class="pre">rayVersion</span></code>. If you are using a nightly or development
+Ray image, it is fine to set <code class="docutils literal notranslate"><span class="pre">rayVersion</span></code> to the latest release version of Ray.</p>
+</section>
+<section id="pod-configuration-headgroupspec-and-workergroupspecs">
+<h2>Pod configuration: headGroupSpec and workerGroupSpecs<a class="headerlink" href="config.html#pod-configuration-headgroupspec-and-workergroupspecs" title="Permalink to this headline">#</a></h2>
+<p>At a high level, a RayCluster is a collection of Kubernetes pods, similar to a Kubernetes Deployment or StatefulSet.
+Just as with the Kubernetes built-ins, the key pieces of configuration are</p>
+<ul class="simple">
+<li><p>Pod specification</p></li>
+<li><p>Scale information (how many pods are desired)</p></li>
+</ul>
+<p>The key difference between a Deployment and a <code class="docutils literal notranslate"><span class="pre">RayCluster</span></code> is that a <code class="docutils literal notranslate"><span class="pre">RayCluster</span></code> is
+specialized for running Ray applications. A Ray cluster consists of</p>
+<ul class="simple">
+<li><p>One <strong>head pod</strong> which hosts global control processes for the Ray cluster.
+The head pod can also run Ray tasks and actors.</p></li>
+<li><p>Any number of <strong>worker pods</strong>, which run Ray tasks and actors.
+Workers come in <strong>worker groups</strong> of identically configured pods.
+For each worker group, we must specify <strong>replicas</strong>, the number of
+pods we want of that group.</p></li>
+</ul>
+<p>The head pod’s configuration is
+specified under <code class="docutils literal notranslate"><span class="pre">headGroupSpec</span></code>, while configuration for worker pods is
+specified under <code class="docutils literal notranslate"><span class="pre">workerGroupSpecs</span></code>. There may be multiple worker groups,
+each group with its own configuration. The <code class="docutils literal notranslate"><span class="pre">replicas</span></code> field
+of a <code class="docutils literal notranslate"><span class="pre">workerGroupSpec</span></code> specifies the number of worker pods of that group to
+keep in the cluster. Each <code class="docutils literal notranslate"><span class="pre">workerGroupSpec</span></code> also has optional <code class="docutils literal notranslate"><span class="pre">minReplicas</span></code> and
+<code class="docutils literal notranslate"><span class="pre">maxReplicas</span></code> fields; these fields are important if you wish to enable <a class="reference internal" href="configuring-autoscaling.html#kuberay-autoscaling-config"><span class="std std-ref">autoscaling</span></a>.</p>
+<section id="pod-templates">
+<h3>Pod templates<a class="headerlink" href="config.html#pod-templates" title="Permalink to this headline">#</a></h3>
+<p>The bulk of the configuration for a <code class="docutils literal notranslate"><span class="pre">headGroupSpec</span></code> or
+<code class="docutils literal notranslate"><span class="pre">workerGroupSpec</span></code> goes in the <code class="docutils literal notranslate"><span class="pre">template</span></code> field. The <code class="docutils literal notranslate"><span class="pre">template</span></code> is a Kubernetes Pod
+template which determines the configuration for the pods in the group.
+Here are some of the subfields of the pod <code class="docutils literal notranslate"><span class="pre">template</span></code> to pay attention to:</p>
+<section id="containers">
+<h4>containers<a class="headerlink" href="config.html#containers" title="Permalink to this headline">#</a></h4>
+<p>A Ray pod template specifies at minimum one container, namely the container
+that runs the Ray processes. A Ray pod template may also specify additional sidecar
+containers, for purposes such as <a class="reference internal" href="logging.html#kuberay-logging"><span class="std std-ref">log processing</span></a>. However, the KubeRay operator assumes that
+the first container in the containers list is the main Ray container.
+Therefore, make sure to specify any sidecar containers
+<strong>after</strong> the main Ray container. In other words, the Ray container should be the <strong>first</strong>
+in the <code class="docutils literal notranslate"><span class="pre">containers</span></code> list.</p>
+</section>
+<section id="resources">
+<h4>resources<a class="headerlink" href="config.html#resources" title="Permalink to this headline">#</a></h4>
+<p>It’s important to specify container CPU and memory requests and limits for
+each group spec. For GPU workloads, you may also wish to specify GPU
+limits. For example, set <code class="docutils literal notranslate"><span class="pre">nvidia.com/gpu:2</span></code> if using an Nvidia GPU device plugin
+and you wish to specify a pod with access to 2 GPUs.
+See <a class="reference internal" href="gpu.html#kuberay-gpu"><span class="std std-ref">this guide</span></a> for more details on GPU support.</p>
+<p>It’s ideal to size each Ray pod to take up the
+entire Kubernetes node on which it is scheduled. In other words, it’s
+best to run one large Ray pod per Kubernetes node.
+In general, it is more efficient to use a few large Ray pods than many small ones.
+The pattern of fewer large Ray pods has the following advantages:</p>
+<ul class="simple">
+<li><p>more efficient use of each Ray pod’s shared memory object store</p></li>
+<li><p>reduced communication overhead between Ray pods</p></li>
+<li><p>reduced redundancy of per-pod Ray control structures such as Raylets</p></li>
+</ul>
+<p>The CPU, GPU, and memory <strong>limits</strong> specified in the Ray container config
+will be automatically advertised to Ray. These values will be used as
+the logical resource capacities of Ray pods in the head or worker group.
+Note that CPU quantities will be rounded up to the nearest integer
+before being relayed to Ray.
+The resource capacities advertised to Ray may be overridden in the <a class="reference internal" href="config.html#raystartparams"><span class="std std-ref">Ray Start Parameters</span></a>.</p>
+<p>On the other hand CPU, GPU, and memory <strong>requests</strong> will be ignored by Ray.
+For this reason, it is best when possible to <strong>set resource requests equal to resource limits</strong>.</p>
+</section>
+<section id="nodeselector-and-tolerations">
+<h4>nodeSelector and tolerations<a class="headerlink" href="config.html#nodeselector-and-tolerations" title="Permalink to this headline">#</a></h4>
+<p>You can control the scheduling of worker groups’ Ray pods by setting the <code class="docutils literal notranslate"><span class="pre">nodeSelector</span></code> and
+<code class="docutils literal notranslate"><span class="pre">tolerations</span></code> fields of the pod spec. Specifically, these fields determine on which Kubernetes
+nodes the pods may be scheduled.
+See the <a class="reference external" href="https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/">Kubernetes docs</a>
+for more about Pod-to-Node assignment.</p>
+</section>
+<section id="image">
+<h4>image<a class="headerlink" href="config.html#image" title="Permalink to this headline">#</a></h4>
+<p>The Ray container images specified in the <code class="docutils literal notranslate"><span class="pre">RayCluster</span></code> CR should carry
+the same Ray version as the CR’s <code class="docutils literal notranslate"><span class="pre">spec.rayVersion</span></code>.
+If you are using a nightly or development Ray image, it is fine to specify Ray’s
+latest release version under <code class="docutils literal notranslate"><span class="pre">spec.rayVersion</span></code>.</p>
+<p>Code dependencies for a given Ray task or actor must be installed on each Ray node that
+might run the task or actor.
+To achieve this, it is simplest to use the same Ray image for the Ray head and all worker groups.
+In any case, do make sure that all Ray images in your CR carry the same Ray version and
+Python version.
+To distribute custom code dependencies across your cluster, you can build a custom container image,
+using one of the <a class="reference external" href="https://hub.docker.com/r/rayproject/ray%3E">official Ray images</a> as the base.
+See <a class="reference internal" href="../../../ray-more-libs/installation.html#docker-images"><span class="std std-ref">this guide</span></a> to learn more about the official Ray images.
+For dynamic dependency management geared towards iteration and developement,
+you can also use <a class="reference internal" href="../../../ray-core/handling-dependencies.html#runtime-environments"><span class="std std-ref">Runtime Environments</span></a>.</p>
+</section>
+<section id="metadata-name-and-metadata-generatename">
+<h4>metadata.name and metadata.generateName<a class="headerlink" href="config.html#metadata-name-and-metadata-generatename" title="Permalink to this headline">#</a></h4>
+<p>The KubeRay operator will ignore the values of <code class="docutils literal notranslate"><span class="pre">metadata.name</span></code> and <code class="docutils literal notranslate"><span class="pre">metadata.generateName</span></code> set by users.
+The KubeRay operator will generate a <code class="docutils literal notranslate"><span class="pre">generateName</span></code> automatically to avoid name conflicts.
+See <a class="reference external" href="https://github.com/ray-project/kuberay/pull/587">KubeRay issue #587</a> for more details.</p>
+</section>
+</section>
+</section>
+<section id="ray-start-parameters">
+<span id="raystartparams"></span><h2>Ray Start Parameters<a class="headerlink" href="config.html#ray-start-parameters" title="Permalink to this headline">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">rayStartParams</span></code> field of each group spec is a string-string map of arguments to the Ray
+container’s <code class="docutils literal notranslate"><span class="pre">ray</span> <span class="pre">start</span></code> entrypoint. For the full list of arguments, refer to
+the documentation for <a class="reference internal" href="../../cli.html#ray-start-doc"><span class="std std-ref">ray start</span></a>. We make special note of the following arguments:</p>
+<section id="dashboard-host">
+<h3>dashboard-host<a class="headerlink" href="config.html#dashboard-host" title="Permalink to this headline">#</a></h3>
+<p>For most use-cases, this field should be set to “0.0.0.0” for the Ray head pod.
+This is required to expose the Ray dashboard outside the Ray cluster. (Future versions might set
+this parameter by default.)</p>
+</section>
+<section id="num-cpus">
+<span id="kuberay-num-cpus"></span><h3>num-cpus<a class="headerlink" href="config.html#num-cpus" title="Permalink to this headline">#</a></h3>
+<p>This optional field tells the Ray scheduler and autoscaler how many CPUs are
+available to the Ray pod. The CPU count can be autodetected from the
+Kubernetes resource limits specified in the group spec’s pod
+<code class="docutils literal notranslate"><span class="pre">template</span></code>. However, it is sometimes useful to override this autodetected
+value. For example, setting <code class="docutils literal notranslate"><span class="pre">num-cpus:&quot;0&quot;</span></code> for the Ray head pod will prevent Ray
+workloads with non-zero CPU requirements from being scheduled on the head.
+Note that the values of all Ray start parameters, including <code class="docutils literal notranslate"><span class="pre">num-cpus</span></code>,
+must be supplied as <strong>strings</strong>.</p>
+</section>
+<section id="num-gpus">
+<h3>num-gpus<a class="headerlink" href="config.html#num-gpus" title="Permalink to this headline">#</a></h3>
+<p>This field specifies the number of GPUs available to the Ray container.
+In future KubeRay versions, the number of GPUs will be auto-detected from Ray container resource limits.
+Note that the values of all Ray start parameters, including <code class="docutils literal notranslate"><span class="pre">num-gpus</span></code>,
+must be supplied as <strong>strings</strong>.</p>
+</section>
+<section id="memory">
+<h3>memory<a class="headerlink" href="config.html#memory" title="Permalink to this headline">#</a></h3>
+<p>The memory available to the Ray is detected automatically from the Kubernetes resource
+limits. If you wish, you may override this autodetected value by setting the desired memory value,
+in bytes, under <code class="docutils literal notranslate"><span class="pre">rayStartParams.memory</span></code>.
+Note that the values of all Ray start parameters, including <code class="docutils literal notranslate"><span class="pre">memory</span></code>,
+must be supplied as <strong>strings</strong>.</p>
+</section>
+<section id="id1">
+<h3>resources<a class="headerlink" href="config.html#id1" title="Permalink to this headline">#</a></h3>
+<p>This field can be used to specify custom resource capacities for the Ray pod.
+These resource capacities will be advertised to the Ray scheduler and Ray autoscaler.
+For example, the following annotation will mark a Ray pod as having 1 unit of <code class="docutils literal notranslate"><span class="pre">Custom1</span></code> capacity
+and 5 units of <code class="docutils literal notranslate"><span class="pre">Custom2</span></code> capacity.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">rayStartParams</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">resources</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&quot;{\&quot;Custom1\&quot;:</span><span class="nv"> </span><span class="s">1,</span><span class="nv"> </span><span class="s">\&quot;Custom2\&quot;:</span><span class="nv"> </span><span class="s">5}&quot;&#39;</span><span class="w"></span>
+</pre></div>
+</div>
+<p>You can then annotate tasks and actors with annotations like <code class="docutils literal notranslate"><span class="pre">&#64;ray.remote(resources={&quot;Custom2&quot;:</span> <span class="pre">1})</span></code>.
+The Ray scheduler and autoscaler will take appropriate action to schedule such tasks.</p>
+<p>Note the format used to express the resources string. In particular, note
+that the backslashes are present as actual characters in the string.
+If you are specifying a <code class="docutils literal notranslate"><span class="pre">RayCluster</span></code> programmatically, you may have to
+<a class="reference external" href="https://github.com/ray-project/ray/blob/cd9cabcadf1607bcda1512d647d382728055e688/python/ray/tests/kuberay/test_autoscaling_e2e.py#L92">escape the backslashes</a> to make sure they are processed as part of the string.</p>
+<p>The field <code class="docutils literal notranslate"><span class="pre">rayStartParams.resources</span></code> should only be used for custom resources. The keys
+<code class="docutils literal notranslate"><span class="pre">CPU</span></code>, <code class="docutils literal notranslate"><span class="pre">GPU</span></code>, and <code class="docutils literal notranslate"><span class="pre">memory</span></code> are forbidden. If you need to specify overrides for those resource
+fields, use the Ray start parameters <code class="docutils literal notranslate"><span class="pre">num-cpus</span></code>, <code class="docutils literal notranslate"><span class="pre">num-gpus</span></code>, or <code class="docutils literal notranslate"><span class="pre">memory</span></code>.</p>
+</section>
+</section>
+<section id="services-and-networking">
+<span id="kuberay-networking"></span><h2>Services and Networking<a class="headerlink" href="config.html#services-and-networking" title="Permalink to this headline">#</a></h2>
+<section id="the-ray-head-service">
+<h3>The Ray head service.<a class="headerlink" href="config.html#the-ray-head-service" title="Permalink to this headline">#</a></h3>
+<p>The KubeRay operator automatically configures a Kubernetes Service exposing the default ports
+for several services of the Ray head pod, including</p>
+<ul class="simple">
+<li><p>Ray Client (default port 10001)</p></li>
+<li><p>Ray Dashboard (default port 8265)</p></li>
+<li><p>Ray GCS server (default port 6379)</p></li>
+<li><p>Ray Serve (default port 8000)</p></li>
+<li><p>Ray Prometheus metrics (default port 8080)</p></li>
+</ul>
+<p>The name of the configured Kubernetes Service is the name, <code class="docutils literal notranslate"><span class="pre">metadata.name</span></code>, of the RayCluster
+followed by the suffix <nobr><code class="docutils literal notranslate"><span class="pre">head-svc</span></code></nobr>. For the example CR given on this page, the name of
+the head service will be
+<nobr><code class="docutils literal notranslate"><span class="pre">raycluster-example-head-svc</span></code></nobr>. Kubernetes networking (<code class="docutils literal notranslate"><span class="pre">kube-dns</span></code>) then allows us to address
+the Ray head’s services using the name <nobr><code class="docutils literal notranslate"><span class="pre">raycluster-example-head-svc</span></code></nobr>.
+For example, the Ray Client server can be accessed from a pod
+in the same Kubernetes namespace using</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ray</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="s2">&quot;ray://raycluster-example-head-svc:10001&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The Ray Client server can be accessed from a pod in another namespace using</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ray</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="s2">&quot;ray://raycluster-example-head-svc.default.svc.cluster.local:10001&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(This assumes the Ray cluster was deployed into the default Kubernetes namespace.
+If the Ray cluster is deployed in a non-default namespace, use that namespace in
+place of <code class="docutils literal notranslate"><span class="pre">default</span></code>.)</p>
+</section>
+<section id="servicetype-ingresses">
+<h3>ServiceType, Ingresses<a class="headerlink" href="config.html#servicetype-ingresses" title="Permalink to this headline">#</a></h3>
+<p>Ray Client and other services can be exposed outside the Kubernetes cluster
+using port-forwarding or an ingress.
+The simplest way to access the Ray head’s services is to use port-forwarding.</p>
+<p>Other means of exposing the head’s services outside the cluster may require using
+a service of type LoadBalancer or NodePort. Set <code class="docutils literal notranslate"><span class="pre">headGroupSpec.serviceType</span></code>
+to the appropriate type for your application.</p>
+<p>You may wish to set up an ingress to expose the Ray head’s services outside the cluster.
+See the <a class="reference external" href="https://ray-project.github.io/kuberay/guidance/ingress/">KubeRay documentation</a> for details.</p>
+</section>
+<section id="specifying-non-default-ports">
+<h3>Specifying non-default ports.<a class="headerlink" href="config.html#specifying-non-default-ports" title="Permalink to this headline">#</a></h3>
+<p>If you wish to override the ports exposed by the Ray head service, you may do so by specifying
+the Ray head container’s <code class="docutils literal notranslate"><span class="pre">ports</span></code> list, under <code class="docutils literal notranslate"><span class="pre">headGroupSpec</span></code>.
+Here is an example of a list of non-default ports for the Ray head service.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">ports</span><span class="p">:</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">containerPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">6380</span><span class="w"></span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gcs</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">containerPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8266</span><span class="w"></span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dashboard</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">containerPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10002</span><span class="w"></span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">client</span><span class="w"></span>
+</pre></div>
+</div>
+<p>If the head container’s <code class="docutils literal notranslate"><span class="pre">ports</span></code> list is specified, the Ray head service will expose precisely
+the ports in the list. In the above example, the head service will expose just three ports;
+in particular there will be no port exposed for Ray Serve.</p>
+<p>For the Ray head to actually use the non-default ports specified in the ports list,
+you must also specify the relevant <code class="docutils literal notranslate"><span class="pre">rayStartParams</span></code>. For the above example,</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">rayStartParams</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;6380&quot;</span><span class="w"></span>
+<span class="w">  </span><span class="nt">dashboard-port</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;8266&quot;</span><span class="w"></span>
+<span class="w">  </span><span class="nt">ray-client-server-port</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;10002&quot;</span><span class="w"></span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="pod-and-container-lifecyle-prestophook">
+<span id="kuberay-config-miscellaneous"></span><h2>Pod and container lifecyle: preStopHook<a class="headerlink" href="config.html#pod-and-container-lifecyle-prestophook" title="Permalink to this headline">#</a></h2>
+<p>It is recommended for every Ray container’s configuration
+to include the following blocking block:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">lifecycle</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">preStop</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">exec</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;/bin/sh&quot;</span><span class="p p-Indicator">,</span><span class="s">&quot;-c&quot;</span><span class="p p-Indicator">,</span><span class="s">&quot;ray</span><span class="nv"> </span><span class="s">stop&quot;</span><span class="p p-Indicator">]</span><span class="w"></span>
+</pre></div>
+</div>
+<p>To ensure graceful termination, <code class="docutils literal notranslate"><span class="pre">ray</span> <span class="pre">stop</span></code> is executed prior to the Ray pod’s termination.</p>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="k8s-cluster-setup.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Managed Kubernetes services</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="configuring-autoscaling.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">KubeRay Autoscaling</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

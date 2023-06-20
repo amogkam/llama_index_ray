@@ -1,0 +1,1461 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Ray Collective Communication Lib &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/js/versionwarning.js"></script>
+    <script src="../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../_static/js/docsearch.js"></script>
+    <script src="../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../_static/js/termynal.js"></script>
+    <script defer="defer" src="../_static/js/custom.js"></script>
+    <script defer="defer" src="../_static/js/top-navigation.js"></script>
+    <script src="../_static/js/tags.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../_static/design-tabs.js"></script>
+    <script async="async" src="../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/ray-more-libs/ray-collective.html" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Using Ray with Pytorch Lightning" href="using-ray-with-pytorch-lightning.html" />
+    <link rel="prev" title="Distributed multiprocessing.Pool" href="multiprocessing.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "ray-more-libs/ray-collective", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".rst", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../tune.html">
+   Ray Tune
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="index.html">
+   More Libraries
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../joblib.html">
+     Distributed Scikit-learn / Joblib
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="multiprocessing.html">
+     Distributed multiprocessing.Pool
+    </a>
+   </li>
+   <li class="toctree-l2 current active">
+    <a class="current reference internal" href="ray-collective.html#">
+     Ray Collective Communication Lib
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="using-ray-with-pytorch-lightning.html">
+     Using Ray with Pytorch Lightning
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask-on-ray.html">
+     Using Dask on Ray
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="raydp.html">
+     Using Spark on Ray (RayDP)
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="mars-on-ray.html">
+     Using Mars on Ray
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modin/index.html">
+     Using Pandas on Ray (Modin)
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../workflows/index.html">
+     Ray Workflows (Alpha)
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Fray-more-libs/ray-collective.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/ray-more-libs/ray-collective.rst"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../_sources/ray-more-libs/ray-collective.rst.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.rst</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="ray-collective.html#collective-primitives-support-matrix">
+   Collective Primitives Support Matrix
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="ray-collective.html#supported-tensor-types">
+   Supported Tensor Types
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="ray-collective.html#usage">
+   Usage
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="ray-collective.html#installation-and-importing">
+     Installation and Importing
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="ray-collective.html#initialization">
+     Initialization
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="ray-collective.html#collective-communication">
+     Collective Communication
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="ray-collective.html#point-to-point-communication">
+     Point-to-point Communication
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="ray-collective.html#single-gpu-and-multi-gpu-collective-primitives">
+     Single-GPU and Multi-GPU Collective Primitives
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="ray-collective.html#more-resources">
+   More Resources
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="ray-collective.html#module-ray.util.collective.collective">
+   API References
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Ray Collective Communication Lib</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="ray-collective.html#collective-primitives-support-matrix">
+   Collective Primitives Support Matrix
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="ray-collective.html#supported-tensor-types">
+   Supported Tensor Types
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="ray-collective.html#usage">
+   Usage
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="ray-collective.html#installation-and-importing">
+     Installation and Importing
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="ray-collective.html#initialization">
+     Initialization
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="ray-collective.html#collective-communication">
+     Collective Communication
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="ray-collective.html#point-to-point-communication">
+     Point-to-point Communication
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="ray-collective.html#single-gpu-and-multi-gpu-collective-primitives">
+     Single-GPU and Multi-GPU Collective Primitives
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="ray-collective.html#more-resources">
+   More Resources
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="ray-collective.html#module-ray.util.collective.collective">
+   API References
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section id="ray-collective-communication-lib">
+<span id="ray-collective"></span><h1>Ray Collective Communication Lib<a class="headerlink" href="ray-collective.html#ray-collective-communication-lib" title="Permalink to this headline">#</a></h1>
+<p>The Ray collective communication library (<code class="docutils literal notranslate"><span class="pre">ray.util.collective</span></code>) offers a set of native collective primitives for
+communication between distributed CPUs or GPUs.</p>
+<p>Ray collective communication library</p>
+<ul class="simple">
+<li><p>enables 10x more efficient out-of-band collective communication between Ray actor and task processes,</p></li>
+<li><p>operates on both distributed CPUs and GPUs,</p></li>
+<li><p>uses NCCL and GLOO as the optional high-performance communication backends,</p></li>
+<li><p>is suitable for distributed ML programs on Ray.</p></li>
+</ul>
+<section id="collective-primitives-support-matrix">
+<h2>Collective Primitives Support Matrix<a class="headerlink" href="ray-collective.html#collective-primitives-support-matrix" title="Permalink to this headline">#</a></h2>
+<p>See below the current support matrix for all collective calls with different backends.</p>
+<table class="table">
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Backend</p></th>
+<th class="head"><p><a class="reference external" href="https://github.com/ray-project/pygloo">gloo</a></p></th>
+<th class="head"></th>
+<th class="head"><p><a class="reference external" href="https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/index.html">nccl</a></p></th>
+<th class="head"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Device</p></td>
+<td><p>CPU</p></td>
+<td><p>GPU</p></td>
+<td><p>CPU</p></td>
+<td><p>GPU</p></td>
+</tr>
+<tr class="row-odd"><td><p>send</p></td>
+<td><p>✔</p></td>
+<td><p>✘</p></td>
+<td><p>✘</p></td>
+<td><p>✔</p></td>
+</tr>
+<tr class="row-even"><td><p>recv</p></td>
+<td><p>✔</p></td>
+<td><p>✘</p></td>
+<td><p>✘</p></td>
+<td><p>✔</p></td>
+</tr>
+<tr class="row-odd"><td><p>broadcast</p></td>
+<td><p>✔</p></td>
+<td><p>✘</p></td>
+<td><p>✘</p></td>
+<td><p>✔</p></td>
+</tr>
+<tr class="row-even"><td><p>allreduce</p></td>
+<td><p>✔</p></td>
+<td><p>✘</p></td>
+<td><p>✘</p></td>
+<td><p>✔</p></td>
+</tr>
+<tr class="row-odd"><td><p>reduce</p></td>
+<td><p>✔</p></td>
+<td><p>✘</p></td>
+<td><p>✘</p></td>
+<td><p>✔</p></td>
+</tr>
+<tr class="row-even"><td><p>allgather</p></td>
+<td><p>✔</p></td>
+<td><p>✘</p></td>
+<td><p>✘</p></td>
+<td><p>✔</p></td>
+</tr>
+<tr class="row-odd"><td><p>gather</p></td>
+<td><p>✘</p></td>
+<td><p>✘</p></td>
+<td><p>✘</p></td>
+<td><p>✘</p></td>
+</tr>
+<tr class="row-even"><td><p>scatter</p></td>
+<td><p>✘</p></td>
+<td><p>✘</p></td>
+<td><p>✘</p></td>
+<td><p>✘</p></td>
+</tr>
+<tr class="row-odd"><td><p>reduce_scatter</p></td>
+<td><p>✔</p></td>
+<td><p>✘</p></td>
+<td><p>✘</p></td>
+<td><p>✔</p></td>
+</tr>
+<tr class="row-even"><td><p>all-to-all</p></td>
+<td><p>✘</p></td>
+<td><p>✘</p></td>
+<td><p>✘</p></td>
+<td><p>✘</p></td>
+</tr>
+<tr class="row-odd"><td><p>barrier</p></td>
+<td><p>✔</p></td>
+<td><p>✘</p></td>
+<td><p>✘</p></td>
+<td><p>✔</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="supported-tensor-types">
+<h2>Supported Tensor Types<a class="headerlink" href="ray-collective.html#supported-tensor-types" title="Permalink to this headline">#</a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">torch.Tensor</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cupy.ndarray</span></code></p></li>
+</ul>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="ray-collective.html#usage" title="Permalink to this headline">#</a></h2>
+<section id="installation-and-importing">
+<h3>Installation and Importing<a class="headerlink" href="ray-collective.html#installation-and-importing" title="Permalink to this headline">#</a></h3>
+<p>Ray collective library is bundled with the released Ray wheel. Besides Ray, users need to install either <a class="reference external" href="https://github.com/ray-project/pygloo">pygloo</a>
+or <a class="reference external" href="https://docs.cupy.dev/en/stable/install.html">cupy</a> in order to use collective communication with the GLOO and NCCL backend, respectively.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">pygloo</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">cupy</span><span class="o">-</span><span class="n">cudaxxx</span> <span class="c1"># replace xxx with the right cuda version in your environment</span>
+</pre></div>
+</div>
+<p>To use these APIs, import the collective package in your actor/task or driver code via:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ray.util.collective</span> <span class="k">as</span> <span class="nn">col</span>
+</pre></div>
+</div>
+</section>
+<section id="initialization">
+<h3>Initialization<a class="headerlink" href="ray-collective.html#initialization" title="Permalink to this headline">#</a></h3>
+<p>Collective functions operate on collective groups.
+A collective group contains a number of processes (in Ray, they are usually Ray-managed actors or tasks) that will together enter the collective function calls.
+Before making collective calls, users need to declare a set of actors/tasks, statically, as a collective group.</p>
+<p>Below is an example code snippet that uses the two APIs <code class="docutils literal notranslate"><span class="pre">init_collective_group()</span></code> and <code class="docutils literal notranslate"><span class="pre">declare_collective_group()</span></code> to initialize collective groups among a few
+remote actors. Refer to <a class="reference external" href="ray-collective.html#api-reference">APIs</a> for the detailed descriptions of the two APIs.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">import</span> <span class="nn">ray.util.collective</span> <span class="k">as</span> <span class="nn">collective</span>
+
+<span class="kn">import</span> <span class="nn">cupy</span> <span class="k">as</span> <span class="nn">cp</span>
+
+
+<span class="nd">@ray</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">num_gpus</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Worker</span><span class="p">:</span>
+   <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+       <span class="bp">self</span><span class="o">.</span><span class="n">send</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">4</span><span class="p">,</span> <span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">cp</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+       <span class="bp">self</span><span class="o">.</span><span class="n">recv</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">4</span><span class="p">,</span> <span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">cp</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+   <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">world_size</span><span class="p">,</span> <span class="n">rank</span><span class="p">):</span>
+       <span class="n">collective</span><span class="o">.</span><span class="n">init_collective_group</span><span class="p">(</span><span class="n">world_size</span><span class="p">,</span> <span class="n">rank</span><span class="p">,</span> <span class="s2">&quot;nccl&quot;</span><span class="p">,</span> <span class="s2">&quot;default&quot;</span><span class="p">)</span>
+       <span class="k">return</span> <span class="kc">True</span>
+
+   <span class="k">def</span> <span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+       <span class="n">collective</span><span class="o">.</span><span class="n">allreduce</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">,</span> <span class="s2">&quot;default&quot;</span><span class="p">)</span>
+       <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">send</span>
+
+   <span class="k">def</span> <span class="nf">destroy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+       <span class="n">collective</span><span class="o">.</span><span class="n">destroy_group</span><span class="p">()</span>
+
+<span class="c1"># imperative</span>
+<span class="n">num_workers</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">workers</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">init_rets</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_workers</span><span class="p">):</span>
+   <span class="n">w</span> <span class="o">=</span> <span class="n">Worker</span><span class="o">.</span><span class="n">remote</span><span class="p">()</span>
+   <span class="n">workers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+   <span class="n">init_rets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">setup</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">num_workers</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">init_rets</span><span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">([</span><span class="n">w</span><span class="o">.</span><span class="n">compute</span><span class="o">.</span><span class="n">remote</span><span class="p">()</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">workers</span><span class="p">])</span>
+
+
+<span class="c1"># declarative</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_workers</span><span class="p">):</span>
+   <span class="n">w</span> <span class="o">=</span> <span class="n">Worker</span><span class="o">.</span><span class="n">remote</span><span class="p">()</span>
+   <span class="n">workers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+<span class="n">_options</span> <span class="o">=</span> <span class="p">{</span>
+   <span class="s2">&quot;group_name&quot;</span><span class="p">:</span> <span class="s2">&quot;177&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;world_size&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+   <span class="s2">&quot;ranks&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+   <span class="s2">&quot;backend&quot;</span><span class="p">:</span> <span class="s2">&quot;nccl&quot;</span>
+<span class="p">}</span>
+<span class="n">collective</span><span class="o">.</span><span class="n">declare_collective_group</span><span class="p">(</span><span class="n">workers</span><span class="p">,</span> <span class="o">**</span><span class="n">_options</span><span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">([</span><span class="n">w</span><span class="o">.</span><span class="n">compute</span><span class="o">.</span><span class="n">remote</span><span class="p">()</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">workers</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Note that for the same set of actors/task processes, multiple collective groups can be constructed, with <code class="docutils literal notranslate"><span class="pre">group_name</span></code> as their unique identifier.
+This enables to specify complex communication patterns between different (sub)set of processes.</p>
+</section>
+<section id="collective-communication">
+<h3>Collective Communication<a class="headerlink" href="ray-collective.html#collective-communication" title="Permalink to this headline">#</a></h3>
+<p>Check <a class="reference external" href="ray-collective.html#collective-primitives-support-matrix">the support matrix</a> for the current status of supported collective calls and backends.</p>
+<p>Note that the current set of collective communication API are imperative, and exhibit the following behaviours:</p>
+<ul class="simple">
+<li><p>All the collective APIs are synchronous blocking calls</p></li>
+<li><p>Since each API only specifies a part of the collective communication, the API is expected to be called by each participating process of the (pre-declared) collective group.
+Upon all the processes have made the call and rendezvous with each other, the collective communication happens and proceeds.</p></li>
+<li><p>The APIs are imperative and the communication happends out-of-band — they need to be used inside the collective process (actor/task) code.</p></li>
+</ul>
+<p>An example of using <code class="docutils literal notranslate"><span class="pre">ray.util.collective.allreduce</span></code> is below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">import</span> <span class="nn">cupy</span>
+<span class="kn">import</span> <span class="nn">ray.util.collective</span> <span class="k">as</span> <span class="nn">col</span>
+
+
+<span class="nd">@ray</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">num_gpus</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Worker</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span> <span class="o">=</span> <span class="n">cupy</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">10</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">cupy</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">col</span><span class="o">.</span><span class="n">allreduce</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">,</span> <span class="s2">&quot;default&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span>
+
+<span class="c1"># Create two actors A and B and create a collective group following the previous example...</span>
+<span class="n">A</span> <span class="o">=</span> <span class="n">Worker</span><span class="o">.</span><span class="n">remote</span><span class="p">()</span>
+<span class="n">B</span> <span class="o">=</span> <span class="n">Worker</span><span class="o">.</span><span class="n">remote</span><span class="p">()</span>
+<span class="c1"># Invoke allreduce remotely</span>
+<span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">([</span><span class="n">A</span><span class="o">.</span><span class="n">compute</span><span class="o">.</span><span class="n">remote</span><span class="p">(),</span> <span class="n">B</span><span class="o">.</span><span class="n">compute</span><span class="o">.</span><span class="n">remote</span><span class="p">()])</span>
+</pre></div>
+</div>
+</section>
+<section id="point-to-point-communication">
+<h3>Point-to-point Communication<a class="headerlink" href="ray-collective.html#point-to-point-communication" title="Permalink to this headline">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">ray.util.collective</span></code> also supports P2P send/recv communication between processes.</p>
+<p>The send/recv exhibits the same behavior with the collective functions:
+they are synchronous blocking calls – a pair of send and recv must be called together on paired processes in order to specify the entire communication,
+and must successfully rendezvous with each other to proceed. See the code example below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">import</span> <span class="nn">cupy</span>
+<span class="kn">import</span> <span class="nn">ray.util.collective</span> <span class="k">as</span> <span class="nn">col</span>
+
+
+<span class="nd">@ray</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">num_gpus</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Worker</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span> <span class="o">=</span> <span class="n">cupy</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">10</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">cupy</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_buffer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span>
+
+    <span class="k">def</span> <span class="nf">do_send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_rank</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># this call is blocking</span>
+        <span class="n">col</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">target_rank</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">do_recv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src_rank</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># this call is blocking</span>
+        <span class="n">col</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="n">src_rank</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">do_allreduce</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># this call is blocking as well</span>
+        <span class="n">col</span><span class="o">.</span><span class="n">allreduce</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span>
+
+<span class="c1"># Create two actors</span>
+<span class="n">A</span> <span class="o">=</span> <span class="n">Worker</span><span class="o">.</span><span class="n">remote</span><span class="p">()</span>
+<span class="n">B</span> <span class="o">=</span> <span class="n">Worker</span><span class="o">.</span><span class="n">remote</span><span class="p">()</span>
+
+<span class="c1"># Put A and B in a collective group</span>
+<span class="n">col</span><span class="o">.</span><span class="n">declare_collective_group</span><span class="p">([</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">],</span> <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="n">rank</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="o">...</span><span class="p">})</span>
+
+<span class="c1"># let A to send a message to B; a send/recv has to be specified once at each worker</span>
+<span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">([</span><span class="n">A</span><span class="o">.</span><span class="n">do_send</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">target_rank</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">B</span><span class="o">.</span><span class="n">do_recv</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">src_rank</span><span class="o">=</span><span class="mi">0</span><span class="p">)])</span>
+
+<span class="c1"># An anti-pattern: the following code will hang, because it doesn&#39;t instantiate the recv side call</span>
+<span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">([</span><span class="n">A</span><span class="o">.</span><span class="n">do_send</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">target_rank</span><span class="o">=</span><span class="mi">1</span><span class="p">)])</span>
+</pre></div>
+</div>
+</section>
+<section id="single-gpu-and-multi-gpu-collective-primitives">
+<h3>Single-GPU and Multi-GPU Collective Primitives<a class="headerlink" href="ray-collective.html#single-gpu-and-multi-gpu-collective-primitives" title="Permalink to this headline">#</a></h3>
+<p>In many cluster setups, a machine usually has more than 1 GPU;
+effectively leveraging the GPU-GPU bandwidth, such as <a class="reference external" href="https://www.nvidia.com/en-us/design-visualization/nvlink-bridges/">NVLINK</a>,
+can significantly improve communication performance.</p>
+<p><code class="docutils literal notranslate"><span class="pre">ray.util.collective</span></code> supports multi-GPU collective calls, in which case, a process (actor/tasks) manages more than 1 GPU (e.g., via <code class="docutils literal notranslate"><span class="pre">ray.remote(num_gpus=4)</span></code>).
+Using these multi-GPU collective functions are normally more performance-advantageous than using single-GPU collective API
+and spawning the number of processes equal to the number of GPUs.
+See the API references for the signatures of multi-GPU collective APIs.</p>
+<p>Also of note that all multi-GPU APIs are with the following restrictions:</p>
+<ul class="simple">
+<li><p>Only NCCL backend is supported.</p></li>
+<li><p>Collective processes that make multi-GPU collective or P2P calls need to own the same number of GPU devices.</p></li>
+<li><p>The input to multi-GPU collective functions are normally a list of tensors, each located on a different GPU device owned by the caller process.</p></li>
+</ul>
+<p>An example code utilizing the multi-GPU collective APIs is provided below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">import</span> <span class="nn">ray.util.collective</span> <span class="k">as</span> <span class="nn">collective</span>
+
+<span class="kn">import</span> <span class="nn">cupy</span> <span class="k">as</span> <span class="nn">cp</span>
+<span class="kn">from</span> <span class="nn">cupy.cuda</span> <span class="kn">import</span> <span class="n">Device</span>
+
+
+<span class="nd">@ray</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">num_gpus</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Worker</span><span class="p">:</span>
+   <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+       <span class="k">with</span> <span class="n">Device</span><span class="p">(</span><span class="mi">0</span><span class="p">):</span>
+           <span class="bp">self</span><span class="o">.</span><span class="n">send1</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">4</span><span class="p">,</span> <span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">cp</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+       <span class="k">with</span> <span class="n">Device</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span>
+           <span class="bp">self</span><span class="o">.</span><span class="n">send2</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">4</span><span class="p">,</span> <span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">cp</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span>
+       <span class="k">with</span> <span class="n">Device</span><span class="p">(</span><span class="mi">0</span><span class="p">):</span>
+           <span class="bp">self</span><span class="o">.</span><span class="n">recv1</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">4</span><span class="p">,</span> <span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">cp</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+       <span class="k">with</span> <span class="n">Device</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span>
+           <span class="bp">self</span><span class="o">.</span><span class="n">recv2</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">4</span><span class="p">,</span> <span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">cp</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span>
+
+   <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">world_size</span><span class="p">,</span> <span class="n">rank</span><span class="p">):</span>
+       <span class="bp">self</span><span class="o">.</span><span class="n">rank</span> <span class="o">=</span> <span class="n">rank</span>
+       <span class="n">collective</span><span class="o">.</span><span class="n">init_collective_group</span><span class="p">(</span><span class="n">world_size</span><span class="p">,</span> <span class="n">rank</span><span class="p">,</span> <span class="s2">&quot;nccl&quot;</span><span class="p">,</span> <span class="s2">&quot;177&quot;</span><span class="p">)</span>
+       <span class="k">return</span> <span class="kc">True</span>
+
+   <span class="k">def</span> <span class="nf">allreduce_call</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+       <span class="n">collective</span><span class="o">.</span><span class="n">allreduce_multigpu</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">send1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">send2</span><span class="p">],</span> <span class="s2">&quot;177&quot;</span><span class="p">)</span>
+       <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">send1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">send2</span><span class="p">]</span>
+
+   <span class="k">def</span> <span class="nf">p2p_call</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+       <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+          <span class="n">collective</span><span class="o">.</span><span class="n">send_multigpu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">send1</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;8&quot;</span><span class="p">)</span>
+       <span class="k">else</span><span class="p">:</span>
+          <span class="n">collective</span><span class="o">.</span><span class="n">recv_multigpu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">recv2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;8&quot;</span><span class="p">)</span>
+       <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">recv2</span>
+
+<span class="c1"># Note that the world size is 2 but there are 4 GPUs.</span>
+<span class="n">num_workers</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">workers</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">init_rets</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_workers</span><span class="p">):</span>
+   <span class="n">w</span> <span class="o">=</span> <span class="n">Worker</span><span class="o">.</span><span class="n">remote</span><span class="p">()</span>
+   <span class="n">workers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+   <span class="n">init_rets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">setup</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">num_workers</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">init_rets</span><span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">([</span><span class="n">w</span><span class="o">.</span><span class="n">allreduce_call</span><span class="o">.</span><span class="n">remote</span><span class="p">()</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">workers</span><span class="p">])</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">([</span><span class="n">w</span><span class="o">.</span><span class="n">p2p_call</span><span class="o">.</span><span class="n">remote</span><span class="p">()</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">workers</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="more-resources">
+<h2>More Resources<a class="headerlink" href="ray-collective.html#more-resources" title="Permalink to this headline">#</a></h2>
+<p>The following links provide helpful resources on how to efficiently leverage the <code class="docutils literal notranslate"><span class="pre">ray.util.collective</span></code> library.</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/ray-project/ray/tree/master/python/ray/util/collective/examples">More running examples</a> under <code class="docutils literal notranslate"><span class="pre">ray.util.collective.examples</span></code>.</p></li>
+<li><p><a class="reference external" href="https://github.com/explosion/spacy-ray">Scaling up the Spacy Name Entity Recognition (NER) pipeline</a> using Ray collective library.</p></li>
+<li><p><a class="reference external" href="https://github.com/ray-project/distml/blob/master/distml/strategy/allreduce_strategy.py">Implementing the AllReduce strategy</a> for data-parallel distributed ML training.</p></li>
+</ul>
+</section>
+<section id="module-ray.util.collective.collective">
+<span id="api-references"></span><h2>API References<a class="headerlink" href="ray-collective.html#module-ray.util.collective.collective" title="Permalink to this headline">#</a></h2>
+<p>APIs exposed under the namespace ray.util.collective.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ray.util.collective.collective.GroupManager">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ray.util.collective.collective.</span></span><span class="sig-name descname"><span class="pre">GroupManager</span></span><a class="reference internal" href="../_modules/ray/util/collective/collective.html#GroupManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="ray-collective.html#ray.util.collective.collective.GroupManager" title="Permalink to this definition">#</a></dt>
+<dd><p>Use this class to manage the collective groups we created so far.</p>
+<p>Each process will have an instance of <a class="reference internal" href="ray-collective.html#ray.util.collective.collective.GroupManager" title="ray.util.collective.collective.GroupManager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GroupManager</span></code></a>. Each process
+could belong to multiple collective groups. The membership information
+and other metadata are stored in the global <code class="xref py py-obj docutils literal notranslate"><span class="pre">_group_mgr</span></code> object.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ray.util.collective.collective.GroupManager.create_collective_group">
+<span class="sig-name descname"><span class="pre">create_collective_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">world_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rank</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ray/util/collective/collective.html#GroupManager.create_collective_group"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="ray-collective.html#ray.util.collective.collective.GroupManager.create_collective_group" title="Permalink to this definition">#</a></dt>
+<dd><p>The entry to create new collective groups in the manager.</p>
+<p>Put the registration and the group information into the manager
+metadata as well.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ray.util.collective.collective.GroupManager.get_group_by_name">
+<span class="sig-name descname"><span class="pre">get_group_by_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ray/util/collective/collective.html#GroupManager.get_group_by_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="ray-collective.html#ray.util.collective.collective.GroupManager.get_group_by_name" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the collective group handle by its name.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ray.util.collective.collective.GroupManager.destroy_collective_group">
+<span class="sig-name descname"><span class="pre">destroy_collective_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ray/util/collective/collective.html#GroupManager.destroy_collective_group"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="ray-collective.html#ray.util.collective.collective.GroupManager.destroy_collective_group" title="Permalink to this definition">#</a></dt>
+<dd><p>Group destructor.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ray.util.collective.collective.is_group_initialized">
+<span class="sig-prename descclassname"><span class="pre">ray.util.collective.collective.</span></span><span class="sig-name descname"><span class="pre">is_group_initialized</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ray/util/collective/collective.html#is_group_initialized"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="ray-collective.html#ray.util.collective.collective.is_group_initialized" title="Permalink to this definition">#</a></dt>
+<dd><p>Check if the group is initialized in this process by the group name.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ray.util.collective.collective.init_collective_group">
+<span class="sig-prename descclassname"><span class="pre">ray.util.collective.collective.</span></span><span class="sig-name descname"><span class="pre">init_collective_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">world_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rank</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'nccl'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ray/util/collective/collective.html#init_collective_group"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="ray-collective.html#ray.util.collective.collective.init_collective_group" title="Permalink to this definition">#</a></dt>
+<dd><p>Initialize a collective group inside an actor process.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>world_size</strong> – the total number of processes in the group.</p></li>
+<li><p><strong>rank</strong> – the rank of the current process.</p></li>
+<li><p><strong>backend</strong> – the CCL backend to use, NCCL or GLOO.</p></li>
+<li><p><strong>group_name</strong> – the name of the collective group.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ray.util.collective.collective.create_collective_group">
+<span class="sig-prename descclassname"><span class="pre">ray.util.collective.collective.</span></span><span class="sig-name descname"><span class="pre">create_collective_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">actors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">world_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ranks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'nccl'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ray/util/collective/collective.html#create_collective_group"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="ray-collective.html#ray.util.collective.collective.create_collective_group" title="Permalink to this definition">#</a></dt>
+<dd><p>Declare a list of actors as a collective group.</p>
+<p>Note: This function should be called in a driver process.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>actors</strong> – a list of actors to be set in a collective group.</p></li>
+<li><p><strong>world_size</strong> – the total number of processes in the group.</p></li>
+<li><p><strong>ranks</strong> (<em>List</em><em>[</em><em>int</em><em>]</em>) – the rank of each actor.</p></li>
+<li><p><strong>backend</strong> – the CCL backend to use, NCCL or GLOO.</p></li>
+<li><p><strong>group_name</strong> – the name of the collective group.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ray.util.collective.collective.destroy_collective_group">
+<span class="sig-prename descclassname"><span class="pre">ray.util.collective.collective.</span></span><span class="sig-name descname"><span class="pre">destroy_collective_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/ray/util/collective/collective.html#destroy_collective_group"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="ray-collective.html#ray.util.collective.collective.destroy_collective_group" title="Permalink to this definition">#</a></dt>
+<dd><p>Destroy a collective group given its group name.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ray.util.collective.collective.get_rank">
+<span class="sig-prename descclassname"><span class="pre">ray.util.collective.collective.</span></span><span class="sig-name descname"><span class="pre">get_rank</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../_modules/ray/util/collective/collective.html#get_rank"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="ray-collective.html#ray.util.collective.collective.get_rank" title="Permalink to this definition">#</a></dt>
+<dd><p>Return the rank of this process in the given group.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>group_name</strong> – the name of the group to query</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the rank of this process in the named group,
+-1 if the group does not exist or the process does
+not belong to the group.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ray.util.collective.collective.get_collective_group_size">
+<span class="sig-prename descclassname"><span class="pre">ray.util.collective.collective.</span></span><span class="sig-name descname"><span class="pre">get_collective_group_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../_modules/ray/util/collective/collective.html#get_collective_group_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="ray-collective.html#ray.util.collective.collective.get_collective_group_size" title="Permalink to this definition">#</a></dt>
+<dd><p>Return the size of the collective group with the given name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>group_name</strong> – the name of the group to query</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>The world size of the collective group, -1 if the group does</dt><dd><p>not exist or the process does not belong to the group.</p>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ray.util.collective.collective.allreduce">
+<span class="sig-prename descclassname"><span class="pre">ray.util.collective.collective.</span></span><span class="sig-name descname"><span class="pre">allreduce</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">op</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ReduceOp.SUM</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ray/util/collective/collective.html#allreduce"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="ray-collective.html#ray.util.collective.collective.allreduce" title="Permalink to this definition">#</a></dt>
+<dd><p>Collective allreduce the tensor across the group.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tensor</strong> – the tensor to be all-reduced on this process.</p></li>
+<li><p><strong>group_name</strong> – the collective group name to perform allreduce.</p></li>
+<li><p><strong>op</strong> – The reduce operation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ray.util.collective.collective.allreduce_multigpu">
+<span class="sig-prename descclassname"><span class="pre">ray.util.collective.collective.</span></span><span class="sig-name descname"><span class="pre">allreduce_multigpu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensor_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">op</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ReduceOp.SUM</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ray/util/collective/collective.html#allreduce_multigpu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="ray-collective.html#ray.util.collective.collective.allreduce_multigpu" title="Permalink to this definition">#</a></dt>
+<dd><p>Collective allreduce a list of tensors across the group.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tensor_list</strong> (<em>List</em><em>[</em><em>tensor</em><em>]</em>) – list of tensors to be allreduced,
+each on a GPU.</p></li>
+<li><p><strong>group_name</strong> – the collective group name to perform allreduce.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ray.util.collective.collective.barrier">
+<span class="sig-prename descclassname"><span class="pre">ray.util.collective.collective.</span></span><span class="sig-name descname"><span class="pre">barrier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ray/util/collective/collective.html#barrier"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="ray-collective.html#ray.util.collective.collective.barrier" title="Permalink to this definition">#</a></dt>
+<dd><p>Barrier all processes in the collective group.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>group_name</strong> – the name of the group to barrier.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ray.util.collective.collective.reduce">
+<span class="sig-prename descclassname"><span class="pre">ray.util.collective.collective.</span></span><span class="sig-name descname"><span class="pre">reduce</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst_rank</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">op</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ReduceOp.SUM</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ray/util/collective/collective.html#reduce"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="ray-collective.html#ray.util.collective.collective.reduce" title="Permalink to this definition">#</a></dt>
+<dd><p>Reduce the tensor across the group to the destination rank.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tensor</strong> – the tensor to be reduced on this process.</p></li>
+<li><p><strong>dst_rank</strong> – the rank of the destination process.</p></li>
+<li><p><strong>group_name</strong> – the collective group name to perform reduce.</p></li>
+<li><p><strong>op</strong> – The reduce operation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ray.util.collective.collective.reduce_multigpu">
+<span class="sig-prename descclassname"><span class="pre">ray.util.collective.collective.</span></span><span class="sig-name descname"><span class="pre">reduce_multigpu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensor_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst_rank</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst_tensor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">op</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ReduceOp.SUM</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ray/util/collective/collective.html#reduce_multigpu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="ray-collective.html#ray.util.collective.collective.reduce_multigpu" title="Permalink to this definition">#</a></dt>
+<dd><p>Reduce the tensor across the group to the destination rank
+and destination tensor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tensor_list</strong> – the list of tensors to be reduced on this process;
+each tensor located on a GPU.</p></li>
+<li><p><strong>dst_rank</strong> – the rank of the destination process.</p></li>
+<li><p><strong>dst_tensor</strong> – the index of GPU at the destination.</p></li>
+<li><p><strong>group_name</strong> – the collective group name to perform reduce.</p></li>
+<li><p><strong>op</strong> – The reduce operation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ray.util.collective.collective.broadcast">
+<span class="sig-prename descclassname"><span class="pre">ray.util.collective.collective.</span></span><span class="sig-name descname"><span class="pre">broadcast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src_rank</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ray/util/collective/collective.html#broadcast"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="ray-collective.html#ray.util.collective.collective.broadcast" title="Permalink to this definition">#</a></dt>
+<dd><p>Broadcast the tensor from a source process to all others.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tensor</strong> – the tensor to be broadcasted (src) or received (destination).</p></li>
+<li><p><strong>src_rank</strong> – the rank of the source process.</p></li>
+<li><p><strong>group_name</strong> – the collective group name to perform broadcast.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ray.util.collective.collective.broadcast_multigpu">
+<span class="sig-prename descclassname"><span class="pre">ray.util.collective.collective.</span></span><span class="sig-name descname"><span class="pre">broadcast_multigpu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensor_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src_rank</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src_tensor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ray/util/collective/collective.html#broadcast_multigpu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="ray-collective.html#ray.util.collective.collective.broadcast_multigpu" title="Permalink to this definition">#</a></dt>
+<dd><p>Broadcast the tensor from a source GPU to all other GPUs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tensor_list</strong> – the tensors to broadcast (src) or receive (dst).</p></li>
+<li><p><strong>src_rank</strong> – the rank of the source process.</p></li>
+<li><p><strong>src_tensor</strong> – the index of the source GPU on the source process.</p></li>
+<li><p><strong>group_name</strong> – the collective group name to perform broadcast.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ray.util.collective.collective.allgather">
+<span class="sig-prename descclassname"><span class="pre">ray.util.collective.collective.</span></span><span class="sig-name descname"><span class="pre">allgather</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensor_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ray/util/collective/collective.html#allgather"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="ray-collective.html#ray.util.collective.collective.allgather" title="Permalink to this definition">#</a></dt>
+<dd><p>Allgather tensors from each process of the group into a list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tensor_list</strong> – the results, stored as a list of tensors.</p></li>
+<li><p><strong>tensor</strong> – the tensor (to be gathered) in the current process</p></li>
+<li><p><strong>group_name</strong> – the name of the collective group.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ray.util.collective.collective.allgather_multigpu">
+<span class="sig-prename descclassname"><span class="pre">ray.util.collective.collective.</span></span><span class="sig-name descname"><span class="pre">allgather_multigpu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_tensor_lists</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_tensor_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ray/util/collective/collective.html#allgather_multigpu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="ray-collective.html#ray.util.collective.collective.allgather_multigpu" title="Permalink to this definition">#</a></dt>
+<dd><p>Allgather tensors from each gpus of the group into lists.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>output_tensor_lists</strong> (<em>List</em><em>[</em><em>List</em><em>[</em><em>tensor</em><em>]</em><em>]</em>) – gathered results, with shape
+must be num_gpus * world_size * shape(tensor).</p></li>
+<li><p><strong>input_tensor_list</strong> – (List[tensor]): a list of tensors, with shape
+num_gpus * shape(tensor).</p></li>
+<li><p><strong>group_name</strong> – the name of the collective group.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ray.util.collective.collective.reducescatter">
+<span class="sig-prename descclassname"><span class="pre">ray.util.collective.collective.</span></span><span class="sig-name descname"><span class="pre">reducescatter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tensor_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">op</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ReduceOp.SUM</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ray/util/collective/collective.html#reducescatter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="ray-collective.html#ray.util.collective.collective.reducescatter" title="Permalink to this definition">#</a></dt>
+<dd><p>Reducescatter a list of tensors across the group.</p>
+<p>Reduce the list of the tensors across each process in the group, then
+scatter the reduced list of tensors – one tensor for each process.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tensor</strong> – the resulted tensor on this process.</p></li>
+<li><p><strong>tensor_list</strong> – The list of tensors to be reduced and scattered.</p></li>
+<li><p><strong>group_name</strong> – the name of the collective group.</p></li>
+<li><p><strong>op</strong> – The reduce operation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ray.util.collective.collective.reducescatter_multigpu">
+<span class="sig-prename descclassname"><span class="pre">ray.util.collective.collective.</span></span><span class="sig-name descname"><span class="pre">reducescatter_multigpu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_tensor_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_tensor_lists</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">op</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ReduceOp.SUM</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ray/util/collective/collective.html#reducescatter_multigpu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="ray-collective.html#ray.util.collective.collective.reducescatter_multigpu" title="Permalink to this definition">#</a></dt>
+<dd><p>Reducescatter a list of tensors across all GPUs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>output_tensor_list</strong> – the resulted list of tensors, with
+shape: num_gpus * shape(tensor).</p></li>
+<li><p><strong>input_tensor_lists</strong> – the original tensors, with shape:
+num_gpus * world_size * shape(tensor).</p></li>
+<li><p><strong>group_name</strong> – the name of the collective group.</p></li>
+<li><p><strong>op</strong> – The reduce operation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ray.util.collective.collective.send">
+<span class="sig-prename descclassname"><span class="pre">ray.util.collective.collective.</span></span><span class="sig-name descname"><span class="pre">send</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst_rank</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ray/util/collective/collective.html#send"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="ray-collective.html#ray.util.collective.collective.send" title="Permalink to this definition">#</a></dt>
+<dd><p>Send a tensor to a remote process synchronously.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tensor</strong> – the tensor to send.</p></li>
+<li><p><strong>dst_rank</strong> – the rank of the destination process.</p></li>
+<li><p><strong>group_name</strong> – the name of the collective group.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ray.util.collective.collective.send_multigpu">
+<span class="sig-prename descclassname"><span class="pre">ray.util.collective.collective.</span></span><span class="sig-name descname"><span class="pre">send_multigpu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst_rank</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst_gpu_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ray/util/collective/collective.html#send_multigpu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="ray-collective.html#ray.util.collective.collective.send_multigpu" title="Permalink to this definition">#</a></dt>
+<dd><p>Send a tensor to a remote GPU synchronously.</p>
+<p>The function asssume each process owns &gt;1 GPUs, and the sender
+process and receiver process has equal nubmer of GPUs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tensor</strong> – the tensor to send, located on a GPU.</p></li>
+<li><p><strong>dst_rank</strong> – the rank of the destination process.</p></li>
+<li><p><strong>dst_gpu_index</strong> – the destination gpu index.</p></li>
+<li><p><strong>group_name</strong> – the name of the collective group.</p></li>
+<li><p><strong>n_elements</strong> – if specified, send the next n elements
+from the starting address of tensor.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ray.util.collective.collective.recv">
+<span class="sig-prename descclassname"><span class="pre">ray.util.collective.collective.</span></span><span class="sig-name descname"><span class="pre">recv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src_rank</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ray/util/collective/collective.html#recv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="ray-collective.html#ray.util.collective.collective.recv" title="Permalink to this definition">#</a></dt>
+<dd><p>Receive a tensor from a remote process synchronously.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tensor</strong> – the received tensor.</p></li>
+<li><p><strong>src_rank</strong> – the rank of the source process.</p></li>
+<li><p><strong>group_name</strong> – the name of the collective group.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ray.util.collective.collective.recv_multigpu">
+<span class="sig-prename descclassname"><span class="pre">ray.util.collective.collective.</span></span><span class="sig-name descname"><span class="pre">recv_multigpu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src_rank</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src_gpu_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ray/util/collective/collective.html#recv_multigpu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="ray-collective.html#ray.util.collective.collective.recv_multigpu" title="Permalink to this definition">#</a></dt>
+<dd><p>Receive a tensor from a remote GPU synchronously.</p>
+<p>The function asssume each process owns &gt;1 GPUs, and the sender
+process and receiver process has equal nubmer of GPUs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tensor</strong> – the received tensor, located on a GPU.</p></li>
+<li><p><strong>src_rank</strong> – the rank of the source process.</p></li>
+<li><p><strong>src_gpu_index</strong> (<em>int</em>) – </p></li>
+<li><p><strong>group_name</strong> – the name of the collective group.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ray.util.collective.collective.synchronize">
+<span class="sig-prename descclassname"><span class="pre">ray.util.collective.collective.</span></span><span class="sig-name descname"><span class="pre">synchronize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gpu_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ray/util/collective/collective.html#synchronize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="ray-collective.html#ray.util.collective.collective.synchronize" title="Permalink to this definition">#</a></dt>
+<dd><p>Synchronize the current process to a give device.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>gpu_id</strong> – the GPU device id to synchronize.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="multiprocessing.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Distributed multiprocessing.Pool</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="using-ray-with-pytorch-lightning.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Using Ray with Pytorch Lightning</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

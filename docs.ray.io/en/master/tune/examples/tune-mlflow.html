@@ -1,0 +1,1230 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Using MLflow with Tune &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/js/versionwarning.js"></script>
+    <script src="../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../_static/js/docsearch.js"></script>
+    <script src="../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../_static/js/top-navigation.js"></script>
+    <script src="../../_static/js/tags.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/tune/examples/tune-mlflow.html" />
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Using Aim with Tune" href="tune-aim.html" />
+    <link rel="prev" title="Using Weights &amp; Biases with Tune" href="tune-wandb.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "tune/examples/tune-mlflow", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".ipynb", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../../tune.html">
+   Ray Tune
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../getting-started.html">
+     Getting Started
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../tutorials/overview.html">
+     User Guides
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="index.html">
+     Ray Tune Examples
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="ml-frameworks.html">
+       Examples using Ray Tune with ML Frameworks
+      </a>
+     </li>
+     <li class="toctree-l3 current active has-children">
+      <a class="reference internal" href="experiment-tracking.html">
+       Tune Experiment Tracking Examples
+      </a>
+      <input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+      <label for="toctree-checkbox-3">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul class="current">
+       <li class="toctree-l4">
+        <a class="reference internal" href="tune-wandb.html">
+         Weights &amp; Biases Example
+        </a>
+       </li>
+       <li class="toctree-l4 current active">
+        <a class="current reference internal" href="tune-mlflow.html#">
+         MLflow Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="tune-aim.html">
+         Aim Example
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="tune-comet.html">
+         Comet Example
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="hpo-frameworks.html">
+       Tune Hyperparameter Optimization Framework Examples
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="other-examples.html">
+       Other Examples
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="exercises.html">
+       Exercises
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../faq.html">
+     Ray Tune FAQ
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/api.html">
+     Ray Tune API
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Ftune/examples/tune-mlflow.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/tune/examples/tune-mlflow.ipynb"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../_sources/tune/examples/tune-mlflow.ipynb.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.ipynb</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-mlflow.html#running-an-mlflow-example">
+   Running an MLflow Example
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-mlflow.html#mlflow-autologging">
+   MLflow AutoLogging
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-mlflow.html#mlflow-logger-api">
+   MLflow Logger API
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-mlflow.html#mlflow-setup-api">
+   MLflow setup API
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-mlflow.html#more-mlflow-examples">
+   More MLflow Examples
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Using MLflow with Tune</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-mlflow.html#running-an-mlflow-example">
+   Running an MLflow Example
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-mlflow.html#mlflow-autologging">
+   MLflow AutoLogging
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-mlflow.html#mlflow-logger-api">
+   MLflow Logger API
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-mlflow.html#mlflow-setup-api">
+   MLflow setup API
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="tune-mlflow.html#more-mlflow-examples">
+   More MLflow Examples
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section class="tex2jax_ignore mathjax_ignore" id="using-mlflow-with-tune">
+<h1>Using MLflow with Tune<a class="headerlink" href="tune-mlflow.html#using-mlflow-with-tune" title="Permalink to this headline">#</a></h1>
+<p id="tune-mlflow-ref"><a class="reference external" href="https://mlflow.org/">MLflow</a> is an open source platform to manage the ML lifecycle, including experimentation,
+reproducibility, deployment, and a central model registry. It currently offers four components, including
+MLflow Tracking to record and query experiments, including code, data, config, and results.</p>
+<a class="reference external image-reference" href="https://www.mlflow.org/"><img alt="MLflow" class="align-center" src="../../_images/mlflow.png" style="height: 80px;" /></a>
+<p>Ray Tune currently offers two lightweight integrations for MLflow Tracking.
+One is the <a class="reference internal" href="tune-mlflow.html#tune-mlflow-logger"><span class="std std-ref">MLflowLoggerCallback</span></a>, which automatically logs
+metrics reported to Tune to the MLflow Tracking API.</p>
+<p>The other one is the <a class="reference internal" href="tune-mlflow.html#tune-mlflow-setup"><span class="std std-ref">setup_mlflow</span></a> function, which can be
+used with the function API. It automatically
+initializes the MLflow API with Tune’s training information and creates a run for each Tune trial.
+Then within your training function, you can just use the
+MLflow like you would normally do, e.g. using <code class="docutils literal notranslate"><span class="pre">mlflow.log_metrics()</span></code> or even <code class="docutils literal notranslate"><span class="pre">mlflow.autolog()</span></code>
+to log to your training process.</p>
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="tune-mlflow.html#running-an-mlflow-example" id="id1">Running an MLflow Example</a></p></li>
+<li><p><a class="reference internal" href="tune-mlflow.html#mlflow-autologging" id="id2">MLflow AutoLogging</a></p></li>
+<li><p><a class="reference internal" href="tune-mlflow.html#mlflow-logger-api" id="id3">MLflow Logger API</a></p></li>
+<li><p><a class="reference internal" href="tune-mlflow.html#mlflow-setup-api" id="id4">MLflow setup API</a></p></li>
+<li><p><a class="reference internal" href="tune-mlflow.html#more-mlflow-examples" id="id5">More MLflow Examples</a></p></li>
+</ul>
+</div>
+<section id="running-an-mlflow-example">
+<h2>Running an MLflow Example<a class="headerlink" href="tune-mlflow.html#running-an-mlflow-example" title="Permalink to this headline">#</a></h2>
+<p>In the following example we’re going to use both of the above methods, namely the <code class="docutils literal notranslate"><span class="pre">MLflowLoggerCallback</span></code> and
+the <code class="docutils literal notranslate"><span class="pre">setup_mlflow</span></code> function to log metrics.
+Let’s start with a few crucial imports:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">mlflow</span>
+
+<span class="kn">from</span> <span class="nn">ray</span> <span class="kn">import</span> <span class="n">air</span><span class="p">,</span> <span class="n">tune</span>
+<span class="kn">from</span> <span class="nn">ray.air</span> <span class="kn">import</span> <span class="n">session</span>
+<span class="kn">from</span> <span class="nn">ray.air.integrations.mlflow</span> <span class="kn">import</span> <span class="n">MLflowLoggerCallback</span><span class="p">,</span> <span class="n">setup_mlflow</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Next, let’s define an easy training function (a Tune <code class="docutils literal notranslate"><span class="pre">Trainable</span></code>) that iteratively computes steps and evaluates
+intermediate scores that we report to Tune.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">evaluation_fn</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span><span class="mf">0.1</span> <span class="o">+</span> <span class="n">width</span> <span class="o">*</span> <span class="n">step</span> <span class="o">/</span> <span class="mi">100</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">height</span> <span class="o">*</span> <span class="mf">0.1</span>
+
+
+<span class="k">def</span> <span class="nf">train_function</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="n">width</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;width&quot;</span><span class="p">],</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;steps&quot;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)):</span>
+        <span class="c1"># Iterative training function - can be any arbitrary training procedure</span>
+        <span class="n">intermediate_score</span> <span class="o">=</span> <span class="n">evaluation_fn</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">)</span>
+        <span class="c1"># Feed the score back to Tune.</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">report</span><span class="p">({</span><span class="s2">&quot;iterations&quot;</span><span class="p">:</span> <span class="n">step</span><span class="p">,</span> <span class="s2">&quot;mean_loss&quot;</span><span class="p">:</span> <span class="n">intermediate_score</span><span class="p">})</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Given an MLFlow tracking URI, you can now simply use the <code class="docutils literal notranslate"><span class="pre">MLflowLoggerCallback</span></code> as a <code class="docutils literal notranslate"><span class="pre">callback</span></code> argument to
+your <code class="docutils literal notranslate"><span class="pre">RunConfig()</span></code>:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">tune_with_callback</span><span class="p">(</span><span class="n">mlflow_tracking_uri</span><span class="p">,</span> <span class="n">finish_fast</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
+        <span class="n">train_function</span><span class="p">,</span>
+        <span class="n">tune_config</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">TuneConfig</span><span class="p">(</span><span class="n">num_samples</span><span class="o">=</span><span class="mi">5</span><span class="p">),</span>
+        <span class="n">run_config</span><span class="o">=</span><span class="n">air</span><span class="o">.</span><span class="n">RunConfig</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;mlflow&quot;</span><span class="p">,</span>
+            <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">MLflowLoggerCallback</span><span class="p">(</span>
+                    <span class="n">tracking_uri</span><span class="o">=</span><span class="n">mlflow_tracking_uri</span><span class="p">,</span>
+                    <span class="n">experiment_name</span><span class="o">=</span><span class="s2">&quot;mlflow_callback_example&quot;</span><span class="p">,</span>
+                    <span class="n">save_artifact</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">param_space</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
+            <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
+            <span class="s2">&quot;steps&quot;</span><span class="p">:</span> <span class="mi">5</span> <span class="k">if</span> <span class="n">finish_fast</span> <span class="k">else</span> <span class="mi">100</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>To use the <code class="docutils literal notranslate"><span class="pre">setup_mlflow</span></code> utility, you simply call this function in your training function.
+Note that we also use <code class="docutils literal notranslate"><span class="pre">mlflow.log_metrics(...)</span></code> to log metrics to MLflow.
+Otherwise, this version of our training function is identical to its original.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">train_function_mlflow</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="n">tracking_uri</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;tracking_uri&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">setup_mlflow</span><span class="p">(</span>
+        <span class="n">config</span><span class="p">,</span>
+        <span class="n">experiment_name</span><span class="o">=</span><span class="s2">&quot;setup_mlflow_example&quot;</span><span class="p">,</span>
+        <span class="n">tracking_uri</span><span class="o">=</span><span class="n">tracking_uri</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Hyperparameters</span>
+    <span class="n">width</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;width&quot;</span><span class="p">],</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;steps&quot;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)):</span>
+        <span class="c1"># Iterative training function - can be any arbitrary training procedure</span>
+        <span class="n">intermediate_score</span> <span class="o">=</span> <span class="n">evaluation_fn</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">)</span>
+        <span class="c1"># Log the metrics to mlflow</span>
+        <span class="n">mlflow</span><span class="o">.</span><span class="n">log_metrics</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">mean_loss</span><span class="o">=</span><span class="n">intermediate_score</span><span class="p">),</span> <span class="n">step</span><span class="o">=</span><span class="n">step</span><span class="p">)</span>
+        <span class="c1"># Feed the score back to Tune.</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">report</span><span class="p">({</span><span class="s2">&quot;iterations&quot;</span><span class="p">:</span> <span class="n">step</span><span class="p">,</span> <span class="s2">&quot;mean_loss&quot;</span><span class="p">:</span> <span class="n">intermediate_score</span><span class="p">})</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>With this new objective function ready, you can now create a Tune run with it as follows:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">tune_with_setup</span><span class="p">(</span><span class="n">mlflow_tracking_uri</span><span class="p">,</span> <span class="n">finish_fast</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="c1"># Set the experiment, or create a new one if does not exist yet.</span>
+    <span class="n">mlflow</span><span class="o">.</span><span class="n">set_tracking_uri</span><span class="p">(</span><span class="n">mlflow_tracking_uri</span><span class="p">)</span>
+    <span class="n">mlflow</span><span class="o">.</span><span class="n">set_experiment</span><span class="p">(</span><span class="n">experiment_name</span><span class="o">=</span><span class="s2">&quot;setup_mlflow_example&quot;</span><span class="p">)</span>
+
+    <span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
+        <span class="n">train_function_mlflow</span><span class="p">,</span>
+        <span class="n">tune_config</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">TuneConfig</span><span class="p">(</span><span class="n">num_samples</span><span class="o">=</span><span class="mi">5</span><span class="p">),</span>
+        <span class="n">run_config</span><span class="o">=</span><span class="n">air</span><span class="o">.</span><span class="n">RunConfig</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;mlflow&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">param_space</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
+            <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
+            <span class="s2">&quot;steps&quot;</span><span class="p">:</span> <span class="mi">5</span> <span class="k">if</span> <span class="n">finish_fast</span> <span class="k">else</span> <span class="mi">100</span><span class="p">,</span>
+            <span class="s2">&quot;tracking_uri&quot;</span><span class="p">:</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">get_tracking_uri</span><span class="p">(),</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>If you hapen to have an MLFlow tracking URI, you can set it below in the <code class="docutils literal notranslate"><span class="pre">mlflow_tracking_uri</span></code> variable and set
+<code class="docutils literal notranslate"><span class="pre">smoke_test=False</span></code>.
+Otherwise, you can just run a quick test of the <code class="docutils literal notranslate"><span class="pre">tune_function</span></code> and <code class="docutils literal notranslate"><span class="pre">tune_decorated</span></code> functions without using MLflow.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">smoke_test</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="k">if</span> <span class="n">smoke_test</span><span class="p">:</span>
+    <span class="n">mlflow_tracking_uri</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">(),</span> <span class="s2">&quot;mlruns&quot;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">mlflow_tracking_uri</span> <span class="o">=</span> <span class="s2">&quot;&lt;MLFLOW_TRACKING_URI&gt;&quot;</span>
+
+<span class="n">tune_with_callback</span><span class="p">(</span><span class="n">mlflow_tracking_uri</span><span class="p">,</span> <span class="n">finish_fast</span><span class="o">=</span><span class="n">smoke_test</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">smoke_test</span><span class="p">:</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">search_runs</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">mlflow</span><span class="o">.</span><span class="n">get_experiment_by_name</span><span class="p">(</span><span class="s2">&quot;mlflow_callback_example&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">experiment_id</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+<span class="n">tune_with_setup</span><span class="p">(</span><span class="n">mlflow_tracking_uri</span><span class="p">,</span> <span class="n">finish_fast</span><span class="o">=</span><span class="n">smoke_test</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">smoke_test</span><span class="p">:</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">search_runs</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">mlflow</span><span class="o">.</span><span class="n">get_experiment_by_name</span><span class="p">(</span><span class="s2">&quot;setup_mlflow_example&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">experiment_id</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2022-12-22 10:37:53,580	INFO worker.py:1542 -- Started a local Ray instance. View the dashboard at <span class=" -Color -Color-Bold -Color-Bold-Green">http://127.0.0.1:8265 </span>
+</pre></div>
+</div>
+<div class="output text_html"><div class="tuneStatus">
+  <div style="display: flex;flex-direction: row">
+    <div style="display: flex;flex-direction: column;">
+      <h3>Tune Status</h3>
+      <table>
+<tbody>
+<tr><td>Current time:</td><td>2022-12-22 10:38:04</td></tr>
+<tr><td>Running for: </td><td>00:00:06.73        </td></tr>
+<tr><td>Memory:      </td><td>10.4/16.0 GiB      </td></tr>
+</tbody>
+</table>
+    </div>
+    <div class="vDivider"></div>
+    <div class="systemInfo">
+      <h3>System Info</h3>
+      Using FIFO scheduling algorithm.<br>Resources requested: 0/16 CPUs, 0/0 GPUs, 0.0/4.03 GiB heap, 0.0/2.0 GiB objects
+    </div>
+
+  </div>
+  <div class="hDivider"></div>
+  <div class="trialStatus">
+    <h3>Trial Status</h3>
+    <table>
+<thead>
+<tr><th>Trial name                </th><th>status    </th><th>loc          </th><th style="text-align: right;">  height</th><th style="text-align: right;">  width</th><th style="text-align: right;">   loss</th><th style="text-align: right;">  iter</th><th style="text-align: right;">  total time (s)</th><th style="text-align: right;">  iterations</th><th style="text-align: right;">  neg_mean_loss</th></tr>
+</thead>
+<tbody>
+<tr><td>train_function_b275b_00000</td><td>TERMINATED</td><td>127.0.0.1:801</td><td style="text-align: right;">      66</td><td style="text-align: right;">     36</td><td style="text-align: right;">7.24935</td><td style="text-align: right;">     5</td><td style="text-align: right;">        0.587302</td><td style="text-align: right;">           4</td><td style="text-align: right;">       -7.24935</td></tr>
+<tr><td>train_function_b275b_00001</td><td>TERMINATED</td><td>127.0.0.1:813</td><td style="text-align: right;">      33</td><td style="text-align: right;">     35</td><td style="text-align: right;">3.96667</td><td style="text-align: right;">     5</td><td style="text-align: right;">        0.507423</td><td style="text-align: right;">           4</td><td style="text-align: right;">       -3.96667</td></tr>
+<tr><td>train_function_b275b_00002</td><td>TERMINATED</td><td>127.0.0.1:814</td><td style="text-align: right;">      75</td><td style="text-align: right;">     29</td><td style="text-align: right;">8.29365</td><td style="text-align: right;">     5</td><td style="text-align: right;">        0.518995</td><td style="text-align: right;">           4</td><td style="text-align: right;">       -8.29365</td></tr>
+<tr><td>train_function_b275b_00003</td><td>TERMINATED</td><td>127.0.0.1:815</td><td style="text-align: right;">      28</td><td style="text-align: right;">     63</td><td style="text-align: right;">3.18168</td><td style="text-align: right;">     5</td><td style="text-align: right;">        0.567739</td><td style="text-align: right;">           4</td><td style="text-align: right;">       -3.18168</td></tr>
+<tr><td>train_function_b275b_00004</td><td>TERMINATED</td><td>127.0.0.1:816</td><td style="text-align: right;">      20</td><td style="text-align: right;">     18</td><td style="text-align: right;">3.21951</td><td style="text-align: right;">     5</td><td style="text-align: right;">        0.526536</td><td style="text-align: right;">           4</td><td style="text-align: right;">       -3.21951</td></tr>
+</tbody>
+</table>
+  </div>
+</div>
+<style>
+.tuneStatus {
+  color: var(--jp-ui-font-color1);
+}
+.tuneStatus .systemInfo {
+  display: flex;
+  flex-direction: column;
+}
+.tuneStatus td {
+  white-space: nowrap;
+}
+.tuneStatus .trialStatus {
+  display: flex;
+  flex-direction: column;
+}
+.tuneStatus h3 {
+  font-weight: bold;
+}
+.tuneStatus .hDivider {
+  border-bottom-width: var(--jp-border-width);
+  border-bottom-color: var(--jp-border-color0);
+  border-bottom-style: solid;
+}
+.tuneStatus .vDivider {
+  border-left-width: var(--jp-border-width);
+  border-left-color: var(--jp-border-color0);
+  border-left-style: solid;
+  margin: 0.5em 1em 0.5em 1em;
+}
+</style>
+</div><div class="output text_html"><div class="trialProgress">
+  <h3>Trial Progress</h3>
+  <table>
+<thead>
+<tr><th>Trial name                </th><th>date               </th><th>done  </th><th>episodes_total  </th><th>experiment_id                   </th><th>experiment_tag      </th><th>hostname                                        </th><th style="text-align: right;">  iterations</th><th style="text-align: right;">  iterations_since_restore</th><th style="text-align: right;">  mean_loss</th><th style="text-align: right;">  neg_mean_loss</th><th>node_ip  </th><th style="text-align: right;">  pid</th><th style="text-align: right;">  time_since_restore</th><th style="text-align: right;">  time_this_iter_s</th><th style="text-align: right;">  time_total_s</th><th style="text-align: right;">  timestamp</th><th style="text-align: right;">  timesteps_since_restore</th><th>timesteps_total  </th><th style="text-align: right;">  training_iteration</th><th>trial_id   </th><th style="text-align: right;">  warmup_time</th></tr>
+</thead>
+<tbody>
+<tr><td>train_function_b275b_00000</td><td>2022-12-22_10-38-01</td><td>True  </td><td>                </td><td>28feaa4dd8ab4edab810e8109e77502e</td><td>0_height=66,width=36</td><td>kais-macbook-pro.anyscale.com.beta.tailscale.net</td><td style="text-align: right;">           4</td><td style="text-align: right;">                         5</td><td style="text-align: right;">    7.24935</td><td style="text-align: right;">       -7.24935</td><td>127.0.0.1</td><td style="text-align: right;">  801</td><td style="text-align: right;">            0.587302</td><td style="text-align: right;">          0.126818</td><td style="text-align: right;">      0.587302</td><td style="text-align: right;"> 1671705481</td><td style="text-align: right;">                        0</td><td>                 </td><td style="text-align: right;">                   5</td><td>b275b_00000</td><td style="text-align: right;">   0.00293493</td></tr>
+<tr><td>train_function_b275b_00001</td><td>2022-12-22_10-38-04</td><td>True  </td><td>                </td><td>245010d0c3d0439ebfb664764ae9db3c</td><td>1_height=33,width=35</td><td>kais-macbook-pro.anyscale.com.beta.tailscale.net</td><td style="text-align: right;">           4</td><td style="text-align: right;">                         5</td><td style="text-align: right;">    3.96667</td><td style="text-align: right;">       -3.96667</td><td>127.0.0.1</td><td style="text-align: right;">  813</td><td style="text-align: right;">            0.507423</td><td style="text-align: right;">          0.122086</td><td style="text-align: right;">      0.507423</td><td style="text-align: right;"> 1671705484</td><td style="text-align: right;">                        0</td><td>                 </td><td style="text-align: right;">                   5</td><td>b275b_00001</td><td style="text-align: right;">   0.00553799</td></tr>
+<tr><td>train_function_b275b_00002</td><td>2022-12-22_10-38-04</td><td>True  </td><td>                </td><td>898afbf9b906448c980f399c72a2324c</td><td>2_height=75,width=29</td><td>kais-macbook-pro.anyscale.com.beta.tailscale.net</td><td style="text-align: right;">           4</td><td style="text-align: right;">                         5</td><td style="text-align: right;">    8.29365</td><td style="text-align: right;">       -8.29365</td><td>127.0.0.1</td><td style="text-align: right;">  814</td><td style="text-align: right;">            0.518995</td><td style="text-align: right;">          0.123554</td><td style="text-align: right;">      0.518995</td><td style="text-align: right;"> 1671705484</td><td style="text-align: right;">                        0</td><td>                 </td><td style="text-align: right;">                   5</td><td>b275b_00002</td><td style="text-align: right;">   0.0040431 </td></tr>
+<tr><td>train_function_b275b_00003</td><td>2022-12-22_10-38-04</td><td>True  </td><td>                </td><td>03a4476f82734642b6ab0a5040ca58f8</td><td>3_height=28,width=63</td><td>kais-macbook-pro.anyscale.com.beta.tailscale.net</td><td style="text-align: right;">           4</td><td style="text-align: right;">                         5</td><td style="text-align: right;">    3.18168</td><td style="text-align: right;">       -3.18168</td><td>127.0.0.1</td><td style="text-align: right;">  815</td><td style="text-align: right;">            0.567739</td><td style="text-align: right;">          0.125471</td><td style="text-align: right;">      0.567739</td><td style="text-align: right;"> 1671705484</td><td style="text-align: right;">                        0</td><td>                 </td><td style="text-align: right;">                   5</td><td>b275b_00003</td><td style="text-align: right;">   0.00406194</td></tr>
+<tr><td>train_function_b275b_00004</td><td>2022-12-22_10-38-04</td><td>True  </td><td>                </td><td>ff8c7c55ce6e404f9b0552c17f7a0c40</td><td>4_height=20,width=18</td><td>kais-macbook-pro.anyscale.com.beta.tailscale.net</td><td style="text-align: right;">           4</td><td style="text-align: right;">                         5</td><td style="text-align: right;">    3.21951</td><td style="text-align: right;">       -3.21951</td><td>127.0.0.1</td><td style="text-align: right;">  816</td><td style="text-align: right;">            0.526536</td><td style="text-align: right;">          0.123327</td><td style="text-align: right;">      0.526536</td><td style="text-align: right;"> 1671705484</td><td style="text-align: right;">                        0</td><td>                 </td><td style="text-align: right;">                   5</td><td>b275b_00004</td><td style="text-align: right;">   0.00332022</td></tr>
+</tbody>
+</table>
+</div>
+<style>
+.trialProgress {
+  display: flex;
+  flex-direction: column;
+  color: var(--jp-ui-font-color1);
+}
+.trialProgress h3 {
+  font-weight: bold;
+}
+.trialProgress td {
+  white-space: nowrap;
+}
+</style>
+</div><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2022-12-22 10:38:04,477	INFO tune.py:772 -- Total run time: 7.99 seconds (6.71 seconds for the tuning loop).
+</pre></div>
+</div>
+<div class="output text_html"><div class="tuneStatus">
+  <div style="display: flex;flex-direction: row">
+    <div style="display: flex;flex-direction: column;">
+      <h3>Tune Status</h3>
+      <table>
+<tbody>
+<tr><td>Current time:</td><td>2022-12-22 10:38:11</td></tr>
+<tr><td>Running for: </td><td>00:00:07.00        </td></tr>
+<tr><td>Memory:      </td><td>10.7/16.0 GiB      </td></tr>
+</tbody>
+</table>
+    </div>
+    <div class="vDivider"></div>
+    <div class="systemInfo">
+      <h3>System Info</h3>
+      Using FIFO scheduling algorithm.<br>Resources requested: 0/16 CPUs, 0/0 GPUs, 0.0/4.03 GiB heap, 0.0/2.0 GiB objects
+    </div>
+
+  </div>
+  <div class="hDivider"></div>
+  <div class="trialStatus">
+    <h3>Trial Status</h3>
+    <table>
+<thead>
+<tr><th>Trial name                       </th><th>status    </th><th>loc          </th><th style="text-align: right;">  height</th><th style="text-align: right;">  width</th><th style="text-align: right;">   loss</th><th style="text-align: right;">  iter</th><th style="text-align: right;">  total time (s)</th><th style="text-align: right;">  iterations</th><th style="text-align: right;">  neg_mean_loss</th></tr>
+</thead>
+<tbody>
+<tr><td>train_function_mlflow_b73bd_00000</td><td>TERMINATED</td><td>127.0.0.1:842</td><td style="text-align: right;">      37</td><td style="text-align: right;">     68</td><td style="text-align: right;">4.05461</td><td style="text-align: right;">     5</td><td style="text-align: right;">        0.750435</td><td style="text-align: right;">           4</td><td style="text-align: right;">       -4.05461</td></tr>
+<tr><td>train_function_mlflow_b73bd_00001</td><td>TERMINATED</td><td>127.0.0.1:853</td><td style="text-align: right;">      50</td><td style="text-align: right;">     20</td><td style="text-align: right;">6.11111</td><td style="text-align: right;">     5</td><td style="text-align: right;">        0.652748</td><td style="text-align: right;">           4</td><td style="text-align: right;">       -6.11111</td></tr>
+<tr><td>train_function_mlflow_b73bd_00002</td><td>TERMINATED</td><td>127.0.0.1:854</td><td style="text-align: right;">      38</td><td style="text-align: right;">     83</td><td style="text-align: right;">4.0924 </td><td style="text-align: right;">     5</td><td style="text-align: right;">        0.6513  </td><td style="text-align: right;">           4</td><td style="text-align: right;">       -4.0924 </td></tr>
+<tr><td>train_function_mlflow_b73bd_00003</td><td>TERMINATED</td><td>127.0.0.1:855</td><td style="text-align: right;">      15</td><td style="text-align: right;">     93</td><td style="text-align: right;">1.76178</td><td style="text-align: right;">     5</td><td style="text-align: right;">        0.650586</td><td style="text-align: right;">           4</td><td style="text-align: right;">       -1.76178</td></tr>
+<tr><td>train_function_mlflow_b73bd_00004</td><td>TERMINATED</td><td>127.0.0.1:856</td><td style="text-align: right;">      75</td><td style="text-align: right;">     43</td><td style="text-align: right;">8.04945</td><td style="text-align: right;">     5</td><td style="text-align: right;">        0.656046</td><td style="text-align: right;">           4</td><td style="text-align: right;">       -8.04945</td></tr>
+</tbody>
+</table>
+  </div>
+</div>
+<style>
+.tuneStatus {
+  color: var(--jp-ui-font-color1);
+}
+.tuneStatus .systemInfo {
+  display: flex;
+  flex-direction: column;
+}
+.tuneStatus td {
+  white-space: nowrap;
+}
+.tuneStatus .trialStatus {
+  display: flex;
+  flex-direction: column;
+}
+.tuneStatus h3 {
+  font-weight: bold;
+}
+.tuneStatus .hDivider {
+  border-bottom-width: var(--jp-border-width);
+  border-bottom-color: var(--jp-border-color0);
+  border-bottom-style: solid;
+}
+.tuneStatus .vDivider {
+  border-left-width: var(--jp-border-width);
+  border-left-color: var(--jp-border-color0);
+  border-left-style: solid;
+  margin: 0.5em 1em 0.5em 1em;
+}
+</style>
+</div><div class="output text_html"><div class="trialProgress">
+  <h3>Trial Progress</h3>
+  <table>
+<thead>
+<tr><th>Trial name                       </th><th>date               </th><th>done  </th><th>episodes_total  </th><th>experiment_id                   </th><th>experiment_tag      </th><th>hostname                                        </th><th style="text-align: right;">  iterations</th><th style="text-align: right;">  iterations_since_restore</th><th style="text-align: right;">  mean_loss</th><th style="text-align: right;">  neg_mean_loss</th><th>node_ip  </th><th style="text-align: right;">  pid</th><th style="text-align: right;">  time_since_restore</th><th style="text-align: right;">  time_this_iter_s</th><th style="text-align: right;">  time_total_s</th><th style="text-align: right;">  timestamp</th><th style="text-align: right;">  timesteps_since_restore</th><th>timesteps_total  </th><th style="text-align: right;">  training_iteration</th><th>trial_id   </th><th style="text-align: right;">  warmup_time</th></tr>
+</thead>
+<tbody>
+<tr><td>train_function_mlflow_b73bd_00000</td><td>2022-12-22_10-38-08</td><td>True  </td><td>                </td><td>62703cfe82e54d74972377fbb525b000</td><td>0_height=37,width=68</td><td>kais-macbook-pro.anyscale.com.beta.tailscale.net</td><td style="text-align: right;">           4</td><td style="text-align: right;">                         5</td><td style="text-align: right;">    4.05461</td><td style="text-align: right;">       -4.05461</td><td>127.0.0.1</td><td style="text-align: right;">  842</td><td style="text-align: right;">            0.750435</td><td style="text-align: right;">          0.108625</td><td style="text-align: right;">      0.750435</td><td style="text-align: right;"> 1671705488</td><td style="text-align: right;">                        0</td><td>                 </td><td style="text-align: right;">                   5</td><td>b73bd_00000</td><td style="text-align: right;">   0.0030272 </td></tr>
+<tr><td>train_function_mlflow_b73bd_00001</td><td>2022-12-22_10-38-11</td><td>True  </td><td>                </td><td>03ea89852115465392ed318db8021614</td><td>1_height=50,width=20</td><td>kais-macbook-pro.anyscale.com.beta.tailscale.net</td><td style="text-align: right;">           4</td><td style="text-align: right;">                         5</td><td style="text-align: right;">    6.11111</td><td style="text-align: right;">       -6.11111</td><td>127.0.0.1</td><td style="text-align: right;">  853</td><td style="text-align: right;">            0.652748</td><td style="text-align: right;">          0.110796</td><td style="text-align: right;">      0.652748</td><td style="text-align: right;"> 1671705491</td><td style="text-align: right;">                        0</td><td>                 </td><td style="text-align: right;">                   5</td><td>b73bd_00001</td><td style="text-align: right;">   0.00303078</td></tr>
+<tr><td>train_function_mlflow_b73bd_00002</td><td>2022-12-22_10-38-11</td><td>True  </td><td>                </td><td>3731fc2966f9453ba58c650d89035ab4</td><td>2_height=38,width=83</td><td>kais-macbook-pro.anyscale.com.beta.tailscale.net</td><td style="text-align: right;">           4</td><td style="text-align: right;">                         5</td><td style="text-align: right;">    4.0924 </td><td style="text-align: right;">       -4.0924 </td><td>127.0.0.1</td><td style="text-align: right;">  854</td><td style="text-align: right;">            0.6513  </td><td style="text-align: right;">          0.108578</td><td style="text-align: right;">      0.6513  </td><td style="text-align: right;"> 1671705491</td><td style="text-align: right;">                        0</td><td>                 </td><td style="text-align: right;">                   5</td><td>b73bd_00002</td><td style="text-align: right;">   0.00310016</td></tr>
+<tr><td>train_function_mlflow_b73bd_00003</td><td>2022-12-22_10-38-11</td><td>True  </td><td>                </td><td>fb35841742b348b9912d10203c730f1e</td><td>3_height=15,width=93</td><td>kais-macbook-pro.anyscale.com.beta.tailscale.net</td><td style="text-align: right;">           4</td><td style="text-align: right;">                         5</td><td style="text-align: right;">    1.76178</td><td style="text-align: right;">       -1.76178</td><td>127.0.0.1</td><td style="text-align: right;">  855</td><td style="text-align: right;">            0.650586</td><td style="text-align: right;">          0.109097</td><td style="text-align: right;">      0.650586</td><td style="text-align: right;"> 1671705491</td><td style="text-align: right;">                        0</td><td>                 </td><td style="text-align: right;">                   5</td><td>b73bd_00003</td><td style="text-align: right;">   0.0576491 </td></tr>
+<tr><td>train_function_mlflow_b73bd_00004</td><td>2022-12-22_10-38-11</td><td>True  </td><td>                </td><td>6d3cbf9ecc3446369e607ff78c67bc29</td><td>4_height=75,width=43</td><td>kais-macbook-pro.anyscale.com.beta.tailscale.net</td><td style="text-align: right;">           4</td><td style="text-align: right;">                         5</td><td style="text-align: right;">    8.04945</td><td style="text-align: right;">       -8.04945</td><td>127.0.0.1</td><td style="text-align: right;">  856</td><td style="text-align: right;">            0.656046</td><td style="text-align: right;">          0.109869</td><td style="text-align: right;">      0.656046</td><td style="text-align: right;"> 1671705491</td><td style="text-align: right;">                        0</td><td>                 </td><td style="text-align: right;">                   5</td><td>b73bd_00004</td><td style="text-align: right;">   0.00265694</td></tr>
+</tbody>
+</table>
+</div>
+<style>
+.trialProgress {
+  display: flex;
+  flex-direction: column;
+  color: var(--jp-ui-font-color1);
+}
+.trialProgress h3 {
+  font-weight: bold;
+}
+.trialProgress td {
+  white-space: nowrap;
+}
+</style>
+</div><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2022-12-22 10:38:11,514	INFO tune.py:772 -- Total run time: 7.01 seconds (6.98 seconds for the tuning loop).
+</pre></div>
+</div>
+</div>
+</div>
+<p>This completes our Tune and MLflow walk-through.
+In the following sections you can find more details on the API of the Tune-MLflow integration.</p>
+</section>
+<section id="mlflow-autologging">
+<h2>MLflow AutoLogging<a class="headerlink" href="tune-mlflow.html#mlflow-autologging" title="Permalink to this headline">#</a></h2>
+<p>You can also check out <a class="reference internal" href="includes/mlflow_ptl_example.html"><span class="doc">here</span></a> for an example on how you can
+leverage MLflow auto-logging, in this case with Pytorch Lightning</p>
+</section>
+<section id="mlflow-logger-api">
+<h2>MLflow Logger API<a class="headerlink" href="tune-mlflow.html#mlflow-logger-api" title="Permalink to this headline">#</a></h2>
+<span class="target" id="tune-mlflow-logger"></span><dl class="py class">
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ray.air.integrations.mlflow.</span></span><span class="sig-name descname"><span class="pre">MLflowLoggerCallback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tracking_uri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">registry_uri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tags</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracking_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_artifact</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/ray/air/integrations/mlflow.html#MLflowLoggerCallback"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>MLflow Logger to automatically log Tune results and config to MLflow.</p>
+<p>MLflow (<a class="reference external" href="https://mlflow.org">https://mlflow.org</a>) Tracking is an open source library for
+recording and querying experiments. This Ray Tune <code class="docutils literal notranslate"><span class="pre">LoggerCallback</span></code>
+sends information (config parameters, training results &amp; metrics,
+and artifacts) to MLflow for automatic experiment tracking.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tracking_uri</strong> – The tracking URI for where to manage experiments
+and runs. This can either be a local file path or a remote server.
+This arg gets passed directly to mlflow
+initialization. When using Tune in a multi-node setting, make sure
+to set this to a remote server and not a local file path.</p></li>
+<li><p><strong>registry_uri</strong> – The registry URI that gets passed directly to
+mlflow initialization.</p></li>
+<li><p><strong>experiment_name</strong> – The experiment name to use for this Tune run.
+If the experiment with the name already exists with MLflow,
+it will be reused. If not, a new experiment will be created with
+that name.</p></li>
+<li><p><strong>tags</strong> – An optional dictionary of string keys and values to set
+as tags on the run</p></li>
+<li><p><strong>tracking_token</strong> – Tracking token used to authenticate with MLflow.</p></li>
+<li><p><strong>save_artifact</strong> – If set to True, automatically save the entire
+contents of the Tune local_dir as an artifact to the
+corresponding run in MlFlow.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ray.air.integrations.mlflow</span> <span class="kn">import</span> <span class="n">MLflowLoggerCallback</span>
+
+<span class="n">tags</span> <span class="o">=</span> <span class="p">{</span> <span class="s2">&quot;user_name&quot;</span> <span class="p">:</span> <span class="s2">&quot;John&quot;</span><span class="p">,</span>
+         <span class="s2">&quot;git_commit_hash&quot;</span> <span class="p">:</span> <span class="s2">&quot;abc123&quot;</span><span class="p">}</span>
+
+<span class="n">tune</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+    <span class="n">train_fn</span><span class="p">,</span>
+    <span class="n">config</span><span class="o">=</span><span class="p">{</span>
+        <span class="c1"># define search space here</span>
+        <span class="s2">&quot;parameter_1&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]),</span>
+        <span class="s2">&quot;parameter_2&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]),</span>
+    <span class="p">},</span>
+    <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span><span class="n">MLflowLoggerCallback</span><span class="p">(</span>
+        <span class="n">experiment_name</span><span class="o">=</span><span class="s2">&quot;experiment1&quot;</span><span class="p">,</span>
+        <span class="n">tags</span><span class="o">=</span><span class="n">tags</span><span class="p">,</span>
+        <span class="n">save_artifact</span><span class="o">=</span><span class="kc">True</span><span class="p">)])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+<section id="mlflow-setup-api">
+<h2>MLflow setup API<a class="headerlink" href="tune-mlflow.html#mlflow-setup-api" title="Permalink to this headline">#</a></h2>
+<span class="target" id="tune-mlflow-setup"></span><dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">ray.air.integrations.mlflow.</span></span><span class="sig-name descname"><span class="pre">setup_mlflow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracking_uri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">registry_uri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracking_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifact_location</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_experiment_if_not_exists</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tags</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rank_zero_only</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">module</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ray.air.integrations.mlflow._NoopModule</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/ray/air/integrations/mlflow.html#setup_mlflow"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Set up a MLflow session.</p>
+<p>This function can be used to initialize an MLflow session in a
+(distributed) training or tuning run.</p>
+<p>By default, the MLflow experiment ID is the Ray trial ID and the
+MLlflow experiment name is the Ray trial name. These settings can be overwritten by
+passing the respective keyword arguments.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">config</span></code> dict is automatically logged as the run parameters (excluding the
+mlflow settings).</p>
+<p>In distributed training with Ray Train, only the zero-rank worker will initialize
+mlflow. All other workers will return a noop client, so that logging is not
+duplicated in a distributed run. This can be disabled by passing
+<code class="docutils literal notranslate"><span class="pre">rank_zero_only=False</span></code>, which will then initialize mlflow in every training
+worker.</p>
+<p>This function will return the <code class="docutils literal notranslate"><span class="pre">mlflow</span></code> module or a noop module for
+non-rank zero workers <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">rank_zero_only=True</span></code>. By using
+<code class="docutils literal notranslate"><span class="pre">mlflow</span> <span class="pre">=</span> <span class="pre">setup_mlflow(config)</span></code> you can ensure that only the rank zero worker
+calls the mlflow API.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> – Configuration dict to be logged to mlflow as parameters.</p></li>
+<li><p><strong>tracking_uri</strong> – The tracking URI for MLflow tracking. If using
+Tune in a multi-node setting, make sure to use a remote server for
+tracking.</p></li>
+<li><p><strong>registry_uri</strong> – The registry URI for the MLflow model registry.</p></li>
+<li><p><strong>experiment_id</strong> – The id of an already created MLflow experiment.
+All logs from all trials in <code class="docutils literal notranslate"><span class="pre">tune.Tuner()</span></code> will be reported to this
+experiment. If this is not provided or the experiment with this
+id does not exist, you must provide an``experiment_name``. This
+parameter takes precedence over <code class="docutils literal notranslate"><span class="pre">experiment_name</span></code>.</p></li>
+<li><p><strong>experiment_name</strong> – The name of an already existing MLflow
+experiment. All logs from all trials in <code class="docutils literal notranslate"><span class="pre">tune.Tuner()</span></code> will be
+reported to this experiment. If this is not provided, you must
+provide a valid <code class="docutils literal notranslate"><span class="pre">experiment_id</span></code>.</p></li>
+<li><p><strong>tracking_token</strong> – A token to use for HTTP authentication when
+logging to a remote tracking server. This is useful when you
+want to log to a Databricks server, for example. This value will
+be used to set the MLFLOW_TRACKING_TOKEN environment variable on
+all the remote training processes.</p></li>
+<li><p><strong>artifact_location</strong> – The location to store run artifacts.
+If not provided, MLFlow picks an appropriate default.
+Ignored if experiment already exists.</p></li>
+<li><p><strong>run_name</strong> – Name of the new MLflow run that will be created.
+If not set, will default to the <code class="docutils literal notranslate"><span class="pre">experiment_name</span></code>.</p></li>
+<li><p><strong>create_experiment_if_not_exists</strong> – Whether to create an
+experiment with the provided name if it does not already
+exist. Defaults to False.</p></li>
+<li><p><strong>tags</strong> – Tags to set for the new run.</p></li>
+<li><p><strong>rank_zero_only</strong> – If True, will return an initialized session only for the
+rank 0 worker in distributed training. If False, will initialize a
+session for all workers. Defaults to True.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<p>Per default, you can just call <code class="docutils literal notranslate"><span class="pre">setup_mlflow</span></code> and continue to use
+MLflow like you would normally do:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ray.air.integrations.mlflow</span> <span class="kn">import</span> <span class="n">setup_mlflow</span>
+
+<span class="k">def</span> <span class="nf">training_loop</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="n">setup_mlflow</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="c1"># ...</span>
+    <span class="n">mlflow</span><span class="o">.</span><span class="n">log_metric</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s2">&quot;loss&quot;</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="mf">0.123</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In distributed data parallel training, you can utilize the return value of
+<code class="docutils literal notranslate"><span class="pre">setup_mlflow</span></code>. This will make sure it is only invoked on the first worker
+in distributed training runs.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ray.air.integrations.mlflow</span> <span class="kn">import</span> <span class="n">setup_mlflow</span>
+
+<span class="k">def</span> <span class="nf">training_loop</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="n">mlflow</span> <span class="o">=</span> <span class="n">setup_mlflow</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="c1"># ...</span>
+    <span class="n">mlflow</span><span class="o">.</span><span class="n">log_metric</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s2">&quot;loss&quot;</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="mf">0.123</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can also use MlFlow’s autologging feature if using a training
+framework like Pytorch Lightning, XGBoost, etc. More information can be
+found here
+(<a class="reference external" href="https://mlflow.org/docs/latest/tracking.html#automatic-logging">https://mlflow.org/docs/latest/tracking.html#automatic-logging</a>).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ray.air.integrations.mlflow</span> <span class="kn">import</span> <span class="n">setup_mlflow</span>
+
+<span class="k">def</span> <span class="nf">train_fn</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="n">mlflow</span> <span class="o">=</span> <span class="n">setup_mlflow</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">mlflow</span><span class="o">.</span><span class="n">autolog</span><span class="p">()</span>
+    <span class="n">xgboost_results</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>PublicAPI (alpha):</strong> This API is in alpha and may change before becoming stable.</p>
+</dd></dl>
+
+</section>
+<section id="more-mlflow-examples">
+<h2>More MLflow Examples<a class="headerlink" href="tune-mlflow.html#more-mlflow-examples" title="Permalink to this headline">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="includes/mlflow_ptl_example.html"><span class="doc">MLflow PyTorch Lightning Example</span></a>: Example for using <a class="reference external" href="https://github.com/mlflow/mlflow/">MLflow</a>
+and <a class="reference external" href="https://github.com/PyTorchLightning/pytorch-lightning">Pytorch Lightning</a> with Ray Tune.</p></li>
+</ul>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="tune-wandb.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Using Weights &amp; Biases with Tune</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="tune-aim.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Using Aim with Tune</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

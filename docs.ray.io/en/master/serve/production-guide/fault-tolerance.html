@@ -1,0 +1,1539 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Add End-to-End Fault Tolerance &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/js/versionwarning.js"></script>
+    <script src="../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../_static/js/docsearch.js"></script>
+    <script src="../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../_static/js/top-navigation.js"></script>
+    <script src="../../_static/js/tags.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/serve/production-guide/fault-tolerance.html" />
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Handle Dependencies" href="handling-dependencies.html" />
+    <link rel="prev" title="Deploy on Kubernetes" href="kubernetes.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "serve/production-guide/fault-tolerance", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".md", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tune.html">
+   Ray Tune
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../index.html">
+   Ray Serve
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../getting_started.html">
+     Getting Started
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../model_composition.html">
+     Deploy a Composition of Models
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../deploy-many-models/index.html">
+     Deploy Many Models
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../http-guide.html">
+     Set Up FastAPI and HTTP
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="index.html">
+     Production Guide
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="config.html">
+       Serve Config Files (
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         serve
+        </span>
+        <span class="pre">
+         build
+        </span>
+       </code>
+       )
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="kubernetes.html">
+       Deploy on Kubernetes
+      </a>
+     </li>
+     <li class="toctree-l3 current active">
+      <a class="current reference internal" href="fault-tolerance.html#">
+       Add End-to-End Fault Tolerance
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="handling-dependencies.html">
+       Handle Dependencies
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="best-practices.html">
+       Best practices
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../monitoring.html">
+     Monitor Your Application
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../scaling-and-resource-allocation.html">
+     Set Up Autoscaling and Resource Allocation
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../advanced-guides/index.html">
+     Advanced Guides
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../architecture.html">
+     Architecture
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../tutorials/index.html">
+     Examples
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/index.html">
+     Ray Serve API
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Fserve/production-guide/fault-tolerance.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/serve/production-guide/fault-tolerance.md"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../_sources/serve/production-guide/fault-tolerance.md.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.md</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="fault-tolerance.html#guide-end-to-end-fault-tolerance-for-your-serve-app">
+   Guide: end-to-end fault tolerance for your Serve app
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="fault-tolerance.html#replica-health-checking">
+     Replica health-checking
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="fault-tolerance.html#worker-node-recovery">
+     Worker node recovery
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="fault-tolerance.html#head-node-recovery-ray-gcs-fault-tolerance">
+     Head node recovery: Ray GCS fault tolerance
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="fault-tolerance.html#step-1-add-external-redis-server">
+       Step 1: Add external Redis server
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="fault-tolerance.html#step-2-add-redis-info-to-rayservice">
+       Step 2: Add Redis info to RayService
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="fault-tolerance.html#serves-recovery-procedures">
+   Serve’s recovery procedures
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="fault-tolerance.html#worker-node-failure">
+     Worker node failure
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="fault-tolerance.html#head-node-failure">
+     Head node failure
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="fault-tolerance.html#serve-controller-failure">
+     Serve controller failure
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="fault-tolerance.html#deployment-replica-failure">
+     Deployment replica failure
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="fault-tolerance.html#httpproxy-failure">
+     HTTPProxy failure
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Add End-to-End Fault Tolerance</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="fault-tolerance.html#guide-end-to-end-fault-tolerance-for-your-serve-app">
+   Guide: end-to-end fault tolerance for your Serve app
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="fault-tolerance.html#replica-health-checking">
+     Replica health-checking
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="fault-tolerance.html#worker-node-recovery">
+     Worker node recovery
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="fault-tolerance.html#head-node-recovery-ray-gcs-fault-tolerance">
+     Head node recovery: Ray GCS fault tolerance
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="fault-tolerance.html#step-1-add-external-redis-server">
+       Step 1: Add external Redis server
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="fault-tolerance.html#step-2-add-redis-info-to-rayservice">
+       Step 2: Add Redis info to RayService
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="fault-tolerance.html#serves-recovery-procedures">
+   Serve’s recovery procedures
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="fault-tolerance.html#worker-node-failure">
+     Worker node failure
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="fault-tolerance.html#head-node-failure">
+     Head node failure
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="fault-tolerance.html#serve-controller-failure">
+     Serve controller failure
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="fault-tolerance.html#deployment-replica-failure">
+     Deployment replica failure
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="fault-tolerance.html#httpproxy-failure">
+     HTTPProxy failure
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section class="tex2jax_ignore mathjax_ignore" id="add-end-to-end-fault-tolerance">
+<span id="serve-e2e-ft"></span><h1>Add End-to-End Fault Tolerance<a class="headerlink" href="fault-tolerance.html#add-end-to-end-fault-tolerance" title="Permalink to this headline">#</a></h1>
+<p>This section helps you:</p>
+<ul class="simple">
+<li><p>Provide additional fault tolerance for your Serve application</p></li>
+<li><p>understand Serve’s recovery procedures</p></li>
+<li><p>simulate system errors in your Serve application</p></li>
+</ul>
+<div class="seealso admonition">
+<p class="admonition-title">Relevant Guides</p>
+<p>This section discusses concepts from:</p>
+<ul class="simple">
+<li><p>Serve’s <a class="reference internal" href="../architecture.html#serve-architecture"><span class="std std-ref">architecture guide</span></a></p></li>
+<li><p>Serve’s <a class="reference internal" href="kubernetes.html#serve-in-production-kubernetes"><span class="std std-ref">Kubernetes production guide</span></a></p></li>
+</ul>
+</div>
+<section id="guide-end-to-end-fault-tolerance-for-your-serve-app">
+<span id="serve-e2e-ft-guide"></span><h2>Guide: end-to-end fault tolerance for your Serve app<a class="headerlink" href="fault-tolerance.html#guide-end-to-end-fault-tolerance-for-your-serve-app" title="Permalink to this headline">#</a></h2>
+<p>Serve provides some <a class="reference internal" href="../architecture.html#serve-ft-detail"><span class="std std-ref">fault tolerance</span></a> features out of the box. You can provide end-to-end fault tolerance by tuning these features and running Serve on top of <a class="reference external" href="https://ray-project.github.io/kuberay/">KubeRay</a>.</p>
+<section id="replica-health-checking">
+<h3>Replica health-checking<a class="headerlink" href="fault-tolerance.html#replica-health-checking" title="Permalink to this headline">#</a></h3>
+<p>By default, the Serve controller periodically health-checks each Serve deployment replica and restarts it on failure.</p>
+<p>You can define custom application-level health-checks and adjust their frequency and timeout.
+To define a custom health-check, add a <code class="docutils literal notranslate"><span class="pre">check_health</span></code> method to your deployment class.
+This method should take no arguments and return no result, and it should raise an exception if the replica should be considered unhealthy.
+If the health-check fails, the Serve controller logs the exception, kills the unhealthy replica(s), and restarts them.
+You can also use the deployment options to customize how frequently the health-check is run and the timeout after which a replica is marked unhealthy.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@serve</span><span class="o">.</span><span class="n">deployment</span><span class="p">(</span><span class="n">health_check_period_s</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">health_check_timeout_s</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">MyDeployment</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_addr</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_my_db_connection</span> <span class="o">=</span> <span class="n">connect_to_db</span><span class="p">(</span><span class="n">db_addr</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_do_something_cool</span><span class="p">()</span>
+
+    <span class="c1"># Called by Serve to check the replica&#39;s health.</span>
+    <span class="k">def</span> <span class="nf">check_health</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_my_db_connection</span><span class="o">.</span><span class="n">is_connected</span><span class="p">():</span>
+            <span class="c1"># The specific type of exception is not important.</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;uh-oh, DB connection is broken.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="worker-node-recovery">
+<h3>Worker node recovery<a class="headerlink" href="fault-tolerance.html#worker-node-recovery" title="Permalink to this headline">#</a></h3>
+<div class="caution dropdown admonition">
+<p class="admonition-title">KubeRay Required</p>
+<p>You <strong>must</strong> deploy your Serve application with <a class="reference external" href="https://ray-project.github.io/kuberay/">KubeRay</a> to use this feature.</p>
+<p>See Serve’s <a class="reference internal" href="kubernetes.html#serve-in-production-kubernetes"><span class="std std-ref">Kubernetes production guide</span></a> to learn how you can deploy your app with KubeRay.</p>
+</div>
+<p>By default, Serve can recover from certain failures, such as unhealthy actors. When <a class="reference internal" href="kubernetes.html#serve-in-production-kubernetes"><span class="std std-ref">Serve runs on Kubernetes</span></a> with <a class="reference external" href="https://ray-project.github.io/kuberay/">KubeRay</a>, it can also recover from some cluster-level failures, such as dead workers or head nodes.</p>
+<p>When a worker node fails, the actors running on it also fail. Serve detects that the actors have failed, and it attempts to respawn the actors on the remaining, healthy nodes. Meanwhile, KubeRay detects that the node itself has failed, so it attempts to restart the worker pod on another running node, and it also brings up a new healthy node to replace it. Once the node comes up, if the pod is still pending, it can be restarted on that node. Similarly, Serve can also respawn any pending actors on that node as well. The deployment replicas running on healthy nodes can continue serving traffic throughout the recovery period.</p>
+</section>
+<section id="head-node-recovery-ray-gcs-fault-tolerance">
+<span id="serve-e2e-ft-guide-gcs"></span><h3>Head node recovery: Ray GCS fault tolerance<a class="headerlink" href="fault-tolerance.html#head-node-recovery-ray-gcs-fault-tolerance" title="Permalink to this headline">#</a></h3>
+<div class="caution dropdown admonition">
+<p class="admonition-title">KubeRay Required</p>
+<p>You <strong>must</strong> deploy your Serve application with <a class="reference external" href="https://ray-project.github.io/kuberay/">KubeRay</a> to use this feature.</p>
+<p>See Serve’s <a class="reference internal" href="kubernetes.html#serve-in-production-kubernetes"><span class="std std-ref">Kubernetes production guide</span></a> to learn how you can deploy your app with KubeRay.</p>
+</div>
+<p>In this section, you’ll learn how to add fault tolerance to Ray’s Global Control Store (GCS), which allows your Serve application to serve traffic even when the head node crashes.</p>
+<p>By default, the Ray head node is a single point of failure: if it crashes, the entire Ray cluster crashes and must be restarted. When running on Kubernetes, the <code class="docutils literal notranslate"><span class="pre">RayService</span></code> controller health-checks the Ray cluster and restarts it if this occurs, but this introduces some downtime.</p>
+<p>In Ray 2.0, KubeRay added <strong>experimental support</strong> for <a class="reference external" href="https://ray-project.github.io/kuberay/guidance/gcs-ft/#ray-gcs-fault-tolerancegcs-ft-experimental">Global Control Store (GCS) fault tolerance</a>, preventing the Ray cluster from crashing if the head node goes down.
+While the head node is recovering, Serve applications can still handle traffic via worker nodes but cannot be updated or recover from other failures (e.g. actors or worker nodes crashing).
+Once the GCS is recovered, the cluster will return to normal behavior.</p>
+<p>You can enable GCS fault tolerance on KubeRay by adding an external Redis server and modifying your <code class="docutils literal notranslate"><span class="pre">RayService</span></code> Kubernetes object.</p>
+<p>Below, we explain how to do each of these.</p>
+<section id="step-1-add-external-redis-server">
+<h4>Step 1: Add external Redis server<a class="headerlink" href="fault-tolerance.html#step-1-add-external-redis-server" title="Permalink to this headline">#</a></h4>
+<p>GCS fault tolerance requires an external Redis database. You can choose to host your own Redis database, or you can use one through a third-party vendor. We recommend using a highly-available Redis database for resiliency.</p>
+<p><strong>For development purposes</strong>, you can also host a small Redis database on the same Kubernetes cluster as your Ray cluster. For example, you can add a 1-node Redis cluster by prepending these three Redis objects to your Kubernetes YAML:</p>
+<div class="highlight-YAML notranslate" id="one-node-redis-example"><div class="highlight"><pre><span></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ConfigMap</span><span class="w"></span>
+<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span><span class="w"></span>
+<span class="nt">metadata</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis-config</span><span class="w"></span>
+<span class="w">  </span><span class="nt">labels</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis</span><span class="w"></span>
+<span class="nt">data</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">redis.conf</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|-</span><span class="w"></span>
+<span class="w">    </span><span class="no">port 6379</span><span class="w"></span>
+<span class="w">    </span><span class="no">bind 0.0.0.0</span><span class="w"></span>
+<span class="w">    </span><span class="no">protected-mode no</span><span class="w"></span>
+<span class="w">    </span><span class="no">requirepass 5241590000000000</span><span class="w"></span>
+<span class="nn">---</span><span class="w"></span>
+<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span><span class="w"></span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Service</span><span class="w"></span>
+<span class="nt">metadata</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis</span><span class="w"></span>
+<span class="w">  </span><span class="nt">labels</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis</span><span class="w"></span>
+<span class="nt">spec</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ClusterIP</span><span class="w"></span>
+<span class="w">  </span><span class="nt">ports</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis</span><span class="w"></span>
+<span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">6379</span><span class="w"></span>
+<span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis</span><span class="w"></span>
+<span class="nn">---</span><span class="w"></span>
+<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/v1</span><span class="w"></span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Deployment</span><span class="w"></span>
+<span class="nt">metadata</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis</span><span class="w"></span>
+<span class="w">  </span><span class="nt">labels</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis</span><span class="w"></span>
+<span class="nt">spec</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">replicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">matchLabels</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis</span><span class="w"></span>
+<span class="w">  </span><span class="nt">template</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">metadata</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">labels</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis</span><span class="w"></span>
+<span class="w">    </span><span class="nt">spec</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">containers</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis</span><span class="w"></span>
+<span class="w">          </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis:5.0.8</span><span class="w"></span>
+<span class="w">          </span><span class="nt">command</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;sh&quot;</span><span class="w"></span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;-c&quot;</span><span class="w"></span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;redis-server</span><span class="nv"> </span><span class="s">/usr/local/etc/redis/redis.conf&quot;</span><span class="w"></span>
+<span class="w">          </span><span class="nt">ports</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">containerPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">6379</span><span class="w"></span>
+<span class="w">          </span><span class="nt">volumeMounts</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">config</span><span class="w"></span>
+<span class="w">              </span><span class="nt">mountPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/usr/local/etc/redis/redis.conf</span><span class="w"></span>
+<span class="w">              </span><span class="nt">subPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis.conf</span><span class="w"></span>
+<span class="w">      </span><span class="nt">volumes</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">config</span><span class="w"></span>
+<span class="w">          </span><span class="nt">configMap</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis-config</span><span class="w"></span>
+<span class="nn">---</span><span class="w"></span>
+</pre></div>
+</div>
+<p><strong>This configuration is NOT production-ready</strong>, but it is useful for development and testing. When you move to production, it’s highly recommended that you replace this 1-node Redis cluster with a highly-available Redis cluster.</p>
+</section>
+<section id="step-2-add-redis-info-to-rayservice">
+<h4>Step 2: Add Redis info to RayService<a class="headerlink" href="fault-tolerance.html#step-2-add-redis-info-to-rayservice" title="Permalink to this headline">#</a></h4>
+<p>After adding the Redis objects, you also need to modify the <code class="docutils literal notranslate"><span class="pre">RayService</span></code> configuration.</p>
+<p>First, you need to update your <code class="docutils literal notranslate"><span class="pre">RayService</span></code> metadata’s annotations:</p>
+<div class="sd-tab-set docutils">
+<input id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
+</input><label class="sd-tab-label" for="sd-tab-item-0">
+Vanilla Config</label><div class="sd-tab-content docutils">
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nn">...</span><span class="w"></span>
+<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ray.io/v1alpha1</span><span class="w"></span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">RayService</span><span class="w"></span>
+<span class="nt">metadata</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rayservice-sample</span><span class="w"></span>
+<span class="nt">spec</span><span class="p">:</span><span class="w"></span>
+<span class="nn">...</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+<input checked="checked" id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
+</input><label class="sd-tab-label" for="sd-tab-item-1">
+Fault Tolerant Config</label><div class="sd-tab-content docutils">
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nn">...</span><span class="w"></span>
+<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ray.io/v1alpha1</span><span class="w"></span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">RayService</span><span class="w"></span>
+<span class="nt">metadata</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rayservice-sample</span><span class="w"></span>
+<span class="w">  </span><span class="nt">annotations</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">ray.io/ft-enabled</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;true&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="nt">ray.io/external-storage-namespace</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;my-raycluster-storage-namespace&quot;</span><span class="w"></span>
+<span class="nt">spec</span><span class="p">:</span><span class="w"></span>
+<span class="nn">...</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The annotations are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ray.io/ft-enabled</span></code> (REQUIRED): Enables GCS fault tolerance when true</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ray.io/external-storage-namespace</span></code> (OPTIONAL): Sets the <a class="reference external" href="https://ray-project.github.io/kuberay/guidance/gcs-ft/#external-storage-namespace">external storage namespace</a></p></li>
+</ul>
+<p>Next, you need to add the <code class="docutils literal notranslate"><span class="pre">RAY_REDIS_ADDRESS</span></code> environment variable to the <code class="docutils literal notranslate"><span class="pre">headGroupSpec</span></code>:</p>
+<div class="sd-tab-set docutils">
+<input id="sd-tab-item-2" name="sd-tab-set-1" type="radio">
+</input><label class="sd-tab-label" for="sd-tab-item-2">
+Vanilla Config</label><div class="sd-tab-content docutils">
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ray.io/v1alpha1</span><span class="w"></span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">RayService</span><span class="w"></span>
+<span class="nt">metadata</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
+<span class="nt">spec</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">rayClusterConfig</span><span class="p p-Indicator">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">headGroupSpec</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
+<span class="w">            </span><span class="l l-Scalar l-Scalar-Plain">template</span><span class="p p-Indicator">:</span><span class="w"></span>
+<span class="w">                </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
+<span class="w">                </span><span class="l l-Scalar l-Scalar-Plain">spec</span><span class="p p-Indicator">:</span><span class="w"></span>
+<span class="w">                    </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
+<span class="w">                    </span><span class="l l-Scalar l-Scalar-Plain">env</span><span class="p p-Indicator">:</span><span class="w"></span>
+<span class="w">                        </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+<input checked="checked" id="sd-tab-item-3" name="sd-tab-set-1" type="radio">
+</input><label class="sd-tab-label" for="sd-tab-item-3">
+Fault Tolerant Config</label><div class="sd-tab-content docutils">
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ray.io/v1alpha1</span><span class="w"></span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">RayService</span><span class="w"></span>
+<span class="nt">metadata</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
+<span class="nt">spec</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">rayClusterConfig</span><span class="p p-Indicator">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">headGroupSpec</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
+<span class="w">            </span><span class="l l-Scalar l-Scalar-Plain">template</span><span class="p p-Indicator">:</span><span class="w"></span>
+<span class="w">                </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
+<span class="w">                </span><span class="l l-Scalar l-Scalar-Plain">spec</span><span class="p p-Indicator">:</span><span class="w"></span>
+<span class="w">                    </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
+<span class="w">                    </span><span class="l l-Scalar l-Scalar-Plain">env</span><span class="p p-Indicator">:</span><span class="w"></span>
+<span class="w">                        </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
+<span class="w">                        </span><span class="l l-Scalar l-Scalar-Plain">- name</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">RAY_REDIS_ADDRESS</span><span class="w"></span>
+<span class="w">                          </span><span class="l l-Scalar l-Scalar-Plain">value</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis:6379</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">RAY_REDIS_ADDRESS</span></code>’s value should be your Redis database’s <code class="docutils literal notranslate"><span class="pre">redis://</span></code> address. It should contain your Redis database’s host and port. An <a class="reference external" href="https://www.iana.org/assignments/uri-schemes/prov/rediss">example Redis address</a> is <code class="docutils literal notranslate"><span class="pre">redis://user:secret&#64;localhost:6379/0?foo=bar&amp;qux=baz</span></code>.</p>
+<p>In the example above, the Redis deployment name (<code class="docutils literal notranslate"><span class="pre">redis</span></code>) is the host within the Kubernetes cluster, and the Redis port is <code class="docutils literal notranslate"><span class="pre">6379</span></code>. The example is compatible with the previous section’s <a class="reference internal" href="fault-tolerance.html#one-node-redis-example"><span class="std std-ref">example config</span></a>.</p>
+<p>After you apply the Redis objects along with your updated <code class="docutils literal notranslate"><span class="pre">RayService</span></code>, your Ray cluster can recover from head node crashes without restarting all the workers!</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>Check out the KubeRay guide on <a class="reference external" href="https://ray-project.github.io/kuberay/guidance/gcs-ft/#ray-gcs-fault-tolerancegcs-ft-experimental">GCS fault tolerance</a> to learn more about how Serve leverages the external Redis cluster to provide head node fault tolerance.</p>
+</div>
+</section>
+</section>
+</section>
+<section id="serves-recovery-procedures">
+<span id="serve-e2e-ft-behavior"></span><h2>Serve’s recovery procedures<a class="headerlink" href="fault-tolerance.html#serves-recovery-procedures" title="Permalink to this headline">#</a></h2>
+<p>This section explains how Serve recovers from system failures. It uses the following Serve application and config as a working example.</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-4" name="sd-tab-set-2" type="radio">
+</input><label class="sd-tab-label" for="sd-tab-item-4">
+Python Code</label><div class="sd-tab-content docutils">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># File name: sleepy_pid.py</span>
+
+<span class="kn">from</span> <span class="nn">ray</span> <span class="kn">import</span> <span class="n">serve</span>
+
+
+<span class="nd">@serve</span><span class="o">.</span><span class="n">deployment</span>
+<span class="k">class</span> <span class="nc">SleepyPid</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">time</span>
+
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">os</span>
+
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span>
+
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">SleepyPid</span><span class="o">.</span><span class="n">bind</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-5" name="sd-tab-set-2" type="radio">
+</input><label class="sd-tab-label" for="sd-tab-item-5">
+Kubernetes Config</label><div class="sd-tab-content docutils">
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># File name: config.yaml</span><span class="w"></span>
+
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ConfigMap</span><span class="w"></span>
+<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span><span class="w"></span>
+<span class="nt">metadata</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis-config</span><span class="w"></span>
+<span class="w">  </span><span class="nt">labels</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis</span><span class="w"></span>
+<span class="nt">data</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">redis.conf</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|-</span><span class="w"></span>
+<span class="w">    </span><span class="no">port 6379</span><span class="w"></span>
+<span class="w">    </span><span class="no">bind 0.0.0.0</span><span class="w"></span>
+<span class="w">    </span><span class="no">protected-mode no</span><span class="w"></span>
+<span class="w">    </span><span class="no">requirepass 5241590000000000</span><span class="w"></span>
+<span class="nn">---</span><span class="w"></span>
+<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span><span class="w"></span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Service</span><span class="w"></span>
+<span class="nt">metadata</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis</span><span class="w"></span>
+<span class="w">  </span><span class="nt">labels</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis</span><span class="w"></span>
+<span class="nt">spec</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ClusterIP</span><span class="w"></span>
+<span class="w">  </span><span class="nt">ports</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis</span><span class="w"></span>
+<span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">6379</span><span class="w"></span>
+<span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis</span><span class="w"></span>
+<span class="nn">---</span><span class="w"></span>
+<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/v1</span><span class="w"></span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Deployment</span><span class="w"></span>
+<span class="nt">metadata</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis</span><span class="w"></span>
+<span class="w">  </span><span class="nt">labels</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis</span><span class="w"></span>
+<span class="nt">spec</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">replicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">matchLabels</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis</span><span class="w"></span>
+<span class="w">  </span><span class="nt">template</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">metadata</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">labels</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis</span><span class="w"></span>
+<span class="w">    </span><span class="nt">spec</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">containers</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis</span><span class="w"></span>
+<span class="w">          </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis:5.0.8</span><span class="w"></span>
+<span class="w">          </span><span class="nt">command</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;sh&quot;</span><span class="w"></span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;-c&quot;</span><span class="w"></span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;redis-server</span><span class="nv"> </span><span class="s">/usr/local/etc/redis/redis.conf&quot;</span><span class="w"></span>
+<span class="w">          </span><span class="nt">ports</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">containerPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">6379</span><span class="w"></span>
+<span class="w">          </span><span class="nt">volumeMounts</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">config</span><span class="w"></span>
+<span class="w">              </span><span class="nt">mountPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/usr/local/etc/redis/redis.conf</span><span class="w"></span>
+<span class="w">              </span><span class="nt">subPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis.conf</span><span class="w"></span>
+<span class="w">      </span><span class="nt">volumes</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">config</span><span class="w"></span>
+<span class="w">          </span><span class="nt">configMap</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis-config</span><span class="w"></span>
+<span class="nn">---</span><span class="w"></span>
+<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ray.io/v1alpha1</span><span class="w"></span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">RayService</span><span class="w"></span>
+<span class="nt">metadata</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rayservice-sample</span><span class="w"></span>
+<span class="w">  </span><span class="nt">annotations</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">ray.io/ft-enabled</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;true&quot;</span><span class="w"></span>
+<span class="nt">spec</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">serviceUnhealthySecondThreshold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">300</span><span class="w"></span>
+<span class="w">  </span><span class="nt">deploymentUnhealthySecondThreshold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">300</span><span class="w"></span>
+<span class="w">  </span><span class="nt">serveConfig</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">importPath</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;sleepy_pid:app&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="nt">runtimeEnv</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span><span class="w"></span>
+<span class="w">      </span><span class="no">working_dir: &quot;https://github.com/ray-project/serve_config_examples/archive/42d10bab77741b40d11304ad66d39a4ec2345247.zip&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="nt">deployments</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SleepyPid</span><span class="w"></span>
+<span class="w">        </span><span class="nt">numReplicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">6</span><span class="w"></span>
+<span class="w">        </span><span class="nt">rayActorOptions</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="nt">numCpus</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span><span class="w"></span>
+<span class="w">  </span><span class="nt">rayClusterConfig</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">rayVersion</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;2.3.0&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="nt">headGroupSpec</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">replicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">      </span><span class="nt">rayStartParams</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">num-cpus</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;2&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="nt">dashboard-host</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;0.0.0.0&#39;</span><span class="w"></span>
+<span class="w">        </span><span class="nt">redis-password</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;5241590000000000&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">template</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">spec</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="nt">containers</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ray-head</span><span class="w"></span>
+<span class="w">              </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rayproject/ray:2.3.0</span><span class="w"></span>
+<span class="w">              </span><span class="nt">imagePullPolicy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Always</span><span class="w"></span>
+<span class="w">              </span><span class="nt">env</span><span class="p">:</span><span class="w"></span>
+<span class="w">                </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MY_POD_IP</span><span class="w"></span>
+<span class="w">                  </span><span class="nt">valueFrom</span><span class="p">:</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">fieldRef</span><span class="p">:</span><span class="w"></span>
+<span class="w">                      </span><span class="nt">fieldPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">status.podIP</span><span class="w"></span>
+<span class="w">                </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">RAY_REDIS_ADDRESS</span><span class="w"></span>
+<span class="w">                  </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis:6379</span><span class="w"></span>
+<span class="w">              </span><span class="nt">resources</span><span class="p">:</span><span class="w"></span>
+<span class="w">                </span><span class="nt">limits</span><span class="p">:</span><span class="w"></span>
+<span class="w">                  </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span><span class="w"></span>
+<span class="w">                  </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2Gi</span><span class="w"></span>
+<span class="w">                </span><span class="nt">requests</span><span class="p">:</span><span class="w"></span>
+<span class="w">                  </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span><span class="w"></span>
+<span class="w">                  </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2Gi</span><span class="w"></span>
+<span class="w">              </span><span class="nt">ports</span><span class="p">:</span><span class="w"></span>
+<span class="w">                </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">containerPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">6379</span><span class="w"></span>
+<span class="w">                  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis</span><span class="w"></span>
+<span class="w">                </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">containerPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8265</span><span class="w"></span>
+<span class="w">                  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dashboard</span><span class="w"></span>
+<span class="w">                </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">containerPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10001</span><span class="w"></span>
+<span class="w">                  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">client</span><span class="w"></span>
+<span class="w">                </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">containerPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8000</span><span class="w"></span>
+<span class="w">                  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">serve</span><span class="w"></span>
+<span class="w">    </span><span class="nt">workerGroupSpecs</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">replicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span><span class="w"></span>
+<span class="w">        </span><span class="nt">minReplicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span><span class="w"></span>
+<span class="w">        </span><span class="nt">maxReplicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span><span class="w"></span>
+<span class="w">        </span><span class="nt">groupName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">small-group</span><span class="w"></span>
+<span class="w">        </span><span class="nt">rayStartParams</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="nt">node-ip-address</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$MY_POD_IP</span><span class="w"></span>
+<span class="w">        </span><span class="nt">template</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="nt">spec</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="nt">containers</span><span class="p">:</span><span class="w"></span>
+<span class="w">              </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">machine-learning</span><span class="w"></span>
+<span class="w">                </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rayproject/ray:2.3.0</span><span class="w"></span>
+<span class="w">                </span><span class="nt">imagePullPolicy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Always</span><span class="w"></span>
+<span class="w">                </span><span class="nt">env</span><span class="p">:</span><span class="w"></span>
+<span class="w">                  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">RAY_DISABLE_DOCKER_CPU_WARNING</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1&quot;</span><span class="w"></span>
+<span class="w">                  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TYPE</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;worker&quot;</span><span class="w"></span>
+<span class="w">                  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CPU_REQUEST</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">valueFrom</span><span class="p">:</span><span class="w"></span>
+<span class="w">                      </span><span class="nt">resourceFieldRef</span><span class="p">:</span><span class="w"></span>
+<span class="w">                        </span><span class="nt">containerName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">machine-learning</span><span class="w"></span>
+<span class="w">                        </span><span class="nt">resource</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">requests.cpu</span><span class="w"></span>
+<span class="w">                  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CPU_LIMITS</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">valueFrom</span><span class="p">:</span><span class="w"></span>
+<span class="w">                      </span><span class="nt">resourceFieldRef</span><span class="p">:</span><span class="w"></span>
+<span class="w">                        </span><span class="nt">containerName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">machine-learning</span><span class="w"></span>
+<span class="w">                        </span><span class="nt">resource</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">limits.cpu</span><span class="w"></span>
+<span class="w">                  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MEMORY_LIMITS</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">valueFrom</span><span class="p">:</span><span class="w"></span>
+<span class="w">                      </span><span class="nt">resourceFieldRef</span><span class="p">:</span><span class="w"></span>
+<span class="w">                        </span><span class="nt">containerName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">machine-learning</span><span class="w"></span>
+<span class="w">                        </span><span class="nt">resource</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">limits.memory</span><span class="w"></span>
+<span class="w">                  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MEMORY_REQUESTS</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">valueFrom</span><span class="p">:</span><span class="w"></span>
+<span class="w">                      </span><span class="nt">resourceFieldRef</span><span class="p">:</span><span class="w"></span>
+<span class="w">                        </span><span class="nt">containerName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">machine-learning</span><span class="w"></span>
+<span class="w">                        </span><span class="nt">resource</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">requests.memory</span><span class="w"></span>
+<span class="w">                  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MY_POD_NAME</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">valueFrom</span><span class="p">:</span><span class="w"></span>
+<span class="w">                      </span><span class="nt">fieldRef</span><span class="p">:</span><span class="w"></span>
+<span class="w">                        </span><span class="nt">fieldPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">metadata.name</span><span class="w"></span>
+<span class="w">                  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MY_POD_IP</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">valueFrom</span><span class="p">:</span><span class="w"></span>
+<span class="w">                      </span><span class="nt">fieldRef</span><span class="p">:</span><span class="w"></span>
+<span class="w">                        </span><span class="nt">fieldPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">status.podIP</span><span class="w"></span>
+<span class="w">                </span><span class="nt">ports</span><span class="p">:</span><span class="w"></span>
+<span class="w">                  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">containerPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">client</span><span class="w"></span>
+<span class="w">                </span><span class="nt">lifecycle</span><span class="p">:</span><span class="w"></span>
+<span class="w">                  </span><span class="nt">preStop</span><span class="p">:</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">exec</span><span class="p">:</span><span class="w"></span>
+<span class="w">                      </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;/bin/sh&quot;</span><span class="p p-Indicator">,</span><span class="s">&quot;-c&quot;</span><span class="p p-Indicator">,</span><span class="s">&quot;ray</span><span class="nv"> </span><span class="s">stop&quot;</span><span class="p p-Indicator">]</span><span class="w"></span>
+<span class="w">                </span><span class="nt">resources</span><span class="p">:</span><span class="w"></span>
+<span class="w">                  </span><span class="nt">limits</span><span class="p">:</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1&quot;</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2Gi&quot;</span><span class="w"></span>
+<span class="w">                  </span><span class="nt">requests</span><span class="p">:</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;500m&quot;</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2Gi&quot;</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Follow the <a class="reference internal" href="../../cluster/kubernetes/getting-started.html#kuberay-quickstart"><span class="std std-ref">KubeRay quickstart guide</span></a> to:</p>
+<ul class="simple">
+<li><p>Install <code class="docutils literal notranslate"><span class="pre">kubectl</span></code> and <code class="docutils literal notranslate"><span class="pre">Helm</span></code></p></li>
+<li><p>Prepare a Kubernetes cluster</p></li>
+<li><p>Deploy a KubeRay operator</p></li>
+</ul>
+<p>Then, <a class="reference internal" href="kubernetes.html#serve-deploy-app-on-kuberay"><span class="std std-ref">deploy the Serve application</span></a> above:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>kubectl apply -f config.yaml
+</pre></div>
+</div>
+<section id="worker-node-failure">
+<h3>Worker node failure<a class="headerlink" href="fault-tolerance.html#worker-node-failure" title="Permalink to this headline">#</a></h3>
+<p>You can simulate a worker node failure in the working example. First, take a look at the nodes and pods running in your Kubernetes cluster:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>kubectl get nodes
+
+<span class="go">NAME                                        STATUS   ROLES    AGE     VERSION</span>
+<span class="go">gke-serve-demo-default-pool-ed597cce-nvm2   Ready    &lt;none&gt;   3d22h   v1.22.12-gke.1200</span>
+<span class="go">gke-serve-demo-default-pool-ed597cce-m888   Ready    &lt;none&gt;   3d22h   v1.22.12-gke.1200</span>
+<span class="go">gke-serve-demo-default-pool-ed597cce-pu2q   Ready    &lt;none&gt;   3d22h   v1.22.12-gke.1200</span>
+
+<span class="gp">$ </span>kubectl get pods -o wide
+
+<span class="go">NAME                                                      READY   STATUS    RESTARTS        AGE    IP           NODE                                        NOMINATED NODE   READINESS GATES</span>
+<span class="go">ervice-sample-raycluster-thwmr-worker-small-group-bdv6q   1/1     Running   0               3m3s   10.68.2.62   gke-serve-demo-default-pool-ed597cce-nvm2   &lt;none&gt;           &lt;none&gt;</span>
+<span class="go">ervice-sample-raycluster-thwmr-worker-small-group-pztzk   1/1     Running   0               3m3s   10.68.2.61   gke-serve-demo-default-pool-ed597cce-m888   &lt;none&gt;           &lt;none&gt;</span>
+<span class="go">rayservice-sample-raycluster-thwmr-head-28mdh             1/1     Running   1 (2m55s ago)   3m3s   10.68.0.45   gke-serve-demo-default-pool-ed597cce-pu2q   &lt;none&gt;           &lt;none&gt;</span>
+<span class="go">redis-75c8b8b65d-4qgfz                                    1/1     Running   0               3m3s   10.68.2.60   gke-serve-demo-default-pool-ed597cce-nvm2   &lt;none&gt;           &lt;none&gt;</span>
+</pre></div>
+</div>
+<p>Open a separate terminal window and port-forward to one of the worker nodes:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>kubectl port-forward ervice-sample-raycluster-thwmr-worker-small-group-bdv6q <span class="m">8000</span>
+<span class="go">Forwarding from 127.0.0.1:8000 -&gt; 8000</span>
+<span class="go">Forwarding from [::1]:8000 -&gt; 8000</span>
+</pre></div>
+</div>
+<p>While the <code class="docutils literal notranslate"><span class="pre">port-forward</span></code> is running, you can query the application in another terminal window:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>curl localhost:8000
+<span class="go">418</span>
+</pre></div>
+</div>
+<p>The output is the process ID of the deployment replica that handled the request. The application launches 6 deployment replicas, so if you run the query multiple times, you should see different process IDs:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>curl localhost:8000
+<span class="go">418</span>
+<span class="gp">$ </span>curl localhost:8000
+<span class="go">256</span>
+<span class="gp">$ </span>curl localhost:8000
+<span class="go">385</span>
+</pre></div>
+</div>
+<p>Now you can simulate worker failures. You have two options: kill a worker pod or kill a worker node. Let’s start with the worker pod. Make sure to kill the pod that you’re <strong>not</strong> port-forwarding to, so you can continue querying the living worker while the other one relaunches.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>kubectl delete pod ervice-sample-raycluster-thwmr-worker-small-group-pztzk
+<span class="go">pod &quot;ervice-sample-raycluster-thwmr-worker-small-group-pztzk&quot; deleted</span>
+
+<span class="gp">$ </span>curl localhost:8000
+<span class="go">6318</span>
+</pre></div>
+</div>
+<p>While the pod crashes and recovers, the live pod can continue serving traffic!</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Killing a node and waiting for it to recover usually takes longer than killing a pod and waiting for it to recover. For this type of debugging, it’s quicker to simulate failures by killing at the pod level rather than at the node level.</p>
+</div>
+<p>You can similarly kill a worker node and see that the other nodes can continue serving traffic:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>kubectl get pods -o wide
+
+<span class="go">NAME                                                      READY   STATUS    RESTARTS      AGE     IP           NODE                                        NOMINATED NODE   READINESS GATES</span>
+<span class="go">ervice-sample-raycluster-thwmr-worker-small-group-bdv6q   1/1     Running   0             65m     10.68.2.62   gke-serve-demo-default-pool-ed597cce-nvm2   &lt;none&gt;           &lt;none&gt;</span>
+<span class="go">ervice-sample-raycluster-thwmr-worker-small-group-mznwq   1/1     Running   0             5m46s   10.68.1.3    gke-serve-demo-default-pool-ed597cce-m888   &lt;none&gt;           &lt;none&gt;</span>
+<span class="go">rayservice-sample-raycluster-thwmr-head-28mdh             1/1     Running   1 (65m ago)   65m     10.68.0.45   gke-serve-demo-default-pool-ed597cce-pu2q   &lt;none&gt;           &lt;none&gt;</span>
+<span class="go">redis-75c8b8b65d-4qgfz                                    1/1     Running   0             65m     10.68.2.60   gke-serve-demo-default-pool-ed597cce-nvm2   &lt;none&gt;           &lt;none&gt;</span>
+
+<span class="gp">$ </span>kubectl delete node gke-serve-demo-default-pool-ed597cce-m888
+<span class="go">node &quot;gke-serve-demo-default-pool-ed597cce-m888&quot; deleted</span>
+
+<span class="gp">$ </span>curl localhost:8000
+<span class="go">385</span>
+</pre></div>
+</div>
+</section>
+<section id="head-node-failure">
+<h3>Head node failure<a class="headerlink" href="fault-tolerance.html#head-node-failure" title="Permalink to this headline">#</a></h3>
+<p>You can simulate a head node failure by either killing the head pod or the head node. First, take a look at the running pods in your cluster:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>kubectl get pods -o wide
+
+<span class="go">NAME                                                      READY   STATUS    RESTARTS      AGE     IP           NODE                                        NOMINATED NODE   READINESS GATES</span>
+<span class="go">ervice-sample-raycluster-thwmr-worker-small-group-6f2pk   1/1     Running   0             6m59s   10.68.2.64   gke-serve-demo-default-pool-ed597cce-nvm2   &lt;none&gt;           &lt;none&gt;</span>
+<span class="go">ervice-sample-raycluster-thwmr-worker-small-group-bdv6q   1/1     Running   0             79m     10.68.2.62   gke-serve-demo-default-pool-ed597cce-nvm2   &lt;none&gt;           &lt;none&gt;</span>
+<span class="go">rayservice-sample-raycluster-thwmr-head-28mdh             1/1     Running   1 (79m ago)   79m     10.68.0.45   gke-serve-demo-default-pool-ed597cce-pu2q   &lt;none&gt;           &lt;none&gt;</span>
+<span class="go">redis-75c8b8b65d-4qgfz                                    1/1     Running   0             79m     10.68.2.60   gke-serve-demo-default-pool-ed597cce-nvm2   &lt;none&gt;           &lt;none&gt;</span>
+</pre></div>
+</div>
+<p>Port-forward to one of your worker pods. Make sure this pod is on a separate node from the head node, so you can kill the head node without crashing the worker:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>kubectl port-forward ervice-sample-raycluster-thwmr-worker-small-group-bdv6q
+<span class="go">Forwarding from 127.0.0.1:8000 -&gt; 8000</span>
+<span class="go">Forwarding from [::1]:8000 -&gt; 8000</span>
+</pre></div>
+</div>
+<p>In a separate terminal, you can make requests to the Serve application:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>curl localhost:8000
+<span class="go">418</span>
+</pre></div>
+</div>
+<p>You can kill the head pod to simulate killing the Ray head node:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>kubectl delete pod rayservice-sample-raycluster-thwmr-head-28mdh
+<span class="go">pod &quot;rayservice-sample-raycluster-thwmr-head-28mdh&quot; deleted</span>
+
+<span class="gp">$ </span>curl localhost:8000
+</pre></div>
+</div>
+<p>If you have configured <a class="reference internal" href="fault-tolerance.html#serve-e2e-ft-guide-gcs"><span class="std std-ref">GCS fault tolerance</span></a> on your cluster, your worker pod can continue serving traffic without restarting when the head pod crashes and recovers. Without GCS fault tolerance, KubeRay restarts all worker pods when the head pod crashes, so you’ll need to wait for the workers to restart and the deployments to reinitialize before you can port-forward and send more requests.</p>
+</section>
+<section id="serve-controller-failure">
+<h3>Serve controller failure<a class="headerlink" href="fault-tolerance.html#serve-controller-failure" title="Permalink to this headline">#</a></h3>
+<p>You can simulate a Serve controller failure by manually killing the Serve actor.</p>
+<p>If you’re running KubeRay, <code class="docutils literal notranslate"><span class="pre">exec</span></code> into one of your pods:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>kubectl get pods
+
+<span class="go">NAME                                                      READY   STATUS    RESTARTS   AGE</span>
+<span class="go">ervice-sample-raycluster-mx5x6-worker-small-group-hfhnw   1/1     Running   0          118m</span>
+<span class="go">ervice-sample-raycluster-mx5x6-worker-small-group-nwcpb   1/1     Running   0          118m</span>
+<span class="go">rayservice-sample-raycluster-mx5x6-head-bqjhw             1/1     Running   0          118m</span>
+<span class="go">redis-75c8b8b65d-4qgfz                                    1/1     Running   0          3h36m</span>
+
+<span class="gp">$ </span>kubectl <span class="nb">exec</span> -it rayservice-sample-raycluster-mx5x6-head-bqjhw -- bash
+<span class="gp">ray@rayservice-sample-raycluster-mx5x6-head-bqjhw:~$</span>
+</pre></div>
+</div>
+<p>You can use the <a class="reference internal" href="../../ray-observability/reference/cli.html#state-api-cli-ref"><span class="std std-ref">Ray State API</span></a> to inspect your Serve app:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ray summary actors
+
+<span class="go">======== Actors Summary: 2022-10-04 21:06:33.678706 ========</span>
+<span class="go">Stats:</span>
+<span class="go">------------------------------------</span>
+<span class="go">total_actors: 10</span>
+
+
+<span class="go">Table (group by class):</span>
+<span class="go">------------------------------------</span>
+<span class="go">    CLASS_NAME              STATE_COUNTS</span>
+<span class="go">0   HTTPProxyActor          ALIVE: 3</span>
+<span class="go">1   ServeReplica:SleepyPid  ALIVE: 6</span>
+<span class="go">2   ServeController         ALIVE: 1</span>
+
+<span class="gp">$ </span>ray list actors --filter <span class="s2">&quot;class_name=ServeController&quot;</span>
+
+<span class="go">======== List: 2022-10-04 21:09:14.915881 ========</span>
+<span class="go">Stats:</span>
+<span class="go">------------------------------</span>
+<span class="go">Total: 1</span>
+
+<span class="go">Table:</span>
+<span class="go">------------------------------</span>
+<span class="go">    ACTOR_ID                          CLASS_NAME       STATE    NAME                      PID</span>
+<span class="go"> 0  70a718c973c2ce9471d318f701000000  ServeController  ALIVE    SERVE_CONTROLLER_ACTOR  48570</span>
+</pre></div>
+</div>
+<p>You can then kill the Serve controller via the Python interpreter. Note that you’ll need to use the <code class="docutils literal notranslate"><span class="pre">NAME</span></code> from the <code class="docutils literal notranslate"><span class="pre">ray</span> <span class="pre">list</span> <span class="pre">actor</span></code> output to get a handle to the Serve controller.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python
+
+<span class="go">&gt;&gt;&gt; import ray</span>
+<span class="go">&gt;&gt;&gt; controller_handle = ray.get_actor(&quot;SERVE_CONTROLLER_ACTOR&quot;, namespace=&quot;serve&quot;)</span>
+<span class="go">&gt;&gt;&gt; ray.kill(controller_handle, no_restart=True)</span>
+<span class="go">&gt;&gt;&gt; exit()</span>
+</pre></div>
+</div>
+<p>You can use the Ray State API to check the controller’s status:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ray list actors --filter <span class="s2">&quot;class_name=ServeController&quot;</span>
+
+<span class="go">======== List: 2022-10-04 21:36:37.157754 ========</span>
+<span class="go">Stats:</span>
+<span class="go">------------------------------</span>
+<span class="go">Total: 2</span>
+
+<span class="go">Table:</span>
+<span class="go">------------------------------</span>
+<span class="go">    ACTOR_ID                          CLASS_NAME       STATE    NAME                      PID</span>
+<span class="go"> 0  3281133ee86534e3b707190b01000000  ServeController  ALIVE    SERVE_CONTROLLER_ACTOR  49914</span>
+<span class="go"> 1  70a718c973c2ce9471d318f701000000  ServeController  DEAD     SERVE_CONTROLLER_ACTOR  48570</span>
+</pre></div>
+</div>
+<p>You should still be able to query your deployments while the controller is recovering:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># If you&#39;re running KubeRay, you
+# can do this from inside the pod:
+
+$ python
+
+&gt;&gt;&gt; import requests
+&gt;&gt;&gt; requests.get(&quot;http://localhost:8000&quot;).json()
+347
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>While the controller is dead, replica health-checking and deployment autoscaling will not work. They’ll continue working once the controller recovers.</p>
+</div>
+</section>
+<section id="deployment-replica-failure">
+<h3>Deployment replica failure<a class="headerlink" href="fault-tolerance.html#deployment-replica-failure" title="Permalink to this headline">#</a></h3>
+<p>You can simulate replica failures by manually killing deployment replicas. If you’re running KubeRay, make sure to <code class="docutils literal notranslate"><span class="pre">exec</span></code> into a Ray pod before running these commands.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ray summary actors
+
+<span class="go">======== Actors Summary: 2022-10-04 21:40:36.454488 ========</span>
+<span class="go">Stats:</span>
+<span class="go">------------------------------------</span>
+<span class="go">total_actors: 11</span>
+
+
+<span class="go">Table (group by class):</span>
+<span class="go">------------------------------------</span>
+<span class="go">    CLASS_NAME              STATE_COUNTS</span>
+<span class="go">0   HTTPProxyActor          ALIVE: 3</span>
+<span class="go">1   ServeController         ALIVE: 1</span>
+<span class="go">2   ServeReplica:SleepyPid  ALIVE: 6</span>
+
+<span class="gp">$ </span>ray list actors --filter <span class="s2">&quot;class_name=ServeReplica:SleepyPid&quot;</span>
+
+<span class="go">======== List: 2022-10-04 21:41:32.151864 ========</span>
+<span class="go">Stats:</span>
+<span class="go">------------------------------</span>
+<span class="go">Total: 6</span>
+
+<span class="go">Table:</span>
+<span class="go">------------------------------</span>
+<span class="go">    ACTOR_ID                          CLASS_NAME              STATE    NAME                               PID</span>
+<span class="go"> 0  39e08b172e66a5d22b2b4cf401000000  ServeReplica:SleepyPid  ALIVE    SERVE_REPLICA::SleepyPid#RlRptP    203</span>
+<span class="go"> 1  55d59bcb791a1f9353cd34e301000000  ServeReplica:SleepyPid  ALIVE    SERVE_REPLICA::SleepyPid#BnoOtj    348</span>
+<span class="go"> 2  8c34e675edf7b6695461d13501000000  ServeReplica:SleepyPid  ALIVE    SERVE_REPLICA::SleepyPid#SakmRM    283</span>
+<span class="go"> 3  a95405318047c5528b7483e701000000  ServeReplica:SleepyPid  ALIVE    SERVE_REPLICA::SleepyPid#rUigUh    347</span>
+<span class="go"> 4  c531188fede3ebfc868b73a001000000  ServeReplica:SleepyPid  ALIVE    SERVE_REPLICA::SleepyPid#gbpoFe    383</span>
+<span class="go"> 5  de8dfa16839443f940fe725f01000000  ServeReplica:SleepyPid  ALIVE    SERVE_REPLICA::SleepyPid#PHvdJW    176</span>
+</pre></div>
+</div>
+<p>You can use the <code class="docutils literal notranslate"><span class="pre">NAME</span></code> from the <code class="docutils literal notranslate"><span class="pre">ray</span> <span class="pre">list</span> <span class="pre">actor</span></code> output to get a handle to one of the replicas:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python
+
+<span class="go">&gt;&gt;&gt; import ray</span>
+<span class="go">&gt;&gt;&gt; replica_handle = ray.get_actor(&quot;SERVE_REPLICA::SleepyPid#RlRptP&quot;, namespace=&quot;serve&quot;)</span>
+<span class="go">&gt;&gt;&gt; ray.kill(replica_handle, no_restart=True)</span>
+<span class="go">&gt;&gt;&gt; exit()</span>
+</pre></div>
+</div>
+<p>While the replica is restarted, the other replicas can continue processing requests. Eventually the replica restarts and continues serving requests:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python
+
+<span class="go">&gt;&gt;&gt; import requests</span>
+<span class="go">&gt;&gt;&gt; requests.get(&quot;http://localhost:8000&quot;).json()</span>
+<span class="go">383</span>
+</pre></div>
+</div>
+</section>
+<section id="httpproxy-failure">
+<h3>HTTPProxy failure<a class="headerlink" href="fault-tolerance.html#httpproxy-failure" title="Permalink to this headline">#</a></h3>
+<p>You can simulate HTTPProxy failures by manually killing deployment replicas. If you’re running KubeRay, make sure to <code class="docutils literal notranslate"><span class="pre">exec</span></code> into a Ray pod before running these commands.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ray summary actors
+
+<span class="go">======== Actors Summary: 2022-10-04 21:51:55.903800 ========</span>
+<span class="go">Stats:</span>
+<span class="go">------------------------------------</span>
+<span class="go">total_actors: 12</span>
+
+
+<span class="go">Table (group by class):</span>
+<span class="go">------------------------------------</span>
+<span class="go">    CLASS_NAME              STATE_COUNTS</span>
+<span class="go">0   HTTPProxyActor          ALIVE: 3</span>
+<span class="go">1   ServeController         ALIVE: 1</span>
+<span class="go">2   ServeReplica:SleepyPid  ALIVE: 6</span>
+
+<span class="gp">$ </span>ray list actors --filter <span class="s2">&quot;class_name=HTTPProxyActor&quot;</span>
+
+<span class="go">======== List: 2022-10-04 21:52:39.853758 ========</span>
+<span class="go">Stats:</span>
+<span class="go">------------------------------</span>
+<span class="go">Total: 3</span>
+
+<span class="go">Table:</span>
+<span class="go">------------------------------</span>
+<span class="go">    ACTOR_ID                          CLASS_NAME      STATE    NAME                                                                                                 PID</span>
+<span class="go"> 0  283fc11beebb6149deb608eb01000000  HTTPProxyActor  ALIVE    SERVE_CONTROLLER_ACTOR:SERVE_PROXY_ACTOR-91f9a685e662313a0075efcb7fd894249a5bdae7ee88837bea7985a0    101</span>
+<span class="go"> 1  2b010ce28baeff5cb6cb161e01000000  HTTPProxyActor  ALIVE    SERVE_CONTROLLER_ACTOR:SERVE_PROXY_ACTOR-cc262f3dba544a49ea617d5611789b5613f8fe8c86018ef23c0131eb    133</span>
+<span class="go"> 2  7abce9dd241b089c1172e9ca01000000  HTTPProxyActor  ALIVE    SERVE_CONTROLLER_ACTOR:SERVE_PROXY_ACTOR-7589773fc62e08c2679847aee9416805bbbf260bee25331fa3389c4f    267</span>
+</pre></div>
+</div>
+<p>You can use the <code class="docutils literal notranslate"><span class="pre">NAME</span></code> from the <code class="docutils literal notranslate"><span class="pre">ray</span> <span class="pre">list</span> <span class="pre">actor</span></code> output to get a handle to one of the replicas:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python
+
+<span class="go">&gt;&gt;&gt; import ray</span>
+<span class="go">&gt;&gt;&gt; proxy_handle = ray.get_actor(&quot;SERVE_CONTROLLER_ACTOR:SERVE_PROXY_ACTOR-91f9a685e662313a0075efcb7fd894249a5bdae7ee88837bea7985a0&quot;, namespace=&quot;serve&quot;)</span>
+<span class="go">&gt;&gt;&gt; ray.kill(proxy_handle, no_restart=False)</span>
+<span class="go">&gt;&gt;&gt; exit()</span>
+</pre></div>
+</div>
+<p>While the proxy is restarted, the other proxies can continue accepting requests. Eventually the proxy restarts and continues accepting requests. You can use the <code class="docutils literal notranslate"><span class="pre">ray</span> <span class="pre">list</span> <span class="pre">actor</span></code> command to see when the proxy restarts:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ray list actors --filter <span class="s2">&quot;class_name=HTTPProxyActor&quot;</span>
+
+<span class="go">======== List: 2022-10-04 21:58:41.193966 ========</span>
+<span class="go">Stats:</span>
+<span class="go">------------------------------</span>
+<span class="go">Total: 3</span>
+
+<span class="go">Table:</span>
+<span class="go">------------------------------</span>
+<span class="go">    ACTOR_ID                          CLASS_NAME      STATE    NAME                                                                                                 PID</span>
+<span class="go"> 0  283fc11beebb6149deb608eb01000000  HTTPProxyActor  ALIVE     SERVE_CONTROLLER_ACTOR:SERVE_PROXY_ACTOR-91f9a685e662313a0075efcb7fd894249a5bdae7ee88837bea7985a0  57317</span>
+<span class="go"> 1  2b010ce28baeff5cb6cb161e01000000  HTTPProxyActor  ALIVE    SERVE_CONTROLLER_ACTOR:SERVE_PROXY_ACTOR-cc262f3dba544a49ea617d5611789b5613f8fe8c86018ef23c0131eb    133</span>
+<span class="go"> 2  7abce9dd241b089c1172e9ca01000000  HTTPProxyActor  ALIVE    SERVE_CONTROLLER_ACTOR:SERVE_PROXY_ACTOR-7589773fc62e08c2679847aee9416805bbbf260bee25331fa3389c4f    267</span>
+</pre></div>
+</div>
+<p>Note that the PID for the first HTTPProxyActor has changed, indicating that it restarted.</p>
+</section>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="kubernetes.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Deploy on Kubernetes</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="handling-dependencies.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Handle Dependencies</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

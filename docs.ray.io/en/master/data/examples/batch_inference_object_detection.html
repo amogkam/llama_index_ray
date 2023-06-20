@@ -1,0 +1,1543 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Object Detection Batch Inference with PyTorch &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/js/versionwarning.js"></script>
+    <script src="../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../_static/js/docsearch.js"></script>
+    <script src="../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../_static/js/top-navigation.js"></script>
+    <script src="../../_static/js/tags.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/data/examples/batch_inference_object_detection.html" />
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Processing NYC taxi data using Ray Data" href="nyc_taxi_basic_processing.html" />
+    <link rel="prev" title="Image Classification Batch Inference with PyTorch" href="pytorch_resnet_batch_prediction.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "data/examples/batch_inference_object_detection", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".ipynb", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../data.html">
+   Ray Data
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../overview.html">
+     Overview
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../getting-started.html">
+     Getting Started
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../user-guide.html">
+     User Guides
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="index.html">
+     Ray Data Examples
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="huggingface_vit_batch_prediction.html">
+       Image Classification Batch Inference with Huggingface Vision Transformer
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="pytorch_resnet_batch_prediction.html">
+       Image Classification Batch Inference with PyTorch
+      </a>
+     </li>
+     <li class="toctree-l3 current active">
+      <a class="current reference internal" href="batch_inference_object_detection.html#">
+       Object Detection Batch Inference with PyTorch
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="nyc_taxi_basic_processing.html">
+       Processing NYC taxi data using Ray Data
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="batch_training.html">
+       Batch Training with Ray Data
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="ocr_example.html">
+       Scaling OCR using Ray Data
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="random-access.html">
+       Random Data Access (Experimental)
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="custom-datasource.html">
+       Implementing a Custom Datasource
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../faq.html">
+     FAQ
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/api.html">
+     Ray Data API
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tune.html">
+   Ray Tune
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Fdata/examples/batch_inference_object_detection.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/data/examples/batch_inference_object_detection.ipynb"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../_sources/data/examples/batch_inference_object_detection.ipynb.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.ipynb</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="batch_inference_object_detection.html#before-you-begin">
+   Before You Begin
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="batch_inference_object_detection.html#object-detection-on-a-single-image-with-pytorch">
+   Object Detection on a single Image with PyTorch
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="batch_inference_object_detection.html#scaling-with-ray-data">
+   Scaling with Ray Data
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="batch_inference_object_detection.html#loading-the-image-dataset">
+     Loading the Image Dataset
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="batch_inference_object_detection.html#batch-inference-with-ray-data">
+     Batch inference with Ray Data
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="batch_inference_object_detection.html#preprocessing">
+       Preprocessing
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="batch_inference_object_detection.html#model-inference">
+       Model inference
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="batch_inference_object_detection.html#verify-and-save-results">
+     Verify and Save Results
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Object Detection Batch Inference with PyTorch</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="batch_inference_object_detection.html#before-you-begin">
+   Before You Begin
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="batch_inference_object_detection.html#object-detection-on-a-single-image-with-pytorch">
+   Object Detection on a single Image with PyTorch
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="batch_inference_object_detection.html#scaling-with-ray-data">
+   Scaling with Ray Data
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="batch_inference_object_detection.html#loading-the-image-dataset">
+     Loading the Image Dataset
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="batch_inference_object_detection.html#batch-inference-with-ray-data">
+     Batch inference with Ray Data
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="batch_inference_object_detection.html#preprocessing">
+       Preprocessing
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="batch_inference_object_detection.html#model-inference">
+       Model inference
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="batch_inference_object_detection.html#verify-and-save-results">
+     Verify and Save Results
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section class="tex2jax_ignore mathjax_ignore" id="object-detection-batch-inference-with-pytorch">
+<h1>Object Detection Batch Inference with PyTorch<a class="headerlink" href="batch_inference_object_detection.html#object-detection-batch-inference-with-pytorch" title="Permalink to this headline">#</a></h1>
+<p>This example demonstrates how to do object detection batch inference at scale with a pre-trained PyTorch model and <a class="reference internal" href="../data.html#data"><span class="std std-ref">Ray Data</span></a>.</p>
+<p>Here is what you’ll do:</p>
+<ol class="simple">
+<li><p>Perform object detection on a single image with a pre-trained PyTorch model.</p></li>
+<li><p>Scale the PyTorch model with Ray Data, and perform object detection batch inference on a large set of images.</p></li>
+<li><p>Verify the inference results and save them to an external storage.</p></li>
+<li><p>Learn how to use Ray Data with GPUs.</p></li>
+</ol>
+<section id="before-you-begin">
+<h2>Before You Begin<a class="headerlink" href="batch_inference_object_detection.html#before-you-begin" title="Permalink to this headline">#</a></h2>
+<p>Install the following dependencies if you haven’t already.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>pip install <span class="s2">&quot;ray[data]&quot;</span> torchvision
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="object-detection-on-a-single-image-with-pytorch">
+<h2>Object Detection on a single Image with PyTorch<a class="headerlink" href="batch_inference_object_detection.html#object-detection-on-a-single-image-with-pytorch" title="Permalink to this headline">#</a></h2>
+<p>Before diving into Ray Data, let’s take a look at this <a class="reference external" href="https://pytorch.org/vision/stable/models.html#object-detection">object detection example</a> from PyTorch’s official documentation. The example  used a pre-trained model (<a class="reference external" href="https://pytorch.org/vision/main/models/generated/torchvision.models.detection.fasterrcnn_resnet50_fpn.html">FasterRCNN_ResNet50</a>) to do object detection inference on a single image.</p>
+<p>First, download an image from the Internet.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+
+<span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://s3-us-west-2.amazonaws.com/air-example-data/AnimalDetection/JPEGImages/2007_000063.jpg&quot;</span>
+<span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">raw</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../../_images/batch_inference_object_detection_3_0.png" src="../../_images/batch_inference_object_detection_3_0.png" />
+</div>
+</div>
+<p>Second, load and intialize a pre-trained PyTorch model.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">torchvision</span> <span class="kn">import</span> <span class="n">transforms</span>
+<span class="kn">from</span> <span class="nn">torchvision.models.detection</span> <span class="kn">import</span> <span class="n">fasterrcnn_resnet50_fpn_v2</span><span class="p">,</span> <span class="n">FasterRCNN_ResNet50_FPN_V2_Weights</span>
+
+<span class="n">weights</span> <span class="o">=</span> <span class="n">FasterRCNN_ResNet50_FPN_V2_Weights</span><span class="o">.</span><span class="n">DEFAULT</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">fasterrcnn_resnet50_fpn_v2</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span> <span class="n">box_score_thresh</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>FasterRCNN(
+  (transform): GeneralizedRCNNTransform(
+      Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+      Resize(min_size=(800,), max_size=1333, mode=&#39;bilinear&#39;)
+  )
+  (backbone): BackboneWithFPN(
+    (body): IntermediateLayerGetter(
+      (conv1): Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+      (maxpool): MaxPool2d(kernel_size=3, stride=2, padding=1, dilation=1, ceil_mode=False)
+      (layer1): Sequential(
+        (0): Bottleneck(
+          (conv1): Conv2d(64, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+          (bn2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv3): Conv2d(64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (bn3): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (relu): ReLU(inplace=True)
+          (downsample): Sequential(
+            (0): Conv2d(64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+            (1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          )
+        )
+        (1): Bottleneck(
+          (conv1): Conv2d(256, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+          (bn2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv3): Conv2d(64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (bn3): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (relu): ReLU(inplace=True)
+        )
+        (2): Bottleneck(
+          (conv1): Conv2d(256, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+          (bn2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv3): Conv2d(64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (bn3): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (relu): ReLU(inplace=True)
+        )
+      )
+      (layer2): Sequential(
+        (0): Bottleneck(
+          (conv1): Conv2d(256, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False)
+          (bn2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv3): Conv2d(128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (bn3): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (relu): ReLU(inplace=True)
+          (downsample): Sequential(
+            (0): Conv2d(256, 512, kernel_size=(1, 1), stride=(2, 2), bias=False)
+            (1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          )
+        )
+        (1): Bottleneck(
+          (conv1): Conv2d(512, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+          (bn2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv3): Conv2d(128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (bn3): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (relu): ReLU(inplace=True)
+        )
+        (2): Bottleneck(
+          (conv1): Conv2d(512, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+          (bn2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv3): Conv2d(128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (bn3): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (relu): ReLU(inplace=True)
+        )
+        (3): Bottleneck(
+          (conv1): Conv2d(512, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+          (bn2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv3): Conv2d(128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (bn3): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (relu): ReLU(inplace=True)
+        )
+      )
+      (layer3): Sequential(
+        (0): Bottleneck(
+          (conv1): Conv2d(512, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False)
+          (bn2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (relu): ReLU(inplace=True)
+          (downsample): Sequential(
+            (0): Conv2d(512, 1024, kernel_size=(1, 1), stride=(2, 2), bias=False)
+            (1): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          )
+        )
+        (1): Bottleneck(
+          (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+          (bn2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (relu): ReLU(inplace=True)
+        )
+        (2): Bottleneck(
+          (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+          (bn2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (relu): ReLU(inplace=True)
+        )
+        (3): Bottleneck(
+          (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+          (bn2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (relu): ReLU(inplace=True)
+        )
+        (4): Bottleneck(
+          (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+          (bn2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (relu): ReLU(inplace=True)
+        )
+        (5): Bottleneck(
+          (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+          (bn2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (relu): ReLU(inplace=True)
+        )
+      )
+      (layer4): Sequential(
+        (0): Bottleneck(
+          (conv1): Conv2d(1024, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv2): Conv2d(512, 512, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False)
+          (bn2): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv3): Conv2d(512, 2048, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (bn3): BatchNorm2d(2048, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (relu): ReLU(inplace=True)
+          (downsample): Sequential(
+            (0): Conv2d(1024, 2048, kernel_size=(1, 1), stride=(2, 2), bias=False)
+            (1): BatchNorm2d(2048, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          )
+        )
+        (1): Bottleneck(
+          (conv1): Conv2d(2048, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv2): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+          (bn2): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv3): Conv2d(512, 2048, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (bn3): BatchNorm2d(2048, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (relu): ReLU(inplace=True)
+        )
+        (2): Bottleneck(
+          (conv1): Conv2d(2048, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv2): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+          (bn2): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv3): Conv2d(512, 2048, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (bn3): BatchNorm2d(2048, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (relu): ReLU(inplace=True)
+        )
+      )
+    )
+    (fpn): FeaturePyramidNetwork(
+      (inner_blocks): ModuleList(
+        (0): Conv2dNormActivation(
+          (0): Conv2d(256, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+        (1): Conv2dNormActivation(
+          (0): Conv2d(512, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+        (2): Conv2dNormActivation(
+          (0): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+        (3): Conv2dNormActivation(
+          (0): Conv2d(2048, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+      )
+      (layer_blocks): ModuleList(
+        (0-3): 4 x Conv2dNormActivation(
+          (0): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+          (1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+      )
+      (extra_blocks): LastLevelMaxPool()
+    )
+  )
+  (rpn): RegionProposalNetwork(
+    (anchor_generator): AnchorGenerator()
+    (head): RPNHead(
+      (conv): Sequential(
+        (0): Conv2dNormActivation(
+          (0): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (1): ReLU(inplace=True)
+        )
+        (1): Conv2dNormActivation(
+          (0): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (1): ReLU(inplace=True)
+        )
+      )
+      (cls_logits): Conv2d(256, 3, kernel_size=(1, 1), stride=(1, 1))
+      (bbox_pred): Conv2d(256, 12, kernel_size=(1, 1), stride=(1, 1))
+    )
+  )
+  (roi_heads): RoIHeads(
+    (box_roi_pool): MultiScaleRoIAlign(featmap_names=[&#39;0&#39;, &#39;1&#39;, &#39;2&#39;, &#39;3&#39;], output_size=(7, 7), sampling_ratio=2)
+    (box_head): FastRCNNConvFCHead(
+      (0): Conv2dNormActivation(
+        (0): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (2): ReLU(inplace=True)
+      )
+      (1): Conv2dNormActivation(
+        (0): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (2): ReLU(inplace=True)
+      )
+      (2): Conv2dNormActivation(
+        (0): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (2): ReLU(inplace=True)
+      )
+      (3): Conv2dNormActivation(
+        (0): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (2): ReLU(inplace=True)
+      )
+      (4): Flatten(start_dim=1, end_dim=-1)
+      (5): Linear(in_features=12544, out_features=1024, bias=True)
+      (6): ReLU(inplace=True)
+    )
+    (box_predictor): FastRCNNPredictor(
+      (cls_score): Linear(in_features=1024, out_features=91, bias=True)
+      (bbox_pred): Linear(in_features=1024, out_features=364, bias=True)
+    )
+  )
+)
+</pre></div>
+</div>
+</div>
+</div>
+<p>Then apply the preprocessing transforms.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">img</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span><span class="n">transforms</span><span class="o">.</span><span class="n">PILToTensor</span><span class="p">()])(</span><span class="n">img</span><span class="p">)</span>
+<span class="n">preprocess</span> <span class="o">=</span> <span class="n">weights</span><span class="o">.</span><span class="n">transforms</span><span class="p">()</span>
+<span class="n">batch</span> <span class="o">=</span> <span class="p">[</span><span class="n">preprocess</span><span class="p">(</span><span class="n">img</span><span class="p">)]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Then use the model for inference.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">prediction</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">batch</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Lastly, visualize the result.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">torchvision.utils</span> <span class="kn">import</span> <span class="n">draw_bounding_boxes</span>
+<span class="kn">from</span> <span class="nn">torchvision.transforms.functional</span> <span class="kn">import</span> <span class="n">to_pil_image</span>
+
+<span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">weights</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;categories&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;labels&quot;</span><span class="p">]]</span>
+<span class="n">box</span> <span class="o">=</span> <span class="n">draw_bounding_boxes</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> 
+                          <span class="n">boxes</span><span class="o">=</span><span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;boxes&quot;</span><span class="p">],</span>
+                          <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
+                          <span class="n">colors</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span>
+                          <span class="n">width</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">im</span> <span class="o">=</span> <span class="n">to_pil_image</span><span class="p">(</span><span class="n">box</span><span class="o">.</span><span class="n">detach</span><span class="p">())</span>
+<span class="n">display</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../../_images/batch_inference_object_detection_11_0.png" src="../../_images/batch_inference_object_detection_11_0.png" />
+</div>
+</div>
+</section>
+<section id="scaling-with-ray-data">
+<h2>Scaling with Ray Data<a class="headerlink" href="batch_inference_object_detection.html#scaling-with-ray-data" title="Permalink to this headline">#</a></h2>
+<p>Then let’s see how to scale the previous example to a large set of images. We will use Ray Data to do batch inference in a distributed fashion, leveraging all the CPU and GPU resources in our cluster.</p>
+<section id="loading-the-image-dataset">
+<h3>Loading the Image Dataset<a class="headerlink" href="batch_inference_object_detection.html#loading-the-image-dataset" title="Permalink to this headline">#</a></h3>
+<p>The dataset that we will be using is a subset of <a class="reference external" href="http://host.robots.ox.ac.uk/pascal/VOC/">Pascal VOC</a> that contains cats and dogs (the full dataset has 20 classes). There are 2434 images in the this dataset.</p>
+<p>First, we use the <a class="reference internal" href="../api/doc/ray.data.read_images.html#ray.data.read_images" title="ray.data.read_images"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ray.data.read_images</span></code></a> API to load a prepared image dataset from S3. We can use the <a class="reference internal" href="../api/doc/ray.data.Dataset.schema.html#ray.data.Dataset.schema" title="ray.data.Dataset.schema"><code class="xref py py-meth docutils literal notranslate"><span class="pre">schema</span></code></a> API to check the schema of the dataset. As we can see, it has one column named “image”, and the value is the image data represented in <code class="docutils literal notranslate"><span class="pre">np.ndarray</span></code> format.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ray</span>
+
+<span class="n">ds</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">read_images</span><span class="p">(</span><span class="s2">&quot;s3://anonymous@air-example-data/AnimalDetection/JPEGImages&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">schema</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2023-05-19 18:10:29]  INFO ray._private.worker::Started a local Ray instance. View the dashboard at <span class=" -Color -Color-Bold -Color-Bold-Green">127.0.0.1:8265 </span>
+[2023-05-19 18:10:35] [Ray Data] WARNING ray.data.dataset::<span class=" -Color -Color-Yellow">Important: Ray Data requires schemas for all datasets in Ray 2.5. This means that standalone Python objects are no longer supported. In addition, the default batch format is fixed to NumPy. To revert to legacy behavior temporarily, set the environment variable RAY_DATA_STRICT_MODE=0 on all cluster processes.</span>
+
+<span class=" -Color -Color-Yellow">Learn more here: https://docs.ray.io/en/master/data/faq.html#migrating-to-strict-mode</span>
+</pre></div>
+</div>
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Column  Type
+------  ----
+image   numpy.ndarray(ndim=3, dtype=uint8)
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="batch-inference-with-ray-data">
+<h3>Batch inference with Ray Data<a class="headerlink" href="batch_inference_object_detection.html#batch-inference-with-ray-data" title="Permalink to this headline">#</a></h3>
+<p>As we can see from the PyTorch example, model inference consists of 2 steps: preprocessing the image and model inference.</p>
+<section id="preprocessing">
+<h4>Preprocessing<a class="headerlink" href="batch_inference_object_detection.html#preprocessing" title="Permalink to this headline">#</a></h4>
+<p>First let’s convert the preprocessing code to Ray Data. We’ll package the preprocessing code within a <code class="docutils literal notranslate"><span class="pre">preprocess_image</span></code> function. This function should take only one argument, which is a dict that contains a single image in the dataset, represented as a numpy array.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torchvision</span> <span class="kn">import</span> <span class="n">transforms</span>
+<span class="kn">from</span> <span class="nn">torchvision.models.detection</span> <span class="kn">import</span> <span class="p">(</span><span class="n">FasterRCNN_ResNet50_FPN_V2_Weights</span><span class="p">,</span>
+                                          <span class="n">fasterrcnn_resnet50_fpn_v2</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
+
+
+<span class="k">def</span> <span class="nf">preprocess_image</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="n">weights</span> <span class="o">=</span> <span class="n">FasterRCNN_ResNet50_FPN_V2_Weights</span><span class="o">.</span><span class="n">DEFAULT</span>
+    <span class="n">preprocessor</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span> <span class="n">weights</span><span class="o">.</span><span class="n">transforms</span><span class="p">()]</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;image&quot;</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;image&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;transformed&quot;</span><span class="p">:</span> <span class="n">preprocessor</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;image&quot;</span><span class="p">]),</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Then we use the <code class="xref py py-meth docutils literal notranslate"><span class="pre">map</span></code> API to apply the function to the whole dataset. By using Ray Data’s map, we can scale out the preprocessing to all the resources in our Ray cluster Note, the <code class="docutils literal notranslate"><span class="pre">map</span></code> method is lazy, it won’t perform execution until we start to consume the results.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">preprocess_image</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2023-05-19 18:10:37] [Ray Data] WARNING ray.data.dataset::The `map`, `flat_map`, and `filter` operations are unvectorized and can be very slow. If you&#39;re using a vectorized transformation, consider using `.map_batches()` instead.
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="model-inference">
+<h4>Model inference<a class="headerlink" href="batch_inference_object_detection.html#model-inference" title="Permalink to this headline">#</a></h4>
+<p>Next, let’s convert the model inference part. Compared with preprocessing, model inference has 2 differences:</p>
+<ol class="simple">
+<li><p>Model loading and initialization is usually expensive.</p></li>
+<li><p>Model inference can be optimized with hardware acceleration if we process data in batches. Using larger batches improves GPU utilization and the overall runtime of the inference job.</p></li>
+</ol>
+<p>Thus, we convert the model inference code to the following <code class="docutils literal notranslate"><span class="pre">ObjectDetectionModel</span></code> class. In this class, we put the expensive model loading and initialization code in the <code class="docutils literal notranslate"><span class="pre">__init__</span></code> constructor, which will run only once. And we put the model inference code in the <code class="docutils literal notranslate"><span class="pre">__call__</span></code> method, which will be called for each batch.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">__call__</span></code> method takes a batch of data items, instead of a single one. In this case, the batch is also a dict that has one key named “image”, and the value is an array of images represented in <code class="docutils literal notranslate"><span class="pre">np.ndarray</span></code> format. We can also use the <a class="reference internal" href="../api/doc/ray.data.Dataset.take_batch.html#ray.data.Dataset.take_batch" title="ray.data.Dataset.take_batch"><code class="xref py py-meth docutils literal notranslate"><span class="pre">take_batch</span></code></a> API to fetch a single batch, and inspect its internal data structure.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">single_batch</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">take_batch</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">single_batch</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2023-05-19 18:10:38] [Ray Data] INFO ray.data._internal.execution.streaming_executor.logfile::Executing DAG InputDataBuffer[Input] -&gt; TaskPoolMapOperator[ReadImage-&gt;Map]
+[2023-05-19 18:10:38] [Ray Data] INFO ray.data._internal.execution.streaming_executor.logfile::Execution config: ExecutionOptions(resource_limits=ExecutionResources(cpu=None, gpu=None, object_store_memory=None), locality_with_output=False, preserve_order=False, actor_locality_enabled=True, verbose_progress=False)
+[2023-05-19 18:10:38] [Ray Data] INFO ray.data._internal.execution.streaming_executor.logfile::Tip: For detailed progress reporting, run `ray.data.DataContext.get_current().execution_options.verbose_progress = True`
+</pre></div>
+</div>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "e156ca83b07542e2af236924f2b2f8dc", "version_major": 2, "version_minor": 0}
+</script><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2023-05-19 18:10:40] [Ray Data] INFO ray.data._internal.execution.streaming_executor.logfile::Shutting down &lt;StreamingExecutor(Thread-11, started daemon 16076255232)&gt;.
+</pre></div>
+</div>
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;image&#39;: array([array([[[173, 153, 142],
+                [255, 246, 242],
+                [255, 245, 245],
+                ...,
+                [255, 255, 244],
+                [237, 235, 223],
+                [214, 212, 200]],
+ 
+               [[124, 105,  90],
+                [255, 249, 238],
+                [251, 244, 236],
+                ...,
+                [255, 252, 245],
+                [255, 254, 247],
+                [247, 244, 237]],
+ 
+               [[ 56,  37,  20],
+                [255, 253, 239],
+                [248, 248, 236],
+                ...,
+                [248, 247, 243],
+                [248, 247, 243],
+                [254, 253, 249]],
+ 
+               ...,
+ 
+               [[ 64,  78,  87],
+                [ 63,  74,  80],
+                [105, 113, 115],
+                ...,
+                [ 94, 105, 109],
+                [ 90,  99, 104],
+                [ 84,  91,  97]],
+ 
+               [[ 68,  86,  96],
+                [ 69,  82,  88],
+                [ 55,  63,  66],
+                ...,
+                [ 82,  98,  98],
+                [ 54,  70,  70],
+                [ 82,  96,  97]],
+ 
+               [[ 67,  87,  96],
+                [ 43,  60,  67],
+                [ 80,  96,  96],
+                ...,
+                [ 63,  75,  75],
+                [ 89, 101, 101],
+                [ 54,  65,  67]]], dtype=uint8),
+        array([[[31, 32, 26],
+                [31, 32, 26],
+                [30, 31, 25],
+                ...,
+                [82, 83, 78],
+                [82, 83, 78],
+                [82, 83, 78]],
+ 
+               [[32, 33, 27],
+                [29, 30, 24],
+                [26, 27, 21],
+                ...,
+                [82, 83, 78],
+                [82, 83, 78],
+                [82, 83, 78]],
+ 
+               [[27, 28, 22],
+                [23, 24, 18],
+                [21, 22, 16],
+                ...,
+                [84, 85, 80],
+                [84, 85, 80],
+                [84, 85, 80]],
+ 
+               ...,
+ 
+               [[43, 18, 21],
+                [36, 14, 16],
+                [39, 19, 20],
+                ...,
+                [19, 24, 18],
+                [19, 24, 18],
+                [13, 18, 12]],
+ 
+               [[47, 21, 24],
+                [39, 14, 17],
+                [36, 16, 17],
+                ...,
+                [21, 26, 20],
+                [24, 29, 23],
+                [22, 27, 21]],
+ 
+               [[47, 16, 22],
+                [40, 13, 18],
+                [36, 16, 18],
+                ...,
+                [ 9, 14,  8],
+                [ 7, 12,  6],
+                [ 1,  6,  0]]], dtype=uint8),
+        array([[[ 17,   3,   2],
+                [ 17,   3,   2],
+                [ 19,   3,   3],
+                ...,
+                [ 55,  68,  84],
+                [ 56,  69,  85],
+                [ 56,  69,  85]],
+ 
+               [[ 18,   4,   3],
+                [ 18,   4,   3],
+                [ 19,   3,   3],
+                ...,
+                [ 56,  69,  85],
+                [ 56,  69,  85],
+                [ 57,  70,  86]],
+ 
+               [[ 18,   4,   3],
+                [ 18,   4,   3],
+                [ 19,   3,   3],
+                ...,
+                [ 56,  69,  85],
+                [ 56,  69,  85],
+                [ 57,  70,  86]],
+ 
+               ...,
+ 
+               [[  9,   0,   1],
+                [  9,   0,   1],
+                [  9,   0,   1],
+                ...,
+                [123, 124, 116],
+                [121, 122, 114],
+                [116, 117, 109]],
+ 
+               [[  9,   0,   1],
+                [  9,   0,   1],
+                [  9,   0,   1],
+                ...,
+                [121, 122, 114],
+                [119, 120, 112],
+                [115, 116, 108]],
+ 
+               [[  9,   0,   1],
+                [  9,   0,   1],
+                [  9,   0,   1],
+                ...,
+                [121, 122, 114],
+                [119, 120, 112],
+                [116, 117, 109]]], dtype=uint8)], dtype=object),
+ &#39;transformed&#39;: array([array([[[0.6784314 , 1.        , 1.        , ..., 1.        ,
+                 0.92941177, 0.8392157 ],
+                [0.4862745 , 1.        , 0.9843137 , ..., 1.        ,
+                 1.        , 0.96862745],
+                [0.21960784, 1.        , 0.972549  , ..., 0.972549  ,
+                 0.972549  , 0.99607843],
+                ...,
+                [0.2509804 , 0.24705882, 0.4117647 , ..., 0.36862746,
+                 0.3529412 , 0.32941177],
+                [0.26666668, 0.27058825, 0.21568628, ..., 0.32156864,
+                 0.21176471, 0.32156864],
+                [0.2627451 , 0.16862746, 0.3137255 , ..., 0.24705882,
+                 0.34901962, 0.21176471]],
+ 
+               [[0.6       , 0.9647059 , 0.9607843 , ..., 1.        ,
+                 0.92156863, 0.83137256],
+                [0.4117647 , 0.9764706 , 0.95686275, ..., 0.9882353 ,
+                 0.99607843, 0.95686275],
+                [0.14509805, 0.99215686, 0.972549  , ..., 0.96862745,
+                 0.96862745, 0.99215686],
+                ...,
+                [0.30588236, 0.2901961 , 0.44313726, ..., 0.4117647 ,
+                 0.3882353 , 0.35686275],
+                [0.3372549 , 0.32156864, 0.24705882, ..., 0.38431373,
+                 0.27450982, 0.3764706 ],
+                [0.34117648, 0.23529412, 0.3764706 , ..., 0.29411766,
+                 0.39607844, 0.25490198]],
+ 
+               [[0.5568628 , 0.9490196 , 0.9607843 , ..., 0.95686275,
+                 0.8745098 , 0.78431374],
+                [0.3529412 , 0.93333334, 0.9254902 , ..., 0.9607843 ,
+                 0.96862745, 0.92941177],
+                [0.07843138, 0.9372549 , 0.9254902 , ..., 0.9529412 ,
+                 0.9529412 , 0.9764706 ],
+                ...,
+                [0.34117648, 0.3137255 , 0.4509804 , ..., 0.42745098,
+                 0.40784314, 0.38039216],
+                [0.3764706 , 0.34509805, 0.25882354, ..., 0.38431373,
+                 0.27450982, 0.38039216],
+                [0.3764706 , 0.2627451 , 0.3764706 , ..., 0.29411766,
+                 0.39607844, 0.2627451 ]]], dtype=float32)           ,
+        array([[[0.12156863, 0.12156863, 0.11764706, ..., 0.32156864,
+                 0.32156864, 0.32156864],
+                [0.1254902 , 0.11372549, 0.10196079, ..., 0.32156864,
+                 0.32156864, 0.32156864],
+                [0.10588235, 0.09019608, 0.08235294, ..., 0.32941177,
+                 0.32941177, 0.32941177],
+                ...,
+                [0.16862746, 0.14117648, 0.15294118, ..., 0.07450981,
+                 0.07450981, 0.05098039],
+                [0.18431373, 0.15294118, 0.14117648, ..., 0.08235294,
+                 0.09411765, 0.08627451],
+                [0.18431373, 0.15686275, 0.14117648, ..., 0.03529412,
+                 0.02745098, 0.00392157]],
+ 
+               [[0.1254902 , 0.1254902 , 0.12156863, ..., 0.3254902 ,
+                 0.3254902 , 0.3254902 ],
+                [0.12941177, 0.11764706, 0.10588235, ..., 0.3254902 ,
+                 0.3254902 , 0.3254902 ],
+                [0.10980392, 0.09411765, 0.08627451, ..., 0.33333334,
+                 0.33333334, 0.33333334],
+                ...,
+                [0.07058824, 0.05490196, 0.07450981, ..., 0.09411765,
+                 0.09411765, 0.07058824],
+                [0.08235294, 0.05490196, 0.0627451 , ..., 0.10196079,
+                 0.11372549, 0.10588235],
+                [0.0627451 , 0.05098039, 0.0627451 , ..., 0.05490196,
+                 0.04705882, 0.02352941]],
+ 
+               [[0.10196079, 0.10196079, 0.09803922, ..., 0.30588236,
+                 0.30588236, 0.30588236],
+                [0.10588235, 0.09411765, 0.08235294, ..., 0.30588236,
+                 0.30588236, 0.30588236],
+                [0.08627451, 0.07058824, 0.0627451 , ..., 0.3137255 ,
+                 0.3137255 , 0.3137255 ],
+                ...,
+                [0.08235294, 0.0627451 , 0.07843138, ..., 0.07058824,
+                 0.07058824, 0.04705882],
+                [0.09411765, 0.06666667, 0.06666667, ..., 0.07843138,
+                 0.09019608, 0.08235294],
+                [0.08627451, 0.07058824, 0.07058824, ..., 0.03137255,
+                 0.02352941, 0.        ]]], dtype=float32)           ,
+        array([[[0.06666667, 0.06666667, 0.07450981, ..., 0.21568628,
+                 0.21960784, 0.21960784],
+                [0.07058824, 0.07058824, 0.07450981, ..., 0.21960784,
+                 0.21960784, 0.22352941],
+                [0.07058824, 0.07058824, 0.07450981, ..., 0.21960784,
+                 0.21960784, 0.22352941],
+                ...,
+                [0.03529412, 0.03529412, 0.03529412, ..., 0.48235294,
+                 0.4745098 , 0.45490196],
+                [0.03529412, 0.03529412, 0.03529412, ..., 0.4745098 ,
+                 0.46666667, 0.4509804 ],
+                [0.03529412, 0.03529412, 0.03529412, ..., 0.4745098 ,
+                 0.46666667, 0.45490196]],
+ 
+               [[0.01176471, 0.01176471, 0.01176471, ..., 0.26666668,
+                 0.27058825, 0.27058825],
+                [0.01568628, 0.01568628, 0.01176471, ..., 0.27058825,
+                 0.27058825, 0.27450982],
+                [0.01568628, 0.01568628, 0.01176471, ..., 0.27058825,
+                 0.27058825, 0.27450982],
+                ...,
+                [0.        , 0.        , 0.        , ..., 0.4862745 ,
+                 0.47843137, 0.45882353],
+                [0.        , 0.        , 0.        , ..., 0.47843137,
+                 0.47058824, 0.45490196],
+                [0.        , 0.        , 0.        , ..., 0.47843137,
+                 0.47058824, 0.45882353]],
+ 
+               [[0.00784314, 0.00784314, 0.01176471, ..., 0.32941177,
+                 0.33333334, 0.33333334],
+                [0.01176471, 0.01176471, 0.01176471, ..., 0.33333334,
+                 0.33333334, 0.3372549 ],
+                [0.01176471, 0.01176471, 0.01176471, ..., 0.33333334,
+                 0.33333334, 0.3372549 ],
+                ...,
+                [0.00392157, 0.00392157, 0.00392157, ..., 0.45490196,
+                 0.44705883, 0.42745098],
+                [0.00392157, 0.00392157, 0.00392157, ..., 0.44705883,
+                 0.4392157 , 0.42352942],
+                [0.00392157, 0.00392157, 0.00392157, ..., 0.44705883,
+                 0.4392157 , 0.42745098]]], dtype=float32)           ],
+       dtype=object)}
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ObjectDetectionModel</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Define the model loading and initialization code in `__init__`.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weights</span> <span class="o">=</span> <span class="n">FasterRCNN_ResNet50_FPN_V2_Weights</span><span class="o">.</span><span class="n">DEFAULT</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">fasterrcnn_resnet50_fpn_v2</span><span class="p">(</span>
+            <span class="n">weights</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">,</span>
+            <span class="n">box_score_thresh</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">():</span>
+            <span class="c1"># Move the model to GPU if it&#39;s available.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_batch</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+        <span class="c1"># Define the per-batch inference code in `__call__`.</span>
+        <span class="n">batch</span> <span class="o">=</span> <span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">image</span><span class="p">)</span> <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="n">input_batch</span><span class="p">[</span><span class="s2">&quot;transformed&quot;</span><span class="p">]]</span>
+        <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">():</span>
+            <span class="c1"># Move the data to GPU if it&#39;s available.</span>
+            <span class="n">batch</span> <span class="o">=</span> <span class="p">[</span><span class="n">image</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span> <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="n">batch</span><span class="p">]</span>
+        <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;image&quot;</span><span class="p">:</span> <span class="n">input_batch</span><span class="p">[</span><span class="s2">&quot;image&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;labels&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">pred</span><span class="p">[</span><span class="s2">&quot;labels&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span> <span class="k">for</span> <span class="n">pred</span> <span class="ow">in</span> <span class="n">predictions</span><span class="p">],</span>
+            <span class="s2">&quot;boxes&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">pred</span><span class="p">[</span><span class="s2">&quot;boxes&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span> <span class="k">for</span> <span class="n">pred</span> <span class="ow">in</span> <span class="n">predictions</span><span class="p">],</span>
+        <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Then we use the <a class="reference internal" href="../api/doc/ray.data.Dataset.map_batches.html#ray.data.Dataset.map_batches" title="ray.data.Dataset.map_batches"><code class="xref py py-meth docutils literal notranslate"><span class="pre">map_batches</span></code></a> API to apply the model to the whole dataset.</p>
+<p>The first parameter of <code class="docutils literal notranslate"><span class="pre">map</span></code> and <code class="docutils literal notranslate"><span class="pre">map_batches</span></code> is the user-defined function (UDF), which can either be a function or a class. Function-based UDFs will run as short-running <a class="reference external" href="https://docs.ray.io/en/latest/ray-core/key-concepts.html#tasks">Ray tasks</a>, and class-based UDFs will run as long-running <a class="reference external" href="https://docs.ray.io/en/latest/ray-core/key-concepts.html#actors">Ray actors</a>. For class-based UDFs, we use the <code class="docutils literal notranslate"><span class="pre">compute</span></code> argument to specify <code class="xref py py-class docutils literal notranslate"><span class="pre">ActorPoolStrategy</span></code> with the number of parallel actors. And the <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> argument indicates the number of images in each batch.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">num_gpus</span></code> argument specifies the number of GPUs needed for each <code class="docutils literal notranslate"><span class="pre">ObjectDetectionModel</span></code> instance. The Ray scheduler can handle heterogeous resource requirements in order to maximize the resource utilization. In this case, the <code class="docutils literal notranslate"><span class="pre">ObjectDetectionModel</span></code> instances will run on GPU and <code class="docutils literal notranslate"><span class="pre">preprocess_image</span></code> instances will run on CPU.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">map_batches</span><span class="p">(</span>
+    <span class="n">ObjectDetectionModel</span><span class="p">,</span>
+    <span class="n">compute</span><span class="o">=</span><span class="n">ray</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">ActorPoolStrategy</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span> <span class="c1"># Use 4 GPUs. Change this number based on the number of GPUs in your cluster.</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="c1"># Use the largest batch size that can fit in GPU memory.</span>
+    <span class="n">num_gpus</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>  <span class="c1"># Specify 1 GPU per model replica. Remove this if you are doing CPU inference.</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="verify-and-save-results">
+<h3>Verify and Save Results<a class="headerlink" href="batch_inference_object_detection.html#verify-and-save-results" title="Permalink to this headline">#</a></h3>
+<p>Then let’s take a small batch and verify the inference results with visualization.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">torchvision.transforms.functional</span> <span class="kn">import</span> <span class="n">convert_image_dtype</span><span class="p">,</span> <span class="n">to_tensor</span>
+
+<span class="n">batch</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">take_batch</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">image</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">boxes</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="s2">&quot;image&quot;</span><span class="p">],</span> <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;labels&quot;</span><span class="p">],</span> <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;boxes&quot;</span><span class="p">]):</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">convert_image_dtype</span><span class="p">(</span><span class="n">to_tensor</span><span class="p">(</span><span class="n">image</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">weights</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;categories&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">]</span>
+    <span class="n">boxes</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">boxes</span><span class="p">)</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">to_pil_image</span><span class="p">(</span><span class="n">draw_bounding_boxes</span><span class="p">(</span>
+        <span class="n">image</span><span class="p">,</span>
+        <span class="n">boxes</span><span class="p">,</span>
+        <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
+        <span class="n">colors</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="p">))</span>
+    <span class="n">display</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2023-05-19 18:10:40] [Ray Data] INFO ray.data._internal.execution.streaming_executor.logfile::Executing DAG InputDataBuffer[Input] -&gt; ActorPoolMapOperator[ReadImage-&gt;Map-&gt;MapBatches(ObjectDetectionModel)]
+[2023-05-19 18:10:40] [Ray Data] INFO ray.data._internal.execution.streaming_executor.logfile::Execution config: ExecutionOptions(resource_limits=ExecutionResources(cpu=None, gpu=None, object_store_memory=None), locality_with_output=False, preserve_order=False, actor_locality_enabled=True, verbose_progress=False)
+[2023-05-19 18:10:40] [Ray Data] INFO ray.data._internal.execution.streaming_executor.logfile::Tip: For detailed progress reporting, run `ray.data.DataContext.get_current().execution_options.verbose_progress = True`
+[2023-05-19 18:10:40] [Ray Data] INFO ray.data._internal.execution.operators.actor_pool_map_operator.logfile::ReadImage-&gt;Map-&gt;MapBatches(ObjectDetectionModel): Waiting for 4 pool actors to start...
+</pre></div>
+</div>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "4e53cb0007f4457b976224350b01f667", "version_major": 2, "version_minor": 0}
+</script><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2023-05-19 18:11:50] [Ray Data] INFO ray.data._internal.execution.streaming_executor.logfile::Shutting down &lt;StreamingExecutor(Thread-26, started daemon 16076255232)&gt;.
+[2023-05-19 18:11:50] [Ray Data] WARNING ray.data._internal.execution.operators.actor_pool_map_operator.logfile::To ensure full parallelization across an actor pool of size 4, the specified batch size should be at most 3. Your configured batch size for this operator was 4.
+</pre></div>
+</div>
+<img alt="../../_images/batch_inference_object_detection_25_3.png" src="../../_images/batch_inference_object_detection_25_3.png" />
+<img alt="../../_images/batch_inference_object_detection_25_4.png" src="../../_images/batch_inference_object_detection_25_4.png" />
+</div>
+</div>
+<p>If the samples look good, we can proceed with saving the results to an external storage, e.g., S3 or local disks. See <a class="reference external" href="https://docs.ray.io/en/latest/data/api/input_output.html">Ray Data Input/Output</a> for all supported stoarges and file formats.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span><span class="o">.</span><span class="n">write_parquet</span><span class="p">(</span><span class="s2">&quot;local://tmp/inference_results&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="pytorch_resnet_batch_prediction.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Image Classification Batch Inference with PyTorch</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="nyc_taxi_basic_processing.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Processing NYC taxi data using Ray Data</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

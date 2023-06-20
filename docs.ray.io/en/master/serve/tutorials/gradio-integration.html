@@ -1,0 +1,938 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Scaling your Gradio app with Ray Serve &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/js/versionwarning.js"></script>
+    <script src="../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../_static/js/docsearch.js"></script>
+    <script src="../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../_static/js/top-navigation.js"></script>
+    <script src="../../_static/js/tags.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/serve/tutorials/gradio-integration.html" />
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Visualizing a Deployment Graph with Gradio" href="gradio-dag-visualization.html" />
+    <link rel="prev" title="Serving RLlib Models" href="rllib.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "serve/tutorials/gradio-integration", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".md", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../tune.html">
+   Ray Tune
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../index.html">
+   Ray Serve
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="../getting_started.html">
+     Getting Started
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../key-concepts.html">
+     Key Concepts
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../model_composition.html">
+     Deploy a Composition of Models
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../deploy-many-models/index.html">
+     Deploy Many Models
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../http-guide.html">
+     Set Up FastAPI and HTTP
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../production-guide/index.html">
+     Production Guide
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../monitoring.html">
+     Monitor Your Application
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../scaling-and-resource-allocation.html">
+     Set Up Autoscaling and Resource Allocation
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../advanced-guides/index.html">
+     Advanced Guides
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../architecture.html">
+     Architecture
+    </a>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="index.html">
+     Examples
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="serve-ml-models.html">
+       Serving ML Models (Tensorflow, PyTorch, Scikit-Learn, others)
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="batch.html">
+       Batching Tutorial
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="rllib.html">
+       Serving RLlib Models
+      </a>
+     </li>
+     <li class="toctree-l3 current active">
+      <a class="current reference internal" href="gradio-integration.html#">
+       Scaling your Gradio app with Ray Serve
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="gradio-dag-visualization.html">
+       Visualizing a Deployment Graph with Gradio
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="java.html">
+       Java Tutorial
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="stable-diffusion.html">
+       Serving a Stable Diffusion Model
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="text-classification.html">
+       Serving a Distilbert Model
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="object-detection.html">
+       Serving an Object Detection Model
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="deployment-graph-patterns.html">
+       Deployment Graph Patterns
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../api/index.html">
+     Ray Serve API
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2Fserve/tutorials/gradio-integration.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/edit/master/doc/source/serve/tutorials/gradio-integration.md"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="../../_sources/serve/tutorials/gradio-integration.md.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.md</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="gradio-integration.html#dependencies">
+   Dependencies
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="gradio-integration.html#quickstart-deploy-your-gradio-app-with-ray-serve">
+   Quickstart: Deploy your Gradio app with Ray Serve
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="gradio-integration.html#deploying-gradio-server">
+     Deploying Gradio Server
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="gradio-integration.html#parallelizing-models-with-ray-serve">
+   Parallelizing models with Ray Serve
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="gradio-integration.html#original-approach">
+     Original Approach
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="gradio-integration.html#parallelize-using-ray-serve">
+     Parallelize using Ray Serve
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Scaling your Gradio app with Ray Serve</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="gradio-integration.html#dependencies">
+   Dependencies
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="gradio-integration.html#quickstart-deploy-your-gradio-app-with-ray-serve">
+   Quickstart: Deploy your Gradio app with Ray Serve
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="gradio-integration.html#deploying-gradio-server">
+     Deploying Gradio Server
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="gradio-integration.html#parallelizing-models-with-ray-serve">
+   Parallelizing models with Ray Serve
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="gradio-integration.html#original-approach">
+     Original Approach
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="gradio-integration.html#parallelize-using-ray-serve">
+     Parallelize using Ray Serve
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section class="tex2jax_ignore mathjax_ignore" id="scaling-your-gradio-app-with-ray-serve">
+<h1>Scaling your Gradio app with Ray Serve<a class="headerlink" href="gradio-integration.html#scaling-your-gradio-app-with-ray-serve" title="Permalink to this headline">#</a></h1>
+<p>In this guide, we will show you how to scale up your <a class="reference external" href="https://gradio.app/">Gradio</a> application using Ray Serve. Keeping the internal architecture of your Gradio app intact (no changes), we simply wrap the app within Ray Serve as a deployment and scale it to access more resources.</p>
+<section id="dependencies">
+<h2>Dependencies<a class="headerlink" href="gradio-integration.html#dependencies" title="Permalink to this headline">#</a></h2>
+<p>To follow this tutorial, you will need Ray Serve and Gradio. If you haven’t already, install them by running:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip install <span class="s2">&quot;ray[serve]&quot;</span>
+<span class="gp">$ </span>pip install <span class="nv">gradio</span><span class="o">==</span><span class="m">3</span>.19
+</pre></div>
+</div>
+<p>For this tutorial, we will use Gradio apps that run text summarization and generation models and use <a class="reference external" href="https://huggingface.co/docs/transformers/main_classes/pipelines">HuggingFace’s Pipelines</a> to access these models. <strong>Note that you can substitute this Gradio app for any Gradio app of your own!</strong></p>
+<p>First, let’s install the transformers module.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip install transformers
+</pre></div>
+</div>
+</section>
+<section id="quickstart-deploy-your-gradio-app-with-ray-serve">
+<h2>Quickstart: Deploy your Gradio app with Ray Serve<a class="headerlink" href="gradio-integration.html#quickstart-deploy-your-gradio-app-with-ray-serve" title="Permalink to this headline">#</a></h2>
+<p>This section shows you an easy way to deploy your app onto Ray Serve. First, create a new Python file named <code class="docutils literal notranslate"><span class="pre">demo.py</span></code>. Second, import <code class="docutils literal notranslate"><span class="pre">GradioServer</span></code> from Ray Serve to deploy your Gradio app later, <code class="docutils literal notranslate"><span class="pre">gradio</span></code>, and <code class="docutils literal notranslate"><span class="pre">transformers.pipeline</span></code> to load text summarization models.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ray.serve.gradio_integrations</span> <span class="kn">import</span> <span class="n">GradioServer</span>
+
+<span class="kn">import</span> <span class="nn">gradio</span> <span class="k">as</span> <span class="nn">gr</span>
+
+<span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">pipeline</span>
+
+</pre></div>
+</div>
+<p>Then, we write a builder function that constructs the Gradio app <code class="docutils literal notranslate"><span class="pre">io</span></code>. This application takes in text and uses the <a class="reference external" href="https://huggingface.co/t5-small">T5 Small</a> text summarization model loaded using <a class="reference external" href="https://huggingface.co/docs/transformers/main_classes/pipelines">HuggingFace’s Pipelines</a> to summarize that text.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Remember you can substitute this with your own Gradio app if you want to try scaling up your own Gradio app!</p>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">example_input</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;HOUSTON -- Men have landed and walked on the moon. &quot;</span>
+    <span class="s2">&quot;Two Americans, astronauts of Apollo 11, steered their fragile &quot;</span>
+    <span class="s2">&quot;four-legged lunar module safely and smoothly to the historic landing &quot;</span>
+    <span class="s2">&quot;yesterday at 4:17:40 P.M., Eastern daylight time. Neil A. Armstrong, the &quot;</span>
+    <span class="s2">&quot;38-year-old commander, radioed to earth and the mission control room &quot;</span>
+    <span class="s1">&#39;here: &quot;Houston, Tranquility Base here. The Eagle has landed.&quot; The &#39;</span>
+    <span class="s2">&quot;first men to reach the moon -- Armstrong and his co-pilot, Col. Edwin E. &quot;</span>
+    <span class="s2">&quot;Aldrin Jr. of the Air Force -- brought their ship to rest on a level, &quot;</span>
+    <span class="s2">&quot;rock-strewn plain near the southwestern shore of the arid Sea of &quot;</span>
+    <span class="s2">&quot;Tranquility. About six and a half hours later, Armstrong opened the &quot;</span>
+    <span class="s2">&quot;landing craft&#39;s hatch, stepped slowly down the ladder and declared as &quot;</span>
+    <span class="s2">&quot;he planted the first human footprint on the lunar crust: </span><span class="se">\&quot;</span><span class="s2">That&#39;s one &quot;</span>
+    <span class="s1">&#39;small step for man, one giant leap for mankind.&quot; His first step on the &#39;</span>
+    <span class="s2">&quot;moon came at 10:56:20 P.M., as a television camera outside the craft &quot;</span>
+    <span class="s2">&quot;transmitted his every move to an awed and excited audience of hundreds &quot;</span>
+    <span class="s2">&quot;of millions of people on earth.&quot;</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">gradio_summarizer_builder</span><span class="p">():</span>
+    <span class="n">summarizer</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="s2">&quot;summarization&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;t5-small&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">model</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+        <span class="n">summary_list</span> <span class="o">=</span> <span class="n">summarizer</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">summary</span> <span class="o">=</span> <span class="n">summary_list</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;summary_text&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">summary</span>
+
+    <span class="k">return</span> <span class="n">gr</span><span class="o">.</span><span class="n">Interface</span><span class="p">(</span>
+        <span class="n">fn</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+        <span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="n">gr</span><span class="o">.</span><span class="n">Textbox</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">example_input</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Input prompt&quot;</span><span class="p">)],</span>
+        <span class="n">outputs</span><span class="o">=</span><span class="p">[</span><span class="n">gr</span><span class="o">.</span><span class="n">Textbox</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;Model output&quot;</span><span class="p">)],</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<section id="deploying-gradio-server">
+<h3>Deploying Gradio Server<a class="headerlink" href="gradio-integration.html#deploying-gradio-server" title="Permalink to this headline">#</a></h3>
+<p>In order to deploy your Gradio app onto Ray Serve, you need to wrap your Gradio app in a Serve <a class="reference internal" href="../key-concepts.html#serve-key-concepts-deployment"><span class="std std-ref">deployment</span></a>. <code class="docutils literal notranslate"><span class="pre">GradioServer</span></code> acts as that wrapper. It serves your Gradio app remotely on Ray Serve so that it can process and respond to HTTP requests.</p>
+<p>By wrapping your application in <code class="docutils literal notranslate"><span class="pre">GradioServer</span></code>, you can increase the number of CPUs and/or GPUs available to the application.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Currently, there is no support for routing requests properly to multiple replicas of <code class="docutils literal notranslate"><span class="pre">GradioServer</span></code>, so we recommend only having a single replica.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">GradioServer</span></code> is simply <code class="docutils literal notranslate"><span class="pre">GradioIngress</span></code> but wrapped in a Serve deployment. You can use <code class="docutils literal notranslate"><span class="pre">GradioServer</span></code> for the simple wrap-and-deploy use case, but as you will see in the next section, you can use <code class="docutils literal notranslate"><span class="pre">GradioIngress</span></code> to define your own Gradio Server for more customized use cases.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Ray can’t pickle Gradio. Instead, pass a builder function that constructs the Gradio interface.</p>
+</div>
+<p>Using either Gradio app <code class="docutils literal notranslate"><span class="pre">io</span></code> constructed by the builder function above or providing your own application (of type <code class="docutils literal notranslate"><span class="pre">Interface</span></code>, <code class="docutils literal notranslate"><span class="pre">Block</span></code>, <code class="docutils literal notranslate"><span class="pre">Parallel</span></code>, etc.), wrap it in your Gradio Server. Pass the builder function as input to your Gradio Server. It will be used to construct your Gradio app on the Ray cluster.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">app</span> <span class="o">=</span> <span class="n">GradioServer</span><span class="o">.</span><span class="n">options</span><span class="p">(</span><span class="n">ray_actor_options</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;num_cpus&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">})</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span>
+    <span class="n">gradio_summarizer_builder</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Finally, deploy your Gradio Server! Run the following in your terminal:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>serve run demo:app
+</pre></div>
+</div>
+<p>Now you can access your Gradio app at <code class="docutils literal notranslate"><span class="pre">http://localhost:8000</span></code>! This is what it should look like:
+<img alt="Gradio Result" src="https://raw.githubusercontent.com/ray-project/images/master/docs/serve/gradio_result.png" /></p>
+<p>See the <a class="reference internal" href="../production-guide/index.html#serve-in-production"><span class="std std-ref">Production Guide</span></a> for more information on how to deploy your app in production.</p>
+</section>
+</section>
+<section id="parallelizing-models-with-ray-serve">
+<h2>Parallelizing models with Ray Serve<a class="headerlink" href="gradio-integration.html#parallelizing-models-with-ray-serve" title="Permalink to this headline">#</a></h2>
+<p>You can run multiple models in parallel with Ray Serve by utilizing the <a class="reference internal" href="../advanced-guides/deployment-graphs.html#serve-deployment-graphs"><span class="std std-ref">deployment graph</span></a> in Ray Serve.</p>
+<section id="original-approach">
+<h3>Original Approach<a class="headerlink" href="gradio-integration.html#original-approach" title="Permalink to this headline">#</a></h3>
+<p>Suppose you want to run the following program.</p>
+<ol class="simple">
+<li><p>Take two text generation models, <a class="reference external" href="https://huggingface.co/gpt2"><code class="docutils literal notranslate"><span class="pre">gpt2</span></code></a> and <a class="reference external" href="https://huggingface.co/distilgpt2"><code class="docutils literal notranslate"><span class="pre">distilgpt2</span></code></a>.</p></li>
+<li><p>Run the two models on the same input text, such that the generated text has a minimum length of 20 and maximum length of 100.</p></li>
+<li><p>Display the outputs of both models using Gradio.</p></li>
+</ol>
+<p>This is how you would build it normally:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">generator1</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="s2">&quot;text-generation&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt2&quot;</span><span class="p">)</span>
+<span class="n">generator2</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="s2">&quot;text-generation&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;distilgpt2&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">model1</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="n">generated_list</span> <span class="o">=</span> <span class="n">generator1</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">do_sample</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+    <span class="n">generated</span> <span class="o">=</span> <span class="n">generated_list</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;generated_text&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">generated</span>
+
+
+<span class="k">def</span> <span class="nf">model2</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="n">generated_list</span> <span class="o">=</span> <span class="n">generator2</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">do_sample</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+    <span class="n">generated</span> <span class="o">=</span> <span class="n">generated_list</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;generated_text&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">generated</span>
+
+
+<span class="n">demo</span> <span class="o">=</span> <span class="n">gr</span><span class="o">.</span><span class="n">Interface</span><span class="p">(</span>
+    <span class="k">lambda</span> <span class="n">text</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">model1</span><span class="p">(</span><span class="n">text</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">------------</span><span class="se">\n</span><span class="si">{</span><span class="n">model2</span><span class="p">(</span><span class="n">text</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;textbox&quot;</span><span class="p">,</span> <span class="s2">&quot;textbox&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>And launch the Gradio app:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">demo</span><span class="o">.</span><span class="n">launch</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="parallelize-using-ray-serve">
+<h3>Parallelize using Ray Serve<a class="headerlink" href="gradio-integration.html#parallelize-using-ray-serve" title="Permalink to this headline">#</a></h3>
+<p>With Ray Serve, we can parallelize the two text generation models by wrapping each model in a separate Ray Serve <a class="reference internal" href="../key-concepts.html#serve-key-concepts-deployment"><span class="std std-ref">deployment</span></a>. Deployments are defined by decorating a Python class or function with <code class="docutils literal notranslate"><span class="pre">&#64;serve.deployment</span></code>, and they usually wrap the models that you want to deploy on Ray Serve to handle incoming requests.</p>
+<p>Let’s walk through a few steps to achieve parallelism. First, let’s import our dependencies. Note that we need to import <code class="docutils literal notranslate"><span class="pre">GradioIngress</span></code> instead of <code class="docutils literal notranslate"><span class="pre">GradioServer</span></code> like before since we’re now building a customized <code class="docutils literal notranslate"><span class="pre">MyGradioServer</span></code> that can run models in parallel.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">from</span> <span class="nn">ray</span> <span class="kn">import</span> <span class="n">serve</span>
+<span class="kn">from</span> <span class="nn">ray.serve.gradio_integrations</span> <span class="kn">import</span> <span class="n">GradioIngress</span>
+
+<span class="kn">import</span> <span class="nn">gradio</span> <span class="k">as</span> <span class="nn">gr</span>
+
+<span class="kn">import</span> <span class="nn">asyncio</span>
+<span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">pipeline</span>
+
+</pre></div>
+</div>
+<p>Then, let’s wrap our <code class="docutils literal notranslate"><span class="pre">gpt2</span></code> and <code class="docutils literal notranslate"><span class="pre">distilgpt2</span></code> models in Serve deployments, named <code class="docutils literal notranslate"><span class="pre">TextGenerationModel</span></code>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@serve</span><span class="o">.</span><span class="n">deployment</span>
+<span class="k">class</span> <span class="nc">TextGenerationModel</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">generator</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="s2">&quot;text-generation&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model_name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="n">generated_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generator</span><span class="p">(</span>
+            <span class="n">text</span><span class="p">,</span> <span class="n">do_sample</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">100</span>
+        <span class="p">)</span>
+        <span class="n">generated</span> <span class="o">=</span> <span class="n">generated_list</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;generated_text&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">generated</span>
+
+
+<span class="n">app1</span> <span class="o">=</span> <span class="n">TextGenerationModel</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="s2">&quot;gpt2&quot;</span><span class="p">)</span>
+<span class="n">app2</span> <span class="o">=</span> <span class="n">TextGenerationModel</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="s2">&quot;distilgpt2&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Next, instead of simply wrapping our Gradio app in a <code class="docutils literal notranslate"><span class="pre">GradioServer</span></code> deployment, we can build our own <code class="docutils literal notranslate"><span class="pre">MyGradioServer</span></code> that reroutes the Gradio app so that it runs the <code class="docutils literal notranslate"><span class="pre">TextGenerationModel</span></code> deployments. Note that calling <code class="docutils literal notranslate"><span class="pre">remote()</span></code> on the downstream models submits an asynchronous request to the Serve handle, so it returns an <code class="docutils literal notranslate"><span class="pre">asyncio.Task</span></code>. Thus, we need to await it to get the reference to the result, and finally use <code class="docutils literal notranslate"><span class="pre">ray.get()</span></code> to resolve the object reference.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@serve</span><span class="o">.</span><span class="n">deployment</span>
+<span class="k">class</span> <span class="nc">MyGradioServer</span><span class="p">(</span><span class="n">GradioIngress</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">downstream_model_1</span><span class="p">,</span> <span class="n">downstream_model_2</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_d1</span> <span class="o">=</span> <span class="n">downstream_model_1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_d2</span> <span class="o">=</span> <span class="n">downstream_model_2</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">gr</span><span class="o">.</span><span class="n">Interface</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fanout</span><span class="p">,</span> <span class="s2">&quot;textbox&quot;</span><span class="p">,</span> <span class="s2">&quot;textbox&quot;</span><span class="p">))</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">fanout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="n">refs</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_d1</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">text</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_d2</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">text</span><span class="p">))</span>
+        <span class="p">[</span><span class="n">result1</span><span class="p">,</span> <span class="n">result2</span><span class="p">]</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">refs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;[Generated text version 1]</span><span class="se">\n</span><span class="si">{</span><span class="n">result1</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;[Generated text version 2]</span><span class="se">\n</span><span class="si">{</span><span class="n">result2</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+</pre></div>
+</div>
+<p>Lastly, we link everything together:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">app</span> <span class="o">=</span> <span class="n">MyGradioServer</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">app1</span><span class="p">,</span> <span class="n">app2</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This will bind your two text generation models (wrapped in Serve deployments) to <code class="docutils literal notranslate"><span class="pre">MyGradioServer._d1</span></code> and <code class="docutils literal notranslate"><span class="pre">MyGradioServer._d2</span></code>, forming a <a class="reference internal" href="../advanced-guides/deployment-graphs.html#serve-deployment-graphs"><span class="std std-ref">deployment graph</span></a>. Thus, we have built our Gradio Interface <code class="docutils literal notranslate"><span class="pre">io</span></code> such that it calls <code class="docutils literal notranslate"><span class="pre">MyGradioServer.fanout()</span></code>, which simply sends requests to your two text generation models that are deployed on Ray Serve.</p>
+</div>
+<p>Now, you can run your scalable app, and the two text generation models will run in parallel on Ray Serve.
+Run your Gradio app with the following command:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>serve run demo:app
+</pre></div>
+</div>
+<p>Access your Gradio app at <code class="docutils literal notranslate"><span class="pre">http://localhost:8000</span></code>, and you should see the following interactive interface:
+<img alt="Gradio Result" src="https://raw.githubusercontent.com/ray-project/images/master/docs/serve/gradio_result_parallel.png" /></p>
+<p>See the <a class="reference internal" href="../production-guide/index.html#serve-in-production"><span class="std std-ref">Production Guide</span></a> for more information on how to deploy your app in production.</p>
+</section>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="rllib.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Serving RLlib Models</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="gradio-dag-visualization.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Visualizing a Deployment Graph with Gradio</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

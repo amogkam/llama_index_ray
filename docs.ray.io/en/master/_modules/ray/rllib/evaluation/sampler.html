@@ -1,0 +1,1761 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ray.rllib.evaluation.sampler &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/clipboard.min.js"></script>
+    <script src="../../../../_static/copybutton.js"></script>
+    <script src="../../../../_static/js/versionwarning.js"></script>
+    <script src="../../../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../../../_static/js/docsearch.js"></script>
+    <script src="../../../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../../../_static/js/top-navigation.js"></script>
+    <script src="../../../../_static/js/tags.js"></script>
+    <script src="../../../../_static/tabs.js"></script>
+    <script src="../../../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/_modules/ray/rllib/evaluation/sampler.html" />
+    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "_modules/ray/rllib/evaluation/sampler", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".rst", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../tune.html">
+   Ray Tune
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2F_modules/ray/rllib/evaluation/sampler.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1></h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <h1>Source code for ray.rllib.evaluation.sampler</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">queue</span>
+<span class="kn">import</span> <span class="nn">threading</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span><span class="p">,</span> <span class="n">namedtuple</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">TYPE_CHECKING</span><span class="p">,</span>
+    <span class="n">Any</span><span class="p">,</span>
+    <span class="n">Callable</span><span class="p">,</span>
+    <span class="n">Dict</span><span class="p">,</span>
+    <span class="n">Iterator</span><span class="p">,</span>
+    <span class="n">List</span><span class="p">,</span>
+    <span class="n">Optional</span><span class="p">,</span>
+    <span class="n">Set</span><span class="p">,</span>
+    <span class="n">Tuple</span><span class="p">,</span>
+    <span class="n">Type</span><span class="p">,</span>
+    <span class="n">Union</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">tree</span>  <span class="c1"># pip install dm_tree</span>
+
+<span class="kn">from</span> <span class="nn">ray.rllib.env.base_env</span> <span class="kn">import</span> <span class="n">ASYNC_RESET_RETURN</span><span class="p">,</span> <span class="n">BaseEnv</span><span class="p">,</span> <span class="n">convert_to_base_env</span>
+<span class="kn">from</span> <span class="nn">ray.rllib.evaluation.collectors.sample_collector</span> <span class="kn">import</span> <span class="n">SampleCollector</span>
+<span class="kn">from</span> <span class="nn">ray.rllib.evaluation.collectors.simple_list_collector</span> <span class="kn">import</span> <span class="n">SimpleListCollector</span>
+<span class="kn">from</span> <span class="nn">ray.rllib.evaluation.env_runner_v2</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">EnvRunnerV2</span><span class="p">,</span>
+    <span class="n">_fetch_atari_metrics</span><span class="p">,</span>
+    <span class="n">_get_or_raise</span><span class="p">,</span>
+    <span class="n">_PerfStats</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">ray.rllib.evaluation.episode</span> <span class="kn">import</span> <span class="n">Episode</span>
+<span class="kn">from</span> <span class="nn">ray.rllib.evaluation.metrics</span> <span class="kn">import</span> <span class="n">RolloutMetrics</span>
+<span class="kn">from</span> <span class="nn">ray.rllib.offline</span> <span class="kn">import</span> <span class="n">InputReader</span>
+<span class="kn">from</span> <span class="nn">ray.rllib.policy.policy</span> <span class="kn">import</span> <span class="n">Policy</span>
+<span class="kn">from</span> <span class="nn">ray.rllib.policy.policy_map</span> <span class="kn">import</span> <span class="n">PolicyMap</span>
+<span class="kn">from</span> <span class="nn">ray.rllib.policy.sample_batch</span> <span class="kn">import</span> <span class="n">SampleBatch</span><span class="p">,</span> <span class="n">concat_samples</span>
+<span class="kn">from</span> <span class="nn">ray.rllib.utils.annotations</span> <span class="kn">import</span> <span class="n">DeveloperAPI</span><span class="p">,</span> <span class="n">override</span>
+<span class="kn">from</span> <span class="nn">ray.rllib.utils.debug</span> <span class="kn">import</span> <span class="n">summarize</span>
+<span class="kn">from</span> <span class="nn">ray.rllib.utils.deprecation</span> <span class="kn">import</span> <span class="n">deprecation_warning</span><span class="p">,</span> <span class="n">DEPRECATED_VALUE</span>
+<span class="kn">from</span> <span class="nn">ray.rllib.utils.framework</span> <span class="kn">import</span> <span class="n">try_import_tf</span>
+<span class="kn">from</span> <span class="nn">ray.rllib.utils.numpy</span> <span class="kn">import</span> <span class="n">convert_to_numpy</span><span class="p">,</span> <span class="n">make_action_immutable</span>
+<span class="kn">from</span> <span class="nn">ray.rllib.utils.spaces.space_utils</span> <span class="kn">import</span> <span class="n">clip_action</span><span class="p">,</span> <span class="n">unbatch</span><span class="p">,</span> <span class="n">unsquash_action</span>
+<span class="kn">from</span> <span class="nn">ray.rllib.utils.typing</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AgentID</span><span class="p">,</span>
+    <span class="n">EnvActionType</span><span class="p">,</span>
+    <span class="n">EnvID</span><span class="p">,</span>
+    <span class="n">EnvInfoDict</span><span class="p">,</span>
+    <span class="n">EnvObsType</span><span class="p">,</span>
+    <span class="n">MultiEnvDict</span><span class="p">,</span>
+    <span class="n">PolicyID</span><span class="p">,</span>
+    <span class="n">SampleBatchType</span><span class="p">,</span>
+    <span class="n">TensorStructType</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">ray.util.debug</span> <span class="kn">import</span> <span class="n">log_once</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">gymnasium.envs.classic_control.rendering</span> <span class="kn">import</span> <span class="n">SimpleImageViewer</span>
+
+    <span class="kn">from</span> <span class="nn">ray.rllib.algorithms.callbacks</span> <span class="kn">import</span> <span class="n">DefaultCallbacks</span>
+    <span class="kn">from</span> <span class="nn">ray.rllib.evaluation.observation_function</span> <span class="kn">import</span> <span class="n">ObservationFunction</span>
+    <span class="kn">from</span> <span class="nn">ray.rllib.evaluation.rollout_worker</span> <span class="kn">import</span> <span class="n">RolloutWorker</span>
+
+<span class="n">tf1</span><span class="p">,</span> <span class="n">tf</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">try_import_tf</span><span class="p">()</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">_PolicyEvalData</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span>
+    <span class="s2">&quot;_PolicyEvalData&quot;</span><span class="p">,</span>
+    <span class="p">[</span><span class="s2">&quot;env_id&quot;</span><span class="p">,</span> <span class="s2">&quot;agent_id&quot;</span><span class="p">,</span> <span class="s2">&quot;obs&quot;</span><span class="p">,</span> <span class="s2">&quot;info&quot;</span><span class="p">,</span> <span class="s2">&quot;rnn_state&quot;</span><span class="p">,</span> <span class="s2">&quot;prev_action&quot;</span><span class="p">,</span> <span class="s2">&quot;prev_reward&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="c1"># A batch of RNN states with dimensions [state_index, batch, state_object].</span>
+<span class="n">StateBatch</span> <span class="o">=</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]]</span>
+
+
+<span class="k">class</span> <span class="nc">_NewEpisodeDefaultDict</span><span class="p">(</span><span class="n">defaultdict</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__missing__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env_id</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_factory</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">env_id</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">env_id</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_factory</span><span class="p">(</span><span class="n">env_id</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">ret</span>
+
+
+<div class="viewcode-block" id="SamplerInput"><a class="viewcode-back" href="../../../../rllib/package_ref/doc/ray.rllib.evaluation.sampler.SamplerInput.html#ray.rllib.evaluation.sampler.SamplerInput">[docs]</a><span class="nd">@DeveloperAPI</span>
+<span class="k">class</span> <span class="nc">SamplerInput</span><span class="p">(</span><span class="n">InputReader</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Reads input experiences from an existing sampler.&quot;&quot;&quot;</span>
+
+    <span class="nd">@override</span><span class="p">(</span><span class="n">InputReader</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">next</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SampleBatchType</span><span class="p">:</span>
+        <span class="n">batches</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">()]</span>
+        <span class="n">batches</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_extra_batches</span><span class="p">())</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">batches</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;No data available from sampler.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">concat_samples</span><span class="p">(</span><span class="n">batches</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SamplerInput.get_data"><a class="viewcode-back" href="../../../../rllib/package_ref/doc/ray.rllib.evaluation.sampler.SamplerInput.get_data.html#ray.rllib.evaluation.sampler.SamplerInput.get_data">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="nd">@DeveloperAPI</span>
+    <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SampleBatchType</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Called by `self.next()` to return the next batch of data.</span>
+
+<span class="sd">        Override this in child classes.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The next batch of data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="SamplerInput.get_metrics"><a class="viewcode-back" href="../../../../rllib/package_ref/doc/ray.rllib.evaluation.sampler.SamplerInput.get_metrics.html#ray.rllib.evaluation.sampler.SamplerInput.get_metrics">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="nd">@DeveloperAPI</span>
+    <span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">RolloutMetrics</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Returns list of episode metrics since the last call to this method.</span>
+
+<span class="sd">        The list will contain one RolloutMetrics object per completed episode.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List of RolloutMetrics objects, one per completed episode since</span>
+<span class="sd">            the last call to this method.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="SamplerInput.get_extra_batches"><a class="viewcode-back" href="../../../../rllib/package_ref/doc/ray.rllib.evaluation.sampler.SamplerInput.get_extra_batches.html#ray.rllib.evaluation.sampler.SamplerInput.get_extra_batches">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="nd">@DeveloperAPI</span>
+    <span class="k">def</span> <span class="nf">get_extra_batches</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">SampleBatchType</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Returns list of extra batches since the last call to this method.</span>
+
+<span class="sd">        The list will contain all SampleBatches or</span>
+<span class="sd">        MultiAgentBatches that the user has provided thus-far. Users can</span>
+<span class="sd">        add these &quot;extra batches&quot; to an episode by calling the episode&#39;s</span>
+<span class="sd">        `add_extra_batch([SampleBatchType])` method. This can be done from</span>
+<span class="sd">        inside an overridden `Policy.compute_actions_from_input_dict(...,</span>
+<span class="sd">        episodes)` or from a custom callback&#39;s `on_episode_[start|step|end]()`</span>
+<span class="sd">        methods.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List of SamplesBatches or MultiAgentBatches provided thus-far by</span>
+<span class="sd">            the user since the last call to this method.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
+
+
+<div class="viewcode-block" id="SyncSampler"><a class="viewcode-back" href="../../../../rllib/package_ref/doc/ray.rllib.evaluation.sampler.SyncSampler.html#ray.rllib.evaluation.sampler.SyncSampler">[docs]</a><span class="nd">@DeveloperAPI</span>
+<span class="k">class</span> <span class="nc">SyncSampler</span><span class="p">(</span><span class="n">SamplerInput</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Sync SamplerInput that collects experiences when `get_data()` is called.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SyncSampler.__init__"><a class="viewcode-back" href="../../../../rllib/package_ref/doc/ray.rllib.evaluation.sampler.SyncSampler.__init__.html#ray.rllib.evaluation.sampler.SyncSampler.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">worker</span><span class="p">:</span> <span class="s2">&quot;RolloutWorker&quot;</span><span class="p">,</span>
+        <span class="n">env</span><span class="p">:</span> <span class="n">BaseEnv</span><span class="p">,</span>
+        <span class="n">clip_rewards</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+        <span class="n">rollout_fragment_length</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">count_steps_by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;env_steps&quot;</span><span class="p">,</span>
+        <span class="n">callbacks</span><span class="p">:</span> <span class="s2">&quot;DefaultCallbacks&quot;</span><span class="p">,</span>
+        <span class="n">multiple_episodes_in_batch</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">normalize_actions</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">clip_actions</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">observation_fn</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;ObservationFunction&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">sample_collector_class</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">SampleCollector</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">render</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="c1"># Obsolete.</span>
+        <span class="n">policies</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">policy_mapping_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">preprocessors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">obs_filters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">tf_sess</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">horizon</span><span class="o">=</span><span class="n">DEPRECATED_VALUE</span><span class="p">,</span>
+        <span class="n">soft_horizon</span><span class="o">=</span><span class="n">DEPRECATED_VALUE</span><span class="p">,</span>
+        <span class="n">no_done_at_end</span><span class="o">=</span><span class="n">DEPRECATED_VALUE</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes a SyncSampler instance.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            worker: The RolloutWorker that will use this Sampler for sampling.</span>
+<span class="sd">            env: Any Env object. Will be converted into an RLlib BaseEnv.</span>
+<span class="sd">            clip_rewards: True for +/-1.0 clipping,</span>
+<span class="sd">                actual float value for +/- value clipping. False for no</span>
+<span class="sd">                clipping.</span>
+<span class="sd">            rollout_fragment_length: The length of a fragment to collect</span>
+<span class="sd">                before building a SampleBatch from the data and resetting</span>
+<span class="sd">                the SampleBatchBuilder object.</span>
+<span class="sd">            count_steps_by: One of &quot;env_steps&quot; (default) or &quot;agent_steps&quot;.</span>
+<span class="sd">                Use &quot;agent_steps&quot;, if you want rollout lengths to be counted</span>
+<span class="sd">                by individual agent steps. In a multi-agent env,</span>
+<span class="sd">                a single env_step contains one or more agent_steps, depending</span>
+<span class="sd">                on how many agents are present at any given time in the</span>
+<span class="sd">                ongoing episode.</span>
+<span class="sd">            callbacks: The Callbacks object to use when episode</span>
+<span class="sd">                events happen during rollout.</span>
+<span class="sd">            multiple_episodes_in_batch: Whether to pack multiple</span>
+<span class="sd">                episodes into each batch. This guarantees batches will be</span>
+<span class="sd">                exactly `rollout_fragment_length` in size.</span>
+<span class="sd">            normalize_actions: Whether to normalize actions to the</span>
+<span class="sd">                action space&#39;s bounds.</span>
+<span class="sd">            clip_actions: Whether to clip actions according to the</span>
+<span class="sd">                given action_space&#39;s bounds.</span>
+<span class="sd">            observation_fn: Optional multi-agent observation func to use for</span>
+<span class="sd">                preprocessing observations.</span>
+<span class="sd">            sample_collector_class: An optional SampleCollector sub-class to</span>
+<span class="sd">                use to collect, store, and retrieve environment-, model-,</span>
+<span class="sd">                and sampler data.</span>
+<span class="sd">            render: Whether to try to render the environment after each step.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># All of the following arguments are deprecated. They will instead be</span>
+        <span class="c1"># provided via the passed in `worker` arg, e.g. `worker.policy_map`.</span>
+        <span class="k">if</span> <span class="n">log_once</span><span class="p">(</span><span class="s2">&quot;deprecated_sync_sampler_args&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">policies</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">deprecation_warning</span><span class="p">(</span><span class="n">old</span><span class="o">=</span><span class="s2">&quot;policies&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">policy_mapping_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">deprecation_warning</span><span class="p">(</span><span class="n">old</span><span class="o">=</span><span class="s2">&quot;policy_mapping_fn&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">preprocessors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">deprecation_warning</span><span class="p">(</span><span class="n">old</span><span class="o">=</span><span class="s2">&quot;preprocessors&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">obs_filters</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">deprecation_warning</span><span class="p">(</span><span class="n">old</span><span class="o">=</span><span class="s2">&quot;obs_filters&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">tf_sess</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">deprecation_warning</span><span class="p">(</span><span class="n">old</span><span class="o">=</span><span class="s2">&quot;tf_sess&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">horizon</span> <span class="o">!=</span> <span class="n">DEPRECATED_VALUE</span><span class="p">:</span>
+                <span class="n">deprecation_warning</span><span class="p">(</span><span class="n">old</span><span class="o">=</span><span class="s2">&quot;horizon&quot;</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">soft_horizon</span> <span class="o">!=</span> <span class="n">DEPRECATED_VALUE</span><span class="p">:</span>
+                <span class="n">deprecation_warning</span><span class="p">(</span><span class="n">old</span><span class="o">=</span><span class="s2">&quot;soft_horizon&quot;</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">no_done_at_end</span> <span class="o">!=</span> <span class="n">DEPRECATED_VALUE</span><span class="p">:</span>
+                <span class="n">deprecation_warning</span><span class="p">(</span><span class="n">old</span><span class="o">=</span><span class="s2">&quot;no_done_at_end&quot;</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_env</span> <span class="o">=</span> <span class="n">convert_to_base_env</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rollout_fragment_length</span> <span class="o">=</span> <span class="n">rollout_fragment_length</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extra_batches</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">perf_stats</span> <span class="o">=</span> <span class="n">_PerfStats</span><span class="p">(</span>
+            <span class="n">ema_coef</span><span class="o">=</span><span class="n">worker</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">sampler_perf_stats_ema_coef</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">sample_collector_class</span><span class="p">:</span>
+            <span class="n">sample_collector_class</span> <span class="o">=</span> <span class="n">SimpleListCollector</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sample_collector</span> <span class="o">=</span> <span class="n">sample_collector_class</span><span class="p">(</span>
+            <span class="n">worker</span><span class="o">.</span><span class="n">policy_map</span><span class="p">,</span>
+            <span class="n">clip_rewards</span><span class="p">,</span>
+            <span class="n">callbacks</span><span class="p">,</span>
+            <span class="n">multiple_episodes_in_batch</span><span class="p">,</span>
+            <span class="n">rollout_fragment_length</span><span class="p">,</span>
+            <span class="n">count_steps_by</span><span class="o">=</span><span class="n">count_steps_by</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">render</span> <span class="o">=</span> <span class="n">render</span>
+
+        <span class="k">if</span> <span class="n">worker</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">enable_connectors</span><span class="p">:</span>
+            <span class="c1"># Keep a reference to the underlying EnvRunnerV2 instance for</span>
+            <span class="c1"># unit testing purpose.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_env_runner_obj</span> <span class="o">=</span> <span class="n">EnvRunnerV2</span><span class="p">(</span>
+                <span class="n">worker</span><span class="o">=</span><span class="n">worker</span><span class="p">,</span>
+                <span class="n">base_env</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">base_env</span><span class="p">,</span>
+                <span class="n">multiple_episodes_in_batch</span><span class="o">=</span><span class="n">multiple_episodes_in_batch</span><span class="p">,</span>
+                <span class="n">callbacks</span><span class="o">=</span><span class="n">callbacks</span><span class="p">,</span>
+                <span class="n">perf_stats</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">perf_stats</span><span class="p">,</span>
+                <span class="n">rollout_fragment_length</span><span class="o">=</span><span class="n">rollout_fragment_length</span><span class="p">,</span>
+                <span class="n">count_steps_by</span><span class="o">=</span><span class="n">count_steps_by</span><span class="p">,</span>
+                <span class="n">render</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">render</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_env_runner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_env_runner_obj</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Create the rollout generator to use for calls to `get_data()`.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_env_runner</span> <span class="o">=</span> <span class="n">_env_runner</span><span class="p">(</span>
+                <span class="n">worker</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">base_env</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">extra_batches</span><span class="o">.</span><span class="n">put</span><span class="p">,</span>
+                <span class="n">normalize_actions</span><span class="p">,</span>
+                <span class="n">clip_actions</span><span class="p">,</span>
+                <span class="n">multiple_episodes_in_batch</span><span class="p">,</span>
+                <span class="n">callbacks</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">perf_stats</span><span class="p">,</span>
+                <span class="n">observation_fn</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sample_collector</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">render</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metrics_queue</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span></div>
+
+    <span class="nd">@override</span><span class="p">(</span><span class="n">SamplerInput</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SampleBatchType</span><span class="p">:</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_env_runner</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">RolloutMetrics</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">metrics_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">item</span>
+
+    <span class="nd">@override</span><span class="p">(</span><span class="n">SamplerInput</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">RolloutMetrics</span><span class="p">]:</span>
+        <span class="n">completed</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">completed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">metrics_queue</span><span class="o">.</span><span class="n">get_nowait</span><span class="p">()</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span>
+                        <span class="n">perf_stats</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">perf_stats</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">except</span> <span class="n">queue</span><span class="o">.</span><span class="n">Empty</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="k">return</span> <span class="n">completed</span>
+
+    <span class="nd">@override</span><span class="p">(</span><span class="n">SamplerInput</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get_extra_batches</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">SampleBatchType</span><span class="p">]:</span>
+        <span class="n">extra</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">extra</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_batches</span><span class="o">.</span><span class="n">get_nowait</span><span class="p">())</span>
+            <span class="k">except</span> <span class="n">queue</span><span class="o">.</span><span class="n">Empty</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="k">return</span> <span class="n">extra</span></div>
+
+
+<div class="viewcode-block" id="AsyncSampler"><a class="viewcode-back" href="../../../../rllib/package_ref/doc/ray.rllib.evaluation.sampler.AsyncSampler.html#ray.rllib.evaluation.sampler.AsyncSampler">[docs]</a><span class="nd">@DeveloperAPI</span>
+<span class="k">class</span> <span class="nc">AsyncSampler</span><span class="p">(</span><span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">,</span> <span class="n">SamplerInput</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Async SamplerInput that collects experiences in thread and queues them.</span>
+
+<span class="sd">    Once started, experiences are continuously collected in the background</span>
+<span class="sd">    and put into a Queue, from where they can be unqueued by the caller</span>
+<span class="sd">    of `get_data()`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="AsyncSampler.__init__"><a class="viewcode-back" href="../../../../rllib/package_ref/doc/ray.rllib.evaluation.sampler.AsyncSampler.__init__.html#ray.rllib.evaluation.sampler.AsyncSampler.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">worker</span><span class="p">:</span> <span class="s2">&quot;RolloutWorker&quot;</span><span class="p">,</span>
+        <span class="n">env</span><span class="p">:</span> <span class="n">BaseEnv</span><span class="p">,</span>
+        <span class="n">clip_rewards</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+        <span class="n">rollout_fragment_length</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">count_steps_by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;env_steps&quot;</span><span class="p">,</span>
+        <span class="n">callbacks</span><span class="p">:</span> <span class="s2">&quot;DefaultCallbacks&quot;</span><span class="p">,</span>
+        <span class="n">multiple_episodes_in_batch</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">normalize_actions</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">clip_actions</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">observation_fn</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;ObservationFunction&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">sample_collector_class</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">SampleCollector</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">render</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">blackhole_outputs</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="c1"># Obsolete.</span>
+        <span class="n">policies</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">policy_mapping_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">preprocessors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">obs_filters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">tf_sess</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">no_done_at_end</span><span class="o">=</span><span class="n">DEPRECATED_VALUE</span><span class="p">,</span>
+        <span class="n">horizon</span><span class="o">=</span><span class="n">DEPRECATED_VALUE</span><span class="p">,</span>
+        <span class="n">soft_horizon</span><span class="o">=</span><span class="n">DEPRECATED_VALUE</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes an AsyncSampler instance.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            worker: The RolloutWorker that will use this Sampler for sampling.</span>
+<span class="sd">            env: Any Env object. Will be converted into an RLlib BaseEnv.</span>
+<span class="sd">            clip_rewards: True for +/-1.0 clipping,</span>
+<span class="sd">                actual float value for +/- value clipping. False for no</span>
+<span class="sd">                clipping.</span>
+<span class="sd">            rollout_fragment_length: The length of a fragment to collect</span>
+<span class="sd">                before building a SampleBatch from the data and resetting</span>
+<span class="sd">                the SampleBatchBuilder object.</span>
+<span class="sd">            count_steps_by: One of &quot;env_steps&quot; (default) or &quot;agent_steps&quot;.</span>
+<span class="sd">                Use &quot;agent_steps&quot;, if you want rollout lengths to be counted</span>
+<span class="sd">                by individual agent steps. In a multi-agent env,</span>
+<span class="sd">                a single env_step contains one or more agent_steps, depending</span>
+<span class="sd">                on how many agents are present at any given time in the</span>
+<span class="sd">                ongoing episode.</span>
+<span class="sd">            multiple_episodes_in_batch: Whether to pack multiple</span>
+<span class="sd">                episodes into each batch. This guarantees batches will be</span>
+<span class="sd">                exactly `rollout_fragment_length` in size.</span>
+<span class="sd">            normalize_actions: Whether to normalize actions to the</span>
+<span class="sd">                action space&#39;s bounds.</span>
+<span class="sd">            clip_actions: Whether to clip actions according to the</span>
+<span class="sd">                given action_space&#39;s bounds.</span>
+<span class="sd">            blackhole_outputs: Whether to collect samples, but then</span>
+<span class="sd">                not further process or store them (throw away all samples).</span>
+<span class="sd">            observation_fn: Optional multi-agent observation func to use for</span>
+<span class="sd">                preprocessing observations.</span>
+<span class="sd">            sample_collector_class: An optional SampleCollector sub-class to</span>
+<span class="sd">                use to collect, store, and retrieve environment-, model-,</span>
+<span class="sd">                and sampler data.</span>
+<span class="sd">            render: Whether to try to render the environment after each step.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># All of the following arguments are deprecated. They will instead be</span>
+        <span class="c1"># provided via the passed in `worker` arg, e.g. `worker.policy_map`.</span>
+        <span class="k">if</span> <span class="n">log_once</span><span class="p">(</span><span class="s2">&quot;deprecated_async_sampler_args&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">policies</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">deprecation_warning</span><span class="p">(</span><span class="n">old</span><span class="o">=</span><span class="s2">&quot;policies&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">policy_mapping_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">deprecation_warning</span><span class="p">(</span><span class="n">old</span><span class="o">=</span><span class="s2">&quot;policy_mapping_fn&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">preprocessors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">deprecation_warning</span><span class="p">(</span><span class="n">old</span><span class="o">=</span><span class="s2">&quot;preprocessors&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">obs_filters</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">deprecation_warning</span><span class="p">(</span><span class="n">old</span><span class="o">=</span><span class="s2">&quot;obs_filters&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">tf_sess</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">deprecation_warning</span><span class="p">(</span><span class="n">old</span><span class="o">=</span><span class="s2">&quot;tf_sess&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">horizon</span> <span class="o">!=</span> <span class="n">DEPRECATED_VALUE</span><span class="p">:</span>
+                <span class="n">deprecation_warning</span><span class="p">(</span><span class="n">old</span><span class="o">=</span><span class="s2">&quot;horizon&quot;</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">soft_horizon</span> <span class="o">!=</span> <span class="n">DEPRECATED_VALUE</span><span class="p">:</span>
+                <span class="n">deprecation_warning</span><span class="p">(</span><span class="n">old</span><span class="o">=</span><span class="s2">&quot;soft_horizon&quot;</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">no_done_at_end</span> <span class="o">!=</span> <span class="n">DEPRECATED_VALUE</span><span class="p">:</span>
+                <span class="n">deprecation_warning</span><span class="p">(</span><span class="n">old</span><span class="o">=</span><span class="s2">&quot;no_done_at_end&quot;</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">worker</span> <span class="o">=</span> <span class="n">worker</span>
+
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">worker</span><span class="o">.</span><span class="n">filters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">assert</span> <span class="nb">getattr</span><span class="p">(</span>
+                <span class="n">f</span><span class="p">,</span> <span class="s2">&quot;is_concurrent&quot;</span><span class="p">,</span> <span class="kc">False</span>
+            <span class="p">),</span> <span class="s2">&quot;Observation Filter must support concurrent updates.&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_env</span> <span class="o">=</span> <span class="n">convert_to_base_env</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+        <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">queue</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">Queue</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extra_batches</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metrics_queue</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rollout_fragment_length</span> <span class="o">=</span> <span class="n">rollout_fragment_length</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clip_rewards</span> <span class="o">=</span> <span class="n">clip_rewards</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">daemon</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">multiple_episodes_in_batch</span> <span class="o">=</span> <span class="n">multiple_episodes_in_batch</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span> <span class="o">=</span> <span class="n">callbacks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">normalize_actions</span> <span class="o">=</span> <span class="n">normalize_actions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clip_actions</span> <span class="o">=</span> <span class="n">clip_actions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">blackhole_outputs</span> <span class="o">=</span> <span class="n">blackhole_outputs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">perf_stats</span> <span class="o">=</span> <span class="n">_PerfStats</span><span class="p">(</span>
+            <span class="n">ema_coef</span><span class="o">=</span><span class="n">worker</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">sampler_perf_stats_ema_coef</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shutdown</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">observation_fn</span> <span class="o">=</span> <span class="n">observation_fn</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">render</span> <span class="o">=</span> <span class="n">render</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">sample_collector_class</span><span class="p">:</span>
+            <span class="n">sample_collector_class</span> <span class="o">=</span> <span class="n">SimpleListCollector</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sample_collector</span> <span class="o">=</span> <span class="n">sample_collector_class</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">worker</span><span class="o">.</span><span class="n">policy_map</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clip_rewards</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">multiple_episodes_in_batch</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rollout_fragment_length</span><span class="p">,</span>
+            <span class="n">count_steps_by</span><span class="o">=</span><span class="n">count_steps_by</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">count_steps_by</span> <span class="o">=</span> <span class="n">count_steps_by</span></div>
+
+    <span class="nd">@override</span><span class="p">(</span><span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_run</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">BaseException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">e</span>
+
+    <span class="k">def</span> <span class="nf">_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># We are in a thread: Switch on eager execution mode, iff framework==tf2.</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">tf1</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">worker</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">framework_str</span> <span class="o">==</span> <span class="s2">&quot;tf2&quot;</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="n">tf1</span><span class="o">.</span><span class="n">executing_eagerly</span><span class="p">()</span>
+        <span class="p">):</span>
+            <span class="n">tf1</span><span class="o">.</span><span class="n">enable_eager_execution</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">blackhole_outputs</span><span class="p">:</span>
+            <span class="n">queue_putter</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="kc">None</span>
+            <span class="n">extra_batches_putter</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">queue_putter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">put</span>
+            <span class="n">extra_batches_putter</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_batches</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mf">600.0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">worker</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">enable_connectors</span><span class="p">:</span>
+            <span class="n">env_runner</span> <span class="o">=</span> <span class="n">EnvRunnerV2</span><span class="p">(</span>
+                <span class="n">worker</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">worker</span><span class="p">,</span>
+                <span class="n">base_env</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">base_env</span><span class="p">,</span>
+                <span class="n">multiple_episodes_in_batch</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">multiple_episodes_in_batch</span><span class="p">,</span>
+                <span class="n">callbacks</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">,</span>
+                <span class="n">perf_stats</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">perf_stats</span><span class="p">,</span>
+                <span class="n">rollout_fragment_length</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">rollout_fragment_length</span><span class="p">,</span>
+                <span class="n">count_steps_by</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">count_steps_by</span><span class="p">,</span>
+                <span class="n">render</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">render</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">env_runner</span> <span class="o">=</span> <span class="n">_env_runner</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">worker</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">base_env</span><span class="p">,</span>
+                <span class="n">extra_batches_putter</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">normalize_actions</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">clip_actions</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">multiple_episodes_in_batch</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">perf_stats</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">observation_fn</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sample_collector</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">render</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">shutdown</span><span class="p">:</span>
+            <span class="c1"># The timeout variable exists because apparently, if one worker</span>
+            <span class="c1"># dies, the other workers won&#39;t die with it, unless the timeout is</span>
+            <span class="c1"># set to some large number. This is an empirical observation.</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">env_runner</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">RolloutMetrics</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">metrics_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">queue_putter</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+    <span class="nd">@override</span><span class="p">(</span><span class="n">SamplerInput</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SampleBatchType</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_alive</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Sampling thread has died&quot;</span><span class="p">)</span>
+        <span class="n">rollout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mf">600.0</span><span class="p">)</span>
+
+        <span class="c1"># Propagate errors.</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rollout</span><span class="p">,</span> <span class="ne">BaseException</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">rollout</span>
+
+        <span class="k">return</span> <span class="n">rollout</span>
+
+    <span class="nd">@override</span><span class="p">(</span><span class="n">SamplerInput</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">RolloutMetrics</span><span class="p">]:</span>
+        <span class="n">completed</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">completed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">metrics_queue</span><span class="o">.</span><span class="n">get_nowait</span><span class="p">()</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span>
+                        <span class="n">perf_stats</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">perf_stats</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">except</span> <span class="n">queue</span><span class="o">.</span><span class="n">Empty</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="k">return</span> <span class="n">completed</span>
+
+    <span class="nd">@override</span><span class="p">(</span><span class="n">SamplerInput</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get_extra_batches</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">SampleBatchType</span><span class="p">]:</span>
+        <span class="n">extra</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">extra</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_batches</span><span class="o">.</span><span class="n">get_nowait</span><span class="p">())</span>
+            <span class="k">except</span> <span class="n">queue</span><span class="o">.</span><span class="n">Empty</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="k">return</span> <span class="n">extra</span></div>
+
+
+<span class="k">def</span> <span class="nf">_env_runner</span><span class="p">(</span>
+    <span class="n">worker</span><span class="p">:</span> <span class="s2">&quot;RolloutWorker&quot;</span><span class="p">,</span>
+    <span class="n">base_env</span><span class="p">:</span> <span class="n">BaseEnv</span><span class="p">,</span>
+    <span class="n">extra_batch_callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">SampleBatchType</span><span class="p">],</span> <span class="kc">None</span><span class="p">],</span>
+    <span class="n">normalize_actions</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">clip_actions</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">multiple_episodes_in_batch</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">callbacks</span><span class="p">:</span> <span class="s2">&quot;DefaultCallbacks&quot;</span><span class="p">,</span>
+    <span class="n">perf_stats</span><span class="p">:</span> <span class="n">_PerfStats</span><span class="p">,</span>
+    <span class="n">observation_fn</span><span class="p">:</span> <span class="s2">&quot;ObservationFunction&quot;</span><span class="p">,</span>
+    <span class="n">sample_collector</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SampleCollector</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">render</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">SampleBatchType</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;This implements the common experience collection logic.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        worker: Reference to the current rollout worker.</span>
+<span class="sd">        base_env: Env implementing BaseEnv.</span>
+<span class="sd">        extra_batch_callback: function to send extra batch data to.</span>
+<span class="sd">        multiple_episodes_in_batch: Whether to pack multiple</span>
+<span class="sd">            episodes into each batch. This guarantees batches will be exactly</span>
+<span class="sd">            `rollout_fragment_length` in size.</span>
+<span class="sd">        normalize_actions: Whether to normalize actions to the action</span>
+<span class="sd">            space&#39;s bounds.</span>
+<span class="sd">        clip_actions: Whether to clip actions to the space range.</span>
+<span class="sd">        callbacks: User callbacks to run on episode events.</span>
+<span class="sd">        perf_stats: Record perf stats into this object.</span>
+<span class="sd">        observation_fn: Optional multi-agent</span>
+<span class="sd">            observation func to use for preprocessing observations.</span>
+<span class="sd">        sample_collector: An optional</span>
+<span class="sd">            SampleCollector object to use.</span>
+<span class="sd">        render: Whether to try to render the environment after each</span>
+<span class="sd">            step.</span>
+
+<span class="sd">    Yields:</span>
+<span class="sd">        Object containing state, action, reward, terminal condition,</span>
+<span class="sd">        and other fields as dictated by `policy`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># May be populated with used for image rendering</span>
+    <span class="n">simple_image_viewer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;SimpleImageViewer&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_new_episode</span><span class="p">(</span><span class="n">env_id</span><span class="p">):</span>
+        <span class="n">episode</span> <span class="o">=</span> <span class="n">Episode</span><span class="p">(</span>
+            <span class="n">worker</span><span class="o">.</span><span class="n">policy_map</span><span class="p">,</span>
+            <span class="n">worker</span><span class="o">.</span><span class="n">policy_mapping_fn</span><span class="p">,</span>
+            <span class="c1"># SimpleListCollector will find or create a</span>
+            <span class="c1"># simple_list_collector._PolicyCollector as batch_builder</span>
+            <span class="c1"># for this episode later. Here we simply provide a None factory.</span>
+            <span class="k">lambda</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># batch_builder_factory</span>
+            <span class="n">extra_batch_callback</span><span class="p">,</span>
+            <span class="n">env_id</span><span class="o">=</span><span class="n">env_id</span><span class="p">,</span>
+            <span class="n">worker</span><span class="o">=</span><span class="n">worker</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">episode</span>
+
+    <span class="n">active_episodes</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">EnvID</span><span class="p">,</span> <span class="n">Episode</span><span class="p">]</span> <span class="o">=</span> <span class="n">_NewEpisodeDefaultDict</span><span class="p">(</span><span class="n">_new_episode</span><span class="p">)</span>
+
+    <span class="c1"># Before the very first poll (this will reset all vector sub-environments):</span>
+    <span class="c1"># Call custom `before_sub_environment_reset` callbacks for all sub-environments.</span>
+    <span class="k">for</span> <span class="n">env_id</span><span class="p">,</span> <span class="n">sub_env</span> <span class="ow">in</span> <span class="n">base_env</span><span class="o">.</span><span class="n">get_sub_environments</span><span class="p">(</span><span class="n">as_dict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">_create_episode</span><span class="p">(</span><span class="n">active_episodes</span><span class="p">,</span> <span class="n">env_id</span><span class="p">,</span> <span class="n">callbacks</span><span class="p">,</span> <span class="n">worker</span><span class="p">,</span> <span class="n">base_env</span><span class="p">)</span>
+
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">perf_stats</span><span class="o">.</span><span class="n">incr</span><span class="p">(</span><span class="s2">&quot;iters&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="c1"># Get observations from all ready agents.</span>
+        <span class="c1"># types: MultiEnvDict, MultiEnvDict, MultiEnvDict, MultiEnvDict, ...</span>
+        <span class="p">(</span>
+            <span class="n">unfiltered_obs</span><span class="p">,</span>
+            <span class="n">rewards</span><span class="p">,</span>
+            <span class="n">terminateds</span><span class="p">,</span>
+            <span class="n">truncateds</span><span class="p">,</span>
+            <span class="n">infos</span><span class="p">,</span>
+            <span class="n">off_policy_actions</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="n">base_env</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span>
+        <span class="n">env_poll_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t0</span>
+
+        <span class="k">if</span> <span class="n">log_once</span><span class="p">(</span><span class="s2">&quot;env_returns&quot;</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Raw obs from env: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">summarize</span><span class="p">(</span><span class="n">unfiltered_obs</span><span class="p">)))</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Info return from env: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">summarize</span><span class="p">(</span><span class="n">infos</span><span class="p">)))</span>
+
+        <span class="c1"># Process observations and prepare for policy evaluation.</span>
+        <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="c1"># types: Set[EnvID], Dict[PolicyID, List[_PolicyEvalData]],</span>
+        <span class="c1">#       List[Union[RolloutMetrics, SampleBatchType]]</span>
+        <span class="n">active_envs</span><span class="p">,</span> <span class="n">to_eval</span><span class="p">,</span> <span class="n">outputs</span> <span class="o">=</span> <span class="n">_process_observations</span><span class="p">(</span>
+            <span class="n">worker</span><span class="o">=</span><span class="n">worker</span><span class="p">,</span>
+            <span class="n">base_env</span><span class="o">=</span><span class="n">base_env</span><span class="p">,</span>
+            <span class="n">active_episodes</span><span class="o">=</span><span class="n">active_episodes</span><span class="p">,</span>
+            <span class="n">unfiltered_obs</span><span class="o">=</span><span class="n">unfiltered_obs</span><span class="p">,</span>
+            <span class="n">rewards</span><span class="o">=</span><span class="n">rewards</span><span class="p">,</span>
+            <span class="n">terminateds</span><span class="o">=</span><span class="n">terminateds</span><span class="p">,</span>
+            <span class="n">truncateds</span><span class="o">=</span><span class="n">truncateds</span><span class="p">,</span>
+            <span class="n">infos</span><span class="o">=</span><span class="n">infos</span><span class="p">,</span>
+            <span class="n">multiple_episodes_in_batch</span><span class="o">=</span><span class="n">multiple_episodes_in_batch</span><span class="p">,</span>
+            <span class="n">callbacks</span><span class="o">=</span><span class="n">callbacks</span><span class="p">,</span>
+            <span class="n">observation_fn</span><span class="o">=</span><span class="n">observation_fn</span><span class="p">,</span>
+            <span class="n">sample_collector</span><span class="o">=</span><span class="n">sample_collector</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">perf_stats</span><span class="o">.</span><span class="n">incr</span><span class="p">(</span><span class="s2">&quot;raw_obs_processing_time&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t1</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">outputs</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">o</span>
+
+        <span class="c1"># Do batched policy eval (accross vectorized envs).</span>
+        <span class="n">t2</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="c1"># types: Dict[PolicyID, Tuple[TensorStructType, StateBatch, dict]]</span>
+        <span class="n">eval_results</span> <span class="o">=</span> <span class="n">_do_policy_eval</span><span class="p">(</span>
+            <span class="n">to_eval</span><span class="o">=</span><span class="n">to_eval</span><span class="p">,</span>
+            <span class="n">policies</span><span class="o">=</span><span class="n">worker</span><span class="o">.</span><span class="n">policy_map</span><span class="p">,</span>
+            <span class="n">sample_collector</span><span class="o">=</span><span class="n">sample_collector</span><span class="p">,</span>
+            <span class="n">active_episodes</span><span class="o">=</span><span class="n">active_episodes</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">perf_stats</span><span class="o">.</span><span class="n">incr</span><span class="p">(</span><span class="s2">&quot;inference_time&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t2</span><span class="p">)</span>
+
+        <span class="c1"># Process results and update episode state.</span>
+        <span class="n">t3</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">actions_to_send</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span>
+            <span class="n">EnvID</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="n">AgentID</span><span class="p">,</span> <span class="n">EnvActionType</span><span class="p">]</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="n">_process_policy_eval_results</span><span class="p">(</span>
+            <span class="n">to_eval</span><span class="o">=</span><span class="n">to_eval</span><span class="p">,</span>
+            <span class="n">eval_results</span><span class="o">=</span><span class="n">eval_results</span><span class="p">,</span>
+            <span class="n">active_episodes</span><span class="o">=</span><span class="n">active_episodes</span><span class="p">,</span>
+            <span class="n">active_envs</span><span class="o">=</span><span class="n">active_envs</span><span class="p">,</span>
+            <span class="n">off_policy_actions</span><span class="o">=</span><span class="n">off_policy_actions</span><span class="p">,</span>
+            <span class="n">policies</span><span class="o">=</span><span class="n">worker</span><span class="o">.</span><span class="n">policy_map</span><span class="p">,</span>
+            <span class="n">normalize_actions</span><span class="o">=</span><span class="n">normalize_actions</span><span class="p">,</span>
+            <span class="n">clip_actions</span><span class="o">=</span><span class="n">clip_actions</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">perf_stats</span><span class="o">.</span><span class="n">incr</span><span class="p">(</span><span class="s2">&quot;action_processing_time&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t3</span><span class="p">)</span>
+
+        <span class="c1"># Return computed actions to ready envs. We also send to envs that have</span>
+        <span class="c1"># taken off-policy actions; those envs are free to ignore the action.</span>
+        <span class="n">t4</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">base_env</span><span class="o">.</span><span class="n">send_actions</span><span class="p">(</span><span class="n">actions_to_send</span><span class="p">)</span>
+        <span class="n">perf_stats</span><span class="o">.</span><span class="n">incr</span><span class="p">(</span><span class="s2">&quot;env_wait_time&quot;</span><span class="p">,</span> <span class="n">env_poll_time</span> <span class="o">+</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t4</span><span class="p">)</span>
+
+        <span class="c1"># Try to render the env, if required.</span>
+        <span class="k">if</span> <span class="n">render</span><span class="p">:</span>
+            <span class="n">t5</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="c1"># Render can either return an RGB image (uint8 [w x h x 3] numpy</span>
+            <span class="c1"># array) or take care of rendering itself (returning True).</span>
+            <span class="n">rendered</span> <span class="o">=</span> <span class="n">base_env</span><span class="o">.</span><span class="n">try_render</span><span class="p">()</span>
+            <span class="c1"># Rendering returned an image -&gt; Display it in a SimpleImageViewer.</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rendered</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">rendered</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="c1"># ImageViewer not defined yet, try to create one.</span>
+                <span class="k">if</span> <span class="n">simple_image_viewer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="kn">from</span> <span class="nn">gymnasium.envs.classic_control.rendering</span> <span class="kn">import</span> <span class="p">(</span>
+                            <span class="n">SimpleImageViewer</span><span class="p">,</span>
+                        <span class="p">)</span>
+
+                        <span class="n">simple_image_viewer</span> <span class="o">=</span> <span class="n">SimpleImageViewer</span><span class="p">()</span>
+                    <span class="k">except</span> <span class="p">(</span><span class="ne">ImportError</span><span class="p">,</span> <span class="ne">ModuleNotFoundError</span><span class="p">):</span>
+                        <span class="n">render</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># disable rendering</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                            <span class="s2">&quot;Could not import gymnasium.envs.classic_control.&quot;</span>
+                            <span class="s2">&quot;rendering! Try `pip install gymnasium[all]`.&quot;</span>
+                        <span class="p">)</span>
+                <span class="k">if</span> <span class="n">simple_image_viewer</span><span class="p">:</span>
+                    <span class="n">simple_image_viewer</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">rendered</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">rendered</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;The env&#39;s (</span><span class="si">{</span><span class="n">base_env</span><span class="si">}</span><span class="s2">) `try_render()` method returned an&quot;</span>
+                    <span class="s2">&quot; unsupported value! Make sure you either return a &quot;</span>
+                    <span class="s2">&quot;uint8/w x h x 3 (RGB) image or handle rendering in a &quot;</span>
+                    <span class="s2">&quot;window and then return `True`.&quot;</span>
+                <span class="p">)</span>
+            <span class="n">perf_stats</span><span class="o">.</span><span class="n">incr</span><span class="p">(</span><span class="s2">&quot;env_render_time&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t5</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_process_observations</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">worker</span><span class="p">:</span> <span class="s2">&quot;RolloutWorker&quot;</span><span class="p">,</span>
+    <span class="n">base_env</span><span class="p">:</span> <span class="n">BaseEnv</span><span class="p">,</span>
+    <span class="n">active_episodes</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">EnvID</span><span class="p">,</span> <span class="n">Episode</span><span class="p">],</span>
+    <span class="n">unfiltered_obs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">EnvID</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="n">AgentID</span><span class="p">,</span> <span class="n">EnvObsType</span><span class="p">]],</span>
+    <span class="n">rewards</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">EnvID</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="n">AgentID</span><span class="p">,</span> <span class="nb">float</span><span class="p">]],</span>
+    <span class="n">terminateds</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">EnvID</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="n">AgentID</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]],</span>
+    <span class="n">truncateds</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">EnvID</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="n">AgentID</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]],</span>
+    <span class="n">infos</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">EnvID</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="n">AgentID</span><span class="p">,</span> <span class="n">EnvInfoDict</span><span class="p">]],</span>
+    <span class="n">multiple_episodes_in_batch</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">callbacks</span><span class="p">:</span> <span class="s2">&quot;DefaultCallbacks&quot;</span><span class="p">,</span>
+    <span class="n">observation_fn</span><span class="p">:</span> <span class="s2">&quot;ObservationFunction&quot;</span><span class="p">,</span>
+    <span class="n">sample_collector</span><span class="p">:</span> <span class="n">SampleCollector</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span>
+    <span class="n">Set</span><span class="p">[</span><span class="n">EnvID</span><span class="p">],</span>
+    <span class="n">Dict</span><span class="p">[</span><span class="n">PolicyID</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">_PolicyEvalData</span><span class="p">]],</span>
+    <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">RolloutMetrics</span><span class="p">,</span> <span class="n">SampleBatchType</span><span class="p">]],</span>
+<span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Record new data from the environment and prepare for policy evaluation.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        worker: Reference to the current rollout worker.</span>
+<span class="sd">        base_env: Env implementing BaseEnv.</span>
+<span class="sd">        active_episodes: Mapping from</span>
+<span class="sd">            episode ID to currently ongoing Episode object.</span>
+<span class="sd">        unfiltered_obs: Doubly keyed dict of env-ids -&gt; agent ids</span>
+<span class="sd">            -&gt; unfiltered observation tensor, returned by a `BaseEnv.poll()`</span>
+<span class="sd">            call.</span>
+<span class="sd">        rewards: Doubly keyed dict of env-ids -&gt; agent ids -&gt;</span>
+<span class="sd">            rewards tensor, returned by a `BaseEnv.poll()` call.</span>
+<span class="sd">        terminateds: Doubly keyed dict of env-ids -&gt; agent ids -&gt;</span>
+<span class="sd">            boolean `terminated` flags, returned by a `BaseEnv.poll()` call.</span>
+<span class="sd">        truncateds: Doubly keyed dict of env-ids -&gt; agent ids -&gt;</span>
+<span class="sd">            boolean `truncated` flags, returned by a `BaseEnv.poll()` call.</span>
+<span class="sd">        infos: Doubly keyed dict of env-ids -&gt; agent ids -&gt;</span>
+<span class="sd">            info dicts, returned by a `BaseEnv.poll()` call.</span>
+<span class="sd">        multiple_episodes_in_batch: Whether to pack multiple</span>
+<span class="sd">            episodes into each batch. This guarantees batches will be exactly</span>
+<span class="sd">            `rollout_fragment_length` in size.</span>
+<span class="sd">        callbacks: User callbacks to run on episode events.</span>
+<span class="sd">        observation_fn: Optional multi-agent</span>
+<span class="sd">            observation func to use for preprocessing observations.</span>
+<span class="sd">        sample_collector: The SampleCollector object</span>
+<span class="sd">            used to store and retrieve environment samples.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Tuple consisting of 1) active_envs: Set of non-terminated env ids.</span>
+<span class="sd">        2) to_eval: Map of policy_id to list of agent _PolicyEvalData.</span>
+<span class="sd">        3) outputs: List of metrics and samples to return from the sampler.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Output objects.</span>
+    <span class="n">active_envs</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="n">EnvID</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">to_eval</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">PolicyID</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">_PolicyEvalData</span><span class="p">]]</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">outputs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">RolloutMetrics</span><span class="p">,</span> <span class="n">SampleBatchType</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># For each (vectorized) sub-environment.</span>
+    <span class="c1"># types: EnvID, Dict[AgentID, EnvObsType]</span>
+    <span class="k">for</span> <span class="n">env_id</span><span class="p">,</span> <span class="n">all_agents_obs</span> <span class="ow">in</span> <span class="n">unfiltered_obs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">episode</span><span class="p">:</span> <span class="n">Episode</span> <span class="o">=</span> <span class="n">active_episodes</span><span class="p">[</span><span class="n">env_id</span><span class="p">]</span>
+
+        <span class="c1"># Check for env_id having returned an error instead of a multi-agent obs dict.</span>
+        <span class="c1"># This is how our BaseEnv can tell the caller to `poll()` that one of its</span>
+        <span class="c1"># sub-environments is faulty and should be restarted (and the ongoing episode</span>
+        <span class="c1"># should not be used for training).</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">all_agents_obs</span><span class="p">,</span> <span class="ne">Exception</span><span class="p">):</span>
+            <span class="n">episode</span><span class="o">.</span><span class="n">is_faulty</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">assert</span> <span class="n">terminateds</span><span class="p">[</span><span class="n">env_id</span><span class="p">][</span><span class="s2">&quot;__all__&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">,</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;ERROR: When a sub-environment (env-id </span><span class="si">{</span><span class="n">env_id</span><span class="si">}</span><span class="s2">) returns an error as &quot;</span>
+                <span class="s2">&quot;observation, the terminateds[__all__] flag must also be set to True!&quot;</span>
+            <span class="p">)</span>
+            <span class="c1"># This will be filled with dummy observations below.</span>
+            <span class="n">all_agents_obs</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># Add init obs and infos (from the call to `reset/try_reset`) to episode.</span>
+        <span class="k">for</span> <span class="n">aid</span><span class="p">,</span> <span class="n">obs</span> <span class="ow">in</span> <span class="n">all_agents_obs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">episode</span><span class="o">.</span><span class="n">_set_last_raw_obs</span><span class="p">(</span><span class="n">aid</span><span class="p">,</span> <span class="n">obs</span><span class="p">)</span>
+        <span class="n">common_infos</span> <span class="o">=</span> <span class="n">infos</span><span class="p">[</span><span class="n">env_id</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;__common__&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">episode</span><span class="o">.</span><span class="n">_set_last_info</span><span class="p">(</span><span class="s2">&quot;__common__&quot;</span><span class="p">,</span> <span class="n">common_infos</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">aid</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">infos</span><span class="p">[</span><span class="n">env_id</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">episode</span><span class="o">.</span><span class="n">_set_last_info</span><span class="p">(</span><span class="n">aid</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+
+        <span class="c1"># Episode is brand new.</span>
+        <span class="k">if</span> <span class="n">episode</span><span class="o">.</span><span class="n">started</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="c1"># Call the episode start callback(s).</span>
+            <span class="n">_call_on_episode_start</span><span class="p">(</span><span class="n">episode</span><span class="p">,</span> <span class="n">env_id</span><span class="p">,</span> <span class="n">callbacks</span><span class="p">,</span> <span class="n">worker</span><span class="p">,</span> <span class="n">base_env</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sample_collector</span><span class="o">.</span><span class="n">episode_step</span><span class="p">(</span><span class="n">episode</span><span class="p">)</span>
+            <span class="n">episode</span><span class="o">.</span><span class="n">_add_agent_rewards</span><span class="p">(</span><span class="n">rewards</span><span class="p">[</span><span class="n">env_id</span><span class="p">])</span>
+
+        <span class="c1"># Check episode termination conditions.</span>
+        <span class="k">if</span> <span class="n">terminateds</span><span class="p">[</span><span class="n">env_id</span><span class="p">][</span><span class="s2">&quot;__all__&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">truncateds</span><span class="p">[</span><span class="n">env_id</span><span class="p">][</span><span class="s2">&quot;__all__&quot;</span><span class="p">]:</span>
+            <span class="n">all_agents_done</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="c1"># Check whether we have to create a fake-last observation</span>
+            <span class="c1"># for some agents (the environment is not required to do so if</span>
+            <span class="c1"># terminateds[__all__]=True or truncateds[__all__]=True).</span>
+            <span class="k">for</span> <span class="n">ag_id</span> <span class="ow">in</span> <span class="n">episode</span><span class="o">.</span><span class="n">get_agents</span><span class="p">():</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="ow">not</span> <span class="n">episode</span><span class="o">.</span><span class="n">last_terminated_for</span><span class="p">(</span><span class="n">ag_id</span><span class="p">)</span>
+                    <span class="ow">and</span> <span class="ow">not</span> <span class="n">episode</span><span class="o">.</span><span class="n">last_truncated_for</span><span class="p">(</span><span class="n">ag_id</span><span class="p">)</span>
+                    <span class="ow">and</span> <span class="n">ag_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">all_agents_obs</span>
+                <span class="p">):</span>
+                    <span class="c1"># Create a fake (all-0s) observation.</span>
+                    <span class="n">obs_sp</span> <span class="o">=</span> <span class="n">worker</span><span class="o">.</span><span class="n">policy_map</span><span class="p">[</span>
+                        <span class="n">episode</span><span class="o">.</span><span class="n">policy_for</span><span class="p">(</span><span class="n">ag_id</span><span class="p">)</span>
+                    <span class="p">]</span><span class="o">.</span><span class="n">observation_space</span>
+                    <span class="n">obs_sp</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obs_sp</span><span class="p">,</span> <span class="s2">&quot;original_space&quot;</span><span class="p">,</span> <span class="n">obs_sp</span><span class="p">)</span>
+                    <span class="n">all_agents_obs</span><span class="p">[</span><span class="n">ag_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">map_structure</span><span class="p">(</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">,</span> <span class="n">obs_sp</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>
+                    <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">all_agents_done</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">active_envs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">env_id</span><span class="p">)</span>
+
+        <span class="c1"># Custom observation function is applied before preprocessing.</span>
+        <span class="k">if</span> <span class="n">observation_fn</span><span class="p">:</span>
+            <span class="n">all_agents_obs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">AgentID</span><span class="p">,</span> <span class="n">EnvObsType</span><span class="p">]</span> <span class="o">=</span> <span class="n">observation_fn</span><span class="p">(</span>
+                <span class="n">agent_obs</span><span class="o">=</span><span class="n">all_agents_obs</span><span class="p">,</span>
+                <span class="n">worker</span><span class="o">=</span><span class="n">worker</span><span class="p">,</span>
+                <span class="n">base_env</span><span class="o">=</span><span class="n">base_env</span><span class="p">,</span>
+                <span class="n">policies</span><span class="o">=</span><span class="n">worker</span><span class="o">.</span><span class="n">policy_map</span><span class="p">,</span>
+                <span class="n">episode</span><span class="o">=</span><span class="n">episode</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">all_agents_obs</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;observe() must return a dict of agent observations&quot;</span><span class="p">)</span>
+
+        <span class="c1"># For each agent in the environment.</span>
+        <span class="c1"># types: AgentID, EnvObsType</span>
+        <span class="k">for</span> <span class="n">agent_id</span><span class="p">,</span> <span class="n">raw_obs</span> <span class="ow">in</span> <span class="n">all_agents_obs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">assert</span> <span class="n">agent_id</span> <span class="o">!=</span> <span class="s2">&quot;__all__&quot;</span>
+
+            <span class="n">last_observation</span><span class="p">:</span> <span class="n">EnvObsType</span> <span class="o">=</span> <span class="n">episode</span><span class="o">.</span><span class="n">last_observation_for</span><span class="p">(</span><span class="n">agent_id</span><span class="p">)</span>
+            <span class="n">agent_terminated</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span>
+                <span class="n">terminateds</span><span class="p">[</span><span class="n">env_id</span><span class="p">][</span><span class="s2">&quot;__all__&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">terminateds</span><span class="p">[</span><span class="n">env_id</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">agent_id</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">agent_truncated</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span>
+                <span class="n">truncateds</span><span class="p">[</span><span class="n">env_id</span><span class="p">][</span><span class="s2">&quot;__all__&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">truncateds</span><span class="p">[</span><span class="n">env_id</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">agent_id</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="p">)</span>
+
+            <span class="c1"># A new agent (initial obs) is already done -&gt; Skip entirely.</span>
+            <span class="k">if</span> <span class="n">last_observation</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="n">agent_terminated</span> <span class="ow">or</span> <span class="n">agent_truncated</span><span class="p">):</span>
+                <span class="k">continue</span>
+
+            <span class="n">policy_id</span><span class="p">:</span> <span class="n">PolicyID</span> <span class="o">=</span> <span class="n">episode</span><span class="o">.</span><span class="n">policy_for</span><span class="p">(</span><span class="n">agent_id</span><span class="p">)</span>
+
+            <span class="n">preprocessor</span> <span class="o">=</span> <span class="n">_get_or_raise</span><span class="p">(</span><span class="n">worker</span><span class="o">.</span><span class="n">preprocessors</span><span class="p">,</span> <span class="n">policy_id</span><span class="p">)</span>
+            <span class="n">prep_obs</span><span class="p">:</span> <span class="n">EnvObsType</span> <span class="o">=</span> <span class="n">raw_obs</span>
+            <span class="k">if</span> <span class="n">preprocessor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">prep_obs</span> <span class="o">=</span> <span class="n">preprocessor</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">raw_obs</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">log_once</span><span class="p">(</span><span class="s2">&quot;prep_obs&quot;</span><span class="p">):</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preprocessed obs: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">summarize</span><span class="p">(</span><span class="n">prep_obs</span><span class="p">)))</span>
+            <span class="n">filtered_obs</span><span class="p">:</span> <span class="n">EnvObsType</span> <span class="o">=</span> <span class="n">_get_or_raise</span><span class="p">(</span><span class="n">worker</span><span class="o">.</span><span class="n">filters</span><span class="p">,</span> <span class="n">policy_id</span><span class="p">)(</span>
+                <span class="n">prep_obs</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">log_once</span><span class="p">(</span><span class="s2">&quot;filtered_obs&quot;</span><span class="p">):</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Filtered obs: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">summarize</span><span class="p">(</span><span class="n">filtered_obs</span><span class="p">)))</span>
+
+            <span class="n">episode</span><span class="o">.</span><span class="n">_set_last_observation</span><span class="p">(</span><span class="n">agent_id</span><span class="p">,</span> <span class="n">filtered_obs</span><span class="p">)</span>
+            <span class="n">episode</span><span class="o">.</span><span class="n">_set_last_terminated</span><span class="p">(</span><span class="n">agent_id</span><span class="p">,</span> <span class="n">agent_terminated</span><span class="p">)</span>
+            <span class="n">episode</span><span class="o">.</span><span class="n">_set_last_truncated</span><span class="p">(</span><span class="n">agent_id</span><span class="p">,</span> <span class="n">agent_truncated</span><span class="p">)</span>
+            <span class="n">agent_infos</span> <span class="o">=</span> <span class="n">infos</span><span class="p">[</span><span class="n">env_id</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">agent_id</span><span class="p">,</span> <span class="p">{})</span>
+
+            <span class="c1"># Record transition info if applicable.</span>
+            <span class="k">if</span> <span class="n">last_observation</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">sample_collector</span><span class="o">.</span><span class="n">add_init_obs</span><span class="p">(</span>
+                    <span class="n">episode</span><span class="o">=</span><span class="n">episode</span><span class="p">,</span>
+                    <span class="n">agent_id</span><span class="o">=</span><span class="n">agent_id</span><span class="p">,</span>
+                    <span class="n">env_id</span><span class="o">=</span><span class="n">env_id</span><span class="p">,</span>
+                    <span class="n">policy_id</span><span class="o">=</span><span class="n">policy_id</span><span class="p">,</span>
+                    <span class="n">init_obs</span><span class="o">=</span><span class="n">filtered_obs</span><span class="p">,</span>
+                    <span class="n">init_infos</span><span class="o">=</span><span class="n">agent_infos</span><span class="p">,</span>
+                    <span class="n">t</span><span class="o">=</span><span class="n">episode</span><span class="o">.</span><span class="n">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Add actions, rewards, next-obs to collectors.</span>
+                <span class="n">values_dict</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="n">SampleBatch</span><span class="o">.</span><span class="n">T</span><span class="p">:</span> <span class="n">episode</span><span class="o">.</span><span class="n">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="n">SampleBatch</span><span class="o">.</span><span class="n">ENV_ID</span><span class="p">:</span> <span class="n">env_id</span><span class="p">,</span>
+                    <span class="n">SampleBatch</span><span class="o">.</span><span class="n">AGENT_INDEX</span><span class="p">:</span> <span class="n">episode</span><span class="o">.</span><span class="n">_agent_index</span><span class="p">(</span><span class="n">agent_id</span><span class="p">),</span>
+                    <span class="c1"># Action (slot 0) taken at timestep t.</span>
+                    <span class="n">SampleBatch</span><span class="o">.</span><span class="n">ACTIONS</span><span class="p">:</span> <span class="n">episode</span><span class="o">.</span><span class="n">last_action_for</span><span class="p">(</span><span class="n">agent_id</span><span class="p">),</span>
+                    <span class="c1"># Reward received after taking a at timestep t.</span>
+                    <span class="n">SampleBatch</span><span class="o">.</span><span class="n">REWARDS</span><span class="p">:</span> <span class="n">rewards</span><span class="p">[</span><span class="n">env_id</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">agent_id</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
+                    <span class="c1"># After taking action=a, did we terminate the episode?</span>
+                    <span class="n">SampleBatch</span><span class="o">.</span><span class="n">TERMINATEDS</span><span class="p">:</span> <span class="n">agent_terminated</span><span class="p">,</span>
+                    <span class="c1"># Was the episode truncated artificially</span>
+                    <span class="c1"># (e.g. b/c of some time limit)?</span>
+                    <span class="n">SampleBatch</span><span class="o">.</span><span class="n">TRUNCATEDS</span><span class="p">:</span> <span class="n">agent_truncated</span><span class="p">,</span>
+                    <span class="c1"># Next observation.</span>
+                    <span class="n">SampleBatch</span><span class="o">.</span><span class="n">NEXT_OBS</span><span class="p">:</span> <span class="n">filtered_obs</span><span class="p">,</span>
+                <span class="p">}</span>
+                <span class="c1"># Add extra-action-fetches (policy-inference infos) to</span>
+                <span class="c1"># collectors.</span>
+                <span class="n">pol</span> <span class="o">=</span> <span class="n">worker</span><span class="o">.</span><span class="n">policy_map</span><span class="p">[</span><span class="n">policy_id</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">episode</span><span class="o">.</span><span class="n">last_extra_action_outs_for</span><span class="p">(</span><span class="n">agent_id</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">pol</span><span class="o">.</span><span class="n">view_requirements</span><span class="p">:</span>
+                        <span class="n">values_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+                <span class="c1"># Env infos for this agent.</span>
+                <span class="k">if</span> <span class="n">SampleBatch</span><span class="o">.</span><span class="n">INFOS</span> <span class="ow">in</span> <span class="n">pol</span><span class="o">.</span><span class="n">view_requirements</span><span class="p">:</span>
+                    <span class="n">values_dict</span><span class="p">[</span><span class="n">SampleBatch</span><span class="o">.</span><span class="n">INFOS</span><span class="p">]</span> <span class="o">=</span> <span class="n">agent_infos</span>
+                <span class="n">sample_collector</span><span class="o">.</span><span class="n">add_action_reward_next_obs</span><span class="p">(</span>
+                    <span class="n">episode</span><span class="o">.</span><span class="n">episode_id</span><span class="p">,</span>
+                    <span class="n">agent_id</span><span class="p">,</span>
+                    <span class="n">env_id</span><span class="p">,</span>
+                    <span class="n">policy_id</span><span class="p">,</span>
+                    <span class="n">agent_terminated</span> <span class="ow">or</span> <span class="n">agent_truncated</span><span class="p">,</span>
+                    <span class="n">values_dict</span><span class="p">,</span>
+                <span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">agent_terminated</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">agent_truncated</span><span class="p">:</span>
+                <span class="n">item</span> <span class="o">=</span> <span class="n">_PolicyEvalData</span><span class="p">(</span>
+                    <span class="n">env_id</span><span class="p">,</span>
+                    <span class="n">agent_id</span><span class="p">,</span>
+                    <span class="n">filtered_obs</span><span class="p">,</span>
+                    <span class="n">agent_infos</span><span class="p">,</span>
+                    <span class="kc">None</span>
+                    <span class="k">if</span> <span class="n">last_observation</span> <span class="ow">is</span> <span class="kc">None</span>
+                    <span class="k">else</span> <span class="n">episode</span><span class="o">.</span><span class="n">rnn_state_for</span><span class="p">(</span><span class="n">agent_id</span><span class="p">),</span>
+                    <span class="kc">None</span>
+                    <span class="k">if</span> <span class="n">last_observation</span> <span class="ow">is</span> <span class="kc">None</span>
+                    <span class="k">else</span> <span class="n">episode</span><span class="o">.</span><span class="n">last_action_for</span><span class="p">(</span><span class="n">agent_id</span><span class="p">),</span>
+                    <span class="n">rewards</span><span class="p">[</span><span class="n">env_id</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">agent_id</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
+                <span class="p">)</span>
+                <span class="n">to_eval</span><span class="p">[</span><span class="n">policy_id</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+        <span class="c1"># Invoke the `on_episode_step` callback after the step is logged</span>
+        <span class="c1"># to the episode.</span>
+        <span class="c1"># Exception: The very first env.poll() call causes the env to get reset</span>
+        <span class="c1"># (no step taken yet, just a single starting observation logged).</span>
+        <span class="c1"># We need to skip this callback in this case.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">episode</span><span class="o">.</span><span class="n">is_faulty</span> <span class="ow">and</span> <span class="n">episode</span><span class="o">.</span><span class="n">length</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">callbacks</span><span class="o">.</span><span class="n">on_episode_step</span><span class="p">(</span>
+                <span class="n">worker</span><span class="o">=</span><span class="n">worker</span><span class="p">,</span>
+                <span class="n">base_env</span><span class="o">=</span><span class="n">base_env</span><span class="p">,</span>
+                <span class="n">policies</span><span class="o">=</span><span class="n">worker</span><span class="o">.</span><span class="n">policy_map</span><span class="p">,</span>
+                <span class="n">episode</span><span class="o">=</span><span class="n">episode</span><span class="p">,</span>
+                <span class="n">env_index</span><span class="o">=</span><span class="n">env_id</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Episode is terminated for all agents (terminateds[__all__] == True or</span>
+        <span class="c1"># truncateds[__all__] == True).</span>
+        <span class="k">if</span> <span class="n">all_agents_done</span><span class="p">:</span>
+            <span class="c1"># If, we are not allowed to pack the next episode into the same</span>
+            <span class="c1"># SampleBatch (batch_mode=complete_episodes) -&gt; Build the</span>
+            <span class="c1"># MultiAgentBatch from a single episode and add it to &quot;outputs&quot;.</span>
+            <span class="c1"># Otherwise, just postprocess and continue collecting across</span>
+            <span class="c1"># episodes.</span>
+            <span class="c1"># If an episode was marked faulty, perform regular postprocessing</span>
+            <span class="c1"># (to e.g. properly flush and clean up the SampleCollector&#39;s buffers),</span>
+            <span class="c1"># but then discard the entire batch and don&#39;t return it.</span>
+            <span class="n">ma_sample_batch</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">episode</span><span class="o">.</span><span class="n">is_faulty</span> <span class="ow">or</span> <span class="n">episode</span><span class="o">.</span><span class="n">length</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">ma_sample_batch</span> <span class="o">=</span> <span class="n">sample_collector</span><span class="o">.</span><span class="n">postprocess_episode</span><span class="p">(</span>
+                    <span class="n">episode</span><span class="p">,</span>
+                    <span class="n">is_done</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">check_dones</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">build</span><span class="o">=</span><span class="n">episode</span><span class="o">.</span><span class="n">is_faulty</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">multiple_episodes_in_batch</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">episode</span><span class="o">.</span><span class="n">is_faulty</span><span class="p">:</span>
+                <span class="c1"># Call each (in-memory) policy&#39;s Exploration.on_episode_end</span>
+                <span class="c1"># method.</span>
+                <span class="c1"># Note: This may break the exploration (e.g. ParameterNoise) of</span>
+                <span class="c1"># policies in the `policy_map` that have not been recently used</span>
+                <span class="c1"># (and are therefore stashed to disk). However, we certainly do not</span>
+                <span class="c1"># want to loop through all (even stashed) policies here as that</span>
+                <span class="c1"># would counter the purpose of the LRU policy caching.</span>
+                <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">worker</span><span class="o">.</span><span class="n">policy_map</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="s2">&quot;exploration&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">p</span><span class="o">.</span><span class="n">exploration</span><span class="o">.</span><span class="n">on_episode_end</span><span class="p">(</span>
+                            <span class="n">policy</span><span class="o">=</span><span class="n">p</span><span class="p">,</span>
+                            <span class="n">environment</span><span class="o">=</span><span class="n">base_env</span><span class="p">,</span>
+                            <span class="n">episode</span><span class="o">=</span><span class="n">episode</span><span class="p">,</span>
+                            <span class="n">tf_sess</span><span class="o">=</span><span class="n">p</span><span class="o">.</span><span class="n">get_session</span><span class="p">(),</span>
+                        <span class="p">)</span>
+                <span class="c1"># Call custom on_episode_end callback.</span>
+                <span class="n">callbacks</span><span class="o">.</span><span class="n">on_episode_end</span><span class="p">(</span>
+                    <span class="n">worker</span><span class="o">=</span><span class="n">worker</span><span class="p">,</span>
+                    <span class="n">base_env</span><span class="o">=</span><span class="n">base_env</span><span class="p">,</span>
+                    <span class="n">policies</span><span class="o">=</span><span class="n">worker</span><span class="o">.</span><span class="n">policy_map</span><span class="p">,</span>
+                    <span class="n">episode</span><span class="o">=</span><span class="n">episode</span><span class="p">,</span>
+                    <span class="n">env_index</span><span class="o">=</span><span class="n">env_id</span><span class="p">,</span>
+                <span class="p">)</span>
+
+            <span class="c1"># Now that all callbacks are done and users had the chance to add custom</span>
+            <span class="c1"># metrics based on the last observation in the episode, finish up metrics</span>
+            <span class="c1"># object and append to `outputs`.</span>
+            <span class="n">atari_metrics</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">RolloutMetrics</span><span class="p">]</span> <span class="o">=</span> <span class="n">_fetch_atari_metrics</span><span class="p">(</span><span class="n">base_env</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">episode</span><span class="o">.</span><span class="n">is_faulty</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">atari_metrics</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">atari_metrics</span><span class="p">:</span>
+                        <span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="n">m</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span>
+                                <span class="n">custom_metrics</span><span class="o">=</span><span class="n">episode</span><span class="o">.</span><span class="n">custom_metrics</span><span class="p">,</span>
+                                <span class="n">hist_data</span><span class="o">=</span><span class="n">episode</span><span class="o">.</span><span class="n">hist_data</span><span class="p">,</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">RolloutMetrics</span><span class="p">(</span>
+                            <span class="n">episode</span><span class="o">.</span><span class="n">length</span><span class="p">,</span>
+                            <span class="n">episode</span><span class="o">.</span><span class="n">total_reward</span><span class="p">,</span>
+                            <span class="nb">dict</span><span class="p">(</span><span class="n">episode</span><span class="o">.</span><span class="n">agent_rewards</span><span class="p">),</span>
+                            <span class="n">episode</span><span class="o">.</span><span class="n">custom_metrics</span><span class="p">,</span>
+                            <span class="p">{},</span>
+                            <span class="n">episode</span><span class="o">.</span><span class="n">hist_data</span><span class="p">,</span>
+                            <span class="n">episode</span><span class="o">.</span><span class="n">media</span><span class="p">,</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Add metrics about a faulty episode.</span>
+                <span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">RolloutMetrics</span><span class="p">(</span><span class="n">episode_faulty</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+
+            <span class="c1"># Only after the RolloutMetrics were appended, append the collected sample</span>
+            <span class="c1"># batch, if any.</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">episode</span><span class="o">.</span><span class="n">is_faulty</span> <span class="ow">and</span> <span class="n">ma_sample_batch</span><span class="p">:</span>
+                <span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ma_sample_batch</span><span class="p">)</span>
+
+            <span class="c1"># Terminated: Try to reset the sub environment.</span>
+            <span class="c1"># Clean up old finished episode.</span>
+            <span class="k">del</span> <span class="n">active_episodes</span><span class="p">[</span><span class="n">env_id</span><span class="p">]</span>
+
+            <span class="c1"># Create a new episode and call `on_episode_created` callback(s).</span>
+            <span class="n">_create_episode</span><span class="p">(</span><span class="n">active_episodes</span><span class="p">,</span> <span class="n">env_id</span><span class="p">,</span> <span class="n">callbacks</span><span class="p">,</span> <span class="n">worker</span><span class="p">,</span> <span class="n">base_env</span><span class="p">)</span>
+
+            <span class="c1"># The sub environment at index `env_id` might throw an exception</span>
+            <span class="c1"># during the following `try_reset()` attempt. If configured with</span>
+            <span class="c1"># `restart_failed_sub_environments=True`, the BaseEnv will restart</span>
+            <span class="c1"># the affected sub environment (create a new one using its c&#39;tor) and</span>
+            <span class="c1"># must reset the recreated sub env right after that.</span>
+            <span class="c1"># Should the sub environment fail indefinitely during these</span>
+            <span class="c1"># repeated reset attempts, the entire worker will be blocked.</span>
+            <span class="c1"># This would be ok, b/c the alternative would be the worker crashing</span>
+            <span class="c1"># entirely.</span>
+            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="n">resetted_obs</span><span class="p">,</span> <span class="n">resetted_infos</span> <span class="o">=</span> <span class="n">base_env</span><span class="o">.</span><span class="n">try_reset</span><span class="p">(</span><span class="n">env_id</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">resetted_obs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span>
+                    <span class="n">resetted_obs</span><span class="p">[</span><span class="n">env_id</span><span class="p">],</span> <span class="ne">Exception</span>
+                <span class="p">):</span>
+                    <span class="k">break</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Failed to reset, add metrics about a faulty episode.</span>
+                    <span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">RolloutMetrics</span><span class="p">(</span><span class="n">episode_faulty</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+
+            <span class="c1"># Creates a new episode if this is not async return.</span>
+            <span class="c1"># If reset is async, we will get its result in some future poll.</span>
+            <span class="k">if</span> <span class="n">resetted_obs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">resetted_obs</span> <span class="o">!=</span> <span class="n">ASYNC_RESET_RETURN</span><span class="p">:</span>
+                <span class="n">new_episode</span><span class="p">:</span> <span class="n">Episode</span> <span class="o">=</span> <span class="n">active_episodes</span><span class="p">[</span><span class="n">env_id</span><span class="p">]</span>
+
+                <span class="n">resetted_obs</span> <span class="o">=</span> <span class="n">resetted_obs</span><span class="p">[</span><span class="n">env_id</span><span class="p">]</span>
+                <span class="n">resetted_infos</span> <span class="o">=</span> <span class="n">resetted_infos</span><span class="p">[</span><span class="n">env_id</span><span class="p">]</span>
+
+                <span class="c1"># Add init obs and infos (from the call to `reset/try_reset`) to</span>
+                <span class="c1"># episode.</span>
+                <span class="k">for</span> <span class="n">aid</span><span class="p">,</span> <span class="n">obs</span> <span class="ow">in</span> <span class="n">resetted_obs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">new_episode</span><span class="o">.</span><span class="n">_set_last_raw_obs</span><span class="p">(</span><span class="n">aid</span><span class="p">,</span> <span class="n">obs</span><span class="p">)</span>
+                <span class="n">common_infos</span> <span class="o">=</span> <span class="n">resetted_infos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;__common__&quot;</span><span class="p">,</span> <span class="p">{})</span>
+                <span class="n">new_episode</span><span class="o">.</span><span class="n">_set_last_info</span><span class="p">(</span><span class="s2">&quot;__common__&quot;</span><span class="p">,</span> <span class="n">common_infos</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">aid</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">resetted_infos</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">new_episode</span><span class="o">.</span><span class="n">_set_last_info</span><span class="p">(</span><span class="n">aid</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+
+                <span class="n">_call_on_episode_start</span><span class="p">(</span><span class="n">new_episode</span><span class="p">,</span> <span class="n">env_id</span><span class="p">,</span> <span class="n">callbacks</span><span class="p">,</span> <span class="n">worker</span><span class="p">,</span> <span class="n">base_env</span><span class="p">)</span>
+
+                <span class="n">_assert_episode_not_faulty</span><span class="p">(</span><span class="n">new_episode</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">observation_fn</span><span class="p">:</span>
+                    <span class="n">resetted_obs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">AgentID</span><span class="p">,</span> <span class="n">EnvObsType</span><span class="p">]</span> <span class="o">=</span> <span class="n">observation_fn</span><span class="p">(</span>
+                        <span class="n">agent_obs</span><span class="o">=</span><span class="n">resetted_obs</span><span class="p">,</span>
+                        <span class="n">worker</span><span class="o">=</span><span class="n">worker</span><span class="p">,</span>
+                        <span class="n">base_env</span><span class="o">=</span><span class="n">base_env</span><span class="p">,</span>
+                        <span class="n">policies</span><span class="o">=</span><span class="n">worker</span><span class="o">.</span><span class="n">policy_map</span><span class="p">,</span>
+                        <span class="n">episode</span><span class="o">=</span><span class="n">new_episode</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="c1"># types: AgentID, EnvObsType</span>
+                <span class="k">for</span> <span class="n">agent_id</span><span class="p">,</span> <span class="n">raw_obs</span> <span class="ow">in</span> <span class="n">resetted_obs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">policy_id</span><span class="p">:</span> <span class="n">PolicyID</span> <span class="o">=</span> <span class="n">new_episode</span><span class="o">.</span><span class="n">policy_for</span><span class="p">(</span><span class="n">agent_id</span><span class="p">)</span>
+                    <span class="n">preproccessor</span> <span class="o">=</span> <span class="n">_get_or_raise</span><span class="p">(</span><span class="n">worker</span><span class="o">.</span><span class="n">preprocessors</span><span class="p">,</span> <span class="n">policy_id</span><span class="p">)</span>
+
+                    <span class="n">prep_obs</span><span class="p">:</span> <span class="n">EnvObsType</span> <span class="o">=</span> <span class="n">raw_obs</span>
+                    <span class="k">if</span> <span class="n">preproccessor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">prep_obs</span> <span class="o">=</span> <span class="n">preproccessor</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">raw_obs</span><span class="p">)</span>
+                    <span class="n">filtered_obs</span><span class="p">:</span> <span class="n">EnvObsType</span> <span class="o">=</span> <span class="n">_get_or_raise</span><span class="p">(</span><span class="n">worker</span><span class="o">.</span><span class="n">filters</span><span class="p">,</span> <span class="n">policy_id</span><span class="p">)(</span>
+                        <span class="n">prep_obs</span>
+                    <span class="p">)</span>
+                    <span class="n">new_episode</span><span class="o">.</span><span class="n">_set_last_observation</span><span class="p">(</span><span class="n">agent_id</span><span class="p">,</span> <span class="n">filtered_obs</span><span class="p">)</span>
+
+                    <span class="c1"># Add initial obs to buffer.</span>
+                    <span class="n">sample_collector</span><span class="o">.</span><span class="n">add_init_obs</span><span class="p">(</span>
+                        <span class="n">episode</span><span class="o">=</span><span class="n">new_episode</span><span class="p">,</span>
+                        <span class="n">agent_id</span><span class="o">=</span><span class="n">agent_id</span><span class="p">,</span>
+                        <span class="n">env_id</span><span class="o">=</span><span class="n">env_id</span><span class="p">,</span>
+                        <span class="n">policy_id</span><span class="o">=</span><span class="n">policy_id</span><span class="p">,</span>
+                        <span class="n">init_obs</span><span class="o">=</span><span class="n">filtered_obs</span><span class="p">,</span>
+                        <span class="n">init_infos</span><span class="o">=</span><span class="n">resetted_infos</span><span class="p">,</span>
+                        <span class="n">t</span><span class="o">=</span><span class="n">new_episode</span><span class="o">.</span><span class="n">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="p">)</span>
+
+                    <span class="n">item</span> <span class="o">=</span> <span class="n">_PolicyEvalData</span><span class="p">(</span>
+                        <span class="n">env_id</span><span class="p">,</span>
+                        <span class="n">agent_id</span><span class="p">,</span>
+                        <span class="n">filtered_obs</span><span class="p">,</span>
+                        <span class="n">new_episode</span><span class="o">.</span><span class="n">last_info_for</span><span class="p">(</span><span class="n">agent_id</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{},</span>
+                        <span class="n">new_episode</span><span class="o">.</span><span class="n">rnn_state_for</span><span class="p">(</span><span class="n">agent_id</span><span class="p">),</span>
+                        <span class="kc">None</span><span class="p">,</span>
+                        <span class="mf">0.0</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="n">to_eval</span><span class="p">[</span><span class="n">policy_id</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+    <span class="c1"># Try to build something.</span>
+    <span class="k">if</span> <span class="n">multiple_episodes_in_batch</span><span class="p">:</span>
+        <span class="n">sample_batches</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">sample_collector</span><span class="o">.</span><span class="n">try_build_truncated_episode_multi_agent_batch</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">sample_batches</span><span class="p">:</span>
+            <span class="n">outputs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">sample_batches</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">active_envs</span><span class="p">,</span> <span class="n">to_eval</span><span class="p">,</span> <span class="n">outputs</span>
+
+
+<span class="k">def</span> <span class="nf">_do_policy_eval</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">to_eval</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">PolicyID</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">_PolicyEvalData</span><span class="p">]],</span>
+    <span class="n">policies</span><span class="p">:</span> <span class="n">PolicyMap</span><span class="p">,</span>
+    <span class="n">sample_collector</span><span class="p">:</span> <span class="n">SampleCollector</span><span class="p">,</span>
+    <span class="n">active_episodes</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">EnvID</span><span class="p">,</span> <span class="n">Episode</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">PolicyID</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">TensorStructType</span><span class="p">,</span> <span class="n">StateBatch</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]]:</span>
+    <span class="sd">&quot;&quot;&quot;Call compute_actions on collected episode/model data to get next action.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        to_eval: Mapping of policy IDs to lists of _PolicyEvalData objects</span>
+<span class="sd">            (items in these lists will be the batch&#39;s items for the model</span>
+<span class="sd">            forward pass).</span>
+<span class="sd">        policies: Mapping from policy ID to Policy obj.</span>
+<span class="sd">        sample_collector: The SampleCollector object to use.</span>
+<span class="sd">        active_episodes: Mapping of EnvID to its currently active episode.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Dict mapping PolicyIDs to compute_actions_from_input_dict() outputs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">eval_results</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">PolicyID</span><span class="p">,</span> <span class="n">TensorStructType</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">if</span> <span class="n">log_once</span><span class="p">(</span><span class="s2">&quot;compute_actions_input&quot;</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Inputs to compute_actions():</span><span class="se">\n\n</span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">summarize</span><span class="p">(</span><span class="n">to_eval</span><span class="p">)))</span>
+
+    <span class="k">for</span> <span class="n">policy_id</span><span class="p">,</span> <span class="n">eval_data</span> <span class="ow">in</span> <span class="n">to_eval</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="c1"># In case the policyID has been removed from this worker, we need to</span>
+        <span class="c1"># re-assign policy_id and re-lookup the Policy object to use.</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">policy</span><span class="p">:</span> <span class="n">Policy</span> <span class="o">=</span> <span class="n">_get_or_raise</span><span class="p">(</span><span class="n">policies</span><span class="p">,</span> <span class="n">policy_id</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="c1"># Important: Get the policy_mapping_fn from the active</span>
+            <span class="c1"># Episode as the policy_mapping_fn from the worker may</span>
+            <span class="c1"># have already been changed (mapping fn stay constant</span>
+            <span class="c1"># within one episode).</span>
+            <span class="n">episode</span> <span class="o">=</span> <span class="n">active_episodes</span><span class="p">[</span><span class="n">eval_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">env_id</span><span class="p">]</span>
+            <span class="n">_assert_episode_not_faulty</span><span class="p">(</span><span class="n">episode</span><span class="p">)</span>
+            <span class="n">policy_id</span> <span class="o">=</span> <span class="n">episode</span><span class="o">.</span><span class="n">policy_mapping_fn</span><span class="p">(</span>
+                <span class="n">eval_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">agent_id</span><span class="p">,</span> <span class="n">episode</span><span class="p">,</span> <span class="n">worker</span><span class="o">=</span><span class="n">episode</span><span class="o">.</span><span class="n">worker</span>
+            <span class="p">)</span>
+            <span class="n">policy</span><span class="p">:</span> <span class="n">Policy</span> <span class="o">=</span> <span class="n">_get_or_raise</span><span class="p">(</span><span class="n">policies</span><span class="p">,</span> <span class="n">policy_id</span><span class="p">)</span>
+
+        <span class="n">input_dict</span> <span class="o">=</span> <span class="n">sample_collector</span><span class="o">.</span><span class="n">get_inference_input_dict</span><span class="p">(</span><span class="n">policy_id</span><span class="p">)</span>
+        <span class="n">eval_results</span><span class="p">[</span><span class="n">policy_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">policy</span><span class="o">.</span><span class="n">compute_actions_from_input_dict</span><span class="p">(</span>
+            <span class="n">input_dict</span><span class="p">,</span>
+            <span class="n">timestep</span><span class="o">=</span><span class="n">policy</span><span class="o">.</span><span class="n">global_timestep</span><span class="p">,</span>
+            <span class="n">episodes</span><span class="o">=</span><span class="p">[</span><span class="n">active_episodes</span><span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">env_id</span><span class="p">]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">eval_data</span><span class="p">],</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">log_once</span><span class="p">(</span><span class="s2">&quot;compute_actions_result&quot;</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;Outputs of compute_actions():</span><span class="se">\n\n</span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">summarize</span><span class="p">(</span><span class="n">eval_results</span><span class="p">))</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">eval_results</span>
+
+
+<span class="k">def</span> <span class="nf">_process_policy_eval_results</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">to_eval</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">PolicyID</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">_PolicyEvalData</span><span class="p">]],</span>
+    <span class="n">eval_results</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">PolicyID</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">TensorStructType</span><span class="p">,</span> <span class="n">StateBatch</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]],</span>
+    <span class="n">active_episodes</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">EnvID</span><span class="p">,</span> <span class="n">Episode</span><span class="p">],</span>
+    <span class="n">active_envs</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="n">off_policy_actions</span><span class="p">:</span> <span class="n">MultiEnvDict</span><span class="p">,</span>
+    <span class="n">policies</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">PolicyID</span><span class="p">,</span> <span class="n">Policy</span><span class="p">],</span>
+    <span class="n">normalize_actions</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">clip_actions</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">EnvID</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="n">AgentID</span><span class="p">,</span> <span class="n">EnvActionType</span><span class="p">]]:</span>
+    <span class="sd">&quot;&quot;&quot;Process the output of policy neural network evaluation.</span>
+
+<span class="sd">    Records policy evaluation results into the given episode objects and</span>
+<span class="sd">    returns replies to send back to agents in the env.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        to_eval: Mapping of policy IDs to lists of _PolicyEvalData objects.</span>
+<span class="sd">        eval_results: Mapping of policy IDs to list of</span>
+<span class="sd">            actions, rnn-out states, extra-action-fetches dicts.</span>
+<span class="sd">        active_episodes: Mapping from episode ID to currently ongoing</span>
+<span class="sd">            Episode object.</span>
+<span class="sd">        active_envs: Set of non-terminated env ids.</span>
+<span class="sd">        off_policy_actions: Doubly keyed dict of env-ids -&gt; agent ids -&gt;</span>
+<span class="sd">            off-policy-action, returned by a `BaseEnv.poll()` call.</span>
+<span class="sd">        policies: Mapping from policy ID to Policy.</span>
+<span class="sd">        normalize_actions: Whether to normalize actions to the action</span>
+<span class="sd">            space&#39;s bounds.</span>
+<span class="sd">        clip_actions: Whether to clip actions to the action space&#39;s bounds.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Nested dict of env id -&gt; agent id -&gt; actions to be sent to</span>
+<span class="sd">        Env (np.ndarrays).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">actions_to_send</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">EnvID</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="n">AgentID</span><span class="p">,</span> <span class="n">EnvActionType</span><span class="p">]]</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
+
+    <span class="c1"># types: int</span>
+    <span class="k">for</span> <span class="n">env_id</span> <span class="ow">in</span> <span class="n">active_envs</span><span class="p">:</span>
+        <span class="n">actions_to_send</span><span class="p">[</span><span class="n">env_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># at minimum send empty dict</span>
+
+    <span class="c1"># types: PolicyID, List[_PolicyEvalData]</span>
+    <span class="k">for</span> <span class="n">policy_id</span><span class="p">,</span> <span class="n">eval_data</span> <span class="ow">in</span> <span class="n">to_eval</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">actions</span><span class="p">:</span> <span class="n">TensorStructType</span> <span class="o">=</span> <span class="n">eval_results</span><span class="p">[</span><span class="n">policy_id</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">actions</span> <span class="o">=</span> <span class="n">convert_to_numpy</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
+
+        <span class="n">rnn_out_cols</span><span class="p">:</span> <span class="n">StateBatch</span> <span class="o">=</span> <span class="n">eval_results</span><span class="p">[</span><span class="n">policy_id</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">extra_action_out_cols</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">eval_results</span><span class="p">[</span><span class="n">policy_id</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
+
+        <span class="c1"># In case actions is a list (representing the 0th dim of a batch of</span>
+        <span class="c1"># primitive actions), try converting it first.</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">actions</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">actions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
+
+        <span class="c1"># Store RNN state ins/outs and extra-action fetches to episode.</span>
+        <span class="k">for</span> <span class="n">f_i</span><span class="p">,</span> <span class="n">column</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rnn_out_cols</span><span class="p">):</span>
+            <span class="n">extra_action_out_cols</span><span class="p">[</span><span class="s2">&quot;state_out_</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">f_i</span><span class="p">)]</span> <span class="o">=</span> <span class="n">column</span>
+
+        <span class="n">policy</span><span class="p">:</span> <span class="n">Policy</span> <span class="o">=</span> <span class="n">_get_or_raise</span><span class="p">(</span><span class="n">policies</span><span class="p">,</span> <span class="n">policy_id</span><span class="p">)</span>
+        <span class="c1"># Split action-component batches into single action rows.</span>
+        <span class="n">actions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">EnvActionType</span><span class="p">]</span> <span class="o">=</span> <span class="n">unbatch</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
+        <span class="c1"># types: int, EnvActionType</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">action</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">actions</span><span class="p">):</span>
+            <span class="c1"># Normalize, if necessary.</span>
+            <span class="k">if</span> <span class="n">normalize_actions</span><span class="p">:</span>
+                <span class="n">action_to_send</span> <span class="o">=</span> <span class="n">unsquash_action</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">policy</span><span class="o">.</span><span class="n">action_space_struct</span><span class="p">)</span>
+            <span class="c1"># Clip, if necessary.</span>
+            <span class="k">elif</span> <span class="n">clip_actions</span><span class="p">:</span>
+                <span class="n">action_to_send</span> <span class="o">=</span> <span class="n">clip_action</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">policy</span><span class="o">.</span><span class="n">action_space_struct</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">action_to_send</span> <span class="o">=</span> <span class="n">action</span>
+
+            <span class="n">env_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">eval_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">env_id</span>
+            <span class="n">agent_id</span><span class="p">:</span> <span class="n">AgentID</span> <span class="o">=</span> <span class="n">eval_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">agent_id</span>
+            <span class="n">episode</span><span class="p">:</span> <span class="n">Episode</span> <span class="o">=</span> <span class="n">active_episodes</span><span class="p">[</span><span class="n">env_id</span><span class="p">]</span>
+            <span class="n">_assert_episode_not_faulty</span><span class="p">(</span><span class="n">episode</span><span class="p">)</span>
+            <span class="n">episode</span><span class="o">.</span><span class="n">_set_rnn_state</span><span class="p">(</span>
+                <span class="n">agent_id</span><span class="p">,</span> <span class="n">tree</span><span class="o">.</span><span class="n">map_structure</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">rnn_out_cols</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">episode</span><span class="o">.</span><span class="n">_set_last_extra_action_outs</span><span class="p">(</span>
+                <span class="n">agent_id</span><span class="p">,</span> <span class="n">tree</span><span class="o">.</span><span class="n">map_structure</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">extra_action_out_cols</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">env_id</span> <span class="ow">in</span> <span class="n">off_policy_actions</span> <span class="ow">and</span> <span class="n">agent_id</span> <span class="ow">in</span> <span class="n">off_policy_actions</span><span class="p">[</span><span class="n">env_id</span><span class="p">]:</span>
+                <span class="n">episode</span><span class="o">.</span><span class="n">_set_last_action</span><span class="p">(</span><span class="n">agent_id</span><span class="p">,</span> <span class="n">off_policy_actions</span><span class="p">[</span><span class="n">env_id</span><span class="p">][</span><span class="n">agent_id</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">episode</span><span class="o">.</span><span class="n">_set_last_action</span><span class="p">(</span><span class="n">agent_id</span><span class="p">,</span> <span class="n">action</span><span class="p">)</span>
+
+            <span class="k">assert</span> <span class="n">agent_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">actions_to_send</span><span class="p">[</span><span class="n">env_id</span><span class="p">]</span>
+            <span class="c1"># Flag actions as immutable to notify the user when trying to change it</span>
+            <span class="c1"># and to avoid hardly traceable errors.</span>
+            <span class="n">tree</span><span class="o">.</span><span class="n">traverse</span><span class="p">(</span><span class="n">make_action_immutable</span><span class="p">,</span> <span class="n">action_to_send</span><span class="p">,</span> <span class="n">top_down</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">actions_to_send</span><span class="p">[</span><span class="n">env_id</span><span class="p">][</span><span class="n">agent_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">action_to_send</span>
+
+    <span class="k">return</span> <span class="n">actions_to_send</span>
+
+
+<span class="k">def</span> <span class="nf">_create_episode</span><span class="p">(</span><span class="n">active_episodes</span><span class="p">,</span> <span class="n">env_id</span><span class="p">,</span> <span class="n">callbacks</span><span class="p">,</span> <span class="n">worker</span><span class="p">,</span> <span class="n">base_env</span><span class="p">):</span>
+    <span class="c1"># Make sure we are really creating a new episode here.</span>
+    <span class="k">assert</span> <span class="n">env_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">active_episodes</span>
+
+    <span class="c1"># Create a new episode under the given `env_id` and call the</span>
+    <span class="c1"># `on_episode_created` callbacks.</span>
+    <span class="n">new_episode</span> <span class="o">=</span> <span class="n">active_episodes</span><span class="p">[</span><span class="n">env_id</span><span class="p">]</span>
+    <span class="c1"># Call `on_episode_created()` callback.</span>
+    <span class="n">callbacks</span><span class="o">.</span><span class="n">on_episode_created</span><span class="p">(</span>
+        <span class="n">worker</span><span class="o">=</span><span class="n">worker</span><span class="p">,</span>
+        <span class="n">base_env</span><span class="o">=</span><span class="n">base_env</span><span class="p">,</span>
+        <span class="n">policies</span><span class="o">=</span><span class="n">worker</span><span class="o">.</span><span class="n">policy_map</span><span class="p">,</span>
+        <span class="n">env_index</span><span class="o">=</span><span class="n">env_id</span><span class="p">,</span>
+        <span class="n">episode</span><span class="o">=</span><span class="n">new_episode</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">new_episode</span>
+
+
+<span class="k">def</span> <span class="nf">_call_on_episode_start</span><span class="p">(</span><span class="n">episode</span><span class="p">,</span> <span class="n">env_id</span><span class="p">,</span> <span class="n">callbacks</span><span class="p">,</span> <span class="n">worker</span><span class="p">,</span> <span class="n">base_env</span><span class="p">):</span>
+    <span class="c1"># Call each policy&#39;s Exploration.on_episode_start method.</span>
+    <span class="c1"># Note: This may break the exploration (e.g. ParameterNoise) of</span>
+    <span class="c1"># policies in the `policy_map` that have not been recently used</span>
+    <span class="c1"># (and are therefore stashed to disk). However, we certainly do not</span>
+    <span class="c1"># want to loop through all (even stashed) policies here as that</span>
+    <span class="c1"># would counter the purpose of the LRU policy caching.</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">worker</span><span class="o">.</span><span class="n">policy_map</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="s2">&quot;exploration&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">exploration</span><span class="o">.</span><span class="n">on_episode_start</span><span class="p">(</span>
+                <span class="n">policy</span><span class="o">=</span><span class="n">p</span><span class="p">,</span>
+                <span class="n">environment</span><span class="o">=</span><span class="n">base_env</span><span class="p">,</span>
+                <span class="n">episode</span><span class="o">=</span><span class="n">episode</span><span class="p">,</span>
+                <span class="n">tf_sess</span><span class="o">=</span><span class="n">p</span><span class="o">.</span><span class="n">get_session</span><span class="p">(),</span>
+            <span class="p">)</span>
+    <span class="n">callbacks</span><span class="o">.</span><span class="n">on_episode_start</span><span class="p">(</span>
+        <span class="n">worker</span><span class="o">=</span><span class="n">worker</span><span class="p">,</span>
+        <span class="n">base_env</span><span class="o">=</span><span class="n">base_env</span><span class="p">,</span>
+        <span class="n">policies</span><span class="o">=</span><span class="n">worker</span><span class="o">.</span><span class="n">policy_map</span><span class="p">,</span>
+        <span class="n">episode</span><span class="o">=</span><span class="n">episode</span><span class="p">,</span>
+        <span class="n">env_index</span><span class="o">=</span><span class="n">env_id</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">episode</span><span class="o">.</span><span class="n">started</span> <span class="o">=</span> <span class="kc">True</span>
+
+
+<span class="k">def</span> <span class="nf">_to_column_format</span><span class="p">(</span><span class="n">rnn_state_rows</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">StateBatch</span><span class="p">:</span>
+    <span class="n">num_cols</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rnn_state_rows</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">return</span> <span class="p">[[</span><span class="n">row</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rnn_state_rows</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_cols</span><span class="p">)]</span>
+
+
+<span class="k">def</span> <span class="nf">_assert_episode_not_faulty</span><span class="p">(</span><span class="n">episode</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">episode</span><span class="o">.</span><span class="n">is_faulty</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+            <span class="s2">&quot;Episodes marked as `faulty` should not be kept in the &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;`active_episodes` map! Episode ID=</span><span class="si">{</span><span class="n">episode</span><span class="o">.</span><span class="n">episode_id</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+</pre></div>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

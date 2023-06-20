@@ -1,0 +1,972 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ray.tune.schedulers.hyperband &#8212; Ray 3.0.0.dev0</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+<link href="../../../../_static/styles/pydata-sphinx-theme.css@digest=1999514e3f237ded88cf.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../../../_static/styles/sphinx-book-theme.css@digest=5115cc725059bd94278eecd172e13a965bf8f5a9.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/termynal.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../../_/static/css/badge_only.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/clipboard.min.js"></script>
+    <script src="../../../../_static/copybutton.js"></script>
+    <script src="../../../../_static/js/versionwarning.js"></script>
+    <script src="../../../../_static/togglebutton.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script defer="defer" src="../../../../_static/js/docsearch.js"></script>
+    <script src="../../../../_static/js/rate-the-docs.es.min.js"></script>
+    <script defer="defer" src="../../../../_static/js/termynal.js"></script>
+    <script defer="defer" src="../../../../_static/js/custom.js"></script>
+    <script defer="defer" src="../../../../_static/js/top-navigation.js"></script>
+    <script src="../../../../_static/js/tags.js"></script>
+    <script src="../../../../_static/tabs.js"></script>
+    <script src="../../../../_static/scripts/sphinx-book-theme.js@digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="../../../../_static/design-tabs.js"></script>
+    <script async="async" src="../../../../../../_/static/javascript/readthedocs-doc-embed.js"></script>
+    <link rel="canonical" href="https://docs.ray.io/en/latest/_modules/ray/tune/schedulers/hyperband.html" />
+    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+
+<!-- Fathom - beautiful, simple website analytics -->
+<script src="https://deer.ray.io/script.js" data-site="WYYANYOS" defer></script>
+<!-- / Fathom -->
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110413294-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-110413294-1');
+</script>
+
+<script
+  src="https://widget.kapa.ai/kapa-widget.bundle.js"
+  data-website-id="18a8c339-4ec5-43c8-8182-db3f2bc8c6b6"
+  data-project-name="Ray"
+  data-project-color="#2C2C2C"
+  data-project-logo="https://global.discourse-cdn.com/business7/uploads/ray/original/1X/8f4dcb72f7cd34e2a332d548bd65860994bc8ff1.png"
+></script>
+
+<script>
+(function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+        o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+        y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+        z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+        pendo.initialize({
+            visitor: {
+                id: 'VISITOR-UNIQUE-ID'
+            },
+            account: {
+                id: 'ACCOUNT-UNIQUE-ID'
+            }
+        });
+})('f89fa48a-6dd7-4d7c-67cf-a8051ed891f2');
+</script>
+
+
+
+  
+<!-- RTD Extra Head -->
+
+<link rel="stylesheet" href="../../../../../../_/static/css/readthedocs-doc-embed.css" type="text/css" />
+
+<script type="application/json" id="READTHEDOCS_DATA">{"ad_free": true, "api_host": "https://readthedocs.org", "builder": "sphinx", "canonical_url": null, "docroot": "/doc/source/", "features": {"docsearch_disabled": false}, "global_analytics_code": "UA-17997319-1", "language": "en", "page": "_modules/ray/tune/schedulers/hyperband", "programming_language": "py", "project": "ray", "proxied_api_host": "/_", "source_suffix": ".rst", "subprojects": {}, "theme": "sphinx_book_theme", "user_analytics_code": "", "version": "master"}</script>
+
+<!--
+Using this variable directly instead of using `JSON.parse` is deprecated.
+The READTHEDOCS_DATA global variable will be removed in the future.
+-->
+<script type="text/javascript">
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').innerHTML);
+</script>
+
+<script type="text/javascript" src="../../../../../../_/static/javascript/readthedocs-analytics.js" async="async"></script>
+
+<!-- end RTD <extrahead> -->
+</head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"><div class='topnav'></div></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../../../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">Ray 3.0.0.dev0</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main Navigation">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../../../index.html">
+                    Welcome to Ray!
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Ray
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-overview/index.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-overview/getting-started.html">
+   Getting Started
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-more-libs/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-overview/use-cases.html">
+   Use Cases
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-overview/examples.html">
+   Example Gallery
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-overview/ray-libraries.html">
+   Ecosystem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-core/walkthrough.html">
+   Ray Core
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-air/getting-started.html">
+   Ray AI Runtime (AIR)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../data/data.html">
+   Ray Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../train/train.html">
+   Ray Train
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../tune.html">
+   Ray Tune
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../serve/index.html">
+   Ray Serve
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../rllib/index.html">
+   Ray RLlib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-more-libs/index.html">
+   More Libraries
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-core/cluster/index.html">
+   Ray Clusters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-observability/index.html">
+   Monitoring and Debugging
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-references/api.html">
+   References
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../ray-contribute/stability.html">
+   Developer Guides
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/ray-project/ray"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/ray-project/ray/issues/new?title=Issue%20on%20page%20%2F_modules/ray/tune/schedulers/hyperband.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1></h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <h1>Source code for ray.tune.schedulers.hyperband</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">ray.tune.execution</span> <span class="kn">import</span> <span class="n">trial_runner</span>
+<span class="kn">from</span> <span class="nn">ray.tune.result</span> <span class="kn">import</span> <span class="n">DEFAULT_METRIC</span>
+<span class="kn">from</span> <span class="nn">ray.tune.schedulers.trial_scheduler</span> <span class="kn">import</span> <span class="n">FIFOScheduler</span><span class="p">,</span> <span class="n">TrialScheduler</span>
+<span class="kn">from</span> <span class="nn">ray.tune.experiment</span> <span class="kn">import</span> <span class="n">Trial</span>
+<span class="kn">from</span> <span class="nn">ray.tune.error</span> <span class="kn">import</span> <span class="n">TuneError</span>
+<span class="kn">from</span> <span class="nn">ray.util</span> <span class="kn">import</span> <span class="n">PublicAPI</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="c1"># Implementation notes:</span>
+<span class="c1">#    This implementation contains 3 logical levels.</span>
+<span class="c1">#    Each HyperBand iteration is a &quot;band&quot;. There can be multiple</span>
+<span class="c1">#    bands running at once, and there can be 1 band that is incomplete.</span>
+<span class="c1">#</span>
+<span class="c1">#    In each band, there are at most `s` + 1 brackets.</span>
+<span class="c1">#    `s` is a value determined by given parameters, and assigned on</span>
+<span class="c1">#    a cyclic basis.</span>
+<span class="c1">#</span>
+<span class="c1">#    In each bracket, there are at most `n(s)` trials, indicating that</span>
+<span class="c1">#    `n` is a function of `s`. These trials go through a series of</span>
+<span class="c1">#    halving procedures, dropping lowest performers. Multiple</span>
+<span class="c1">#    brackets are running at once.</span>
+<span class="c1">#</span>
+<span class="c1">#    Trials added will be inserted into the most recent bracket</span>
+<span class="c1">#    and band and will spill over to new brackets/bands accordingly.</span>
+<span class="c1">#</span>
+<span class="c1">#    This maintains the bracket size and max trial count per band</span>
+<span class="c1">#    to 5 and 117 respectively, which correspond to that of</span>
+<span class="c1">#    `max_attr=81, eta=3` from the blog post. Trials will fill up</span>
+<span class="c1">#    from smallest bracket to largest, with largest</span>
+<span class="c1">#    having the most rounds of successive halving.</span>
+<div class="viewcode-block" id="HyperBandScheduler"><a class="viewcode-back" href="../../../../tune/api/doc/ray.tune.schedulers.HyperBandScheduler.html#ray.tune.schedulers.HyperBandScheduler">[docs]</a><span class="nd">@PublicAPI</span>
+<span class="k">class</span> <span class="nc">HyperBandScheduler</span><span class="p">(</span><span class="n">FIFOScheduler</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Implements the HyperBand early stopping algorithm.</span>
+
+<span class="sd">    HyperBandScheduler early stops trials using the HyperBand optimization</span>
+<span class="sd">    algorithm. It divides trials into brackets of varying sizes, and</span>
+<span class="sd">    periodically early stops low-performing trials within each bracket.</span>
+
+<span class="sd">    To use this implementation of HyperBand with Tune, all you need</span>
+<span class="sd">    to do is specify the max length of time a trial can run `max_t`, the time</span>
+<span class="sd">    units `time_attr`, the name of the reported objective value `metric`,</span>
+<span class="sd">    and if `metric` is to be maximized or minimized (`mode`).</span>
+<span class="sd">    We automatically determine reasonable values for the other</span>
+<span class="sd">    HyperBand parameters based on the given values.</span>
+
+<span class="sd">    For example, to limit trials to 10 minutes and early stop based on the</span>
+<span class="sd">    `episode_mean_reward` attr, construct:</span>
+
+<span class="sd">    ``HyperBand(&#39;time_total_s&#39;, &#39;episode_reward_mean&#39;, max_t=600)``</span>
+
+<span class="sd">    Note that Tune&#39;s stopping criteria will be applied in conjunction with</span>
+<span class="sd">    HyperBand&#39;s early stopping mechanisms.</span>
+
+<span class="sd">    See also: https://blog.ml.cmu.edu/2018/12/12/massively-parallel-hyperparameter-optimization/</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        time_attr: The training result attr to use for comparing time.</span>
+<span class="sd">            Note that you can pass in something non-temporal such as</span>
+<span class="sd">            `training_iteration` as a measure of progress, the only requirement</span>
+<span class="sd">            is that the attribute should increase monotonically.</span>
+<span class="sd">        metric: The training result objective value attribute. Stopping</span>
+<span class="sd">            procedures will use this attribute. If None but a mode was passed,</span>
+<span class="sd">            the `ray.tune.result.DEFAULT_METRIC` will be used per default.</span>
+<span class="sd">        mode: One of {min, max}. Determines whether objective is</span>
+<span class="sd">            minimizing or maximizing the metric attribute.</span>
+<span class="sd">        max_t: max time units per trial. Trials will be stopped after</span>
+<span class="sd">            max_t time units (determined by time_attr) have passed.</span>
+<span class="sd">            The scheduler will terminate trials after this time has passed.</span>
+<span class="sd">            Note that this is different from the semantics of `max_t` as</span>
+<span class="sd">            mentioned in the original HyperBand paper.</span>
+<span class="sd">        reduction_factor: Same as `eta`. Determines how sharp</span>
+<span class="sd">            the difference is between bracket space-time allocation ratios.</span>
+<span class="sd">        stop_last_trials: Whether to terminate the trials after</span>
+<span class="sd">            reaching max_t. Defaults to True.</span>
+<span class="sd">    &quot;&quot;&quot;</span>  <span class="c1"># noqa: E501</span>
+
+    <span class="n">_supports_buffered_results</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">time_attr</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;training_iteration&quot;</span><span class="p">,</span>
+        <span class="n">metric</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">mode</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_t</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">81</span><span class="p">,</span>
+        <span class="n">reduction_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="n">stop_last_trials</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">assert</span> <span class="n">max_t</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Max (time_attr) not valid!&quot;</span>
+        <span class="k">if</span> <span class="n">mode</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;min&quot;</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">],</span> <span class="s2">&quot;`mode` must be &#39;min&#39; or &#39;max&#39;!&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_eta</span> <span class="o">=</span> <span class="n">reduction_factor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_s_max_1</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">max_t</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">reduction_factor</span><span class="p">)))</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_max_t_attr</span> <span class="o">=</span> <span class="n">max_t</span>
+        <span class="c1"># bracket max trials</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_n0</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_s_max_1</span> <span class="o">/</span> <span class="p">(</span><span class="n">s</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eta</span><span class="o">**</span><span class="n">s</span><span class="p">))</span>
+        <span class="c1"># bracket initial iterations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_r0</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="nb">int</span><span class="p">((</span><span class="n">max_t</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eta</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="n">s</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hyperbands</span> <span class="o">=</span> <span class="p">[[]]</span>  <span class="c1"># list of hyperband iterations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_trial_info</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># Stores Trial -&gt; Bracket, Band Iteration</span>
+
+        <span class="c1"># Tracks state for new trial add</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;bracket&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;band_idx&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_num_stopped</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metric</span> <span class="o">=</span> <span class="n">metric</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span> <span class="o">=</span> <span class="n">mode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metric_op</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span> <span class="o">==</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_metric_op</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span> <span class="o">==</span> <span class="s2">&quot;min&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_metric_op</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_time_attr</span> <span class="o">=</span> <span class="n">time_attr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stop_last_trials</span> <span class="o">=</span> <span class="n">stop_last_trials</span>
+
+    <span class="k">def</span> <span class="nf">set_search_properties</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">metric</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">mode</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">**</span><span class="n">spec</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metric</span> <span class="ow">and</span> <span class="n">metric</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span> <span class="ow">and</span> <span class="n">mode</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">metric</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_metric</span> <span class="o">=</span> <span class="n">metric</span>
+        <span class="k">if</span> <span class="n">mode</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span> <span class="o">=</span> <span class="n">mode</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span> <span class="o">==</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_metric_op</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span> <span class="o">==</span> <span class="s2">&quot;min&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_metric_op</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metric</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span><span class="p">:</span>
+            <span class="c1"># If only a mode was passed, use anonymous metric</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_metric</span> <span class="o">=</span> <span class="n">DEFAULT_METRIC</span>
+
+        <span class="k">return</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="HyperBandScheduler.on_trial_add"><a class="viewcode-back" href="../../../../tune/api/doc/ray.tune.schedulers.HyperBandScheduler.on_trial_add.html#ray.tune.schedulers.HyperBandScheduler.on_trial_add">[docs]</a>    <span class="k">def</span> <span class="nf">on_trial_add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trial_runner</span><span class="p">:</span> <span class="s2">&quot;trial_runner.TrialRunner&quot;</span><span class="p">,</span> <span class="n">trial</span><span class="p">:</span> <span class="n">Trial</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Adds new trial.</span>
+
+<span class="sd">        On a new trial add, if current bracket is not filled,</span>
+<span class="sd">        add to current bracket. Else, if current band is not filled,</span>
+<span class="sd">        create new bracket, add to current bracket.</span>
+<span class="sd">        Else, create new iteration, create new bracket, add to bracket.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metric</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metric_op</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> has been instantiated without a valid `metric` (</span><span class="si">{}</span><span class="s2">) or &quot;</span>
+                <span class="s2">&quot;`mode` (</span><span class="si">{}</span><span class="s2">) parameter. Either pass these parameters when &quot;</span>
+                <span class="s2">&quot;instantiating the scheduler, or pass them as parameters &quot;</span>
+                <span class="s2">&quot;to `tune.TuneConfig()`&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metric</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="n">cur_bracket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="p">[</span><span class="s2">&quot;bracket&quot;</span><span class="p">]</span>
+        <span class="n">cur_band</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hyperbands</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="p">[</span><span class="s2">&quot;band_idx&quot;</span><span class="p">]]</span>
+        <span class="k">if</span> <span class="n">cur_bracket</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">cur_bracket</span><span class="o">.</span><span class="n">filled</span><span class="p">():</span>
+            <span class="n">retry</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">while</span> <span class="n">retry</span><span class="p">:</span>
+                <span class="c1"># if current iteration is filled, create new iteration</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cur_band_filled</span><span class="p">():</span>
+                    <span class="n">cur_band</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_hyperbands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cur_band</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="p">[</span><span class="s2">&quot;band_idx&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                <span class="c1"># cur_band will always be less than s_max_1 or else filled</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">cur_band</span><span class="p">)</span>
+                <span class="k">assert</span> <span class="n">s</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_s_max_1</span><span class="p">,</span> <span class="s2">&quot;Current band is filled!&quot;</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_r0</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Bracket too small - Retrying...&quot;</span><span class="p">)</span>
+                    <span class="n">cur_bracket</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">retry</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="n">cur_bracket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_bracket</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+                <span class="n">cur_band</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cur_bracket</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="p">[</span><span class="s2">&quot;bracket&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cur_bracket</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="p">[</span><span class="s2">&quot;bracket&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">add_trial</span><span class="p">(</span><span class="n">trial</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_trial_info</span><span class="p">[</span><span class="n">trial</span><span class="p">]</span> <span class="o">=</span> <span class="n">cur_bracket</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="p">[</span><span class="s2">&quot;band_idx&quot;</span><span class="p">]</span></div>
+
+    <span class="k">def</span> <span class="nf">_create_bracket</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_Bracket</span><span class="p">(</span>
+            <span class="n">time_attr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_time_attr</span><span class="p">,</span>
+            <span class="n">max_trials</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_n0</span><span class="p">(</span><span class="n">s</span><span class="p">),</span>
+            <span class="n">init_t_attr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_r0</span><span class="p">(</span><span class="n">s</span><span class="p">),</span>
+            <span class="n">max_t_attr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_max_t_attr</span><span class="p">,</span>
+            <span class="n">eta</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_eta</span><span class="p">,</span>
+            <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span>
+            <span class="n">stop_last_trials</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_stop_last_trials</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_cur_band_filled</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Checks if the current band is filled.</span>
+
+<span class="sd">        The size of the current band should be equal to s_max_1&quot;&quot;&quot;</span>
+
+        <span class="n">cur_band</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hyperbands</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="p">[</span><span class="s2">&quot;band_idx&quot;</span><span class="p">]]</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">cur_band</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_s_max_1</span>
+
+<div class="viewcode-block" id="HyperBandScheduler.on_trial_result"><a class="viewcode-back" href="../../../../tune/api/doc/ray.tune.schedulers.HyperBandScheduler.on_trial_result.html#ray.tune.schedulers.HyperBandScheduler.on_trial_result">[docs]</a>    <span class="k">def</span> <span class="nf">on_trial_result</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">trial_runner</span><span class="p">:</span> <span class="s2">&quot;trial_runner.TrialRunner&quot;</span><span class="p">,</span> <span class="n">trial</span><span class="p">:</span> <span class="n">Trial</span><span class="p">,</span> <span class="n">result</span><span class="p">:</span> <span class="n">Dict</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;If bracket is finished, all trials will be stopped.</span>
+
+<span class="sd">        If a given trial finishes and bracket iteration is not done,</span>
+<span class="sd">        the trial will be paused and resources will be given up.</span>
+
+<span class="sd">        This scheduler will not start trials but will stop trials.</span>
+<span class="sd">        The current running trial will not be handled,</span>
+<span class="sd">        as the trialrunner will be given control to handle it.&quot;&quot;&quot;</span>
+
+        <span class="n">bracket</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trial_info</span><span class="p">[</span><span class="n">trial</span><span class="p">]</span>
+        <span class="n">bracket</span><span class="o">.</span><span class="n">update_trial_stats</span><span class="p">(</span><span class="n">trial</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">bracket</span><span class="o">.</span><span class="n">continue_trial</span><span class="p">(</span><span class="n">trial</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">TrialScheduler</span><span class="o">.</span><span class="n">CONTINUE</span>
+
+        <span class="n">action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_bracket</span><span class="p">(</span><span class="n">trial_runner</span><span class="p">,</span> <span class="n">bracket</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">action</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="n">trial</span><span class="si">}</span><span class="s2"> on &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_time_attr</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_time_attr</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">action</span></div>
+
+    <span class="k">def</span> <span class="nf">_process_bracket</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">trial_runner</span><span class="p">:</span> <span class="s2">&quot;trial_runner.TrialRunner&quot;</span><span class="p">,</span> <span class="n">bracket</span><span class="p">:</span> <span class="s2">&quot;_Bracket&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;This is called whenever a trial makes progress.</span>
+
+<span class="sd">        When all live trials in the bracket have no more iterations left,</span>
+<span class="sd">        Trials will be successively halved. If bracket is done, all</span>
+<span class="sd">        non-running trials will be stopped and cleaned up,</span>
+<span class="sd">        and during each halving phase, bad trials will be stopped while good</span>
+<span class="sd">        trials will return to &quot;PENDING&quot;.&quot;&quot;&quot;</span>
+
+        <span class="n">action</span> <span class="o">=</span> <span class="n">TrialScheduler</span><span class="o">.</span><span class="n">PAUSE</span>
+        <span class="k">if</span> <span class="n">bracket</span><span class="o">.</span><span class="n">cur_iter_done</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">bracket</span><span class="o">.</span><span class="n">finished</span><span class="p">():</span>
+                <span class="n">bracket</span><span class="o">.</span><span class="n">cleanup_full</span><span class="p">(</span><span class="n">trial_runner</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">TrialScheduler</span><span class="o">.</span><span class="n">STOP</span>
+
+            <span class="n">good</span><span class="p">,</span> <span class="n">bad</span> <span class="o">=</span> <span class="n">bracket</span><span class="o">.</span><span class="n">successive_halving</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_metric</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metric_op</span><span class="p">)</span>
+            <span class="c1"># kill bad trials</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_num_stopped</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">bad</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">bad</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">Trial</span><span class="o">.</span><span class="n">PAUSED</span><span class="p">:</span>
+                    <span class="n">trial_runner</span><span class="o">.</span><span class="n">stop_trial</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">t</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">Trial</span><span class="o">.</span><span class="n">RUNNING</span><span class="p">:</span>
+                    <span class="n">bracket</span><span class="o">.</span><span class="n">cleanup_trial</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+                    <span class="n">action</span> <span class="o">=</span> <span class="n">TrialScheduler</span><span class="o">.</span><span class="n">STOP</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">TuneError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Trial with unexpected bad status &quot;</span> <span class="sa">f</span><span class="s2">&quot;encountered: </span><span class="si">{</span><span class="n">t</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+
+            <span class="c1"># ready the good trials - if trial is too far ahead, don&#39;t continue</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">good</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">bracket</span><span class="o">.</span><span class="n">continue_trial</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+                    <span class="c1"># The scheduler should have cleaned up this trial already.</span>
+                    <span class="k">assert</span> <span class="n">t</span><span class="o">.</span><span class="n">status</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="n">Trial</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">Trial</span><span class="o">.</span><span class="n">TERMINATED</span><span class="p">),</span> <span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Good trial </span><span class="si">{</span><span class="n">t</span><span class="o">.</span><span class="n">trial_id</span><span class="si">}</span><span class="s2"> is in an invalid state: </span><span class="si">{</span><span class="n">t</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                        <span class="s2">&quot;Expected trial to be either PAUSED, PENDING, or RUNNING.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                        <span class="s2">&quot;If you encounter this, please file an issue on the Ray Github.&quot;</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">Trial</span><span class="o">.</span><span class="n">PAUSED</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_unpause_trial</span><span class="p">(</span><span class="n">trial_runner</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+                        <span class="n">trial_runner</span><span class="o">.</span><span class="n">_set_trial_status</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">Trial</span><span class="o">.</span><span class="n">PENDING</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">t</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">Trial</span><span class="o">.</span><span class="n">RUNNING</span><span class="p">:</span>
+                        <span class="n">action</span> <span class="o">=</span> <span class="n">TrialScheduler</span><span class="o">.</span><span class="n">CONTINUE</span>
+                    <span class="c1"># else: PENDING trial (from a previous unpause) should stay as is.</span>
+        <span class="k">return</span> <span class="n">action</span>
+
+    <span class="k">def</span> <span class="nf">_unpause_trial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trial_runner</span><span class="p">:</span> <span class="s2">&quot;trial_runner.TrialRunner&quot;</span><span class="p">,</span> <span class="n">trial</span><span class="p">:</span> <span class="n">Trial</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;No-op by default.&quot;&quot;&quot;</span>
+        <span class="k">return</span>
+
+<div class="viewcode-block" id="HyperBandScheduler.on_trial_remove"><a class="viewcode-back" href="../../../../tune/api/doc/ray.tune.schedulers.HyperBandScheduler.on_trial_remove.html#ray.tune.schedulers.HyperBandScheduler.on_trial_remove">[docs]</a>    <span class="k">def</span> <span class="nf">on_trial_remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trial_runner</span><span class="p">:</span> <span class="s2">&quot;trial_runner.TrialRunner&quot;</span><span class="p">,</span> <span class="n">trial</span><span class="p">:</span> <span class="n">Trial</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Notification when trial terminates.</span>
+
+<span class="sd">        Trial info is removed from bracket. Triggers halving if bracket is</span>
+<span class="sd">        not finished.&quot;&quot;&quot;</span>
+        <span class="n">bracket</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trial_info</span><span class="p">[</span><span class="n">trial</span><span class="p">]</span>
+        <span class="n">bracket</span><span class="o">.</span><span class="n">cleanup_trial</span><span class="p">(</span><span class="n">trial</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">bracket</span><span class="o">.</span><span class="n">finished</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_process_bracket</span><span class="p">(</span><span class="n">trial_runner</span><span class="p">,</span> <span class="n">bracket</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="HyperBandScheduler.on_trial_complete"><a class="viewcode-back" href="../../../../tune/api/doc/ray.tune.schedulers.HyperBandScheduler.on_trial_complete.html#ray.tune.schedulers.HyperBandScheduler.on_trial_complete">[docs]</a>    <span class="k">def</span> <span class="nf">on_trial_complete</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">trial_runner</span><span class="p">:</span> <span class="s2">&quot;trial_runner.TrialRunner&quot;</span><span class="p">,</span> <span class="n">trial</span><span class="p">:</span> <span class="n">Trial</span><span class="p">,</span> <span class="n">result</span><span class="p">:</span> <span class="n">Dict</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Cleans up trial info from bracket if trial completed early.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">on_trial_remove</span><span class="p">(</span><span class="n">trial_runner</span><span class="p">,</span> <span class="n">trial</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="HyperBandScheduler.on_trial_error"><a class="viewcode-back" href="../../../../tune/api/doc/ray.tune.schedulers.HyperBandScheduler.on_trial_error.html#ray.tune.schedulers.HyperBandScheduler.on_trial_error">[docs]</a>    <span class="k">def</span> <span class="nf">on_trial_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trial_runner</span><span class="p">:</span> <span class="s2">&quot;trial_runner.TrialRunner&quot;</span><span class="p">,</span> <span class="n">trial</span><span class="p">:</span> <span class="n">Trial</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Cleans up trial info from bracket if trial errored early.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">on_trial_remove</span><span class="p">(</span><span class="n">trial_runner</span><span class="p">,</span> <span class="n">trial</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="HyperBandScheduler.choose_trial_to_run"><a class="viewcode-back" href="../../../../tune/api/doc/ray.tune.schedulers.HyperBandScheduler.choose_trial_to_run.html#ray.tune.schedulers.HyperBandScheduler.choose_trial_to_run">[docs]</a>    <span class="k">def</span> <span class="nf">choose_trial_to_run</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">trial_runner</span><span class="p">:</span> <span class="s2">&quot;trial_runner.TrialRunner&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Trial</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Fair scheduling within iteration by completion percentage.</span>
+
+<span class="sd">        List of trials not used since all trials are tracked as state</span>
+<span class="sd">        of scheduler. If iteration is occupied (ie, no trials to run),</span>
+<span class="sd">        then look into next iteration.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">hyperband</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hyperbands</span><span class="p">:</span>
+            <span class="c1"># band will have None entries if no resources</span>
+            <span class="c1"># are to be allocated to that bracket.</span>
+            <span class="n">scrubbed</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">hyperband</span> <span class="k">if</span> <span class="n">b</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">bracket</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">scrubbed</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">b</span><span class="p">:</span> <span class="n">b</span><span class="o">.</span><span class="n">completion_percentage</span><span class="p">()):</span>
+                <span class="k">for</span> <span class="n">trial</span> <span class="ow">in</span> <span class="n">bracket</span><span class="o">.</span><span class="n">current_trials</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="n">trial</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">Trial</span><span class="o">.</span><span class="n">PENDING</span>
+                        <span class="ow">and</span> <span class="n">trial_runner</span><span class="o">.</span><span class="n">trial_executor</span><span class="o">.</span><span class="n">has_resources_for_trial</span><span class="p">(</span><span class="n">trial</span><span class="p">)</span>
+                    <span class="p">):</span>
+                        <span class="k">return</span> <span class="n">trial</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="HyperBandScheduler.debug_string"><a class="viewcode-back" href="../../../../tune/api/doc/ray.tune.schedulers.HyperBandScheduler.debug_string.html#ray.tune.schedulers.HyperBandScheduler.debug_string">[docs]</a>    <span class="k">def</span> <span class="nf">debug_string</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;This provides a progress notification for the algorithm.</span>
+
+<span class="sd">        For each bracket, the algorithm will output a string as follows:</span>
+
+<span class="sd">            Bracket(Max Size (n)=5, Milestone (r)=33, completed=14.6%):</span>
+<span class="sd">            {PENDING: 2, RUNNING: 3, TERMINATED: 2}</span>
+
+<span class="sd">        &quot;Max Size&quot; indicates the max number of pending/running experiments</span>
+<span class="sd">        set according to the Hyperband algorithm.</span>
+
+<span class="sd">        &quot;Milestone&quot; indicates the iterations a trial will run for before</span>
+<span class="sd">        the next halving will occur.</span>
+
+<span class="sd">        &quot;Completed&quot; indicates an approximate progress metric. Some brackets,</span>
+<span class="sd">        like ones that are unfilled, will not reach 100%.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="s2">&quot;Using HyperBand: &quot;</span>
+        <span class="n">out</span> <span class="o">+=</span> <span class="s2">&quot;num_stopped=</span><span class="si">{}</span><span class="s2"> total_brackets=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_num_stopped</span><span class="p">,</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">band</span><span class="p">)</span> <span class="k">for</span> <span class="n">band</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hyperbands</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">band</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_hyperbands</span><span class="p">):</span>
+            <span class="n">out</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Round #</span><span class="si">{}</span><span class="s2">:&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">bracket</span> <span class="ow">in</span> <span class="n">band</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">bracket</span><span class="p">:</span>
+                    <span class="n">out</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">  </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bracket</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span></div>
+
+    <span class="k">def</span> <span class="nf">state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;num_brackets&quot;</span><span class="p">:</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">band</span><span class="p">)</span> <span class="k">for</span> <span class="n">band</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hyperbands</span><span class="p">),</span>
+            <span class="s2">&quot;num_stopped&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_stopped</span><span class="p">,</span>
+        <span class="p">}</span></div>
+
+
+<span class="k">class</span> <span class="nc">_Bracket</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Logical object for tracking Hyperband bracket progress. Keeps track</span>
+<span class="sd">    of proper parameters as designated by HyperBand.</span>
+
+<span class="sd">    Also keeps track of progress to ensure good scheduling.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">time_attr</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">max_trials</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">init_t_attr</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">max_t_attr</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">eta</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">s</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">stop_last_trials</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_live_trials</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># maps trial -&gt; current result</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_all_trials</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_time_attr</span> <span class="o">=</span> <span class="n">time_attr</span>  <span class="c1"># attribute to</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n0</span> <span class="o">=</span> <span class="n">max_trials</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_r0</span> <span class="o">=</span> <span class="n">init_t_attr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_max_t_attr</span> <span class="o">=</span> <span class="n">max_t_attr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cumul_r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_r0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_eta</span> <span class="o">=</span> <span class="n">eta</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_halves</span> <span class="o">=</span> <span class="n">s</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_total_work</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_total_work</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_n0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_r0</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_completed_progress</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stop_last_trials</span> <span class="o">=</span> <span class="n">stop_last_trials</span>
+
+    <span class="k">def</span> <span class="nf">add_trial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trial</span><span class="p">:</span> <span class="n">Trial</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add trial to bracket assuming bracket is not filled.</span>
+
+<span class="sd">        At a later iteration, a newly added trial will be given equal</span>
+<span class="sd">        opportunity to catch up.&quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">filled</span><span class="p">(),</span> <span class="s2">&quot;Cannot add trial to filled bracket!&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_live_trials</span><span class="p">[</span><span class="n">trial</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_all_trials</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">trial</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">cur_iter_done</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Checks if all iterations have completed.</span>
+
+<span class="sd">        TODO(rliaw): also check that `t.iterations == self._r`&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">all</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_result_time</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cumul_r</span>
+            <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_live_trials</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">finished</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop_last_trials</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_halves</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">cur_iter_done</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">current_trials</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Trial</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_live_trials</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">continue_trial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trial</span><span class="p">:</span> <span class="n">Trial</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_live_trials</span><span class="p">[</span><span class="n">trial</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop_last_trials</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_halves</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_result_time</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cumul_r</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">filled</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Checks if bracket is filled.</span>
+
+<span class="sd">        Only let new trials be added at current level minimizing the need</span>
+<span class="sd">        to backtrack and bookkeep previous medians.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_live_trials</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n</span>
+
+    <span class="k">def</span> <span class="nf">successive_halving</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">metric</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metric_op</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Trial</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">Trial</span><span class="p">]]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_halves</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop_last_trials</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_live_trials</span><span class="p">,</span> <span class="p">[]</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_halves</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_halves</span> <span class="o">-=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_n</span> <span class="o">/=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eta</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_n</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_r</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eta</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_r</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_r</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max_t_attr</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cumul_r</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cumul_r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_r</span>
+        <span class="n">sorted_trials</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_live_trials</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">metric_op</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_live_trials</span><span class="p">[</span><span class="n">t</span><span class="p">][</span><span class="n">metric</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="n">good</span><span class="p">,</span> <span class="n">bad</span> <span class="o">=</span> <span class="n">sorted_trials</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">_n</span> <span class="p">:],</span> <span class="n">sorted_trials</span><span class="p">[:</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">_n</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">good</span><span class="p">,</span> <span class="n">bad</span>
+
+    <span class="k">def</span> <span class="nf">update_trial_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trial</span><span class="p">:</span> <span class="n">Trial</span><span class="p">,</span> <span class="n">result</span><span class="p">:</span> <span class="n">Dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Update result for trial. Called after trial has finished</span>
+<span class="sd">        an iteration - will decrement iteration count.</span>
+
+<span class="sd">        TODO(rliaw): The other alternative is to keep the trials</span>
+<span class="sd">        in and make sure they&#39;re not set as pending later.&quot;&quot;&quot;</span>
+
+        <span class="k">assert</span> <span class="n">trial</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_live_trials</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_result_time</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+        <span class="n">observed_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_result_time</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="n">last_observed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_result_time</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_live_trials</span><span class="p">[</span><span class="n">trial</span><span class="p">])</span>
+
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">observed_time</span> <span class="o">-</span> <span class="n">last_observed</span>
+        <span class="k">if</span> <span class="n">delta</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;Restoring from a previous point in time. &quot;</span>
+                <span class="s2">&quot;Previous=</span><span class="si">{}</span><span class="s2">; Now=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">last_observed</span><span class="p">,</span> <span class="n">observed_time</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_completed_progress</span> <span class="o">+=</span> <span class="n">delta</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_live_trials</span><span class="p">[</span><span class="n">trial</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span>
+
+    <span class="k">def</span> <span class="nf">cleanup_trial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trial</span><span class="p">:</span> <span class="n">Trial</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Clean up statistics tracking for terminated trials (either by force</span>
+<span class="sd">        or otherwise).</span>
+
+<span class="sd">        This may cause bad trials to continue for a long time, in the case</span>
+<span class="sd">        where all the good trials finish early and there are only bad trials</span>
+<span class="sd">        left in a bracket with a large max-iteration.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_live_trials</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">trial</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">cleanup_full</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trial_runner</span><span class="p">:</span> <span class="s2">&quot;trial_runner.TrialRunner&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Cleans up bracket after bracket is completely finished.</span>
+
+<span class="sd">        Lets the last trial continue to run until termination condition</span>
+<span class="sd">        kicks in.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">trial</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_trials</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">trial</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">Trial</span><span class="o">.</span><span class="n">PAUSED</span><span class="p">:</span>
+                <span class="n">trial_runner</span><span class="o">.</span><span class="n">stop_trial</span><span class="p">(</span><span class="n">trial</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">completion_percentage</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Returns a progress metric.</span>
+
+<span class="sd">        This will not be always finish with 100 since dead trials</span>
+<span class="sd">        are dropped.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">finished</span><span class="p">():</span>
+            <span class="k">return</span> <span class="mf">1.0</span>
+        <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_completed_progress</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_total_work</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_result_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_time_attr</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_calculate_total_work</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="n">work</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">cumulative_r</span> <span class="o">=</span> <span class="n">r</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">s</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">work</span> <span class="o">+=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+            <span class="n">n</span> <span class="o">/=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eta</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
+            <span class="n">r</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eta</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max_t_attr</span> <span class="o">-</span> <span class="n">cumulative_r</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">work</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="s2">&quot;Max Size (n)=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_n</span><span class="p">),</span>
+                <span class="s2">&quot;Milestone (r)=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cumul_r</span><span class="p">),</span>
+                <span class="s2">&quot;completed=</span><span class="si">{:.1%}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">completion_percentage</span><span class="p">()),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">counts</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">Counter</span><span class="p">([</span><span class="n">t</span><span class="o">.</span><span class="n">status</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_trials</span><span class="p">])</span>
+        <span class="n">trial_statuses</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="nb">sorted</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">counts</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;Bracket(</span><span class="si">{}</span><span class="s2">): {{</span><span class="si">{}</span><span class="s2">}} &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">trial_statuses</span><span class="p">)</span>
+</pre></div>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Ray Team<br/>
+  
+      &copy; Copyright 2023, The Ray Team.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/pydata-sphinx-theme.js@digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>
