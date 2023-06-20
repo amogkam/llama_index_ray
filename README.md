@@ -37,7 +37,7 @@ Using Ray Serve, we can deploy this app so that we can send it query requests. F
 
 `serve run deploy_app:deployment`
 
-## Step 3: Query the application
+### Step 3: Query the application
 
 Finally, we can query the application. We provide a simple query script: `query.py`.
 
