@@ -5,7 +5,7 @@ An example on how to use LlamaIndex with Ray for productionizing LLM application
 
 [LlamaIndex](https://gpt-index.readthedocs.io/en/latest/) is a data framework for building LLM applications. It provides abstractions for ingesting data from various sources, data structures for storing and indexing data, and a retrieval and query interface.
 
-[Ray] is A general-purpose, open source, distributed compute framework for scaling AI applications in native-Python.
+[Ray](https://docs.ray.io/en/latest/) is A general-purpose, open source, distributed compute framework for scaling AI applications in native-Python.
 
 By using Ray with LlamaIndex, we can easily build production-quality LLM applications that can scale out to large amounts of data.
 
