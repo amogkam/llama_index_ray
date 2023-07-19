@@ -13,7 +13,7 @@ if "OPENAI_API_KEY" not in os.environ:
 UnstructuredReader = download_loader("UnstructuredReader")
 loader = UnstructuredReader()
 
-def load_and_parse_files(file_row: Dict[str, Path]) -> Dict[str, Document]:
+def load_and_parse_files(file_row: Dict[str, Path]) -> List[Dict[str, Document]]:
     documents = []
     file = file_row["path"]
     if file.is_dir():
@@ -30,7 +30,7 @@ def load_and_parse_files(file_row: Dict[str, Path]) -> Dict[str, Document]:
 from llama_index.node_parser import SimpleNodeParser
 from llama_index.data_structs import Node
 
-def convert_documents_into_nodes(documents: Dict[str, Document]) -> Dict[str, Node]:
+def convert_documents_into_nodes(documents: Dict[str, Document]) -> List[Dict[str, Node]]:
     parser = SimpleNodeParser()
     document = documents["doc"]
     nodes = parser.get_nodes_from_documents([document])
